@@ -1,15 +1,25 @@
-{% extends 'base.html' %}
+{% extends 'header-main-footer.html' %}
 
-{% block title %}{{ text.title }}{% endblock %}
+{% macro section_grid(sections) %}
+<ul class="grid grid-cols-10 gap-4 my-8">
+{% for s in sections %}
+  <li><a class="text-center block hover:underline"
+        href="{{ s.url }}">{{ s.title }}
+  </a></li>
+{% endfor %}
+</ul>
+{% endmacro %}
 
-{% block body %}
-<body>
-    <h1>{{ text.title }}</h1>
+{% block title %}{{ text.title | devanagari }}{% endblock %}
 
-    <ul>
-        {% for section in text.sections %}
-        <li><a href="{{ section.url }}">{{ section.title }}</a></li>
-        {% endfor %}
-    </ul>
-</body>
+{% block main %}
+<main class="max-w-xl mx-auto my-24">
+<h1 class="text-center font-bold text-4xl x-deva">
+    {{ text.title | devanagari }}
+</h1>
+
+{% for prefix, sections in section_groups.items() %}
+{{ section_grid(sections) }}
+{% endfor %}
+</main>
 {% endblock %}

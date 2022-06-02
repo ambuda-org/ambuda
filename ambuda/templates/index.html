@@ -1,15 +1,14 @@
-{% extends 'base.html' %}
+{% extends 'header-main-footer.html' %}
 
 {% block title %}Ambuda{% endblock %}
 
-{% block body %}
-<body>
-    <h1>Ambuda</h1>
-
-    <ul>
-    {% for text in texts %}
-    <li><a href="{{ text.url }}">{{ text.title }}</a></li>
-    {% endfor %}
-    </ul> 
-</body>
+{% block main %}
+<main class="max-w-xl mx-auto my-24">
+  <h1 class="font-bold text-xl">Texts</h1>
+  <ul>
+  {% for text in texts %}
+  <li><a href="{{ text.url }}">{{ text.title | devanagari }}</a></li>
+  {% endfor %}
+  </ul> 
+</main>
 {% endblock %}

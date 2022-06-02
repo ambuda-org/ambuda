@@ -10,7 +10,7 @@ from pathlib import Path
 import requests
 
 
-BASE_URL = "https://bombay.indology.info/ramayana/text/UD/Ram0{n}.txt"
+BASE_URL = "https://bombay.indology.info/ramayana/text/ASCII/Ram0{n}.txt"
 
 
 @dataclass
@@ -55,6 +55,8 @@ def iter_lines(raw: str):
         verse = m.group(3)
         pada = m.group(4)
         text = m.group(5)
+
+        text = text.replace(';', '')
 
         yield Line(
             kanda=int(kanda),

@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from xml.etree import ElementTree as ET
-from typing import Dict, Any, Optional
+from typing import Optional
+
+from indic_transliteration import sanscript
 
 
 @dataclass
@@ -33,4 +35,6 @@ def transform(blob: str) -> str:
         rule = transforms[elem.tag]
         elem.tag = rule.tag
         elem.attrib = rule.attrib
+        elem.text = sanscript.transliterate(elem.text,
+                sanscript.HK, sanscript.DEVANAGARI)
     return ET.tostring(root, encoding="utf-8").decode("utf-8")

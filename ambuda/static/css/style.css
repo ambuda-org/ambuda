@@ -3,6 +3,12 @@
 @import "tailwindcss/utilities";
 
 @layer components {
+  .x-deva {
+    font-family: "Sanskrit 2003";
+  }
+  .x-verse {
+    @apply x-deva text-2xl leading-normal;
+  }
   .x-pada {
     @apply block;
   }
