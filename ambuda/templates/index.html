@@ -5,5 +5,11 @@
 {% block body %}
 <body>
     <h1>Ambuda</h1>
+
+    <ul>
+    {% for text in texts %}
+    <li><a href="{{ text.url }}">{{ text.title }}</a></li>
+    {% endfor %}
+    </ul> 
 </body>
 {% endblock %}

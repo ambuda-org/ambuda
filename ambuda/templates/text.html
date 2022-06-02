@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ text.title }}{% endblock %}
+
+{% block body %}
+<body>
+    <h1>{{ text.title }}</h1>
+
+    <ul>
+        {% for section in text.sections %}
+        <li><a href="{{ section.url }}">{{ section.title }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+{% endblock %}

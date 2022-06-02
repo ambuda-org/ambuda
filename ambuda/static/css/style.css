@@ -2,7 +2,9 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-@layer base {
-
+@layer components {
+  .x-pada {
+    @apply block;
+  }
 }
 
