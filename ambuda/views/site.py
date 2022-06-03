@@ -10,7 +10,7 @@ from ambuda import xml
 bp = Blueprint("site", __name__)
 
 
-PROJECT_DIR = Path(__file__).parent.parent
+PROJECT_DIR = Path(__file__).parent.parent.parent
 TEXTS_DIR = PROJECT_DIR / "texts"
 
 
@@ -100,7 +100,7 @@ def section(text, path):
     prev, cur, next = _prev_cur_next(text.sections, path)
 
     raw_content = cur.get_content()
-    content = xml.transform(raw_content)
+    content = xml.transform_tei(raw_content)
     return render_template(
         "section.html",
         text=text,

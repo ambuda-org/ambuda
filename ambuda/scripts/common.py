@@ -114,7 +114,7 @@ def write_section_xml(section, out_file):
         f.write("</section>\n")
 
 
-def write_metadata(title, slug, kandas: list[Kanda], out_file):
+def write_metadata(title: str, slug: str, kandas: list[Kanda], out_file):
     sections = []
     for kanda in kandas:
         for section in kanda.sections:

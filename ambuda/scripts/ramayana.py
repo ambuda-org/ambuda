@@ -2,17 +2,11 @@
 """Convert the raw Ramayana text to XML."""
 
 
-import json
 import re
-from dataclasses import dataclass
 from pathlib import Path
-
-import requests
 
 from ambuda.scripts.common import (
     Line,
-    Verse,
-    Section,
     Kanda,
     get_verses,
     get_sections,
@@ -55,7 +49,6 @@ def parse_kanda(raw: str) -> Kanda:
     verses = list(get_verses(lines))
     sections = list(get_sections(verses))
 
-    first = sections[0]
     return Kanda(n=sections[0].kanda, sections=sections)
 
 

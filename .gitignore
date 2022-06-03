@@ -4,3 +4,5 @@ gen/
 node_modules/
 gen/
 texts/
+
+*.db

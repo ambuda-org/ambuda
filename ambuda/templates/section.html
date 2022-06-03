@@ -1,25 +1,15 @@
 {% extends 'header-main-footer.html' %}
 
-{% block title %}{{ text.title | devanagari }} {{ section.title }}{% endblock %}
+{% macro dict_form() %}
+<form id="mw-ajax" class="flex">
+  <input name="q" type="text" placeholder="MW dictionary" class="p-2 flex-1">
+  <input type="submit" value="Search" class="bg-zinc-400 text-white p-2"></input>
+</form>
+<ul id="mw-response" style="overflow: scroll; max-height: 80vh;">
+</ul>
+{% endmacro %}
 
-{% block header %}
-<header class="bg-zinc-100 p-4">
-<a class="hover:underline" href="{{ url_for('site.index') }}">Ambuda</a> &raquo;
-<a class="hover:underline" href="{{ text.url }}">
-  {{ text.title | devanagari }} 
-</a> &raquo;
-{{ section.title }}
-</header>
-{% endblock %}
-
-{% block main %}
-<article class="text-xl mx-auto max-w-2xl my-24">
-    <div>
-    {{ content | safe }}
-    </div>
-</article>
-
-<nav class="flex space-apart bg-zinc-100">
+{% macro prev_next_nav(prev, next) %}
 {% if prev %}
 <a class="block p-4" href="{{ prev.url }}">&larr; {{ prev.title }}</a>
 {% else %}
@@ -31,7 +21,40 @@
 {% else %}
 <span>&nbsp;</span>
 {% endif %}
+{% endmacro %}
+
+{% block title %}{{ text.title | devanagari }} {{ section.title }}{% endblock %}
+
+{% block header %}
+<header class="bg-zinc-100 flex justify-between">
+  <div class="p-4">
+<a class="hover:underline" href="{{ url_for('site.index') }}">Ambuda</a> &raquo;
+<a class="hover:underline" href="{{ text.url }}">
+  {{ text.title | devanagari }} 
+</a> &raquo;
+{{ section.title }}
+  </div>
+
+<div class="flex">{{ prev_next_nav(prev, next) }}</div>
+</header>
+{% endblock %}
+
+{% block main %}
+<article class="text-xl mx-auto my-24 mx-2 md:mx-8">
+  <div class="flex">
+    <div class="flex-1">{{ content | safe }}</div>
+    <div class="flex-1 p-2 bg-zinc-100">
+      {{ dict_form() }}
+    </div>
+  </div>
+</article>
+
+<script src="/static/js/main.js"></script>
+
+<nav class="flex justify-apart bg-zinc-100">
+{{ prev_next_nav(prev, next) }}
 </nav>
+
 {% endblock %}
 
 {% block footer %}{% endblock %}

@@ -12,5 +12,11 @@
   .x-pada {
     @apply block;
   }
+
+  /* MW dictionary */
+  .mw-entry {font-size: 20px; max-width: 700px; margin: 0.5em 0;}
+  .mw-entry .lex {font-weight: bold; }
+  .mw-entry [lang=sa] { font-style: italic; color: #700; }
+  .mw-entry cite { color: #070; }
 }
 
