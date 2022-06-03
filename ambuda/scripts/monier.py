@@ -50,23 +50,32 @@ def iter_xml(blob: str):
 
 def create_db():
     engine = create_engine(DATABASE_URI)
+
+    # For now, wipe out previous data.
+    metadata.drop_all(engine)
     metadata.create_all(engine)
+
     return engine
 
 
 def insert(engine, mw_xml: str):
     ins = entries.insert()
-    print("Adding items to database ...")
     with engine.connect() as conn:
         items = [{"key": key, "value": value} for key, value in iter_xml(mw_xml)]
         conn.execute(ins, items)
-    print("Done.")
 
 
 def run():
+    print("Initializing database ...")
     engine = create_db()
+
+    print("Fetching data from CDSL ...")
     mw_xml = fetch_mw_xml()
+
+    print("Adding items to database ...")
     insert(engine, mw_xml)
+
+    print("Done.")
 
 
 if __name__ == "__main__":

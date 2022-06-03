@@ -1,0 +1,1 @@
+release: ./scripts/init.sh

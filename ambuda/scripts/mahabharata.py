@@ -54,6 +54,7 @@ def parse_kanda(raw: str) -> Kanda:
 
 def run():
     output_dir = PROJECT_DIR / "texts" / "mahabharata"
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     kandas = []
     for n in range(1, 18 + 1):
