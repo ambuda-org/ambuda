@@ -1,3 +1,4 @@
+.cache/
 env/
 gen/
 node_modules/

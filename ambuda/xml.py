@@ -35,6 +35,7 @@ def transform(blob: str) -> str:
         rule = transforms[elem.tag]
         elem.tag = rule.tag
         elem.attrib = rule.attrib
-        elem.text = sanscript.transliterate(elem.text,
-                sanscript.HK, sanscript.DEVANAGARI)
+        elem.text = sanscript.transliterate(
+            elem.text, sanscript.HK, sanscript.DEVANAGARI
+        )
     return ET.tostring(root, encoding="utf-8").decode("utf-8")
