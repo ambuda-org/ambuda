@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, Table, Column, Integer, String, MetaData
 from xml.etree import ElementTree as ET
 
 
-DATABASE_URI = "sqlite:///monier.db"
+DATABASE_URI = "sqlite:///database.db"
 
 metadata = MetaData()
 
