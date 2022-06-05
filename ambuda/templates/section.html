@@ -11,13 +11,15 @@
 
 {% macro prev_next_nav(prev, next) %}
 {% if prev %}
-<a class="block p-4" href="{{ prev.url }}">&larr; {{ prev.title }}</a>
+{% set url = url_for('site.section', text=text.slug, path=prev.slug) %}
+<a class="block p-4" href="{{ url }}">&larr; {{ prev.title }}</a>
 {% else %}
 <span>&nbsp;</span>
 {% endif %}
 
 {% if next %}
-<a class="block p-4" href="{{ next.url }}">{{ next.title }} &rarr;</a>
+{% set url = url_for('site.section', text=text.slug, path=next.slug) %}
+<a class="block p-4" href="{{ url }}">{{ next.title }} &rarr;</a>
 {% else %}
 <span>&nbsp;</span>
 {% endif %}
@@ -29,7 +31,8 @@
 <header class="bg-zinc-100 flex justify-between">
   <div class="p-4">
 <a class="hover:underline" href="{{ url_for('site.index') }}">Ambuda</a> &raquo;
-<a class="hover:underline" href="{{ text.url }}">
+{% set url = url_for('site.text', slug=text.slug) %}
+<a class="hover:underline" href="{{ url }}">
   {{ text.title | devanagari }} 
 </a> &raquo;
 {{ section.title }}

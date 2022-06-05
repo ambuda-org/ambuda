@@ -2,7 +2,6 @@
 env/
 gen/
 node_modules/
-gen/
-texts/
+production/
 
 *.db

@@ -4,44 +4,16 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from flask import Blueprint, render_template, url_for
+from sqlalchemy.orm import Session
 
+import ambuda.database as db
+import ambuda.queries as q
 from ambuda import xml
 
 bp = Blueprint("site", __name__)
 
 
-PROJECT_DIR = Path(__file__).parent.parent.parent
-TEXTS_DIR = PROJECT_DIR / "texts"
-
-
-@dataclass
-class Section:
-    text: str
-    title: str
-    slug: str
-
-    @property
-    def url(self):
-        return url_for("site.section", text=self.text, path=self.slug)
-
-    def get_content(self) -> str:
-        path = TEXTS_DIR / self.text / f"{self.slug}.xml"
-        with path.open() as f:
-            return f.read()
-
-
-@dataclass
-class Text:
-    title: str
-    slug: str
-    sections: list[Section]
-
-    @property
-    def url(self):
-        return url_for("site.text", slug=self.slug)
-
-
-def _prev_cur_next(sections: list[Section], slug: str):
+def _prev_cur_next(sections: list[db.TextSection], slug: str):
     found = True
     for i, s in enumerate(sections):
         if s.slug == slug:
@@ -57,21 +29,6 @@ def _prev_cur_next(sections: list[Section], slug: str):
     return prev, cur, next
 
 
-@functools.cache
-def get_texts() -> list[Text]:
-    texts = []
-    for folder in TEXTS_DIR.iterdir():
-        metadata = folder / "index.json"
-        with metadata.open() as f:
-            data = json.load(f)
-
-        text_slug = data["slug"]
-        sections = [Section(text=text_slug, **x) for x in data["sections"]]
-        text = Text(title=data["title"], slug=text_slug, sections=sections)
-        texts.append(text)
-    return texts
-
-
 def _section_groups(sections):
     grouper = {}
     for s in sections:
@@ -84,23 +41,24 @@ def _section_groups(sections):
 
 @bp.route("/")
 def index():
-    return render_template("index.html", texts=get_texts())
+    return render_template("index.html", texts=q.texts())
 
 
 @bp.route("/texts/<slug>/")
 def text(slug):
-    text = [t for t in get_texts() if t.slug == slug][0]
+    text = q.text(slug)
     section_groups = _section_groups(text.sections)
     return render_template("text.html", text=text, section_groups=section_groups)
 
 
 @bp.route("/texts/<text>/<path>/")
 def section(text, path):
-    text = [t for t in get_texts() if t.slug == text][0]
+    text = q.text(text)
     prev, cur, next = _prev_cur_next(text.sections, path)
 
-    raw_content = cur.get_content()
-    content = xml.transform_tei(raw_content)
+    with Session(q.engine) as sess:
+        content = xml.transform_tei(cur.xml)
+
     return render_template(
         "section.html",
         text=text,

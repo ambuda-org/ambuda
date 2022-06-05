@@ -1,12 +1,33 @@
 from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, selectinload, defer
 from sqlalchemy.sql import *
 
 import ambuda.database as db
 
 
-def select_mw(key: str):
-    engine = create_engine(db.DATABASE_URI)
+engine = create_engine(db.DATABASE_URI, echo=True)
+# TODO: session scoping
+session = Session(engine)
 
-    q = select([db.entries]).where(db.entries.c.key == key)
-    with engine.connect() as conn:
-        return conn.execute(q).fetchall()
+
+def text(slug: str) -> list[db.Text]:
+    return (
+        session.query(db.Text)
+        .filter(db.Text.slug == slug)
+        .options(
+            selectinload(db.Text.sections).load_only(
+                db.TextSection.slug,
+                db.TextSection.title,
+            )
+        )
+        .first()
+    )
+
+
+def texts() -> list[db.Text]:
+    return session.query(db.Text).all()
+
+
+def select_mw(version: str, key: str):
+    # TODO: restrict to MW only
+    return session.query(db.DictionaryEntry).where(db.DictionaryEntry.key == key).all()

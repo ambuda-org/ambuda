@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert the raw Ramayana text to XML."""
+"""Database utility functions."""
 
 
 import hashlib
@@ -8,6 +8,10 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import requests
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
+
+from ambuda.database import DATABASE_URI, Base, Text, Dictionary
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 CACHE_DIR = PROJECT_DIR / ".cache"
@@ -99,19 +103,24 @@ def get_sections(verses):
         yield Section(kanda=v.kanda, n=v.section, verses=verses)
 
 
+def get_section_xml(section) -> str:
+    buf = ["<section>\n"]
+    for verse in section.verses:
+        buf.append("  <lg>\n")
+        for i, line in enumerate(verse.lines):
+            is_last = i == len(verse.lines) - 1
+            if is_last:
+                buf.append(f"    <l>{line.text} \u0965 {line.verse} \u0965</l>\n")
+            else:
+                buf.append(f"    <l>{line.text} \u0964</l>\n")
+        buf.append("  </lg>\n")
+    buf.append("</section>\n")
+    return "".join(buf)
+
+
 def write_section_xml(section, out_file):
     with open(out_file, "w") as f:
-        f.write("<section>\n")
-        for verse in section.verses:
-            f.write("  <lg>\n")
-            for i, line in enumerate(verse.lines):
-                is_last = i == len(verse.lines) - 1
-                if is_last:
-                    f.write(f"    <l>{line.text} \u0965 {line.verse} \u0965</l>\n")
-                else:
-                    f.write(f"    <l>{line.text} \u0964</l>\n")
-            f.write("  </lg>\n")
-        f.write("</section>\n")
+        f.write(get_section_xml(section))
 
 
 def write_metadata(title: str, slug: str, kandas: list[Kanda], out_file):
@@ -131,3 +140,25 @@ def write_metadata(title: str, slug: str, kandas: list[Kanda], out_file):
     }
     with open(out_file, "w") as f:
         json.dump(metadata, f, indent=2)
+
+
+def create_db():
+    engine = create_engine(DATABASE_URI)
+    Base.metadata.create_all(engine)
+    return engine
+
+
+def delete_existing_text(engine, slug: str):
+    with Session(engine) as session:
+        text = session.query(Text).where(Text.slug == slug).first()
+        if text:
+            session.delete(text)
+            session.commit()
+
+
+def delete_existing_dict(engine, slug: str):
+    with Session(engine) as session:
+        dictionary = session.query(Dictionary).where(Dictionary.slug == slug).first()
+        if dictionary:
+            session.delete(dictionary)
+            session.commit()

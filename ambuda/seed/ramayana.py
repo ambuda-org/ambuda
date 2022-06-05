@@ -5,14 +5,18 @@
 import re
 from pathlib import Path
 
-from ambuda.scripts.common import (
+from sqlalchemy.orm import Session
+
+import ambuda.database as db
+from ambuda.seed.common import (
     Line,
     Kanda,
+    delete_existing_text,
     get_verses,
     get_sections,
     fetch_text,
-    write_section_xml,
-    write_metadata,
+    get_section_xml,
+    create_db,
 )
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
@@ -53,9 +57,10 @@ def parse_kanda(raw: str) -> Kanda:
 
 
 def run():
-    output_dir = PROJECT_DIR / "texts" / "ramayana"
-    output_dir.mkdir(parents=True, exist_ok=True)
+    print("Initializing database ...")
+    engine = create_db()
 
+    print("Parsing text ...")
     kandas = []
     for n in range(1, 7 + 1):
         n = str(n)
@@ -64,17 +69,30 @@ def run():
 
         url = BASE_URL.format(n=n)
         text = fetch_text(url)
+        kandas.append(parse_kanda(text))
 
-        kanda = parse_kanda(text)
-        for section in kanda.sections:
-            outfile = output_dir / f"{section.kanda}.{section.n}.xml"
-            write_section_xml(section, outfile)
-            print(f"Wrote section to {outfile}.")
-        kandas.append(kanda)
+    text_slug = "ramayana"
+    print("Cleaning up old state ...")
+    delete_existing_text(engine, text_slug)
 
-    metadata_path = output_dir / "index.json"
-    write_metadata("rAmAyaNam", "ramayana", kandas, metadata_path)
-    print(f"Wrote metadata to {metadata_path}.")
+    print("Writing new data ...")
+    with Session(engine) as session:
+        text = db.Text(slug=text_slug, title="rAmAyaNam")
+        session.add(text)
+        session.flush()
+
+        text_id = text.id
+        items = []
+        for kanda in kandas:
+            for s in kanda.sections:
+                slug = f"{s.kanda}.{s.n}"
+                xml = get_section_xml(s)
+                section = db.TextSection(text=text, slug=slug, title=slug, xml=xml)
+                session.add(section)
+
+        session.commit()
+
+    print("Done.")
 
 
 if __name__ == "__main__":

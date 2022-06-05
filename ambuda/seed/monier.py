@@ -2,16 +2,13 @@
 """Add the Monier-Williams dictionary to the database."""
 
 import io
-import pathlib
-import sys
 import zipfile
-
-from sqlalchemy import create_engine
 from xml.etree import ElementTree as ET
 
-from ambuda.database import DATABASE_URI, entries, metadata
-from ambuda.scripts.common import fetch_bytes
+from sqlalchemy.orm import Session
 
+import ambuda.database as db
+from ambuda.seed.common import fetch_bytes, create_db, delete_existing_dict
 
 ZIP_URL = (
     "https://www.sanskrit-lexicon.uni-koeln.de/scans/MWScan/2020/downloads/mwxml.zip"
@@ -48,21 +45,28 @@ def iter_xml(blob: str):
         yield key, value
 
 
-def create_db():
-    engine = create_engine(DATABASE_URI)
-
-    # For now, wipe out previous data.
-    metadata.drop_all(engine)
-    metadata.create_all(engine)
-
-    return engine
-
-
 def insert(engine, mw_xml: str):
+    delete_existing_dict(engine, "mw")
+    with Session(engine) as session:
+        dictionary = db.Dictionary(
+            slug="mw", title="Monier-Williams Sanskrit-English Dictionary (1899)"
+        )
+        session.add(dictionary)
+        session.commit()
+
+        dictionary_id = dictionary.id
+
+    items = [
+        {"dictionary_id": dictionary_id, "key": key, "value": value}
+        for key, value in iter_xml(mw_xml)
+    ]
+    entries = db.DictionaryEntry.__table__
     ins = entries.insert()
     with engine.connect() as conn:
-        items = [{"key": key, "value": value} for key, value in iter_xml(mw_xml)]
-        conn.execute(ins, items)
+        for r in range(0, len(items), 10000):
+            batch = items[r : r + 10000]
+            conn.execute(ins, batch)
+            print(r)
 
 
 def run():
