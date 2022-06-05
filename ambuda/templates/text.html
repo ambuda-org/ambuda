@@ -5,7 +5,7 @@
 {% for s in sections %}
   {% set url = url_for('site.section', text=text.slug, path=s.slug) %}
   <li><a class="text-center block hover:underline"
-        href="{{ url }}">{{ s.title }}
+        href="{{ url }}">{{ s.title | devanagari }}
   </a></li>
 {% endfor %}
 </ul>

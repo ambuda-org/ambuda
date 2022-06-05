@@ -4,7 +4,7 @@
 
 @layer components {
   .x-deva {
-    font-family: "Sanskrit 2003";
+    /* TODO: choose a nice typeface. */
   }
   .x-verse {
     @apply x-deva text-2xl leading-normal;
