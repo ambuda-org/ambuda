@@ -13,6 +13,6 @@ api = Blueprint("api", __name__)
 def ajax_entry(key):
     key = key.strip()
     slp1_key = sanscript.transliterate(key, sanscript.HK, sanscript.SLP1)
-    rows = q.select_mw('mw', slp1_key)
+    rows = q.select_mw("mw", slp1_key)
     entries = [xml.transform_mw(r.value) for r in rows]
     return jsonify(entries=entries)

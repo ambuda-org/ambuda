@@ -25,12 +25,11 @@ def fetch_mw_xml() -> str:
 
 def iter_xml(blob: str):
     tag_str = (
-        "H1 H1A H1B H1C H1E H2 H2A H2B H2C H2E "
-        "H3 H3A H3B H3C H3E H4 H4A H4B H4C H4E"
+        "H1 H1A H1B H1C H1E H2 H2A H2B H2C H2E " "H3 H3A H3B H3C H3E H4 H4A H4B H4C H4E"
     )
     allowed_tags = set(tag_str.split())
 
-    for _, elem in ET.iterparse(io.BytesIO(blob), events=['end']):
+    for _, elem in ET.iterparse(io.BytesIO(blob), events=["end"]):
         if elem.tag not in allowed_tags:
             continue
 
@@ -45,9 +44,28 @@ def iter_xml(blob: str):
         assert key and value
         assert len(value) > 50, value
         yield key, value
+        elem.clear()
+
+
+def batches(generator, n):
+    while True:
+        batch = list(itertools.islice(generator, n))
+        if batch:
+            yield batch
+        else:
+            return
 
         if elem.tag in allowed_tags:
             elem.clear()
+
+
+def batches(generator, n):
+    while True:
+        batch = list(itertools.islice(generator, n))
+        if batch:
+            yield batch
+        else:
+            return
 
 
 def batches(generator, n):
@@ -82,7 +100,7 @@ def insert(engine, mw_xml: str):
                 for key, value in batch
             ]
             conn.execute(ins, items)
-            print(10000 * (i+1))
+            print(10000 * (i + 1))
 
 
 def run():

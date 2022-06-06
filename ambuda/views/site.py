@@ -3,7 +3,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from flask import Blueprint, render_template, url_for
+from flask import Blueprint, render_template, url_for, abort
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
@@ -47,6 +47,9 @@ def index():
 @bp.route("/texts/<slug>/")
 def text(slug):
     text = q.text(slug)
+    if text is None:
+        abort(404)
+
     section_groups = _section_groups(text.sections)
     return render_template("text.html", text=text, section_groups=section_groups)
 
@@ -68,3 +71,13 @@ def section(text, path):
         section_groups=_section_groups(text.sections),
         content=content,
     )
+
+
+@bp.app_errorhandler(404)
+def page_not_found(e):
+    return render_template("404.html"), 404
+
+
+@bp.app_errorhandler(500)
+def internal_server_error(e):
+    return render_template("500.html"), 500

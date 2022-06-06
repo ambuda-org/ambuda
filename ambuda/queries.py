@@ -13,7 +13,7 @@ session = Session(engine)
 def text(slug: str) -> list[db.Text]:
     return (
         session.query(db.Text)
-        .filter(db.Text.slug == slug)
+        .filter_by(slug=slug)
         .options(
             selectinload(db.Text.sections).load_only(
                 db.TextSection.slug,
@@ -30,4 +30,4 @@ def texts() -> list[db.Text]:
 
 def select_mw(version: str, key: str):
     # TODO: restrict to MW only
-    return session.query(db.DictionaryEntry).where(db.DictionaryEntry.key == key).all()
+    return session.query(db.DictionaryEntry).filter_by(key=key).all()

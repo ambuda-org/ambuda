@@ -157,11 +157,13 @@ def delete_existing_text(engine, slug: str):
 
 
 def delete_existing_dict(engine, slug: str):
-    print('Deleting rows ...')
+    print("Deleting rows ...")
     with Session(engine) as session:
         dictionary = session.query(Dictionary).where(Dictionary.slug == slug).first()
         if dictionary:
             # Delete entries first to avoid slow relationship-based delete.
-            session.query(DictionaryEntry).filter_by(dictionary_id=dictionary.id).delete()
+            session.query(DictionaryEntry).filter_by(
+                dictionary_id=dictionary.id
+            ).delete()
             session.delete(dictionary)
             session.commit()
