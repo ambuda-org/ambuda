@@ -1,5 +1,5 @@
 devserver:
-	python runserver.py
+	FLASK_ENV=development flask run
 
 lint:
 	black .

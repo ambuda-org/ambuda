@@ -2,14 +2,20 @@
 
 {% block title %}About | Ambuda{% endblock %}
 
+{% set mailing_url = 'https://groups.google.com/g/learnsanskrit-announce' %}
+{% set code_url = 'https://github.com/sanskrit/ambuda' %}
+{% set contact_url = url_for('site.contact') %}
+{% set host_url = 'https://digitalocean.com' %}
+
 {% block content %}
 <div class="prose">
 <h1>About</h1>
 
 <p><a href="{{ mailing_url }}">Our mailing list</a> shares regular updates
 on Ambuda and our other Sanskrit projects. <a href="{{ code_url }}">Our
-    code</a> is all on GitHub, and we eagerly welcome contributors of all
-backgrounds. For all other inquiries, please <a href="{{ contact_url }}">reach out to us directly</a>.</p>
+code</a> is all on GitHub, and we eagerly welcome contributors of all
+backgrounds. For all other inquiries, please <a href="{{ contact_url }}">reach
+out to us directly</a>.</p>
 
 
 <h2>Data</h2>
@@ -23,7 +29,7 @@ backgrounds. For all other inquiries, please <a href="{{ contact_url }}">reach o
 
 <p>Text data mostly comes from <a href="{{ gretil }}">GRETIL</a>. For the
 <cite>Ramayana</cite> and <cite>Mahabharata</cite> specifically, we instead use
-the "official" electronic versions hosted on <a href"{{ smith }}">John D.
+the "official" electronic versions hosted on <a href="{{ smith }}">John D.
     Smith's website</a>. As our project grows, we will include other sources
 of textual data and even generate texts on our own.</p>
 
@@ -33,9 +39,9 @@ Lexicons</a> (CDSL) project.</p>
 
 <h2>Code</h2>
 
-<p>All of our site code is hosted <a href="{{ github }}">on GitHub</a>. We use
+<p>All of our code is available <a href="{{ code_url }}">on GitHub</a>. We use
 Python (Flask) for the backend, Tailwind for CSS, and native JavaScript for the
-rest. Our site is hosted on <a href="{{ do }}">DigitalOcean</a>.</p>
+rest. Our site is hosted <a href="{{ host_url }}">on DigitalOcean</a>.</p>
 
 
 </div>

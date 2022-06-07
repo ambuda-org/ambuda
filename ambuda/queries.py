@@ -5,7 +5,7 @@ from sqlalchemy.sql import *
 import ambuda.database as db
 
 
-engine = create_engine(db.DATABASE_URI, echo=True)
+engine = create_engine(db.DATABASE_URI)
 # TODO: session scoping
 session = Session(engine)
 
