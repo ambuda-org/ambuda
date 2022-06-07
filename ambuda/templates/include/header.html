@@ -1,3 +1,10 @@
-<header class="p-4 bg-zinc-100 mb-4">
-    <a href="{{ url_for('site.index') }}">Ambuda</a>
+<header class="p-4 mb-4 border-b flex justify-between items-center">
+  <div class="flex items-center">
+    <a class="font-bold text-lg" href="{{ url_for('site.index') }}">Ambuda</a>
+    <a class="block ml-8" href="{{ url_for('texts.index') }}">Texts</a>
+    <a class="block ml-8" href="{{ url_for('dictionaries.index') }}">Dictionaries</a>
+  </div>
+  <div>
+    <a href="{{ url_for('site.about') }}">About</a>
+  </div>
 </header>

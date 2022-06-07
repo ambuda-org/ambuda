@@ -1,5 +1,13 @@
-{% extends 'base.html' %}
+{% extends 'base-text.html' %}
 
-{% block body %}
-Page not found
+{% block title %}Not Found (404) | Ambuda{% endblock %}
+
+{% block content %}
+{% set contact_url = url_for('site.contact') %}
+<div class="prose">
+<h1>Not Found (404)</h1>
+<p>Sorry! We couldn't find what you were looking for. If you think you've found
+a bug in our project, <a href="{{ contact_url }}">let us know</a> and we'll fix
+it as soon as we can.</p>
+</div>
 {% endblock %}

@@ -7,16 +7,28 @@
     /* TODO: choose a nice typeface. */
   }
   .x-verse {
-    @apply x-deva text-2xl leading-normal;
+    @apply x-deva leading-normal my-4;
   }
   .x-pada {
     @apply block;
   }
 
+  /* Prose context */
+  .prose a { @apply underline hover:text-blue-600; }
+  .prose dfn { @apply font-bold not-italic; }
+  .prose h1 { @apply font-bold text-2xl md:text-4xl my-4; }
+  .prose h2 { @apply font-bold text-xl md:text-2xl my-4; }
+  .prose p { @apply mb-4; }
+
   /* MW dictionary */
-  .mw-entry {font-size: 20px; max-width: 700px; margin: 0.5em 0;}
+  .mw-entry {max-width: 700px; margin: 0.5em 0;}
   .mw-entry .lex {font-weight: bold; }
-  .mw-entry [lang=sa] { font-style: italic; color: #700; }
-  .mw-entry cite { color: #070; }
+  .mw-entry [lang=sa] {
+    @apply italic text-green-600;
+  }
+  .mw-entry cite {
+    @apply bg-zinc-100;
+    @apply text-zinc-400;
+  }
 }
 

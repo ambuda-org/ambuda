@@ -1,0 +1,12 @@
+{% macro dict_form() %}
+<form id="mw-ajax" class="flex mb-4">
+  <input name="q" type="text" placeholder="Search the dictionary" class="p-2 flex-1 bg-zinc-100 rounded-tl rounded-bl">
+  <input type="submit" value="Search" class="bg-zinc-800 text-white p-2 rounded-tr rounded-br"></input>
+</form>
+
+<script src="/static/js/main.js" async></script>
+{% endmacro %}
+
+{% macro dict_target() %}
+<ul id="mw-response"></ul>
+{% endmacro %}

@@ -1,0 +1,42 @@
+{% extends 'base-text.html' %}
+
+{% block title %}About | Ambuda{% endblock %}
+
+{% block content %}
+<div class="prose">
+<h1>About</h1>
+
+<p><a href="{{ mailing_url }}">Our mailing list</a> shares regular updates
+on Ambuda and our other Sanskrit projects. <a href="{{ code_url }}">Our
+    code</a> is all on GitHub, and we eagerly welcome contributors of all
+backgrounds. For all other inquiries, please <a href="{{ contact_url }}">reach out to us directly</a>.</p>
+
+
+<h2>Data</h2>
+
+{% set gretil = "http://gretil.sub.uni-goettingen.de/gretil.html" %}
+{% set smith = "https://bombay.indology.info/" %}
+{% set cdsl = "https://www.sanskrit-lexicon.uni-koeln.de" %}
+{% set do = "https://www.digitalocean.com/" %}
+
+<p>Almost all of Ambuda's data comes from other projects.</p>
+
+<p>Text data mostly comes from <a href="{{ gretil }}">GRETIL</a>. For the
+<cite>Ramayana</cite> and <cite>Mahabharata</cite> specifically, we instead use
+the "official" electronic versions hosted on <a href"{{ smith }}">John D.
+    Smith's website</a>. As our project grows, we will include other sources
+of textual data and even generate texts on our own.</p>
+
+<p>Dictionary data comes from the <a href="{{ cdsl }}">Cologne Digital Sanskrit
+Lexicons</a> (CDSL) project.</p>
+
+
+<h2>Code</h2>
+
+<p>All of our site code is hosted <a href="{{ github }}">on GitHub</a>. We use
+Python (Flask) for the backend, Tailwind for CSS, and native JavaScript for the
+rest. Our site is hosted on <a href="{{ do }}">DigitalOcean</a>.</p>
+
+
+</div>
+{% endblock %}

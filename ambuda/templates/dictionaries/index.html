@@ -1,0 +1,13 @@
+{% extends 'base-text.html' %}
+{% import 'macros/dictionaries.html' as m %}
+
+{% block title %}Dictionaries | Ambuda{% endblock %}
+
+{% block content %}
+<h1 class="text-xl font-bold">Monier-Williams Sanskrit-English Dictionary (1899)</h1>
+<p class="text-sm mb-4">(More dictionaries will come soon.)</p>
+
+{{ m.dict_form() }}
+{{ m.dict_target() }}
+
+{% endblock %}

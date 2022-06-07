@@ -1,5 +1,14 @@
-{% extends 'base.html' %}
+{% extends 'base-text.html' %}
 
-{% block body %}
-Server error
+{% block title %}Server Error (404) | Ambuda{% endblock %}
+
+{% block content %}
+{% set contact_url = url_for('site.contact') %}
+<div class="prose">
+<h1>Server Error (500)</h1>
+<p>Oops! Our site has encountered an unknown error. We will investigate the
+issue so that we can prevent it in the future. If you think you know what
+caused this issue, please <a href="{{ contact_url }}">let us know</a> and we'll
+fix it as soon as we can.</p>
+</div>
 {% endblock %}

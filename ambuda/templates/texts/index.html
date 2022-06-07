@@ -1,0 +1,19 @@
+{% extends 'base-text.html' %}
+
+{% macro text_list(texts) %}
+<ul>
+  {% for text in texts %}
+  {% set url = url_for('texts.text', slug=text.slug) %}
+  <li><a class="block text-lg hover:underline" href="{{ url }}">{{ text.title | devanagari }}</a></li>
+  {% endfor %}
+</ul> 
+{% endmacro %}
+
+{% block title %}Texts | Ambuda{% endblock %}
+
+{% block content %}
+<div class="prose">
+  <h1>Texts</h1>
+</div>
+  {{ text_list(texts) }}
+{% endblock %}

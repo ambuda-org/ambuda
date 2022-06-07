@@ -1,5 +1,5 @@
 from indic_transliteration import sanscript
-from flask import jsonify
+from flask import jsonify, render_template
 from flask import Blueprint
 
 import ambuda.queries as q
@@ -7,6 +7,7 @@ from ambuda import xml
 
 
 api = Blueprint("api", __name__)
+bp = Blueprint("dictionaries", __name__)
 
 
 @api.route("/dict/<key>")
@@ -16,3 +17,8 @@ def ajax_entry(key):
     rows = q.select_mw("mw", slp1_key)
     entries = [xml.transform_mw(r.value) for r in rows]
     return jsonify(entries=entries)
+
+
+@bp.route("/")
+def index():
+    return render_template("dictionaries/index.html")

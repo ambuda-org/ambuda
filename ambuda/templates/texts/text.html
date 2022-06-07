@@ -1,9 +1,9 @@
-{% extends 'header-main-footer.html' %}
+{% extends 'base-text.html' %}
 
 {% macro section_grid(sections) %}
-<ul class="grid grid-cols-10 gap-4 my-8">
+<ul class="grid grid-cols-5 md:grid-cols-10 gap-4 my-8">
 {% for s in sections %}
-  {% set url = url_for('site.section', text=text.slug, path=s.slug) %}
+  {% set url = url_for('texts.section', text=text.slug, path=s.slug) %}
   <li><a class="text-center block hover:underline"
         href="{{ url }}">{{ s.title | devanagari }}
   </a></li>
@@ -11,10 +11,9 @@
 </ul>
 {% endmacro %}
 
-{% block title %}{{ text.title | devanagari }}{% endblock %}
+{% block title %}{{ text.title | devanagari }} | Ambuda{% endblock %}
 
-{% block main %}
-<main class="max-w-xl mx-auto my-24">
+{% block content %}
 <h1 class="text-center font-bold text-4xl x-deva">
     {{ text.title | devanagari }}
 </h1>
@@ -22,5 +21,4 @@
 {% for prefix, sections in section_groups.items() %}
 {{ section_grid(sections) }}
 {% endfor %}
-</main>
 {% endblock %}

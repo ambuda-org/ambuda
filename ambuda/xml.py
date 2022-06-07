@@ -65,8 +65,8 @@ mw_transforms = {
     "sr": text("\u00b0"),
     "sr1": text("\u00b0"),
     "abE": None,
-    "srs": text("*"),
-    "srs1": text("*"),
+    "srs": text(""),
+    "srs1": text(""),
     "shc": None,
     "shortlong": None,
     "auml": text("ä"),
@@ -138,10 +138,20 @@ def transform_mw(blob: str) -> str:
 
         elem.tag = rule.tag
         elem.attrib = rule.attrib or {}
-        if elem.text:
-            elem.text = rule.text_before + elem.text + rule.text_after
+
+        if rule.text_before:
+            elem.text = rule.text_before + (elem.text or "")
+        if rule.text_after:
+            # No children: append after current text
+            if len(elem) == 0:
+                elem.text = (elem.text or "") + rule.text_after
+            # Has children: append after last child
+            else:
+                last_child = elem[-1]
+                last_child.tail = (last_child.tail or "") + rule.text_after
 
     untrans = ET.tostring(root, encoding="utf-8").decode("utf-8")
+    print(untrans)
     return sanscript.transliterate(
         "##" + untrans, sanscript.SLP1, sanscript.IAST, togglers={"##"}
     )
