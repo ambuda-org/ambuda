@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add the Monier-Williams dictionary to the database."""
+"""Add the Vacaspatyam to the database."""
 
 from ambuda.seed.cdsl_utils import create_from_scratch
 from ambuda.seed.common import (
@@ -9,7 +9,7 @@ from ambuda.seed.common import (
 )
 
 ZIP_URL = (
-    "https://www.sanskrit-lexicon.uni-koeln.de/scans/MWScan/2020/downloads/mwxml.zip"
+    "https://www.sanskrit-lexicon.uni-koeln.de/scans/SKDScan/2013/downloads/skdxml.zip"
 )
 
 
@@ -19,15 +19,10 @@ def run():
 
     print("Fetching data from CDSL ...")
     zip_bytes = fetch_bytes(ZIP_URL)
-    xml_blob = unzip_and_read(zip_bytes, "xml/mw.xml")
+    xml_blob = unzip_and_read(zip_bytes, "xml/skd.xml")
 
     print("Adding items to database ...")
-    create_from_scratch(
-        engine,
-        slug="mw",
-        title="Monier-Williams Sanskrit-English Dictionary (1899)",
-        xml_blob=xml_blob,
-    )
+    create_from_scratch(engine, slug="skd", title="Shabdakalpadruma", xml_blob=xml_blob)
 
     print("Done.")
 

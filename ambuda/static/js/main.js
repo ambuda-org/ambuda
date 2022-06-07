@@ -15,7 +15,9 @@ function ajaxDict(e) {
     e.preventDefault();
     const form = document.getElementById('mw-ajax');
     const query = form.querySelector('input[name=q]').value;
-    const url = `/api/dict/${query}`;
+    const version = form.querySelector('select[name=version]').value;
+    console.log(version);
+    const url = `/api/dict/${version}/${query}`;
     get_json(url, function(resp) {
 		if (resp.entries && resp.entries.length > 0) {
 			document.querySelector('#mw-response').innerHTML = resp.entries.join('');

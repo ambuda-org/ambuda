@@ -1,7 +1,14 @@
 {% macro dict_form() %}
-<form id="mw-ajax" class="flex mb-4">
-  <input name="q" type="text" placeholder="Search the dictionary" class="p-2 flex-1 bg-zinc-100 rounded-tl rounded-bl">
-  <input type="submit" value="Search" class="bg-zinc-800 text-white p-2 rounded-tr rounded-br"></input>
+<form id="mw-ajax" class="mb-4">
+  <div class="flex mb-2">
+    <input name="q" type="text" placeholder="Search the dictionary" class="p-2 flex-1 bg-zinc-100 rounded-tl rounded-bl">
+    <input type="submit" value="Search" class="bg-zinc-800 text-white p-2 rounded-tr rounded-br"></input>
+  </div>
+  <select name="version" class="text-sm bg-zinc-100 text-zinc-400 p-1">
+    <option value="mw">Monier-Williams (1899)</option>
+    <option value="v">Vācaspatyam (1873)</option>
+    <option value="skd">śabdakalpadruma (1886)</option>
+  </select>
 </form>
 
 <script src="/static/js/main.js" async></script>

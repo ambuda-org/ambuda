@@ -3,15 +3,17 @@
 
 
 import hashlib
+import io
 import json
 from dataclasses import dataclass
 from pathlib import Path
+import zipfile
 
 import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from ambuda.database import DATABASE_URI, Base, Text, Dictionary, DictionaryEntry
+from ambuda.database import DATABASE_URI, Base, Text
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 CACHE_DIR = PROJECT_DIR / ".cache"
@@ -69,6 +71,12 @@ def fetch_bytes(url: str) -> bytes:
         resp = requests.get(url)
         path.write_bytes(resp.content)
         return resp.content
+
+
+def unzip_and_read(zip_bytes: bytes, filepath: str) -> str:
+    with zipfile.ZipFile(io.BytesIO(zip_bytes), "r") as ref:
+        with ref.open(filepath) as f:
+            return f.read()
 
 
 @dataclass
@@ -153,17 +161,4 @@ def delete_existing_text(engine, slug: str):
         text = session.query(Text).where(Text.slug == slug).first()
         if text:
             session.delete(text)
-            session.commit()
-
-
-def delete_existing_dict(engine, slug: str):
-    print("Deleting rows ...")
-    with Session(engine) as session:
-        dictionary = session.query(Dictionary).where(Dictionary.slug == slug).first()
-        if dictionary:
-            # Delete entries first to avoid slow relationship-based delete.
-            session.query(DictionaryEntry).filter_by(
-                dictionary_id=dictionary.id
-            ).delete()
-            session.delete(dictionary)
             session.commit()

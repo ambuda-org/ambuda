@@ -95,6 +95,7 @@ mw_transforms = {
     "hom": None,
     "info": None,
     "lang": elem("span"),
+    "lb": elem("br"),
     # Also distinct tail pc, should be treated differently
     "pc": None,
     "pcol": elem("span"),
@@ -151,7 +152,6 @@ def transform_mw(blob: str) -> str:
                 last_child.tail = (last_child.tail or "") + rule.text_after
 
     untrans = ET.tostring(root, encoding="utf-8").decode("utf-8")
-    print(untrans)
     return sanscript.transliterate(
         "##" + untrans, sanscript.SLP1, sanscript.IAST, togglers={"##"}
     )
