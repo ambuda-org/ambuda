@@ -20,9 +20,9 @@ function ajaxDict(e) {
     const url = `/api/dict/${version}/${query}`;
     get_json(url, function(resp) {
 		if (resp.entries && resp.entries.length > 0) {
-			document.querySelector('#mw-response').innerHTML = resp.entries.join('');
+			document.querySelector('#mw-response').innerHTML = '<ul>' + resp.entries.join('') + '</ul>';
 		} else {
-			document.querySelector('#mw-response').innerHTML = '<li>No results found.</li>';
+			document.querySelector('#mw-response').innerHTML = '<p>No results found.</p>';
 		}
     });
 }

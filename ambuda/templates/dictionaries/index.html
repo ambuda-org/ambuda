@@ -4,10 +4,14 @@
 {% block title %}Dictionaries | Ambuda{% endblock %}
 
 {% block content %}
-<h1 class="text-xl font-bold">Monier-Williams Sanskrit-English Dictionary (1899)</h1>
-<p class="text-sm mb-4">(More dictionaries will come soon.)</p>
+<h1 class="text-xl font-bold">Dictionary lookup</h1>
 
 {{ m.dict_form() }}
-{{ m.dict_target() }}
+
+<div id="mw-response">
+  <p>Input should be in Harvard-Kyoto. The <cite>śabdakalpadruma</cite> and
+  the Apte dictionary sometimes expect complete words (e.g. <kbd>naraH</kbd>,
+  <kbd>rAjA</kbd>).</p>
+</div>
 
 {% endblock %}

@@ -22,7 +22,9 @@ def run():
     xml_blob = unzip_and_read(zip_bytes, "xml/skd.xml")
 
     print("Adding items to database ...")
-    create_from_scratch(engine, slug="skd", title="Shabdakalpadruma", xml_blob=xml_blob)
+    create_from_scratch(
+        engine, slug="skd", title="Śabdakalpadrumaḥ (1886)", xml_blob=xml_blob
+    )
 
     print("Done.")
 
