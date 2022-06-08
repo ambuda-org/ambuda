@@ -7,7 +7,7 @@
     /* TODO: choose a nice typeface. */
   }
   .x-verse {
-    @apply x-deva leading-normal my-4;
+    @apply x-deva leading-normal mb-4;
   }
   .x-pada {
     @apply block;

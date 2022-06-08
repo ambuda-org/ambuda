@@ -4,14 +4,14 @@
 {% macro prev_next_nav(prev, next) %}
 {% if prev %}
 {% set url = url_for('texts.section', text=text.slug, path=prev.slug) %}
-<a class="block p-4" href="{{ url }}">&larr; {{ prev.title }}</a>
+<a class="hover:underline block p-4" href="{{ url }}">&larr;</a>
 {% else %}
 <span>&nbsp;</span>
 {% endif %}
 
 {% if next %}
 {% set url = url_for('texts.section', text=text.slug, path=next.slug) %}
-<a class="block p-4" href="{{ url }}">{{ next.title }} &rarr;</a>
+<a class="hover:underline block p-4" href="{{ url }}">&rarr;</a>
 {% else %}
 <span>&nbsp;</span>
 {% endif %}
@@ -20,39 +20,33 @@
 {% block title %}{{ text.title | devanagari }} {{ section.title }} | Ambuda{% endblock %}
 
 {% block header %}
-<header class="bg-zinc-100 flex justify-between">
-  <div class="p-4">
-<a class="hover:underline" href="{{ url_for('site.index') }}">Ambuda</a> &raquo;
-{% set url = url_for('texts.text', slug=text.slug) %}
-<a class="hover:underline" href="{{ url }}">
-  {{ text.title | devanagari }} 
-</a> &raquo;
-{{ section.title }}
+<header class="h-12 bg-zinc-100 text-zinc-600 border-b flex justify-between items-center">
+  <div class="ml-4">
+    <a class="hover:underline" href="{{ url_for('site.index') }}">Ambuda</a> &raquo;
+    {% set url = url_for('texts.text', slug=text.slug) %}
+    <a class="hover:underline" href="{{ url }}">
+      {{ text.title | devanagari }}
+    </a> &raquo;
+    {{ section.title }}
   </div>
-
-<div class="flex">{{ prev_next_nav(prev, next) }}</div>
+  <div class="flex">{{ prev_next_nav(prev, next) }}</div>
 </header>
 {% endblock %}
 
 {% block main %}
-<article class="mx-auto my-24 mx-2 md:mx-8">
-  <div class="flex">
-    <div class="flex-1 text-xl">{{ content | safe }}</div>
-    <div class="hidden md:block flex-1 ml-4 pl-4 border-l">
-      <div class="sticky top-4">
-        {{ m.dict_form() }}
-        {# TODO: 80vh is hacky, find more robust solution. #}
-        <div style="overflow: scroll; max-height: 80vh;">
-          {{ m.dict_target() }}
-        </div>
-      </div>
+{# h-12 (on the header) corresponds to 3rem. #}
+<article class="flex" style="height: calc(100vh - 3rem)">
+  <div class="flex-1 md:text-xl p-2 md:p-8 overflow-y-scroll">
+    {{ content | safe }}
+  </div>
+
+  <div class="hidden md:block flex-1 p-2 md:p-8 overflow-y-scroll border-l">
+    {{ m.dict_form() }}
+    <div style="overflow: scroll;">
+      {{ m.dict_target() }}
     </div>
   </div>
 </article>
-
-<nav class="flex justify-apart bg-zinc-100">
-{{ prev_next_nav(prev, next) }}
-</nav>
 
 {% endblock %}
 
