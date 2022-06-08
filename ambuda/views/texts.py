@@ -22,7 +22,7 @@ def _prev_cur_next(sections: list[db.TextSection], slug: str):
             break
 
     if not found:
-        raise Exception(f"Unknown slug {slug}")
+        raise ValueError(f"Unknown slug {slug}")
 
     prev = sections[i - 1] if i > 0 else None
     cur = sections[i]
@@ -58,7 +58,13 @@ def text(slug):
 @bp.route("/<text>/<path>/")
 def section(text, path):
     text = q.text(text)
-    prev, cur, next = _prev_cur_next(text.sections, path)
+    if text is None:
+        abort(404)
+
+    try:
+        prev, cur, next = _prev_cur_next(text.sections, path)
+    except ValueError:
+        abort(404)
 
     with Session(q.engine) as sess:
         content = xml.transform_tei(cur.xml)

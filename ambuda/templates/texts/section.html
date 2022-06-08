@@ -1,20 +1,38 @@
 {% extends 'header-main-footer.html' %}
 {% import 'macros/dictionaries.html' as m %}
 
+{# Create prev/next navigation #}
 {% macro prev_next_nav(prev, next) %}
 {% if prev %}
-{% set url = url_for('texts.section', text=text.slug, path=prev.slug) %}
-<a class="hover:underline block p-4" href="{{ url }}">&larr;</a>
-{% else %}
-<span>&nbsp;</span>
+  {% set url = url_for('texts.section', text=text.slug, path=prev.slug) %}
+  <a class="hover:underline block p-4" href="{{ url }}">&larr;</a>
+  {% else %}
+  <span>&nbsp;</span>
 {% endif %}
 
 {% if next %}
-{% set url = url_for('texts.section', text=text.slug, path=next.slug) %}
-<a class="hover:underline block p-4" href="{{ url }}">&rarr;</a>
-{% else %}
-<span>&nbsp;</span>
+  {% set url = url_for('texts.section', text=text.slug, path=next.slug) %}
+  <a class="hover:underline block p-4" href="{{ url }}">&rarr;</a>
+  {% else %}
+  <span>&nbsp;</span>
 {% endif %}
+{% endmacro %}
+
+{# Show site controls (large display only) #}
+{% macro control_panel() %}
+<div class="hidden md:block text-sm text-zinc-400 mb-4">
+  <a id="toggle-sidebar" class="hover:underline hover:text-black" href="#">Toggle dictionary</a>
+</div>
+{% endmacro %}
+
+{# Show the dictionary/etc sidebar #}
+{% macro sidebar() %}
+<div id="sidebar" class="hidden md:hidden flex-1 p-2 md:p-8 overflow-y-scroll border-l">
+  {{ m.dict_form() }}
+  <div style="overflow: scroll;">
+    {{ m.dict_target() }}
+  </div>
+</div>
 {% endmacro %}
 
 {% block title %}{{ text.title | devanagari }} {{ section.title }} | Ambuda{% endblock %}
@@ -36,16 +54,14 @@
 {% block main %}
 {# h-12 (on the header) corresponds to 3rem. #}
 <article class="flex" style="height: calc(100vh - 3rem)">
-  <div class="flex-1 md:text-xl p-2 md:p-8 overflow-y-scroll">
-    {{ content | safe }}
-  </div>
-
-  <div class="hidden md:block flex-1 p-2 md:p-8 overflow-y-scroll border-l">
-    {{ m.dict_form() }}
-    <div style="overflow: scroll;">
-      {{ m.dict_target() }}
+  <div class="flex-1 p-2 md:p-8 overflow-y-scroll">
+    {{ control_panel() }}
+    <div class="md:text-xl">
+      {{ content | safe }}
     </div>
   </div>
+
+  {{ sidebar() }}
 </article>
 
 {% endblock %}

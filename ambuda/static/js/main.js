@@ -1,4 +1,9 @@
-function get_json(url, callback) {
+(function() {
+
+const $ = document.querySelector.bind(document);
+const $$ = document.querySelectorAll.bind(document);
+
+function getJSON(url, callback) {
     const req = new XMLHttpRequest();
     req.onreadystatechange = function() {
         if (req.readyState == XMLHttpRequest.DONE) {
@@ -13,18 +18,28 @@ function get_json(url, callback) {
 
 function ajaxDict(e) {
     e.preventDefault();
-    const form = document.getElementById('mw-ajax');
+    const form = $('#mw-ajax');
     const query = form.querySelector('input[name=q]').value;
     const version = form.querySelector('select[name=version]').value;
     console.log(version);
     const url = `/api/dict/${version}/${query}`;
-    get_json(url, function(resp) {
+    getJSON(url, function(resp) {
 		if (resp.entries && resp.entries.length > 0) {
-			document.querySelector('#mw-response').innerHTML = '<ul>' + resp.entries.join('') + '</ul>';
+			$('#mw-response').innerHTML = '<ul>' + resp.entries.join('') + '</ul>';
 		} else {
-			document.querySelector('#mw-response').innerHTML = '<p>No results found.</p>';
+			$('#mw-response').innerHTML = '<p>No results found.</p>';
 		}
     });
 }
-const form = document.getElementById('mw-ajax');
-form.addEventListener('submit', ajaxDict);
+
+function toggleSidebar(e) {
+    e.preventDefault();
+    const classes = $('#sidebar').classList;
+    classes.toggle('md:block');
+    classes.toggle('md:hidden');
+}
+
+$('#mw-ajax').addEventListener('submit', ajaxDict);
+$('#toggle-sidebar').addEventListener('click', toggleSidebar);
+
+}());
