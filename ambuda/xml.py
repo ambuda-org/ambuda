@@ -22,9 +22,14 @@ def elem(name: str, attrs=None, before="", after=""):
 
 
 tei_transforms = {
+    "div": elem("section"),
+    "seg": elem("span"),
+    "hi": text(),
+    "note": None,
+    "orig": elem("span"),
     "lg": elem("p", {"class": "x-verse"}),
     "l": elem("span", {"class": "x-pada"}),
-    "section": elem("section", {}),
+    "section": elem("section"),
 }
 
 paren_rule = Rule("span", {"class": "paren"}, "(", ")")
@@ -116,12 +121,19 @@ def transform_tei(blob: str) -> str:
 
     for elem in root.iter():
         rule = tei_transforms[elem.tag]
+        if rule is None:
+            elem.tag = elem.text = None
+            elem.clear()
+            continue
+
         elem.tag = rule.tag
         elem.attrib = rule.attrib
-        elem.text = sanscript.transliterate(
-            elem.text, sanscript.HK, sanscript.DEVANAGARI
-        )
-    return ET.tostring(root, encoding="utf-8").decode("utf-8")
+        elem.text = "##" + (elem.text or "") + "##"
+
+    untrans = ET.tostring(root, encoding="utf-8").decode("utf-8")
+    return sanscript.transliterate(
+        "##" + untrans, sanscript.HK, sanscript.DEVANAGARI, togglers={"##"}
+    )
 
 
 def transform_mw(blob: str) -> str:

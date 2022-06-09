@@ -112,7 +112,7 @@ def get_sections(verses):
 
 
 def get_section_xml(section) -> str:
-    buf = ["<section>\n"]
+    buf = ["<div>\n"]
     for verse in section.verses:
         buf.append("  <lg>\n")
         for i, line in enumerate(verse.lines):
@@ -122,7 +122,7 @@ def get_section_xml(section) -> str:
             else:
                 buf.append(f"    <l>{line.text} \u0964</l>\n")
         buf.append("  </lg>\n")
-    buf.append("</section>\n")
+    buf.append("</div>\n")
     return "".join(buf)
 
 

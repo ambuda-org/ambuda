@@ -26,7 +26,7 @@ def _prev_cur_next(sections: list[db.TextSection], slug: str):
 
     prev = sections[i - 1] if i > 0 else None
     cur = sections[i]
-    next = sections[i + 1] if i < len(sections) + 1 else None
+    next = sections[i + 1] if i < len(sections) - 1 else None
     return prev, cur, next
 
 
