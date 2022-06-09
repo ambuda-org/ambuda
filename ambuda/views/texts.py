@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from flask import Blueprint, render_template, url_for, abort
+from indic_transliteration import sanscript
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
@@ -40,9 +41,15 @@ def _section_groups(sections):
     return grouper
 
 
+def _hk_to_dev(s: str) -> str:
+    return sanscript.transliterate(s, sanscript.HK, sanscript.DEVANAGARI)
+
+
 @bp.route("/")
 def index():
-    return render_template("texts/index.html", texts=q.texts())
+    all_texts = q.texts()
+    all_texts = sorted(all_texts, key=lambda t: _hk_to_dev(t.title))
+    return render_template("texts/index.html", texts=all_texts)
 
 
 @bp.route("/<slug>/")
