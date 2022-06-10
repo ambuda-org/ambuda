@@ -92,19 +92,22 @@ function switchScript(newScript) {
     transliteratePage(oldScript, newScript, '.x-verse');
 }
 
-const $scriptMenu = $("#switch-sa");
+
 const $toggleLink = $("#toggle-sidebar");
+if ($toggleLink) {
+  $toggleLink.addEventListener('click', toggleSidebar);
+  if (getShowSidebar()) { $toggleLink.click(); }
+}
 
-// Add event listeners
-$toggleLink.addEventListener('click', toggleSidebar);
-$scriptMenu.addEventListener('change', function() { switchScript(this.value) });
+const $scriptMenu = $("#switch-sa");
+if ($scriptMenu) {
+  $scriptMenu.addEventListener('change', function() {
+    switchScript(this.value);
+  });
+  transliteratePage(SA_DEFAULT, getUserScript(), '.x-verse');
+  $scriptMenu.value = getUserScript();
+}
+
 $('#mw-ajax').addEventListener('submit', ajaxDict);
-
-// Apply localStorage state to page.
-transliteratePage(SA_DEFAULT, getUserScript(), '.x-verse');
-if (getShowSidebar()) { $toggleLink.click(); }
-
-// Update user config widgets to match localStorage.
-$scriptMenu.value = getUserScript();
 
 })();
