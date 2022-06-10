@@ -22,6 +22,14 @@
 {% macro control_panel() %}
 <div class="hidden md:block text-sm text-zinc-400 mb-4">
   <a id="toggle-sidebar" class="hover:underline hover:text-black" href="#">Toggle dictionary</a>
+
+  | Script:
+  <select id="switch-sa" class="p-1">
+    <option value="devanagari" selected="">Devanagari</option>
+    <option value="kannada">Kannada</option>
+    <option value="telugu">Telugu</option>
+    <option value="iast">Roman</option>
+  </select>
 </div>
 {% endmacro %}
 

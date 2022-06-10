@@ -39,7 +39,61 @@ function toggleSidebar(e) {
     classes.toggle('md:hidden');
 }
 
+// Transliteration
+
+/* Get and set user data. */
+const SA_KEY = 'sa_script';
+const SA_DEFAULT = 'devanagari';
+const SA_SELECTOR = '#switch-sa';
+
+function getUserScript() {
+  return localStorage.getItem(SA_KEY) || SA_DEFAULT;
+}
+function setUserScript(value) {
+  localStorage.setItem(SA_KEY, value);
+}
+
+function forEachTextNode(elem, callback) {
+  const nodeList = elem.childNodes;
+  for (let i = 0; i < nodeList.length; i++) {
+    const node = nodeList[i];
+    if (node.nodeType === Node.TEXT_NODE) {
+      node.textContent = callback(node.textContent);
+    } else {
+      // Ignore lang="en"
+      if (node.lang !== 'en') {
+        forEachTextNode(node, callback);
+      }
+	}
+  }
+}
+
+function transliteratePage(oldScript, newScript, selector) {
+  if (oldScript === newScript) { return };
+  document.querySelectorAll(selector).forEach((elem) => {
+    forEachTextNode(elem, (s) => {
+      return Sanscript.t(s.toLowerCase(), oldScript, newScript);
+    });
+  });
+}
+
+function switchScript(newScript) {
+    console.log(newScript);
+    const oldScript = getUserScript();
+    setUserScript(newScript);
+    transliteratePage(oldScript, newScript, '.x-verse');
+}
+
 $('#mw-ajax').addEventListener('submit', ajaxDict);
 $('#toggle-sidebar').addEventListener('click', toggleSidebar);
+$(SA_SELECTOR).addEventListener('change', function() { switchScript(this.value) });
 
-}());
+transliteratePage(SA_DEFAULT, getUserScript(), '.x-verse');
+
+// Update menu to match.
+const menuSa = $(SA_SELECTOR)
+if (menuSa) {
+  menuSa.value = getUserScript();
+}
+
+})();
