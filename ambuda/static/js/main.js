@@ -21,13 +21,12 @@ function ajaxDict(e) {
     const form = $('#mw-ajax');
     const query = form.querySelector('input[name=q]').value;
     const version = form.querySelector('select[name=version]').value;
-    console.log(version);
     const url = `/api/dict/${version}/${query}`;
     getJSON(url, function(resp) {
 		if (resp.entries && resp.entries.length > 0) {
 			$('#mw-response').innerHTML = '<ul>' + resp.entries.join('') + '</ul>';
 		} else {
-			$('#mw-response').innerHTML = '<p>No results found.</p>';
+			$('#mw-response').innerHTML = `<p>No results found for query "<kbd>${query}</kbd>".</p>`;
 		}
     });
 }
@@ -37,14 +36,17 @@ function toggleSidebar(e) {
     const classes = $('#sidebar').classList;
     classes.toggle('md:block');
     classes.toggle('md:hidden');
+
+    const isVisible = classes.contains('md:block');
+    setShowSidebar(isVisible);
 }
 
 // Transliteration
 
 /* Get and set user data. */
 const SA_KEY = 'sa_script';
+const SHOW_DICT = 'show_dict'
 const SA_DEFAULT = 'devanagari';
-const SA_SELECTOR = '#switch-sa';
 
 function getUserScript() {
   return localStorage.getItem(SA_KEY) || SA_DEFAULT;
@@ -52,6 +54,13 @@ function getUserScript() {
 function setUserScript(value) {
   localStorage.setItem(SA_KEY, value);
 }
+function getShowSidebar() {
+  return localStorage.getItem(SHOW_DICT) || false;
+}
+function setShowSidebar(value) {
+  localStorage.setItem(SHOW_DICT, value);
+}
+
 
 function forEachTextNode(elem, callback) {
   const nodeList = elem.childNodes;
@@ -78,22 +87,24 @@ function transliteratePage(oldScript, newScript, selector) {
 }
 
 function switchScript(newScript) {
-    console.log(newScript);
     const oldScript = getUserScript();
     setUserScript(newScript);
     transliteratePage(oldScript, newScript, '.x-verse');
 }
 
+const $scriptMenu = $("#switch-sa");
+const $toggleLink = $("#toggle-sidebar");
+
+// Add event listeners
+$toggleLink.addEventListener('click', toggleSidebar);
+$scriptMenu.addEventListener('change', function() { switchScript(this.value) });
 $('#mw-ajax').addEventListener('submit', ajaxDict);
-$('#toggle-sidebar').addEventListener('click', toggleSidebar);
-$(SA_SELECTOR).addEventListener('change', function() { switchScript(this.value) });
 
+// Apply localStorage state to page.
 transliteratePage(SA_DEFAULT, getUserScript(), '.x-verse');
+if (getShowSidebar()) { $toggleLink.click(); }
 
-// Update menu to match.
-const menuSa = $(SA_SELECTOR)
-if (menuSa) {
-  menuSa.value = getUserScript();
-}
+// Update user config widgets to match localStorage.
+$scriptMenu.value = getUserScript();
 
 })();
