@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Add the Vacaspatyam to the database."""
 from ambuda.dict_utils import standardize_key
-from ambuda.seed.cdsl_utils import create_from_scratch, iter_xml
+from ambuda.seed.cdsl_utils import create_from_scratch, iter_entries_as_strings
 from ambuda.seed.common import (
     fetch_bytes,
     create_db,
@@ -14,7 +14,7 @@ ZIP_URL = (
 
 
 def s_generator(xml_blob: str):
-    for key, value in iter_xml(xml_blob):
+    for key, value in iter_entries_as_strings(xml_blob):
         key = standardize_key(key)
         yield key, value
 

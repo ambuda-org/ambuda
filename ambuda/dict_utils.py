@@ -25,7 +25,7 @@ def standardize_key(s: str) -> str:
     return "".join(buf)
 
 
-def standardize_apte_key(s: str) -> str:
+def expand_apte_keys(key: str) -> list[str]:
     """Standardize Apte's conventions against the other dictionaries.
 
     Apte uses aH and aM to compactly encode the gender of -a stems.
@@ -33,8 +33,12 @@ def standardize_apte_key(s: str) -> str:
     to look up a word. So, standardize by removing H/M from the end
     of nominal stems.
     """
-    apte_endings = ("aH", "aM", "iH", "uH", "UH")
-    if any(s.endswith(x) for x in apte_endings):
-        return s[:-1]
-    else:
-        return s
+    keys = [key]
+    if key[-1] == "a":
+        keys.append(key + "H")
+        keys.append(key + "M")
+    elif key[-1] in "iIuUfFxXeEoO":
+        keys.append(key + "H")
+    if key[-1] == "m":
+        keys.append(key[:-1] + "M")
+    return keys

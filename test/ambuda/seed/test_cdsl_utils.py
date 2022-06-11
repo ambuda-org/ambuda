@@ -1,5 +1,5 @@
 import pytest
-from ambuda.dict_utils import standardize_key, standardize_apte_key
+from ambuda.dict_utils import standardize_key, expand_apte_keys
 
 
 @pytest.mark.parametrize(
@@ -24,13 +24,13 @@ def test_standardize_key(before, after):
 @pytest.mark.parametrize(
     ["before", "after"],
     [
-        ("naraH", "nara"),
-        ("vanaM", "vana"),
-        ("agniH", "agni"),
-        ("guruH", "guru"),
-        ("vadhUH", "vadhU"),
-        ("manas", "manas"),
+        ("nara", ["nara", "naraH", "naraM"]),
+        ("agni", ["agni", "agniH"]),
+        ("guru", ["guru", "guruH"]),
+        ("lakzmI", ["lakzmI", "lakzmIH"]),
+        ("vaDU", ["vaDU", "vaDUH"]),
+        ("idAnIm", ["idAnIm", "idAnIM"]),
     ],
 )
-def test_standardize_apte_key(before, after):
-    assert standardize_apte_key(before) == after
+def test_expand_apte_keys(before, after):
+    assert expand_apte_keys(before) == after

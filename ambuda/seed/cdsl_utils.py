@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 import ambuda.database as db
 
 
-def iter_xml(blob: str):
+def iter_entries_as_xml(blob: str):
     """Iterate over CDSL-style dictionary XML."""
     tag_str = (
         "H1 H1A H1B H1C H1E H2 H2A H2B H2C H2E " "H3 H3A H3B H3C H3E H4 H4A H4B H4C H4E"
@@ -24,13 +24,18 @@ def iter_xml(blob: str):
             if child.tag == "key1":
                 key = child.text
                 break
+        yield key, elem
+
+        elem.clear()
+
+
+def iter_entries_as_strings(blob: str):
+    for key, elem in iter_entries_as_xml(blob):
         value = ET.tostring(elem, encoding="utf-8")
 
         assert key and value
         assert len(value) > 50, value
-
         yield key, value
-        elem.clear()
 
 
 def create_dict(session, **kw):

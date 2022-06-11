@@ -4,7 +4,7 @@ from flask import Blueprint
 
 import ambuda.queries as q
 from ambuda import xml
-from ambuda.dict_utils import standardize_key, standardize_apte_key
+from ambuda.dict_utils import standardize_key, expand_apte_keys
 
 api = Blueprint("api", __name__)
 bp = Blueprint("dictionaries", __name__)
@@ -18,9 +18,11 @@ def ajax_entry(version, key):
     slp1_key = sanscript.transliterate(key, input_scheme, sanscript.SLP1)
     slp1_key = standardize_key(slp1_key)
     if version == "apte":
-        slp1_key = standardize_apte_key(slp1_key)
+        keys = expand_apte_keys(slp1_key)
+        rows = q.dict_entries(version, keys)
+    else:
+        rows = q.dict_entry(version, slp1_key)
 
-    rows = q.select_mw(version, slp1_key)
     entries = [xml.transform_mw(r.value) for r in rows]
     return jsonify(entries=entries)
 

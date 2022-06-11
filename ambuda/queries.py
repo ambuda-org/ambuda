@@ -36,10 +36,22 @@ def dictionaries() -> list[db.Dictionary]:
     return session.query(db.Dictionary).all()
 
 
-def select_mw(version: str, key: str):
+def dict_entry(version: str, key: str):
     dicts = dictionaries()
     d = [d for d in dicts if d.slug == version][0]
-    # TODO: restrict to MW only
     return (
         session.query(db.DictionaryEntry).filter_by(dictionary_id=d.id, key=key).all()
+    )
+
+
+def dict_entries(version: str, keys: list[str]):
+    dicts = dictionaries()
+    d = [d for d in dicts if d.slug == version][0]
+    return (
+        session.query(db.DictionaryEntry)
+        .filter(
+            (db.DictionaryEntry.dictionary_id == d.id)
+            & (db.DictionaryEntry.key.in_(keys))
+        )
+        .all()
     )
