@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Add the Monier-Williams dictionary to the database."""
-
-from ambuda.seed.cdsl_utils import create_from_scratch
+from ambuda.dict_utils import standardize_key
+from ambuda.seed.cdsl_utils import create_from_scratch, iter_xml
 from ambuda.seed.common import (
     fetch_bytes,
     create_db,
@@ -11,6 +11,12 @@ from ambuda.seed.common import (
 ZIP_URL = (
     "https://www.sanskrit-lexicon.uni-koeln.de/scans/MWScan/2020/downloads/mwxml.zip"
 )
+
+
+def mw_generator(xml_blob: str):
+    for key, value in iter_xml(xml_blob):
+        key = standardize_key(key)
+        yield key, value
 
 
 def run():
@@ -26,7 +32,7 @@ def run():
         engine,
         slug="mw",
         title="Monier-Williams Sanskrit-English Dictionary (1899)",
-        xml_blob=xml_blob,
+        generator=mw_generator(xml_blob),
     )
 
     print("Done.")

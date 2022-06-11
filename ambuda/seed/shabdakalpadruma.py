@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Add the Vacaspatyam to the database."""
-
-from ambuda.seed.cdsl_utils import create_from_scratch
+from ambuda.dict_utils import standardize_key
+from ambuda.seed.cdsl_utils import create_from_scratch, iter_xml
 from ambuda.seed.common import (
     fetch_bytes,
     create_db,
@@ -11,6 +11,12 @@ from ambuda.seed.common import (
 ZIP_URL = (
     "https://www.sanskrit-lexicon.uni-koeln.de/scans/SKDScan/2013/downloads/skdxml.zip"
 )
+
+
+def s_generator(xml_blob: str):
+    for key, value in iter_xml(xml_blob):
+        key = standardize_key(key)
+        yield key, value
 
 
 def run():
@@ -23,7 +29,10 @@ def run():
 
     print("Adding items to database ...")
     create_from_scratch(
-        engine, slug="skd", title="Śabdakalpadrumaḥ (1886)", xml_blob=xml_blob
+        engine,
+        slug="skd",
+        title="Śabdakalpadrumaḥ (1886)",
+        generator=s_generator(xml_blob),
     )
 
     print("Done.")

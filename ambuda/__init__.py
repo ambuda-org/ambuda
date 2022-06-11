@@ -22,6 +22,7 @@ def create_app(config_name):
     # Filters
     app.jinja_env.filters.update(
         {
+            "d": filters.devanagari,
             "devanagari": filters.devanagari,
             "roman": filters.roman,
             "sa_roman": filters.sa_roman,

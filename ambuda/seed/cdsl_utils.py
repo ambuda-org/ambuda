@@ -28,6 +28,7 @@ def iter_xml(blob: str):
 
         assert key and value
         assert len(value) > 50, value
+
         yield key, value
         elem.clear()
 
@@ -61,7 +62,7 @@ def batches(generator, n):
             return
 
 
-def create_from_scratch(engine, slug: str, title: str, xml_blob: str):
+def create_from_scratch(engine, slug: str, title: str, generator):
     with Session(engine) as session:
         delete_existing_dict(session, slug)
         dictionary = create_dict(session, slug=slug, title=title)
@@ -71,10 +72,11 @@ def create_from_scratch(engine, slug: str, title: str, xml_blob: str):
     entries = db.DictionaryEntry.__table__
     ins = entries.insert()
     with engine.connect() as conn:
-        for i, batch in enumerate(batches(iter_xml(xml_blob), 10000)):
-            items = [
-                {"dictionary_id": dictionary.id, "key": key, "value": value}
-                for key, value in batch
-            ]
+        for i, batch in enumerate(batches(generator, 10000)):
+            items = []
+            for key, value in batch:
+                items.append(
+                    {"dictionary_id": dictionary.id, "key": key, "value": value}
+                )
             conn.execute(ins, items)
             print(10000 * (i + 1))
