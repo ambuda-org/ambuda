@@ -1,5 +1,7 @@
 (function() {
 
+// Utilities
+
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
@@ -16,52 +18,6 @@ function getJSON(url, callback) {
     req.send();
 }
 
-function ajaxDict(e) {
-    e.preventDefault();
-    const form = $('#mw-ajax');
-    const query = form.querySelector('input[name=q]').value;
-    const version = form.querySelector('select[name=version]').value;
-    const url = `/api/dict/${version}/${query}`;
-    getJSON(url, function(resp) {
-		if (resp.entries && resp.entries.length > 0) {
-			$('#mw-response').innerHTML = '<ul>' + resp.entries.join('') + '</ul>';
-		} else {
-			$('#mw-response').innerHTML = `<p>No results found for query "<kbd>${query}</kbd>".</p>`;
-		}
-    });
-}
-
-function toggleSidebar(e) {
-    e.preventDefault();
-    const classes = $('#sidebar').classList;
-    classes.toggle('md:block');
-    classes.toggle('md:hidden');
-
-    const isVisible = classes.contains('md:block');
-    setShowSidebar(isVisible);
-}
-
-// Transliteration
-
-/* Get and set user data. */
-const SA_KEY = 'sa_script';
-const SHOW_DICT = 'show_dict'
-const SA_DEFAULT = 'devanagari';
-
-function getUserScript() {
-  return localStorage.getItem(SA_KEY) || SA_DEFAULT;
-}
-function setUserScript(value) {
-  localStorage.setItem(SA_KEY, value);
-}
-function getShowSidebar() {
-  return localStorage.getItem(SHOW_DICT) || false;
-}
-function setShowSidebar(value) {
-  localStorage.setItem(SHOW_DICT, value);
-}
-
-
 function forEachTextNode(elem, callback) {
   const nodeList = elem.childNodes;
   for (let i = 0; i < nodeList.length; i++) {
@@ -73,8 +29,107 @@ function forEachTextNode(elem, callback) {
       if (node.lang !== 'en') {
         forEachTextNode(node, callback);
       }
-	}
+    }
   }
+}
+
+
+// Sidebar
+
+const SHOW_SIDEBAR = 'SHOW_SIDEBAR'
+
+function toggleSidebar(e) {
+    e.preventDefault();
+    const classes = $('#sidebar').classList;
+    classes.toggle('md:block');
+    classes.toggle('md:hidden');
+
+    const isVisible = classes.contains('md:block');
+    setShowSidebar(isVisible);
+}
+
+function getShowSidebar() {
+  return localStorage.getItem(SHOW_SIDEBAR) || false;
+}
+function setShowSidebar(value) {
+  localStorage.setItem(SHOW_SIDEBAR, value);
+}
+
+const $toggleLink = $("#toggle-sidebar");
+if ($toggleLink) {
+  $toggleLink.addEventListener('click', toggleSidebar);
+  if (getShowSidebar()) { $toggleLink.click(); }
+}
+
+
+// Dictionary
+
+const DICT_SCRIPT = 'DICT_SCRIPT'
+const DICT_SCRIPT_DEFAULT = 'devanagari';
+
+function getDictScript() {
+  return localStorage.getItem(DICT_SCRIPT) || DICT_SCRIPT_DEFAULT;
+}
+function setDictScript(value) {
+  localStorage.setItem(DICT_SCRIPT, value);
+}
+function fetchDictEntries(e) {
+    e.preventDefault();
+
+    const form = $('#dict--form');
+    const query = form.querySelector('input[name=q]').value;
+    const version = form.querySelector('select[name=version]').value;
+    const url = `/api/dict/${version}/${query}`;
+
+    getJSON(url, function(resp) {
+      const $el = $('#dict--response');
+      if (resp.entries && resp.entries.length > 0) {
+        // Transliterate in a container elem, then copy it over to the document.
+        const oldScript = 'devanagari';
+        const newScript = getDictScript();
+
+        const container = document.createElement('div');
+        container.innerHTML = '<ul>' + resp.entries.join('') + '</ul>';
+        container.querySelectorAll('[lang=sa]').forEach((elem) => {
+          forEachTextNode(elem, (s) => {
+            return Sanscript.t(s.toLowerCase(), oldScript, newScript);
+          })
+        });
+
+        $el.innerHTML = container.innerHTML;
+      } else {
+        $el.innerHTML = `<p>No results found for query "<kbd>${query}</kbd>".</p>`;
+      }
+    });
+}
+
+const $dictForm = $('#dict--form');
+if ($dictForm) {
+  $dictForm.addEventListener('submit', fetchDictEntries);
+  $('#dict--script').addEventListener('change', function() {
+    const oldScript = getDictScript();
+    const newScript = this.value;
+    setDictScript(newScript);
+
+    $('#dict--response').querySelectorAll('[lang=sa]').forEach((elem) => {
+      forEachTextNode(elem, (s) => {
+        return Sanscript.t(s.toLowerCase(), oldScript, newScript);
+      })
+    });
+  });
+}
+
+
+// Text transliteration
+
+const SA_KEY = 'SA_KEY'
+const SA_DEFAULT = 'devanagari';
+
+function getUserScript() {
+  return localStorage.getItem(SA_KEY) || SA_DEFAULT;
+}
+function setUserScript(value) {
+  localStorage.setItem(SA_KEY, value);
 }
 
 function transliteratePage(oldScript, newScript, selector) {
@@ -87,16 +142,9 @@ function transliteratePage(oldScript, newScript, selector) {
 }
 
 function switchScript(newScript) {
-    const oldScript = getUserScript();
-    setUserScript(newScript);
-    transliteratePage(oldScript, newScript, '.x-verse');
-}
-
-
-const $toggleLink = $("#toggle-sidebar");
-if ($toggleLink) {
-  $toggleLink.addEventListener('click', toggleSidebar);
-  if (getShowSidebar()) { $toggleLink.click(); }
+  const oldScript = getUserScript();
+  setUserScript(newScript);
+  transliteratePage(oldScript, newScript, '.x-verse');
 }
 
 const $scriptMenu = $("#switch-sa");
@@ -107,7 +155,5 @@ if ($scriptMenu) {
   transliteratePage(SA_DEFAULT, getUserScript(), '.x-verse');
   $scriptMenu.value = getUserScript();
 }
-
-$('#mw-ajax').addEventListener('submit', ajaxDict);
 
 })();

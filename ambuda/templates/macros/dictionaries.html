@@ -1,5 +1,5 @@
 {% macro dict_form() %}
-<form id="mw-ajax" class="mb-4">
+<form id="dict--form" class="mb-4">
   <div class="flex mb-2">
     <input name="q" type="text" placeholder="राम, ರಾಮ, rāma, rAma, ..." class="p-2 flex-1 bg-zinc-100 rounded-tl rounded-bl">
     <input type="submit" value="Search" class="bg-zinc-800 text-white p-2 rounded-tr rounded-br"></input>
@@ -10,11 +10,17 @@
     <option value="v">Vācaspatyam (1873)</option>
     <option value="skd">śabdakalpadruma (1886)</option>
   </select>
+  <select id="dict--script" class="text-sm bg-zinc-100 text-zinc-400 p-1">
+    <option value="devanagari" selected="">Devanagari</option>
+    <option value="kannada">Kannada</option>
+    <option value="telugu">Telugu</option>
+    <option value="iast">Roman</option>
+  </select>
 </form>
 
 <script defer src="/static/js/main.js"></script>
 {% endmacro %}
 
 {% macro dict_target() %}
-<ul id="mw-response"></ul>
+<ul id="dict--response"></ul>
 {% endmacro %}

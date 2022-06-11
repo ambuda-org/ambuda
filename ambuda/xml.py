@@ -165,5 +165,5 @@ def transform_mw(blob: str) -> str:
 
     untrans = ET.tostring(root, encoding="utf-8").decode("utf-8")
     return sanscript.transliterate(
-        "##" + untrans, sanscript.SLP1, sanscript.IAST, togglers={"##"}
+        "##" + untrans, sanscript.SLP1, sanscript.DEVANAGARI, togglers={"##"}
     )

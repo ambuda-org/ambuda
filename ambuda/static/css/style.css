@@ -30,7 +30,7 @@
   .mw-entry {max-width: 700px; margin: 0.5em 0;}
   .mw-entry .lex {font-weight: bold; }
   .mw-entry [lang=sa] {
-    @apply italic text-green-600;
+    @apply text-green-600;
   }
   .mw-entry cite {
     @apply bg-zinc-100;
