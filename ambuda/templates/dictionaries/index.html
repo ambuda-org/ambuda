@@ -9,36 +9,15 @@
 {{ m.dict_form() }}
 
 <div id="dict--response">
-  <div class="prose">
-  <p>This simple and fast lookup tool includes four popular dictionaries. It
-  auto-detects the common input schemes, including Devanagari, IAST,
-  Harvard-Kyoto, and SLP1. It also supports regional scripts like Kannada and
-  Telugu.</p>
-
-  <p>Notes on specific dictionaries:</p>
-
-  <ul>
-    <li><p>The Apte dictionary uses special conventions so that its entries
-        take up less space on a printed page (e.g. {{ 'paMktiH'|d }} and {{
-        'vanaM'|d }} instead of {{ 'paGkti'|d }} and {{ 'vana'|d }}). Our
-        dictionary optionally supports these conventions: you are free to
-        follow or ignore them as you wish.</p>
-
-    <li><p>The {{ 'zabdakalpadrumaH'|d }} generally expects that nominals
-        are given in their {{ 'prathamA-ekavacanam'|d }} form instead of their
-        {{ 'prAtipadika'|d }} form ({{ 'naraH'|d }} and {{ 'rAjA'| d }} instead
-        of {{ 'nara'|d }} and {{ 'rAjan'|d }}) and that roots are stated in
-        their Paninian form ({{ 'cara'|d }} and {{ 'Saha'|d }} instead of {{
-        'car'|d }} and {{ 'sah'|d }}).</p></li>
-
-    <li><p>The {{ 'vAcaspatyam'|d }} generally expects that roots are stated in
-        their Paninian form ({{ 'cara'|d }} and {{ 'Saha'|d }} instead of {{
-        'car'|d }} and {{ 'sah'|d }}).</p></li>
-  </ul>
-
-  <p>For data sources, see our <a href="{{ url_for('site.about') }}">About</a>
-  page.</p>
-  </div>
+{% if entries %}
+<ul>
+  {% for entry in entries %}
+    {{ entry|safe }}
+  {% endfor %}
+</ul>
+{% else %}
+  {% include 'include/dictionary-help.html' %}
+{% endif %}
 </div>
 
 {% endblock %}

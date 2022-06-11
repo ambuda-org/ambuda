@@ -6,16 +6,16 @@ import ambuda.queries as q
 from ambuda import xml
 from ambuda.dict_utils import standardize_key, expand_apte_keys
 
+
 api = Blueprint("api", __name__)
 bp = Blueprint("dictionaries", __name__)
 
 
-@api.route("/dict/<version>/<key>")
-def ajax_entry(version, key):
-    key = key.strip()
-    input_scheme = detect.detect(key)
+def _fetch_entries(version, query):
+    query = query.strip()
+    input_scheme = detect.detect(query)
 
-    slp1_key = sanscript.transliterate(key, input_scheme, sanscript.SLP1)
+    slp1_key = sanscript.transliterate(query, input_scheme, sanscript.SLP1)
     slp1_key = standardize_key(slp1_key)
     if version == "apte":
         keys = expand_apte_keys(slp1_key)
@@ -24,10 +24,21 @@ def ajax_entry(version, key):
     else:
         rows = q.dict_entry(version, slp1_key)
         entries = [xml.transform_mw(r.value) for r in rows]
+    return entries
 
+
+@api.route("/dict/<version>/<query>")
+def ajax_entry(version, query):
+    entries = _fetch_entries(version, query)
     return jsonify(entries=entries)
 
 
 @bp.route("/")
 def index():
     return render_template("dictionaries/index.html")
+
+
+@bp.route("/<version>/<query>")
+def entry(version, query):
+    entries = _fetch_entries(version, query)
+    return render_template("dictionaries/index.html", entries=entries)

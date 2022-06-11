@@ -64,6 +64,15 @@ if ($toggleLink) {
 
 // Dictionary
 
+const URL = {
+  ajaxDictionaryQuery: (version, query) => {
+    return `/api/dict/${version}/${query}`;
+  },
+  dictionaryQuery: (version, query) => {
+    return `/dictionaries/${version}/${query}`;
+  },
+}
+
 const DICT_SCRIPT = 'DICT_SCRIPT'
 const DICT_SCRIPT_DEFAULT = 'devanagari';
 
@@ -79,7 +88,7 @@ function fetchDictEntries(e) {
     const form = $('#dict--form');
     const query = form.querySelector('input[name=q]').value;
     const version = form.querySelector('select[name=version]').value;
-    const url = `/api/dict/${version}/${query}`;
+    const url = URL.ajaxDictionaryQuery(version, query);
 
     getJSON(url, function(resp) {
       const $el = $('#dict--response');
@@ -100,6 +109,7 @@ function fetchDictEntries(e) {
       } else {
         $el.innerHTML = `<p>No results found for query "<kbd>${query}</kbd>".</p>`;
       }
+      history.replaceState({}, "", URL.dictionaryQuery(version, query));
     });
 }
 
