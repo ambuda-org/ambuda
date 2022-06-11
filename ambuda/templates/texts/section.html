@@ -25,10 +25,7 @@
 
   | Script:
   <select id="switch-sa" class="p-1">
-    <option value="devanagari" selected="">Devanagari</option>
-    <option value="kannada">Kannada</option>
-    <option value="telugu">Telugu</option>
-    <option value="iast">Roman</option>
+    {% include 'include/script-options.html' %}
   </select>
 </div>
 {% endmacro %}
