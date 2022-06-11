@@ -106,7 +106,9 @@ function fetchDictEntries(e) {
 const $dictForm = $('#dict--form');
 if ($dictForm) {
   $dictForm.addEventListener('submit', fetchDictEntries);
-  $('#dict--script').addEventListener('change', function() {
+  $dictScript = $('#dict--script');
+
+  $dictScript.addEventListener('change', function() {
     const oldScript = getDictScript();
     const newScript = this.value;
     setDictScript(newScript);
@@ -117,6 +119,7 @@ if ($dictForm) {
       })
     });
   });
+  $dictScript.value = getDictScript();
 }
 
 

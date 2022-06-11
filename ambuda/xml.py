@@ -115,6 +115,21 @@ mw_transforms = {
     "mscverb": None,
 }
 
+# Tag meanings are documented here:
+# https://www.sanskrit-lexicon.uni-koeln.de/talkMay2008/mwtags.html
+apte_transforms = {
+    "ab": elem("abbr"),
+    "b": elem("b"),
+    "br": elem("br"),
+    "i": elem("i"),
+    "body": elem("li", {"class": "mw-entry"}),
+    "lb": elem("div", {"class": "h-2"}, ' '),
+    "lbinfo": None,
+    "ls": elem("cite"),
+    "s": elem("span", {"lang": "sa"}, "##", "##"),
+    # TODO: keep attrs
+    "span": elem("span"),
+}
 
 def transform_tei(blob: str) -> str:
     root = ET.fromstring(blob)
@@ -142,6 +157,39 @@ def transform_mw(blob: str) -> str:
     for elem in root.iter():
         try:
             rule = mw_transforms[elem.tag]
+        except KeyError:
+            print(f"unknown key: {elem.tag}")
+            continue
+        if rule is None:
+            elem.tag = elem.text = None
+            continue
+
+        elem.tag = rule.tag
+        elem.attrib = rule.attrib or {}
+
+        if rule.text_before:
+            elem.text = rule.text_before + (elem.text or "")
+        if rule.text_after:
+            # No children: append after current text
+            if len(elem) == 0:
+                elem.text = (elem.text or "") + rule.text_after
+            # Has children: append after last child
+            else:
+                last_child = elem[-1]
+                last_child.tail = (last_child.tail or "") + rule.text_after
+
+    untrans = ET.tostring(root, encoding="utf-8").decode("utf-8")
+    return sanscript.transliterate(
+        "##" + untrans, sanscript.SLP1, sanscript.DEVANAGARI, togglers={"##"}
+    )
+
+
+def transform_apte(blob: str) -> str:
+    root = ET.fromstring(blob)
+
+    for elem in root.iter():
+        try:
+            rule = apte_transforms[elem.tag]
         except KeyError:
             print(f"unknown key: {elem.tag}")
             continue

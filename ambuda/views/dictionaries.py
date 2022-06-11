@@ -20,10 +20,11 @@ def ajax_entry(version, key):
     if version == "apte":
         keys = expand_apte_keys(slp1_key)
         rows = q.dict_entries(version, keys)
+        entries = [xml.transform_apte(r.value) for r in rows]
     else:
         rows = q.dict_entry(version, slp1_key)
+        entries = [xml.transform_mw(r.value) for r in rows]
 
-    entries = [xml.transform_mw(r.value) for r in rows]
     return jsonify(entries=entries)
 
 
