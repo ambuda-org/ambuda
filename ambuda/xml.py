@@ -218,7 +218,7 @@ def transform_tei(blob):
                 fn(el)
 
     t = sanscript.transliterate
-    xml.attrib = {"lang": "sa"}
+    xml.attrib["lang"] = "sa"
     for el in xml.iter("*"):
         if el.text:
             el.text = t(el.text, sanscript.HK, sanscript.DEVANAGARI)

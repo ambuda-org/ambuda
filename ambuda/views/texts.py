@@ -69,8 +69,12 @@ def section(text_slug, section_slug):
     except ValueError:
         abort(404)
 
+    # Fetch with content blocks
+    cur = q.text_section(text.id, section_slug)
+
     with Session(q.engine) as sess:
-        content = xml.transform_tei(cur.xml)
+        blob = "<div>" + "".join(b.xml for b in cur.blocks) + "</div>"
+        content = xml.transform_tei(blob)
 
     return render_template(
         "texts/section.html",

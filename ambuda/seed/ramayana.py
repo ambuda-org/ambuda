@@ -1,25 +1,9 @@
 #!/usr/bin/env python3
 """Convert the raw Ramayana text to XML."""
 
-
 import re
-from pathlib import Path
 
-from sqlalchemy.orm import Session
-
-import ambuda.database as db
-from ambuda.seed.common import (
-    Line,
-    Kanda,
-    delete_existing_text,
-    get_verses,
-    get_sections,
-    fetch_text,
-    get_section_xml,
-    create_db,
-)
-
-PROJECT_DIR = Path(__file__).parent.parent.parent
+import ambuda.seed.itihasa_utils as iti
 
 BASE_URL = "https://bombay.indology.info/ramayana/text/UD/Ram{n}.txt"
 
@@ -39,7 +23,7 @@ def iter_lines(raw: str):
 
         text = text.replace(";", "").replace("&", "&amp;")
 
-        yield Line(
+        yield iti.Line(
             kanda=int(kanda),
             section=int(section),
             verse=int(verse),
@@ -48,17 +32,21 @@ def iter_lines(raw: str):
         )
 
 
-def parse_kanda(raw: str) -> Kanda:
+def parse_kanda(raw: str) -> iti.Kanda:
     lines = list(iter_lines(raw))
-    verses = list(get_verses(lines))
-    sections = list(get_sections(verses))
-
-    return Kanda(n=sections[0].kanda, sections=sections)
+    verses = list(iti.get_verses(lines))
+    sections = list(iti.get_sections(verses))
+    return iti.Kanda(n=sections[0].kanda, sections=sections)
 
 
 def run():
+    text_slug = "ramayanam"
+
     print("Initializing database ...")
-    engine = create_db()
+    engine = iti.create_db()
+
+    print("Cleaning up old state ...")
+    iti.delete_existing_text(engine, text_slug)
 
     print("Parsing text ...")
     kandas = []
@@ -68,29 +56,13 @@ def run():
             n = "0" + n
 
         url = BASE_URL.format(n=n)
-        text = fetch_text(url)
+        text = iti.fetch_text(url)
         kandas.append(parse_kanda(text))
 
-    text_slug = "ramayana"
-    print("Cleaning up old state ...")
-    delete_existing_text(engine, text_slug)
-
-    print("Writing new data ...")
-    with Session(engine) as session:
-        text = db.Text(slug=text_slug, title="rAmAyaNam")
-        session.add(text)
-        session.flush()
-
-        text_id = text.id
-        items = []
-        for kanda in kandas:
-            for s in kanda.sections:
-                slug = f"{s.kanda}.{s.n}"
-                xml = get_section_xml(s)
-                section = db.TextSection(text=text, slug=slug, title=slug, xml=xml)
-                session.add(section)
-
-        session.commit()
+    print("Writing text ...")
+    iti.write_kandas(
+        engine, kandas, text_slug=text_slug, text_title="rAmAyaNam", xml_id_prefix="R"
+    )
 
     print("Done.")
 

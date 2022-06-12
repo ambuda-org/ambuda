@@ -42,8 +42,22 @@ class TextSection(Base):
     text_id = foreign_key("texts.id")
     slug = Column(String, index=True, nullable=False)
     title = Column(String, nullable=False)
-    # TODO: move to TextUnit?
+
+    blocks = relationship(
+        "TextBlock", backref="section", order_by=lambda: TextBlock.n, cascade="delete"
+    )
+
+
+class TextBlock(Base):
+    __tablename__ = "text_blocks"
+
+    id = pk()
+    text_id = foreign_key("texts.id")
+    section_id = foreign_key("text_sections.id")
+    slug = Column(String, index=True, nullable=False)
     xml = Column(_Text, nullable=False)
+    #: (internal-only) Block A comes before block B iff A.n < B.n.
+    n = Column(Integer, nullable=False)
 
 
 class Dictionary(Base):

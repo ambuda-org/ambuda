@@ -11,6 +11,10 @@ engine = create_engine(db.DATABASE_URI)
 session = Session(engine)
 
 
+def texts() -> list[db.Text]:
+    return session.query(db.Text).all()
+
+
 def text(slug: str) -> db.Text:
     return (
         session.query(db.Text)
@@ -25,8 +29,8 @@ def text(slug: str) -> db.Text:
     )
 
 
-def texts() -> list[db.Text]:
-    return session.query(db.Text).all()
+def text_section(text_id: int, slug: str) -> db.TextSection:
+    return session.query(db.TextSection).filter_by(text_id=text_id, slug=slug).first()
 
 
 # TODO: maybe don't functool cache?

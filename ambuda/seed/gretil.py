@@ -12,7 +12,7 @@ from indic_transliteration import sanscript
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
-from ambuda.seed.common import create_db, fetch_bytes, delete_existing_text
+from ambuda.seed.itihasa_utils import create_db, fetch_bytes, delete_existing_text
 
 
 ZIP_URL = "http://gretil.sub.uni-goettingen.de/gretil/1_sanskr.zip"
@@ -27,7 +27,7 @@ class Spec:
 
 ALLOW = [
     Spec("kumarasambhavam", "kumArasambhavam", "sa_kAlidAsa-kumArasaMbhava.txt"),
-    Spec("raghuvamsha", "raghuvaMzaH", "sa_kAlidAsa-raghuvaMza.txt"),
+    # Spec("raghuvamsha", "raghuvaMzaH", "sa_kAlidAsa-raghuvaMza.txt"),
     Spec("kiratarjuniyam", "kirAtArjunIyam", "sa_bhAravi-kirAtArjunIya.txt"),
     Spec("shishupalavadham", "zizupAlavadham", "sa_mAgha-zizupAlavadha.txt"),
     Spec("rtusamhara", "RtusaMhAraH", "sa_kAlidAsa-RtusaMhAra.txt"),
@@ -43,6 +43,18 @@ NS = {
     "tei": "http://www.tei-c.org/ns/1.0",
     "": "http://www.tei-c.org/ns/1.0",
 }
+
+
+@dataclass
+class Block:
+    slug: str
+    lines: list[str]
+
+
+@dataclass
+class Section:
+    slug: str
+    blocks: list[Block]
 
 
 def log(*a):
@@ -88,7 +100,7 @@ def iter_lines(blob: str):
                 yield line.strip()
 
 
-def iter_blocks(lines):
+def iter_line_groups(lines):
     buf = []
     for line in lines:
         if line:
@@ -100,22 +112,19 @@ def iter_blocks(lines):
         yield buf
 
 
-def iter_sections(blocks):
-    parsed = {}
-    for block in blocks:
-        last_line = block[-1]
+def iter_blocks(lines):
+    for group in iter_line_groups(lines):
+        assert len(group) <= 3, group
+        first, last = group[0], group[-1]
 
         # Skip spurious verses.
-        if last_line.endswith("*"):
+        if last.endswith("*"):
             continue
 
         # Skip spurious text.
-        if "//" not in last_line:
-            log(f"  [unknown text]: {last_line}")
+        if "//" not in last:
+            log(f"  [unknown text]: {last}")
             continue
-
-        assert len(block) <= 3, block
-        first, last = block[0], block[-1]
 
         # Format first half
         if not first.endswith("|"):
@@ -124,35 +133,43 @@ def iter_sections(blocks):
         # Format second half
         last = last.replace("//", "||")
         last_text, _, code = last.partition("||")
-        text_id, block_id = code.split("_")
-        chapter, n = block_id.split(".")
+        text_id, block_slug = code.split("_")
+        _, n = block_slug.split(".")
 
-        last = f"{last_text}||{n}||"
+        last = f"{last_text} ||{n}||"
 
-        if chapter not in parsed:
-            parsed[chapter] = []
+        group[0] = first
+        group[-1] = last
 
-        block[0] = first
-        block[-1] = last
-        parsed[chapter].append(block)
-
-    for key, blocks in parsed.items():
-        buf = ["<div>\n"]
-        for b in blocks:
-            buf.append("  <lg>\n")
-            for L in b:
-                hk = sanscript.transliterate(L, sanscript.IAST, sanscript.HK)
-                buf.append(f"    <l>{hk}</l>")
-            buf.append("  </lg>\n")
-        buf.append("</div>")
-        yield "".join(buf)
+        yield Block(slug=block_slug, lines=group)
 
 
-def parse_plain_text(blob: str):
+def iter_sections(blocks):
+    parsed = {}
+    for block in blocks:
+        section_slug, _ = block.slug.split(".")
+        if section_slug not in parsed:
+            parsed[section_slug] = []
+        parsed[section_slug].append(block)
+
+    for slug, blocks in parsed.items():
+        yield Section(slug=slug, blocks=blocks)
+
+
+def parse_plain_text(blob: str) -> list[Section]:
     lines = iter_lines(blob)
     blocks = iter_blocks(lines)
     sections = iter_sections(blocks)
-    return sections
+    return list(sections)
+
+
+def to_xml(block: Block) -> str:
+    buf = ["<lg>"]
+    for line in block.lines:
+        dev_line = sanscript.transliterate(line, sanscript.IAST, sanscript.DEVANAGARI)
+        buf.append(f"<l>{dev_line}</l>")
+    buf.append("</lg>")
+    return "".join(buf)
 
 
 def add_text(engine, spec: Spec, blob: str):
@@ -165,11 +182,25 @@ def add_text(engine, spec: Spec, blob: str):
         session.add(text)
         session.flush()
 
-        text_id = text.id
-        for i, xml in enumerate(sections):
-            slug = str(i + 1)
-            section = db.TextSection(text=text, slug=slug, title=slug, xml=xml)
-            session.add(section)
+        n = 1
+        for section in sections:
+            db_section = db.TextSection(
+                text_id=text.id, slug=section.slug, title=section.slug
+            )
+            session.add(db_section)
+            session.flush()
+
+            for block in section.blocks:
+                db_block = db.TextBlock(
+                    text_id=text.id,
+                    section_id=db_section.id,
+                    slug=block.slug,
+                    xml=to_xml(block),
+                    n=n,
+                )
+                session.add(db_block)
+                session.flush()
+                n += 1
 
         session.commit()
 

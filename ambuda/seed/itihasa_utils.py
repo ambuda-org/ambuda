@@ -4,7 +4,6 @@
 
 import hashlib
 import io
-import json
 from dataclasses import dataclass
 from pathlib import Path
 import zipfile
@@ -13,7 +12,7 @@ import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from ambuda.database import DATABASE_URI, Base, Text
+import ambuda.database as db
 
 PROJECT_DIR = Path(__file__).parent.parent.parent
 CACHE_DIR = PROJECT_DIR / ".cache"
@@ -40,7 +39,7 @@ class Verse:
 class Section:
     kanda: int
     n: int
-    verses: list[Verse]
+    blocks: list[Verse]
 
 
 def fetch_text(url: str) -> str:
@@ -108,57 +107,64 @@ def get_sections(verses):
 
     for verses in group.values():
         v = verses[0]
-        yield Section(kanda=v.kanda, n=v.section, verses=verses)
+        yield Section(kanda=v.kanda, n=v.section, blocks=verses)
 
 
-def get_section_xml(section) -> str:
-    buf = ["<div>\n"]
-    for verse in section.verses:
-        buf.append("  <lg>\n")
-        for i, line in enumerate(verse.lines):
-            is_last = i == len(verse.lines) - 1
-            if is_last:
-                buf.append(f"    <l>{line.text} \u0965 {line.verse} \u0965</l>\n")
-            else:
-                buf.append(f"    <l>{line.text} \u0964</l>\n")
-        buf.append("  </lg>\n")
-    buf.append("</div>\n")
+def get_verse_xml(verse, xml_id) -> str:
+    buf = [f'<lg xml:id="{xml_id}">']
+    for i, line in enumerate(verse.lines):
+        is_last = i == len(verse.lines) - 1
+        if is_last:
+            buf.append(f"<l>{line.text} \u0965 {line.verse} \u0965</l>")
+        else:
+            buf.append(f"<l>{line.text} \u0964</l>")
+    buf.append("</lg>")
     return "".join(buf)
 
 
-def write_section_xml(section, out_file):
-    with open(out_file, "w") as f:
-        f.write(get_section_xml(section))
+def write_kandas(
+    engine, kandas: list[Kanda], text_slug: str, text_title: str, xml_id_prefix: str
+):
+    with Session(engine) as session:
+        text = db.Text(slug=text_slug, title=text_title)
+        session.add(text)
+        session.flush()
 
+        text_id = text.id
+        n = 1
+        for kanda in kandas:
+            for s in kanda.sections:
+                section_slug = f"{s.kanda}.{s.n}"
+                section = db.TextSection(
+                    text_id=text_id, slug=section_slug, title=section_slug
+                )
+                session.add(section)
+                session.flush()
 
-def write_metadata(title: str, slug: str, kandas: list[Kanda], out_file):
-    sections = []
-    for kanda in kandas:
-        for section in kanda.sections:
-            sections.append(
-                {
-                    "title": f"{section.kanda}.{section.n}",
-                    "slug": f"{section.kanda}.{section.n}",
-                }
-            )
-    metadata = {
-        "title": title,
-        "slug": slug,
-        "sections": sections,
-    }
-    with open(out_file, "w") as f:
-        json.dump(metadata, f, indent=2)
+                for block in s.blocks:
+                    block_slug = f"{section_slug}.{block.n}"
+                    xml_id = f"{xml_id_prefix}.{block_slug}"
+                    block = db.TextBlock(
+                        text_id=text_id,
+                        section_id=section.id,
+                        slug=block_slug,
+                        xml=get_verse_xml(block, xml_id=xml_id),
+                        n=n,
+                    )
+                    session.add(block)
+                    n += 1
+        session.commit()
 
 
 def create_db():
-    engine = create_engine(DATABASE_URI)
-    Base.metadata.create_all(engine)
+    engine = create_engine(db.DATABASE_URI)
+    db.Base.metadata.create_all(engine)
     return engine
 
 
 def delete_existing_text(engine, slug: str):
     with Session(engine) as session:
-        text = session.query(Text).where(Text.slug == slug).first()
+        text = session.query(db.Text).where(db.Text.slug == slug).first()
         if text:
             session.delete(text)
             session.commit()

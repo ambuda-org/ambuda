@@ -10,7 +10,7 @@ from ambuda.seed.cdsl_utils import (
     iter_entries_as_xml,
     create_from_scratch,
 )
-from ambuda.seed.common import (
+from ambuda.seed.itihasa_utils import (
     fetch_bytes,
     create_db,
     unzip_and_read,
