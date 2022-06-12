@@ -28,14 +28,19 @@
   }
 
   /* MW dictionary */
-  .mw-entry {max-width: 700px; margin: 0.5em 0;}
-  .mw-entry .lex {font-weight: bold; }
-  .mw-entry [lang=sa] {
-    @apply text-green-600;
-  }
-  .mw-entry cite {
+  .dict-entry {max-width: 700px; margin: 0.5em 0;}
+  .dict-entry .lex {font-weight: bold; }
+  .dict-entry cite {
     @apply bg-zinc-100;
     @apply text-zinc-400;
+  }
+
+  /* Vacaspatyam */
+  .dict-entry q {
+    @apply text-zinc-400;
+  }
+  .mw-entry [lang=sa] {
+    @apply text-green-600;
   }
 }
 

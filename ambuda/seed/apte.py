@@ -64,7 +64,7 @@ def _make_compounds(first_word, groups):
         # Case 1: simple and well-formed
         if re.fullmatch("\w+", child.text):
             samasa = sandhi_utils.apply(first_word, child.text)
-            group[0].text = first_word + '\u2014' + group[0].text
+            group[0].text = first_word + "\u2014" + group[0].text
             yield samasa, group
 
         # Case 2: other

@@ -1,43 +1,62 @@
+import re
 from dataclasses import dataclass
-from xml.etree import ElementTree as ET
 from typing import Optional
+from xml.etree import ElementTree as ET
 
 from indic_transliteration import sanscript
 
 
 @dataclass
 class Rule:
-    tag: Optional[str]
-    attrib: dict[str, str]
+
+    """Describes how to modify an XML element."""
+
+    tag: str
+    attrib: dict
     text_before: str
     text_after: str
 
+    def __call__(self, el):
+        el.tag = self.tag
+        el.attrib = self.attrib
+        if self.text_before:
+            el.text = self.text_before + (el.text or "")
+        if self.text_after:
+            el.tail = self.text_after + (el.tail or "")
+
+
+def elem(tag, attrib=None, text_before="", text_after=""):
+    """Helper to rename an element and change its attributes."""
+    return Rule(tag, attrib or {}, text_before, text_after)
+
 
 def text(before="", after=""):
+    """Replace an element with plain text."""
     return Rule(None, {}, before, after)
 
 
-def elem(name: str, attrs=None, before="", after=""):
-    return Rule(name, attrs or {}, before, after)
+def sanskrit_text(xml):
+    """Transliterate inline elements."""
+    t = sanscript.transliterate
+    xml.tag = "span"
+    xml.attrib = {"lang": "sa"}
+    for el in xml.iter("*"):
+        if el.text:
+            el.text = t(el.text, sanscript.SLP1, sanscript.DEVANAGARI)
+        # Ignore xml.tail
+        if el.tail and el is not xml:
+            el.tail = t(el.tail, sanscript.SLP1, sanscript.DEVANAGARI)
 
 
-tei_transforms = {
-    "div": elem("section"),
-    "seg": elem("span"),
-    "hi": text(),
-    "note": None,
-    "orig": elem("span"),
-    "lg": elem("p", {"class": "x-verse"}),
-    "l": elem("span", {"class": "x-pada"}),
-    "section": elem("section"),
-}
-
+#: Wrap in parentheses.
 paren_rule = Rule("span", {"class": "paren"}, "(", ")")
+#: Wrap in brackets.
 bracket_rule = Rule("span", {"class": "paren"}, "[", "]")
+
 
 # Tag meanings are documented here:
 # https://www.sanskrit-lexicon.uni-koeln.de/talkMay2008/mwtags.html
-mw_transforms = {
+mw_xml = {
     # Root elements
     "H1": None,
     "H1A": None,
@@ -54,7 +73,7 @@ mw_transforms = {
     "H4B": None,
     # Record structure
     "h": None,
-    "body": elem("li", {"class": "mw-entry"}),
+    "body": elem("li", {"class": "dict-entry mw-entry"}),
     "tail": None,
     # Head information -- hide all of it.
     "hc1": None,
@@ -82,13 +101,13 @@ mw_transforms = {
     "etc1": text("&c"),
     "etcetc": text("&c"),
     "amp": text("&"),
-    "eq": elem("abbr", None, before="="),
+    "eq": elem("abbr", None, text_before="="),
     "fs": text("/"),
     "msc": text(";"),
     "ccom": None,
     "ab": elem("abbr"),
     "etym": elem("i"),
-    "s": elem("span", {"lang": "sa"}, "##", "##"),
+    "s": sanskrit_text,
     "ns": elem("span"),
     "s1": elem("span"),
     "bio": elem("b"),
@@ -100,12 +119,11 @@ mw_transforms = {
     "hom": None,
     "info": None,
     "lang": elem("span"),
-    "lb": elem("br"),
     # Also distinct tail pc, should be treated differently
     "pc": None,
     "pcol": elem("span"),
-    "cf": elem("abbr", before="cf."),
-    "qv": elem("abbr", before="q.v."),
+    "cf": elem("abbr", text_before="cf."),
+    "qv": elem("abbr", text_before="q.v."),
     "see": text(" see "),
     # Tail elements
     "L": None,
@@ -113,6 +131,39 @@ mw_transforms = {
     "mul": None,
     "mat": None,
     "mscverb": None,
+    # Other
+    "pb": None,
+}
+apte_xml = {
+    "ab": elem("abbr"),
+    "b": elem("b"),
+    "br": elem("br"),
+    "i": elem("i"),
+    "body": elem("li", {"class": "dict-entry mw-entry"}),
+    "lb": elem("div", {"class": "h-2"}, " "),
+    "lbinfo": None,
+    "ls": elem("cite"),
+    "s": sanskrit_text,
+    # TODO: keep attrs
+    "span": elem("span"),
+}
+vacaspatyam_xml = {
+    "body": elem("li", {"class": "dict-entry"}),
+    "s": sanskrit_text,
+    "lb": elem("div", {"class": "h-2"}, " "),
+    "b": elem("b"),
+}
+
+# Defined against the TEI spec
+tei_xml = {
+    "div": elem("section"),
+    "seg": elem("span"),
+    "hi": text(),
+    "note": None,
+    "orig": elem("span"),
+    "lg": elem("p", {"class": "x-verse"}),
+    "l": elem("span", {"class": "x-pada"}),
+    "section": elem("section"),
 }
 
 # Tag meanings are documented here:
@@ -123,7 +174,7 @@ apte_transforms = {
     "br": elem("br"),
     "i": elem("i"),
     "body": elem("li", {"class": "mw-entry"}),
-    "lb": elem("div", {"class": "h-2"}, ' '),
+    "lb": elem("div", {"class": "h-2"}, " "),
     "lbinfo": None,
     "ls": elem("cite"),
     "s": elem("span", {"lang": "sa"}, "##", "##"),
@@ -131,87 +182,50 @@ apte_transforms = {
     "span": elem("span"),
 }
 
-def transform_tei(blob: str) -> str:
-    root = ET.fromstring(blob)
 
-    for elem in root.iter():
-        rule = tei_transforms[elem.tag]
-        if rule is None:
-            elem.tag = elem.text = None
-            elem.clear()
-            continue
-
-        elem.tag = rule.tag
-        elem.attrib = rule.attrib
-        elem.text = "##" + (elem.text or "") + "##"
-
-    untrans = ET.tostring(root, encoding="utf-8").decode("utf-8")
-    return sanscript.transliterate(
-        "##" + untrans, sanscript.HK, sanscript.DEVANAGARI, togglers={"##"}
-    )
-
-
-def transform_mw(blob: str) -> str:
-    root = ET.fromstring(blob)
-
-    for elem in root.iter():
-        try:
-            rule = mw_transforms[elem.tag]
-        except KeyError:
-            print(f"unknown key: {elem.tag}")
-            continue
-        if rule is None:
-            elem.tag = elem.text = None
-            continue
-
-        elem.tag = rule.tag
-        elem.attrib = rule.attrib or {}
-
-        if rule.text_before:
-            elem.text = rule.text_before + (elem.text or "")
-        if rule.text_after:
-            # No children: append after current text
-            if len(elem) == 0:
-                elem.text = (elem.text or "") + rule.text_after
-            # Has children: append after last child
+def transform(blob, transforms):
+    xml = ET.fromstring(blob)
+    for el in xml.iter("*"):
+        if el.tag in transforms:
+            fn = transforms[el.tag]
+            if fn is None:
+                # Don't delete the tail, as that would delete meaningful text.
+                el.tag = el.text = None
             else:
-                last_child = elem[-1]
-                last_child.tail = (last_child.tail or "") + rule.text_after
-
-    untrans = ET.tostring(root, encoding="utf-8").decode("utf-8")
-    return sanscript.transliterate(
-        "##" + untrans, sanscript.SLP1, sanscript.DEVANAGARI, togglers={"##"}
-    )
+                fn(el)
+    return ET.tostring(xml, encoding="utf-8").decode("utf-8")
 
 
-def transform_apte(blob: str) -> str:
-    root = ET.fromstring(blob)
+def transform_mw(blob):
+    return transform(blob, mw_xml)
 
-    for elem in root.iter():
-        try:
-            rule = apte_transforms[elem.tag]
-        except KeyError:
-            print(f"unknown key: {elem.tag}")
-            continue
-        if rule is None:
-            elem.tag = elem.text = None
-            continue
 
-        elem.tag = rule.tag
-        elem.attrib = rule.attrib or {}
+def transform_apte(blob):
+    return transform(blob, apte_xml)
 
-        if rule.text_before:
-            elem.text = rule.text_before + (elem.text or "")
-        if rule.text_after:
-            # No children: append after current text
-            if len(elem) == 0:
-                elem.text = (elem.text or "") + rule.text_after
-            # Has children: append after last child
+
+def transform_vacaspatyam(blob):
+    return transform(blob, vacaspatyam_xml)
+
+
+def transform_tei(blob):
+    xml = ET.fromstring(blob)
+    for el in xml.iter("*"):
+        if el.tag in tei_xml:
+            fn = tei_xml[el.tag]
+            if fn is None:
+                # Don't delete the tail, as that would delete meaningful text.
+                el.tag = el.text = None
             else:
-                last_child = elem[-1]
-                last_child.tail = (last_child.tail or "") + rule.text_after
+                fn(el)
 
-    untrans = ET.tostring(root, encoding="utf-8").decode("utf-8")
-    return sanscript.transliterate(
-        "##" + untrans, sanscript.SLP1, sanscript.DEVANAGARI, togglers={"##"}
-    )
+    t = sanscript.transliterate
+    xml.attrib = {"lang": "sa"}
+    for el in xml.iter("*"):
+        if el.text:
+            el.text = t(el.text, sanscript.HK, sanscript.DEVANAGARI)
+        # Ignore xml.tail
+        if el.tail and el is not xml:
+            el.tail = t(el.tail, sanscript.HK, sanscript.DEVANAGARI)
+
+    return ET.tostring(xml, encoding="utf-8").decode("utf-8")

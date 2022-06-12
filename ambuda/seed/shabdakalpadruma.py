@@ -30,7 +30,7 @@ def run():
     print("Adding items to database ...")
     create_from_scratch(
         engine,
-        slug="skd",
+        slug="shabdakalpadruma",
         title="Śabdakalpadrumaḥ (1886)",
         generator=s_generator(xml_blob),
     )

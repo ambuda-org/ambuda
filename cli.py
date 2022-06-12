@@ -16,6 +16,32 @@ def cli():
 
 
 @cli.command()
+def list_dicts():
+    with Session(engine) as session:
+        dicts = session.query(db.Dictionary).all()
+    for d in dicts:
+        print(d.slug)
+
+
+@cli.command()
+@click.argument("slug")
+def delete_dict(slug: str):
+    with Session(engine) as session:
+        d = session.query(db.Dictionary).where(db.Dictionary.slug == slug).first()
+        if d:
+            session.delete(d)
+            session.commit()
+
+
+@cli.command()
+def list_texts():
+    with Session(engine) as session:
+        texts = session.query(db.Text).all()
+    for t in texts:
+        print(t.slug)
+
+
+@cli.command()
 @click.argument("slug")
 def delete_text(slug: str):
     with Session(engine) as session:

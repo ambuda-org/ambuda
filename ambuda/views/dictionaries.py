@@ -23,7 +23,10 @@ def _fetch_entries(version, query):
         entries = [xml.transform_apte(r.value) for r in rows]
     else:
         rows = q.dict_entry(version, slp1_key)
-        entries = [xml.transform_mw(r.value) for r in rows]
+        if version == "vacaspatyam":
+            entries = [xml.transform_vacaspatyam(r.value) for r in rows]
+        else:
+            entries = [xml.transform_mw(r.value) for r in rows]
     return entries
 
 
