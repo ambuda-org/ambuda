@@ -40,11 +40,12 @@ def _make_text_blob(xml):
 
     # Extract definition numbers and put each on their own lines
     buf = []
-    i = 1
-    for token in text.split():
-        if token == str(i):
-            buf.append(f"</s><lb/><s><b>{i}</b>")
-            i += 1
+    n = 1
+    tokens = text.split()
+    for i, token in enumerate(tokens):
+        if token == str(n) and (i < len(tokens) - 1 and tokens[i + 1] != "|"):
+            buf.append(f"<lb/><b>{n}</b>")
+            n += 1
         else:
             buf.append(token)
     text = " ".join(buf)

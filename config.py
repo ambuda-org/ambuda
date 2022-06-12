@@ -9,6 +9,10 @@ class Config:
     SECRET_KEY = _get("SECRET_KEY", "local secret")
 
 
+class TestConfig(Config):
+    pass
+
+
 class DevelopmentConfig(Config):
     pass
 
@@ -20,6 +24,7 @@ class ProductionConfig(Config):
 
 
 config = {
+    "testing": TestConfig,
     "development": DevelopmentConfig,
     "production": ProductionConfig,
     "default": DevelopmentConfig,

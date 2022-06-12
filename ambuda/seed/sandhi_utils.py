@@ -1,4 +1,4 @@
-import re
+"""An adhoc implementation of samAsa-sandhi."""
 
 # Sound groups defined in the Shiva Sutras.
 AC = "aAiIuUfFxXeoEO"

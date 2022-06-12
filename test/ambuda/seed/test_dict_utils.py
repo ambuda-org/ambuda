@@ -25,9 +25,10 @@ def test_standardize_key(before, after):
     ["before", "after"],
     [
         ("nara", ["nara", "naraH", "naraM"]),
+        ("aDipA", ["aDipA", "aDipAH"]),
         ("agni", ["agni", "agniH"]),
-        ("guru", ["guru", "guruH"]),
         ("lakzmI", ["lakzmI", "lakzmIH"]),
+        ("guru", ["guru", "guruH"]),
         ("vaDU", ["vaDU", "vaDUH"]),
         ("idAnIm", ["idAnIm", "idAnIM"]),
     ],

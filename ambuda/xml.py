@@ -1,6 +1,4 @@
-import re
 from dataclasses import dataclass
-from typing import Optional
 from xml.etree import ElementTree as ET
 
 from indic_transliteration import sanscript

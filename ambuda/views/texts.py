@@ -1,9 +1,4 @@
-import functools
-import json
-from dataclasses import dataclass
-from pathlib import Path
-
-from flask import Blueprint, render_template, url_for, abort
+from flask import Blueprint, render_template, abort
 from indic_transliteration import sanscript
 from sqlalchemy.orm import Session
 
@@ -16,7 +11,8 @@ bp = Blueprint("texts", __name__)
 
 
 def _prev_cur_next(sections: list[db.TextSection], slug: str):
-    found = True
+    found = False
+    i = 0
     for i, s in enumerate(sections):
         if s.slug == slug:
             found = True
@@ -62,14 +58,14 @@ def text(slug):
     return render_template("texts/text.html", text=text, section_groups=section_groups)
 
 
-@bp.route("/<text>/<path>/")
-def section(text, path):
-    text = q.text(text)
+@bp.route("/<text_slug>/<section_slug>")
+def section(text_slug, section_slug):
+    text = q.text(text_slug)
     if text is None:
         abort(404)
 
     try:
-        prev, cur, next = _prev_cur_next(text.sections, path)
+        prev, cur, next = _prev_cur_next(text.sections, section_slug)
     except ValueError:
         abort(404)
 

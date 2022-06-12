@@ -9,6 +9,7 @@ PROJECT_DIRECTORY = os.environ["APP_SERVER_DIRECTORY"]
 USER = os.environ["APP_SERVER_USER"]
 HOST = os.environ["APP_SERVER_HOST"]
 
+r = Connection(f"root@{HOST}")
 c = Connection(f"{USER}@{HOST}")
 
 
@@ -60,6 +61,7 @@ def deploy(_):
                 "-o ambuda/static/gen/style.css --minify"
             )
         )
+    r.run("systemctl restart ambuda")
 
 
 @task

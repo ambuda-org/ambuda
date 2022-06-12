@@ -4,14 +4,14 @@
 {# Create prev/next navigation #}
 {% macro prev_next_nav(prev, next) %}
 {% if prev %}
-  {% set url = url_for('texts.section', text=text.slug, path=prev.slug) %}
+  {% set url = url_for('texts.section', text_slug=text.slug, section_slug=prev.slug) %}
   <a class="hover:underline block p-4" href="{{ url }}">&larr;</a>
   {% else %}
   <span>&nbsp;</span>
 {% endif %}
 
 {% if next %}
-  {% set url = url_for('texts.section', text=text.slug, path=next.slug) %}
+  {% set url = url_for('texts.section', text_slug=text.slug, section_slug=next.slug) %}
   <a class="hover:underline block p-4" href="{{ url }}">&rarr;</a>
   {% else %}
   <span>&nbsp;</span>

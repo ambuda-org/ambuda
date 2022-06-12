@@ -37,7 +37,7 @@ def expand_apte_keys(key: str) -> list[str]:
     if key[-1] == "a":
         keys.append(key + "H")
         keys.append(key + "M")
-    elif key[-1] in "iIuUfFxXeEoO":
+    elif key[-1] in "AiIuUfFxXeEoO":
         keys.append(key + "H")
     if key[-1] == "m":
         keys.append(key[:-1] + "M")

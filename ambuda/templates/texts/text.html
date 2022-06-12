@@ -3,7 +3,7 @@
 {% macro section_grid(sections) %}
 <ul class="grid grid-cols-5 md:grid-cols-10 gap-4 my-8">
 {% for s in sections %}
-  {% set url = url_for('texts.section', text=text.slug, path=s.slug) %}
+  {% set url = url_for('texts.section', text_slug=text.slug, section_slug=s.slug) %}
   <li><a class="text-center block hover:underline"
         href="{{ url }}">{{ s.title | devanagari }}
   </a></li>

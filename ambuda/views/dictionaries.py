@@ -1,5 +1,5 @@
 from indic_transliteration import detect, sanscript
-from flask import jsonify, render_template
+from flask import abort, jsonify, redirect, render_template, url_for
 from flask import Blueprint
 
 import ambuda.queries as q
@@ -32,6 +32,10 @@ def _fetch_entries(version, query):
 
 @api.route("/dict/<version>/<query>")
 def ajax_entry(version, query):
+    dictionaries = q.dictionaries()
+    if version not in dictionaries:
+        abort(404)
+
     entries = _fetch_entries(version, query)
     return jsonify(entries=entries)
 
@@ -41,7 +45,20 @@ def index():
     return render_template("dictionaries/index.html")
 
 
+@bp.route("/<slug>/")
+def version(slug):
+    dictionaries = q.dictionaries()
+    if slug not in dictionaries:
+        abort(404)
+    # TODO: set chosen dictionary as UX view
+    return redirect(url_for("dictionaries.index"))
+
+
 @bp.route("/<version>/<query>")
 def entry(version, query):
+    dictionaries = q.dictionaries()
+    if version not in dictionaries:
+        abort(404)
+
     entries = _fetch_entries(version, query)
     return render_template("dictionaries/index.html", entries=entries)

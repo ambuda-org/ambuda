@@ -1,14 +1,4 @@
-import functools
-import json
-from dataclasses import dataclass
-from pathlib import Path
-
-from flask import Blueprint, render_template, url_for, abort
-from sqlalchemy.orm import Session
-
-import ambuda.database as db
-import ambuda.queries as q
-from ambuda import xml
+from flask import Blueprint, render_template
 
 
 bp = Blueprint("site", __name__)
@@ -16,7 +6,7 @@ bp = Blueprint("site", __name__)
 
 @bp.route("/")
 def index():
-    return render_template("index.html", texts=q.texts())
+    return render_template("index.html")
 
 
 @bp.route("/about/")
