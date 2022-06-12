@@ -20,14 +20,17 @@ def _fetch_entries(version, query):
     if version == "apte":
         keys = expand_apte_keys(slp1_key)
         rows = q.dict_entries(version, keys)
-        entries = [xml.transform_apte(r.value) for r in rows]
     else:
         rows = q.dict_entry(version, slp1_key)
-        if version == "vacaspatyam":
-            entries = [xml.transform_vacaspatyam(r.value) for r in rows]
-        else:
-            entries = [xml.transform_mw(r.value) for r in rows]
-    return entries
+
+    transforms = {
+        "apte": xml.transform_apte,
+        "mw": xml.transform_mw,
+        "vacaspatyam": xml.transform_vacaspatyam,
+        "shabdakalpadruma": xml.transform_mw,
+    }
+    fn = transforms.get(version, xml.transform_mw)
+    return [fn(r.value) for r in rows]
 
 
 @api.route("/dict/<version>/<query>")

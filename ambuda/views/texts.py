@@ -27,7 +27,7 @@ def _prev_cur_next(sections: list[db.TextSection], slug: str):
     return prev, cur, next
 
 
-def _section_groups(sections):
+def _section_groups(sections: list[db.TextSection]):
     grouper = {}
     for s in sections:
         key, _, _ = s.slug.rpartition(".")

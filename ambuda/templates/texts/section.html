@@ -20,10 +20,14 @@
 
 {# Show site controls (large display only) #}
 {% macro control_panel() %}
-<div class="hidden md:block text-sm text-zinc-400 mb-4">
-  <a id="toggle-sidebar" class="hover:underline hover:text-black" href="#">Toggle dictionary</a>
+<div class="text-sm text-zinc-400 mb-4">
+  <span class="hidden md:inline">
+    <a id="toggle-sidebar"
+      class="hover:underline hover:text-black" href="#">Toggle dictionary</a>
+    |
+  </span>
 
-  | Script:
+  Script:
   <select id="switch-sa" class="p-1">
     {% include 'include/script-options.html' %}
   </select>
