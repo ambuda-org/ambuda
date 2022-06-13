@@ -27,10 +27,10 @@ class Spec:
 
 ALLOW = [
     Spec("kumarasambhavam", "kumArasambhavam", "sa_kAlidAsa-kumArasaMbhava.txt"),
-    # Spec("raghuvamsha", "raghuvaMzaH", "sa_kAlidAsa-raghuvaMza.txt"),
+    # Spec("raghuvamsham", "raghuvaMzam", "sa_kAlidAsa-raghuvaMza.txt"),
     Spec("kiratarjuniyam", "kirAtArjunIyam", "sa_bhAravi-kirAtArjunIya.txt"),
     Spec("shishupalavadham", "zizupAlavadham", "sa_mAgha-zizupAlavadha.txt"),
-    Spec("rtusamhara", "RtusaMhAraH", "sa_kAlidAsa-RtusaMhAra.txt"),
+    Spec("rtusamharam", "RtusaMhAram", "sa_kAlidAsa-RtusaMhAra.txt"),
     # Skip Bhattikavyam -- severe problems, needs extra processing
     # Spec("agnipurana", "agnipurANam", "sa_agnipurANa.txt"),
     # Spec("bhagavatapurana", "zrImadbhAgavatapurANam", "sa_bhAgavatapurANa.txt"),
