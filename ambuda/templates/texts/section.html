@@ -41,6 +41,19 @@
   <div style="overflow: scroll;">
     {{ m.dict_target() }}
   </div>
+
+  {% if text.slug == 'ramayanam' %}
+  <h2 class="font-bold my-4">Word-by-word analysis</h2>
+  <ul class="grid grid-cols-10 gap-4 my-8 text-center">
+  {% for b in section.blocks %}
+  <li>
+      {% set n = b.slug.split('.')[-1] %}
+      {% set url = url_for('parses.block', text_slug=text.slug, block_slug=b.slug) %}
+      <a class="text-zinc-400 hover:text-black hover:underline" href="{{ url }}">{{ n }}</a>
+  </li>
+  {% endfor %}
+  </ul>
+  {% endif %}
 </div>
 {% endmacro %}
 

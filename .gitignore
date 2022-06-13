@@ -1,5 +1,6 @@
 .env
 .cache/
+dcs-parse-data/
 env/
 gen/
 node_modules/

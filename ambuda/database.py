@@ -60,6 +60,15 @@ class TextBlock(Base):
     n = Column(Integer, nullable=False)
 
 
+class BlockParse(Base):
+    __tablename__ = "block_parses"
+
+    id = pk()
+    text_id = foreign_key("texts.id")
+    block_id = foreign_key("text_blocks.id")
+    data = Column(_Text, nullable=False)
+
+
 class Dictionary(Base):
     __tablename__ = "dictionaries"
 

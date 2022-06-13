@@ -1,7 +1,7 @@
 import functools
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, load_only, selectinload
 
 import ambuda.database as db
 
@@ -29,8 +29,40 @@ def text(slug: str) -> db.Text:
     )
 
 
+def text_meta(slug: str) -> db.Text:
+    return (
+        session.query(db.Text)
+        .filter_by(slug=slug)
+        .options(
+            load_only(
+                db.Text.id,
+                db.Text.slug,
+            )
+        )
+        .first()
+    )
+
+
 def text_section(text_id: int, slug: str) -> db.TextSection:
     return session.query(db.TextSection).filter_by(text_id=text_id, slug=slug).first()
+
+
+def block_meta(text_id: int, slug) -> db.Text:
+    return (
+        session.query(db.TextBlock)
+        .filter_by(text_id=text_id, slug=slug)
+        .options(
+            load_only(
+                db.TextBlock.id,
+                db.TextBlock.slug,
+            )
+        )
+        .first()
+    )
+
+
+def block_parse(block_id: int) -> list[db.BlockParse]:
+    return session.query(db.BlockParse).filter_by(block_id=block_id).first()
 
 
 # TODO: maybe don't functool cache?
