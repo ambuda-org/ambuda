@@ -152,6 +152,14 @@ vacaspatyam_xml = {
     "b": elem("b"),
 }
 
+
+def to_verse(el):
+    xml_id = "{http://www.w3.org/XML/1998/namespace}id"
+    el.tag = "p"
+    el.attrib = {"id": el.attrib.get(xml_id, ""), "class": "x-verse"}
+    print(list(el.attrib.keys()))
+
+
 # Defined against the TEI spec
 tei_xml = {
     "div": elem("section"),
@@ -159,7 +167,7 @@ tei_xml = {
     "hi": text(),
     "note": None,
     "orig": elem("span"),
-    "lg": elem("p", {"class": "x-verse"}),
+    "lg": to_verse,
     "l": elem("span", {"class": "x-pada"}),
     "section": elem("section"),
 }

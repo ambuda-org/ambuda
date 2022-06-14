@@ -53,7 +53,7 @@ function toggleSidebar(e) {
 }
 
 function getShowSidebar() {
-  return localStorage.getItem(SHOW_SIDEBAR) || false;
+  return localStorage.getItem(SHOW_SIDEBAR) === 'true';
 }
 function setShowSidebar(value) {
   localStorage.setItem(SHOW_SIDEBAR, value);

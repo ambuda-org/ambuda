@@ -2,17 +2,10 @@
 {% import 'macros/dictionaries.html' as m %}
 
 {# Create prev/next navigation #}
-{% macro prev_next_nav(prev, next) %}
-{% if prev %}
-  {% set url = url_for('texts.section', text_slug=text.slug, section_slug=prev.slug) %}
-  <a class="hover:underline block p-4" href="{{ url }}">&larr;</a>
-  {% else %}
-  <span>&nbsp;</span>
-{% endif %}
-
-{% if next %}
-  {% set url = url_for('texts.section', text_slug=text.slug, section_slug=next.slug) %}
-  <a class="hover:underline block p-4" href="{{ url }}">&rarr;</a>
+{% macro paginate_link(section, display_text) %}
+{% if section %}
+  {% set url = url_for('texts.section', text_slug=text.slug, section_slug=section.slug) %}
+  <a class="hover:underline p-4" href="{{ url }}">{{ display_text | safe }}</a>
   {% else %}
   <span>&nbsp;</span>
 {% endif %}
@@ -23,7 +16,7 @@
 <div class="text-sm text-zinc-400 mb-4">
   <span class="hidden md:inline">
     <a id="toggle-sidebar"
-      class="hover:underline hover:text-black" href="#">Toggle dictionary</a>
+      class="hover:underline hover:text-black" href="#">Toggle sidebar</a>
     |
   </span>
 
@@ -70,7 +63,10 @@
     </a> &raquo;
     {{ section.title }}
   </div>
-  <div class="flex">{{ prev_next_nav(prev, next) }}</div>
+  <div class="flex">
+    {{ paginate_link(prev, '&larr;') }}
+    {{ paginate_link(next, '&rarr;') }}
+  </div>
 </header>
 {% endblock %}
 
