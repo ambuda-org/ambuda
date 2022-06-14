@@ -1,7 +1,8 @@
 from flask import Flask
 
 from ambuda import filters
-from ambuda.views.dictionaries import api, bp as dictionaries
+from ambuda.views.api import bp as api
+from ambuda.views.dictionaries import bp as dictionaries
 from ambuda.views.site import bp as site
 from ambuda.views.parses import bp as parses
 from ambuda.views.texts import bp as texts
@@ -28,6 +29,7 @@ def create_app(config_name):
             "devanagari": filters.devanagari,
             "roman": filters.roman,
             "sa_roman": filters.sa_roman,
+            "slp2dev": filters.slp2dev,
         }
     )
 

@@ -43,8 +43,8 @@
   </div>
 
   {% if text.slug == 'ramayanam' %}
-  <h2 class="font-bold my-4">Word-by-word analysis</h2>
-  <ul class="grid grid-cols-10 gap-4 my-8 text-center">
+  <h2 class="font-bold my-4">Word-by-word analysis (beta)</h2>
+  <ul id="parse--menu" class="grid grid-cols-10 gap-4 my-8 text-center">
   {% for b in section.blocks %}
   <li>
       {% set n = b.slug.split('.')[-1] %}
@@ -53,6 +53,7 @@
   </li>
   {% endfor %}
   </ul>
+  <div id="parse--response" class="text-sm"></div>
   {% endif %}
 </div>
 {% endmacro %}

@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
+from indic_transliteration import sanscript
 from sqlalchemy.orm import Session, load_only
 
 import ambuda.database as db
@@ -48,6 +49,19 @@ def iter_parsed_blocks():
         yield ParsedBlock(slug=buf[0][0], rows=buf)
 
 
+def create_parse_blob(pb: ParsedBlock) -> str:
+    """Combine all of our structured parse data into an ugly blob.
+
+    (We'll clean it up later!)
+    """
+    buf = []
+    for slug, word, lemma, parse in pb.rows:
+        word = sanscript.transliterate(word, sanscript.IAST, sanscript.SLP1)
+        lemma = sanscript.transliterate(lemma, sanscript.IAST, sanscript.SLP1)
+        buf.append("\t".join((word, lemma, parse)))
+    return "\n".join(buf)
+
+
 def block_metadata(session, text_id: int) -> dict[str, int]:
     blocks = (
         session.query(db.TextBlock)
@@ -84,7 +98,7 @@ def run():
                 db.BlockParse(
                     text_id=text.id,
                     block_id=block_id,
-                    data="\n".join("\t".join(r) for r in parsed_block.rows),
+                    data=create_parse_blob(parsed_block),
                 )
             )
 

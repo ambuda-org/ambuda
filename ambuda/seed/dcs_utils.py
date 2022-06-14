@@ -119,7 +119,7 @@ VALUES = {
 }
 TENSE_MOODS = {
     ("Aor", "Ind"): "lun",
-    ("Aor", "Jus"): "lun-unaug",
+    ("Aor", "Jus"): "lun_unaug",
     ("Aor", "Prec"): "ashirlin",
     ("Fut", "Cond"): "lrn",
     ("Fut", "Ind"): "lrt",
@@ -128,7 +128,7 @@ TENSE_MOODS = {
     ("Perf", "Ind"): "lit",
     ("Pres", "Imp"): "lot",
     ("Pres", "Ind"): "lat",
-    ("Pres", "Jus"): "lan-unaug",
+    ("Pres", "Jus"): "lan_unaug",
     ("Pres", "Opt"): "vidhilin",
     ("Pres", "Sub"): "lot",
 }

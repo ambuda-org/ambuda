@@ -1,0 +1,22 @@
+{% macro parsed_tokens(tokens) %}
+<table class="w-full border">
+  <tr class="text-left border-b bg-zinc-100">
+    {% for s in ['Word', 'Root/Stem', 'Parse'] %}
+    <th class="p-4 px-2">{{ s }}</th>
+    {% endfor %}
+  </tr>
+  {% for token in tokens %}
+  <tr>
+     {% set lemma = token.lemma | slp2dev %}
+     <td class="p-2" lang="sa">{{ token.form | slp2dev }}</td>
+     <td class="p-2" lang="sa">
+       <a class="text-blue-500 underline"
+           href="{{ url_for('dictionaries.entry', version='apte', query=lemma) }}">
+           {{ lemma }}
+       </a>
+     </td>
+     <td class="p-2">{{ token.parse }}</td>
+  </tr>
+{% endfor %}
+</table>
+{% endmacro %}

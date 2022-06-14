@@ -5,17 +5,21 @@
 const $ = document.querySelector.bind(document);
 const $$ = document.querySelectorAll.bind(document);
 
-function getJSON(url, callback) {
+function getText(url, callback) {
     const req = new XMLHttpRequest();
     req.onreadystatechange = function() {
         if (req.readyState == XMLHttpRequest.DONE) {
             if (req.status == 200) {
-                callback(JSON.parse(req.responseText));
+                callback(req.responseText);
             }
         }
     };
     req.open('GET', url);
     req.send();
+}
+
+function getJSON(url, callback) {
+    return getText(url, function(text) { callback(JSON.parse(text)) });
 }
 
 function forEachTextNode(elem, callback) {
@@ -34,7 +38,7 @@ function forEachTextNode(elem, callback) {
 }
 
 
-// Sidebar
+// Sidebar show/hide
 
 const SHOW_SIDEBAR = 'SHOW_SIDEBAR'
 
@@ -130,6 +134,22 @@ if ($dictForm) {
     });
   });
   $dictScript.value = getDictScript();
+}
+
+
+// Parse data
+const $parseMenu = $("#parse--menu");
+if ($parseMenu) {
+  $parseMenu.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (e.target.tagName !== 'A') {
+          return;
+      }
+      const url = '/api' + e.target.pathname;
+      getText(url, function(t) {
+          $('#parse--response').innerHTML = t;
+      });
+  });
 }
 
 

@@ -1,7 +1,8 @@
 {% extends 'base-text.html' %}
+{% import 'macros/parsing.html' as m %}
 
 {% block title %}Parse data | Ambuda{% endblock %}
 
 {% block content %}
-<pre class="p-4 bg-zinc-100">{{ parse.data }}</pre>
+{{ m.parsed_tokens(tokens) }}
 {% endblock %}
