@@ -64,4 +64,4 @@ def entry(version, query):
         abort(404)
 
     entries = _fetch_entries(version, query)
-    return render_template("dictionaries/index.html", entries=entries)
+    return render_template("dictionaries/index.html", query=query, entries=entries)

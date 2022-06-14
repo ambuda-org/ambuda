@@ -9,14 +9,16 @@
 {{ m.dict_form() }}
 
 <div id="dict--response">
-{% if entries %}
+{% if query and entries %}
 <ul>
   {% for entry in entries %}
     {{ entry|safe }}
   {% endfor %}
 </ul>
+{% elif query %}
+<p>No results found for query "<kbd>{{ query }}</kbd>".
 {% else %}
-  {% include 'include/dictionary-help.html' %}
+{% include 'include/dictionary-help.html' %}
 {% endif %}
 </div>
 
