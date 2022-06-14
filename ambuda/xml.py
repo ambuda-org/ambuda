@@ -155,8 +155,8 @@ vacaspatyam_xml = {
 
 def to_verse(el):
     xml_id = "{http://www.w3.org/XML/1998/namespace}id"
-    el.tag = "p"
-    el.attrib = {"id": el.attrib.get(xml_id, ""), "class": "x-verse"}
+    el.tag = "s-lg"
+    el.attrib = {"id": el.attrib.get(xml_id, "")}
     print(list(el.attrib.keys()))
 
 
@@ -168,7 +168,7 @@ tei_xml = {
     "note": None,
     "orig": elem("span"),
     "lg": to_verse,
-    "l": elem("span", {"class": "x-pada"}),
+    "l": elem("s-l"),
     "section": elem("section"),
 }
 

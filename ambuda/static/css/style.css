@@ -6,10 +6,11 @@
   .x-deva {
     /* TODO: choose a nice typeface. */
   }
-  .x-verse {
-    @apply x-deva leading-normal mb-4;
+  s-lg {
+    @apply block x-deva leading-normal mb-4;
+    @apply cursor-pointer;
   }
-  .x-pada {
+  s-l {
     @apply block;
   }
 

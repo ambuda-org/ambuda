@@ -42,14 +42,17 @@ function forEachTextNode(elem, callback) {
 
 const SHOW_SIDEBAR = 'SHOW_SIDEBAR'
 
-function toggleSidebar(e) {
-    e.preventDefault();
+function toggleSidebar() {
     const classes = $('#sidebar').classList;
     classes.toggle('md:block');
     classes.toggle('md:hidden');
 
     const isVisible = classes.contains('md:block');
     setShowSidebar(isVisible);
+}
+function onClickToggleLink(e) {
+  e.preventDefault();
+  toggleSidebar();
 }
 
 function getShowSidebar() {
@@ -61,7 +64,7 @@ function setShowSidebar(value) {
 
 const $toggleLink = $("#toggle-sidebar");
 if ($toggleLink) {
-  $toggleLink.addEventListener('click', toggleSidebar);
+  $toggleLink.addEventListener('click', onClickToggleLink);
   if (getShowSidebar()) { $toggleLink.click(); }
 }
 
@@ -138,20 +141,23 @@ if ($dictForm) {
 
 
 // Parse data
-const $parseMenu = $("#parse--menu");
-if ($parseMenu) {
-  $parseMenu.addEventListener('click', function(e) {
-      e.preventDefault();
-      if (e.target.tagName !== 'A') {
-          return;
-      }
-      const url = '/api' + e.target.pathname;
+const $textContent = $("#text--content");
+if ($textContent) {
+  $textContent.addEventListener('click', function(e) {
+    const block = e.target.closest("s-lg");
+    if (block !== null && block.id.startsWith("R.")) {
+      const slug = block.id.split(".").slice(1).join(".");
+
+      const url = '/api/parses/ramayanam/' + slug;
       getText(url, function(t) {
+          if (!getShowSidebar()) {
+            toggleSidebar();
+          }
           $('#parse--response').innerHTML = t;
       });
+    }
   });
 }
-
 
 // Text transliteration
 
@@ -177,7 +183,7 @@ function transliteratePage(oldScript, newScript, selector) {
 function switchScript(newScript) {
   const oldScript = getUserScript();
   setUserScript(newScript);
-  transliteratePage(oldScript, newScript, '.x-verse');
+  transliteratePage(oldScript, newScript, 's-lg');
 }
 
 const $scriptMenu = $("#switch-sa");
@@ -185,7 +191,7 @@ if ($scriptMenu) {
   $scriptMenu.addEventListener('change', function() {
     switchScript(this.value);
   });
-  transliteratePage(SA_DEFAULT, getUserScript(), '.x-verse');
+  transliteratePage(SA_DEFAULT, getUserScript(), 's-lg');
   $scriptMenu.value = getUserScript();
 }
 

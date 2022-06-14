@@ -36,17 +36,11 @@
   </div>
 
   {% if text.slug == 'ramayanam' %}
-  <h2 class="font-bold my-4">Word-by-word analysis (beta)</h2>
-  <ul id="parse--menu" class="grid grid-cols-10 gap-4 my-8 text-center">
-  {% for b in section.blocks %}
-  <li>
-      {% set n = b.slug.split('.')[-1] %}
-      {% set url = url_for('parses.block', text_slug=text.slug, block_slug=b.slug) %}
-      <a class="text-zinc-400 hover:text-black hover:underline" href="{{ url }}">{{ n }}</a>
-  </li>
-  {% endfor %}
-  </ul>
-  <div id="parse--response" class="text-sm"></div>
+  <div id="parse--response" class="text-sm">
+    <p class="text-zinc-500">Click on a verse to see its word-for-word
+    analysis. (This is an experimental feature, and the analysis might have
+    some errors.)</p>
+  </div>
   {% endif %}
 </div>
 {% endmacro %}
@@ -75,7 +69,7 @@
 <article class="flex" style="height: calc(100vh - 3rem)">
   <div class="flex-1 p-2 md:p-8 overflow-y-scroll">
     {{ control_panel() }}
-    <div class="md:text-xl">
+    <div id="text--content" class="md:text-xl">
       {{ content | safe }}
     </div>
   </div>
