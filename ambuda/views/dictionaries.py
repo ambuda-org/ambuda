@@ -33,16 +33,6 @@ def _fetch_entries(version, query):
     return [fn(r.value) for r in rows]
 
 
-@api.route("/dict/<version>/<query>")
-def ajax_entry(version, query):
-    dictionaries = q.dictionaries()
-    if version not in dictionaries:
-        abort(404)
-
-    entries = _fetch_entries(version, query)
-    return jsonify(entries=entries)
-
-
 @bp.route("/")
 def index():
     return render_template("dictionaries/index.html")
@@ -65,3 +55,12 @@ def entry(version, query):
 
     entries = _fetch_entries(version, query)
     return render_template("dictionaries/index.html", query=query, entries=entries)
+
+
+@api.route("/dict/<version>/<query>")
+def entry_htmx(version, query):
+    dictionaries = q.dictionaries()
+    if version not in dictionaries:
+        abort(404)
+    entries = _fetch_entries(version, query)
+    return render_template("htmx/dictionary-results.html", query=query, entries=entries)

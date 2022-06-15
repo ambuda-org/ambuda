@@ -28,7 +28,7 @@ def block(text_slug, block_slug):
 
 
 @api.route("/parses/<text_slug>/<block_slug>")
-def block(text_slug, block_slug):
+def block_htmx(text_slug, block_slug):
     text = q.text_meta(text_slug)
     if text is None:
         abort(404)
@@ -38,9 +38,9 @@ def block(text_slug, block_slug):
         abort(404)
 
     parse = q.block_parse(block.id)
-    if parse is None:
-        abort(404)
+    if parse:
+        tokens = parse_utils.render_blob(parse.data)
+    else:
+        tokens = []
 
-    return render_template(
-        "htmx/parsed-tokens.html", tokens=parse_utils.render_blob(parse.data)
-    )
+    return render_template("htmx/parsed-tokens.html", tokens=tokens)

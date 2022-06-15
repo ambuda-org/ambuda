@@ -11,9 +11,7 @@ def roman(s: str) -> str:
 
 
 def slp2dev(s: str) -> str:
-    # TODO: actually use devanagari. For now, no sanscript, so use IAST so that
-    # everyone can read it.
-    return sanscript.transliterate(s, sanscript.SLP1, sanscript.IAST)
+    return sanscript.transliterate(s, sanscript.SLP1, sanscript.DEVANAGARI)
 
 
 def sa_roman(s: str) -> str:

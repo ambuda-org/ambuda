@@ -3,17 +3,29 @@
 
 {# Create prev/next navigation #}
 {% macro paginate_link(section, display_text) %}
+<div>
 {% if section %}
   {% set url = url_for('texts.section', text_slug=text.slug, section_slug=section.slug) %}
-  <a class="hover:underline p-4" href="{{ url }}">{{ display_text | safe }}</a>
+  <a class="sticky top-6 text-zinc-400 rounded hover:bg-zinc-100 p-4" href="{{ url }}">{{ display_text | safe }}</a>
   {% else %}
-  <span>&nbsp;</span>
+  <span class="p-4">&nbsp;</span>
 {% endif %}
+</div>
+{% endmacro %}
+
+{% macro section_title(text, section) %}
+  <div class="text-center">
+    {% set url = url_for('texts.text', slug=text.slug) %}
+    <span class="text-2xl md:text-4xl">{{ section.title | devanagari }}</span>
+    <a class="block text-sm hover:underline" href="{{ url }}">
+      {{ text.title | devanagari }}
+    </a>
+  </div>
 {% endmacro %}
 
 {# Show site controls (large display only) #}
 {% macro control_panel() %}
-<div class="text-sm text-zinc-400 mb-4">
+<div class="text-sm text-zinc-400">
   <span class="hidden md:inline">
     <a id="toggle-sidebar"
       class="hover:underline hover:text-black" href="#">Toggle sidebar</a>
@@ -29,7 +41,7 @@
 
 {# Show the dictionary/etc sidebar #}
 {% macro sidebar() %}
-<div id="sidebar" class="hidden md:hidden flex-1 p-2 md:p-8 overflow-y-scroll border-l">
+<div id="sidebar" class="hidden md:hidden flex-1 p-2 md:p-8 overflow-y-scroll border-l bg-white">
   {{ m.dict_form() }}
   <div style="overflow: scroll;">
     {{ m.dict_target() }}
@@ -48,32 +60,30 @@
 {% block title %}{{ text.title | devanagari }} {{ section.title }} | Ambuda{% endblock %}
 
 {% block header %}
-<header class="h-12 bg-zinc-100 text-zinc-600 border-b flex justify-between items-center">
+<header class="h-12 bg-zinc-100 text-zinc-600 flex justify-between items-center">
   <div class="ml-4">
-    <a class="hover:underline" href="{{ url_for('site.index') }}">Ambuda</a> &raquo;
-    {% set url = url_for('texts.text', slug=text.slug) %}
-    <a class="hover:underline" href="{{ url }}">
-      {{ text.title | devanagari }}
-    </a> &raquo;
-    {{ section.title }}
+    <a class="hover:underline text-zinc-400 font-bold"
+        href="{{ url_for('site.index') }}">Ambuda</a>
   </div>
-  <div class="flex">
-    {{ paginate_link(prev, '&larr;') }}
-    {{ paginate_link(next, '&rarr;') }}
-  </div>
+  {{ control_panel() }}
 </header>
 {% endblock %}
 
 {% block main %}
 {# h-12 (on the header) corresponds to 3rem. #}
-<article class="flex" style="height: calc(100vh - 3rem)">
-  <div class="flex-1 p-2 md:p-8 overflow-y-scroll">
-    {{ control_panel() }}
-    <div id="text--content" class="md:text-xl">
-      {{ content | safe }}
+<article class="flex bg-zinc-100" style="height: calc(100vh - 3rem)">
+  <div class="overflow-y-scroll flex-1">
+    <div id="text--content" class="flex justify-between md:text-xl md:mx-auto md:max-w-3xl pb-16 bg-white">
+      {{ paginate_link(prev, '&laquo;') }}
+      <div class="grow md:mx-8">
+        <nav class="mx-auto mt-8 pb-4 mb-8 border-b">
+          {{ section_title(text, section) }}
+        </nav>
+        {{ content | safe }}
+      </div>
+      {{ paginate_link(next, '&raquo;') }}
     </div>
   </div>
-
   {{ sidebar() }}
 </article>
 
