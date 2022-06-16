@@ -73,3 +73,13 @@ def seed_db(_):
             c.run("python -m ambuda.seed.ramayana")
             c.run("python -m ambuda.seed.mahabharata")
             print("Done.")
+
+
+@task
+def seed_gretil(_):
+    with c.cd(PROJECT_DIRECTORY):
+        c.run("./scripts/fetch-gretil-data.sh")
+        with c.prefix("source env/bin/activate"):
+            print("Starting GRETIL install ...")
+            c.run("python -m ambuda.seed.gretil")
+            print("Done.")
