@@ -4,8 +4,8 @@ The GRETIL TEI format has some systematic inconsistencies. Instead of using it,
 just process teh plain text.
 """
 import io
-import zipfile
 from dataclasses import dataclass
+from pathlib import Path
 from xml.etree import ElementTree as ET
 
 from indic_transliteration import sanscript
@@ -15,9 +15,6 @@ import ambuda.database as db
 from ambuda.seed.itihasa_utils import create_db, fetch_bytes, delete_existing_text
 
 
-ZIP_URL = "http://gretil.sub.uni-goettingen.de/gretil/1_sanskr.zip"
-
-
 @dataclass
 class Spec:
     slug: str
@@ -25,15 +22,18 @@ class Spec:
     filename: str
 
 
+PROJECT_DIR = Path(__file__).parent.parent.parent
+GRETIL_DIR = PROJECT_DIR / "third-party-data" / "gretil"
 ALLOW = [
-    Spec("kumarasambhavam", "kumArasambhavam", "sa_kAlidAsa-kumArasaMbhava.txt"),
-    # Spec("raghuvamsham", "raghuvaMzam", "sa_kAlidAsa-raghuvaMza.txt"),
-    Spec("kiratarjuniyam", "kirAtArjunIyam", "sa_bhAravi-kirAtArjunIya.txt"),
-    Spec("shishupalavadham", "zizupAlavadham", "sa_mAgha-zizupAlavadha.txt"),
-    Spec("rtusamharam", "RtusaMhAram", "sa_kAlidAsa-RtusaMhAra.txt"),
-    # Skip Bhattikavyam -- severe problems, needs extra processing
-    # Spec("agnipurana", "agnipurANam", "sa_agnipurANa.txt"),
-    # Spec("bhagavatapurana", "zrImadbhAgavatapurANam", "sa_bhAgavatapurANa.txt"),
+    Spec("kumarasambhavam", "kumArasambhavam", "sa_kAlidAsa-kumArasaMbhava.xml"),
+    Spec("raghuvamsham", "raghuvaMzam", "sa_kAlidAsa-raghuvaMza.xml"),
+    Spec("kiratarjuniyam", "kirAtArjunIyam", "sa_bhAravi-kirAtArjunIya.xml"),
+    Spec("shishupalavadham", "zizupAlavadham", "sa_mAgha-zizupAlavadha.xml"),
+    Spec("rtusamharam", "RtusaMhAram", "sa_kAlidAsa-RtusaMhAra.xml"),
+    Spec("shatakatrayam", "zatakatrayam", "sa_bhatRhari-zatakatraya.xml"),
+    Spec("bhattikavyam", "bhaTTikAvyam", "sa_bhaTTi-rAvaNavadha.xml"),
+    # Spec("agnipurana", "agnipurANam", "sa_agnipurANa.xml"),
+    # Spec("bhagavatapurana", "zrImadbhAgavatapurANam", "sa_bhAgavatapurANa.xml"),
 ]
 
 
@@ -48,7 +48,7 @@ NS = {
 @dataclass
 class Block:
     slug: str
-    lines: list[str]
+    blob: str
 
 
 @dataclass
@@ -61,120 +61,69 @@ def log(*a):
     print(*a)
 
 
-def iter_gretil_tei_docs() -> tuple[Spec, str]:
-    zip_bytes = fetch_bytes(ZIP_URL)
-    allowed_files = {x.filename: x for x in ALLOW}
+def remove_namespace(xml, prefix):
+    for el in xml.iter("*"):
+        if el.tag.startswith(prefix):
+            el.tag = el.tag[len(prefix) :]
 
-    with zipfile.ZipFile(io.BytesIO(zip_bytes), "r") as ref:
-        for item in ref.namelist():
-            # Skip all non-TEI files.
-            if not item.startswith("1_sanskr/tei/transformations/plaintext"):
+
+def to_slp1(xml):
+    """Transliterate inline elements."""
+    t = sanscript.transliterate
+    for el in xml.iter("*"):
+        if el.text:
+            el.text = t(el.text, sanscript.IAST, sanscript.DEVANAGARI)
+        if el.tail:
+            el.tail = t(el.tail, sanscript.IAST, sanscript.DEVANAGARI)
+
+
+def delete_unused_elems(xml):
+    for L in xml.iter("l"):
+        for el in L:
+            if el.tag in {"seg", "hi"}:
+                el.tag = None
+            if el.tag in {"note"}:
+                el.tag = None
+                el.clear()
+        text = "".join(L.itertext())
+        text = text.replace("-", "")
+        L.clear()
+        L.text = text
+
+
+def iter_sections(path: Path):
+    xml = ET.parse(path).getroot()
+    remove_namespace(xml, "{" + NS["tei"] + "}")
+
+    body = xml.find("./text/body")
+    delete_unused_elems(xml)
+    to_slp1(body)
+
+    n = 1
+    for section_slug, div in enumerate(body.findall("./div")):
+        section = Section(slug=(section_slug + 1), blocks=[])
+
+        for child in div:
+            if child.tag in {"note"}:
                 continue
 
-            # For now, process only a shortlist of texts whose syntax
-            # we can safely support.
-            _, _, suffix = item.rpartition("/")
-            if suffix not in allowed_files:
-                continue
-
-            spec = allowed_files[suffix]
-            with ref.open(item) as f:
-                yield spec, f.read().decode("utf-8")
-
-
-def iter_lines(blob: str):
-    started = False
-    for line in blob.splitlines():
-        if line == "# Text":
-            started = True
-            continue
-        if started:
-            # Mistake: two lines treated as one.
-            # Fix: yield two separate lines
-            if " / " in line and " // " in line:
-                lines = line.split(" / ")
-                assert len(lines) == 2
-                yield lines[0] + " /"
-                yield lines[1]
+            assert child.tag in {"lg", "head", "p"}, child.tag
+            if child.tag == "head":
+                block_slug = "head"
             else:
-                yield line.strip()
+                block_slug = str(n)
+                n += 1
+
+            blob = ET.tostring(child, encoding="utf-8").decode("utf-8")
+            block = Block(slug=block_slug, blob=blob)
+            section.blocks.append(block)
+
+        yield section
 
 
-def iter_line_groups(lines):
-    buf = []
-    for line in lines:
-        if line:
-            buf.append(line.strip())
-        elif buf:
-            yield buf
-            buf = []
-    if buf:
-        yield buf
-
-
-def iter_blocks(lines):
-    for group in iter_line_groups(lines):
-        assert len(group) <= 3, group
-        first, last = group[0], group[-1]
-
-        # Skip spurious verses.
-        if last.endswith("*"):
-            continue
-
-        # Skip spurious text.
-        if "//" not in last:
-            log(f"  [unknown text]: {last}")
-            continue
-
-        # Format first half
-        if not first.endswith("|"):
-            first += " |"
-
-        # Format second half
-        last = last.replace("//", "||")
-        last_text, _, code = last.partition("||")
-        text_id, block_slug = code.split("_")
-        _, n = block_slug.split(".")
-
-        last = f"{last_text} ||{n}||"
-
-        group[0] = first
-        group[-1] = last
-
-        yield Block(slug=block_slug, lines=group)
-
-
-def iter_sections(blocks):
-    parsed = {}
-    for block in blocks:
-        section_slug, _ = block.slug.split(".")
-        if section_slug not in parsed:
-            parsed[section_slug] = []
-        parsed[section_slug].append(block)
-
-    for slug, blocks in parsed.items():
-        yield Section(slug=slug, blocks=blocks)
-
-
-def parse_plain_text(blob: str) -> list[Section]:
-    lines = iter_lines(blob)
-    blocks = iter_blocks(lines)
-    sections = iter_sections(blocks)
-    return list(sections)
-
-
-def to_xml(block: Block) -> str:
-    buf = ["<lg>"]
-    for line in block.lines:
-        dev_line = sanscript.transliterate(line, sanscript.IAST, sanscript.DEVANAGARI)
-        buf.append(f"<l>{dev_line}</l>")
-    buf.append("</lg>")
-    return "".join(buf)
-
-
-def add_text(engine, spec: Spec, blob: str):
+def add_text(engine, spec: Spec):
     log(f"Writing text: {spec.slug}")
-    sections = parse_plain_text(blob)
+    path = GRETIL_DIR / spec.filename
 
     delete_existing_text(engine, spec.slug)
     with Session(engine) as session:
@@ -183,7 +132,7 @@ def add_text(engine, spec: Spec, blob: str):
         session.flush()
 
         n = 1
-        for section in sections:
+        for section in iter_sections(path):
             db_section = db.TextSection(
                 text_id=text.id, slug=section.slug, title=section.slug
             )
@@ -195,7 +144,7 @@ def add_text(engine, spec: Spec, blob: str):
                     text_id=text.id,
                     section_id=db_section.id,
                     slug=block.slug,
-                    xml=to_xml(block),
+                    xml=block.blob,
                     n=n,
                 )
                 session.add(db_block)
@@ -209,9 +158,8 @@ def run():
     log("Initializing database ...")
     engine = create_db()
 
-    log("Fetching GRETIL data ...")
-    for spec, blob in iter_gretil_tei_docs():
-        add_text(engine, spec, blob)
+    for spec in ALLOW:
+        add_text(engine, spec)
     log("Done.")
 
 
