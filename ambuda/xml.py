@@ -157,11 +157,11 @@ def to_verse(el):
     xml_id = "{http://www.w3.org/XML/1998/namespace}id"
     el.tag = "s-lg"
     el.attrib = {"id": el.attrib.get(xml_id, "")}
-    print(list(el.attrib.keys()))
 
 
 # Defined against the TEI spec
 tei_xml = {
+    "head": elem("h1"),
     "div": elem("section"),
     "seg": elem("span"),
     "hi": text(),

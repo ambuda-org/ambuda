@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 import ambuda.database as db
 import ambuda.queries as q
 from ambuda import xml
+from ambuda.views.api import bp as api
 
 
 bp = Blueprint("texts", __name__)
@@ -82,6 +83,33 @@ def section(text_slug, section_slug):
         prev=prev,
         section=cur,
         next=next,
-        section_groups=_section_groups(text.sections),
+        content=content,
+    )
+
+
+@api.route("/texts/<text_slug>/<section_slug>")
+def section_htmx(text_slug, section_slug):
+    text = q.text(text_slug)
+    if text is None:
+        abort(404)
+
+    try:
+        prev, cur, next = _prev_cur_next(text.sections, section_slug)
+    except ValueError:
+        abort(404)
+
+    # Fetch with content blocks
+    cur = q.text_section(text.id, section_slug)
+
+    with Session(q.engine) as sess:
+        blob = "<div>" + "".join(b.xml for b in cur.blocks) + "</div>"
+        content = xml.transform_tei(blob)
+
+    return render_template(
+        "htmx/text-section.html",
+        text=text,
+        prev=prev,
+        section=cur,
+        next=next,
         content=content,
     )

@@ -1,195 +1,310 @@
-(function() {
+/* global Sanscript */
 
 const URL = {
-  ajaxDictionaryQuery: (version, query) => {
-    return `/api/dict/${version}/${query}`;
-  },
-  dictionaryQuery: (version, query) => {
-    return `/dictionaries/${version}/${query}`;
-  },
-  parseData: (textSlug, blockSlug) => {
-    return `/api/parses/${textSlug}/${blockSlug}`;
-  },
-}
+  ajaxTextContent: (path) => `/api${path}`,
+  ajaxDictionaryQuery: (version, query) => `/api/dict/${version}/${query}`,
+  dictionaryQuery: (version, query) => `/dictionaries/${version}/${query}`,
+  parseData: (textSlug, blockSlug) => `/api/parses/${textSlug}/${blockSlug}`,
 
-const DICT_SCRIPT = 'DICT_SCRIPT'
-const DICT_SCRIPT_DEFAULT = 'devanagari';
+  // TODO: where to put this?
+  getTextSlug: () => {
+    const { pathname } = window.location;
+    const suffix = pathname.replace('/texts/', '');
+    const slug = suffix.split('/')[0];
+    return slug;
+  },
+};
 
+const Server = {
+  getText(url, success, failure) {
+    const req = new XMLHttpRequest();
+    req.onreadystatechange = () => {
+      if (req.readyState === XMLHttpRequest.DONE) {
+        if (req.status === 200) {
+          success(req.responseText);
+        } else {
+          failure();
+        }
+      }
+    };
+    req.open('GET', url);
+    req.send();
+  },
+};
+
+const Preferences = {
+  get contentScript() {
+    const ls = localStorage.getItem('user-script');
+    if (!ls || ls === 'undefined') {
+      return 'devanagari';
+    }
+    return ls;
+  },
+  set contentScript(value) {
+    if (value) {
+      localStorage.setItem('user-script', value);
+    }
+  },
+  get dictScript() {
+    return localStorage.getItem('dict-script') || 'devanagari';
+  },
+  set dictScript(value) {
+    localStorage.setItem('dict-script', value);
+  },
+  get showSidebar() {
+    return localStorage.getItem('show-sidebar') === 'true';
+  },
+  set showSidebar(value) {
+    localStorage.setItem('show-sidebar', value);
+  },
+};
 
 // Utilities
 
 const $ = document.querySelector.bind(document);
-const $$ = document.querySelectorAll.bind(document);
-
-function getText(url, success, failure) {
-  const req = new XMLHttpRequest();
-  req.onreadystatechange = function() {
-    if (req.readyState == XMLHttpRequest.DONE) {
-      if (req.status == 200) {
-        success(req.responseText);
-      } else {
-        failure();
-      }
-  }
-  };
-  req.open('GET', url);
-  req.send();
-}
 
 function forEachTextNode(elem, callback) {
   const nodeList = elem.childNodes;
-  for (let i = 0; i < nodeList.length; i++) {
+  for (let i = 0; i < nodeList.length; i += 1) {
     const node = nodeList[i];
     if (node.nodeType === Node.TEXT_NODE) {
       node.textContent = callback(node.textContent);
-    } else {
+    } else if (node.lang !== 'en') {
       // Ignore lang="en"
-      if (node.lang !== 'en') {
-        forEachTextNode(node, callback);
-      }
+      forEachTextNode(node, callback);
     }
   }
 }
 
 function transliterateElement($el, from, to) {
   $el.querySelectorAll('[lang=sa]').forEach((elem) => {
-    forEachTextNode(elem, (s) => {
-      return Sanscript.t(s.toLowerCase(), from, to);
-    })
+    forEachTextNode(elem, (s) => Sanscript.t(s.toLowerCase(), from, to));
   });
 }
 
+function transliterateHTMLString(s, outputScript) {
+  const $div = document.createElement('div');
+  $div.innerHTML = s;
+  transliterateElement($div, 'devanagari', outputScript);
+  return $div.innerHTML;
+}
 
 // Sidebar show/hide
 
-const SHOW_SIDEBAR = 'SHOW_SIDEBAR'
+const Sidebar = {
+  toggle() {
+    const classes = $('#sidebar').classList;
+    classes.toggle('md:block');
+    classes.toggle('md:hidden');
 
-function toggleSidebar() {
-  const classes = $('#sidebar').classList;
-  classes.toggle('md:block');
-  classes.toggle('md:hidden');
+    const isVisible = classes.contains('md:block');
+    Preferences.showSidebar = isVisible;
+  },
+  show() {
+    if (!Preferences.showSidebar) {
+      this.toggle();
+    }
+  },
+};
 
-  const isVisible = classes.contains('md:block');
-  setShowSidebar(isVisible);
-}
-function onClickToggleLink(e) {
-  e.preventDefault();
-  toggleSidebar();
-}
-
-function getShowSidebar() {
-  return localStorage.getItem(SHOW_SIDEBAR) === 'true';
-}
-function setShowSidebar(value) {
-  localStorage.setItem(SHOW_SIDEBAR, value);
-}
-
-const $toggleLink = $("#toggle-sidebar");
+const $toggleLink = $('#toggle-sidebar');
 if ($toggleLink) {
-  $toggleLink.addEventListener('click', onClickToggleLink);
-  if (getShowSidebar()) { $toggleLink.click(); }
+  $toggleLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    Sidebar.toggle();
+  });
+  if (Preferences.showSidebar) {
+    Sidebar.toggle();
+  }
 }
-
 
 // Dictionary
 
-function getDictScript() {
-  return localStorage.getItem(DICT_SCRIPT) || DICT_SCRIPT_DEFAULT;
-}
-function setDictScript(value) {
-  localStorage.setItem(DICT_SCRIPT, value);
-}
-function fetchDictEntries(e) {
-    e.preventDefault();
+const Dictionary = (() => {
+  function fetch(version, query, callback) {
+    const url = URL.ajaxDictionaryQuery(version, query);
+    if (!query) {
+      return;
+    }
+    const $container = $('#dict--response');
+    Server.getText(
+      url,
+      (resp) => {
+        $container.innerHTML = transliterateHTMLString(resp, Preferences.dictScript);
+        if (callback) {
+          callback();
+        }
+      },
+      () => {
+        $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
+      },
+    );
+  }
 
+  function submitForm(e) {
+    e.preventDefault();
     const $form = $('#dict--form');
     const query = $form.querySelector('input[name=q]').value;
     const version = $form.querySelector('select[name=version]').value;
-    const url = URL.ajaxDictionaryQuery(version, query);
+    fetch(version, query, () => {
+      // FIXME: remove "startsWith" hack and move this to Dictionaries page.
+      if (window.location.pathname.startsWith('/dict')) {
+        window.history.replaceState({}, '', URL.dictionaryQuery(version, query));
+      }
+    });
+  }
 
-    const $container = $('#dict--response');
-    getText(url,
+  function init() {
+    const $dictForm = $('#dict--form');
+    if ($dictForm) {
+      $dictForm.addEventListener('submit', submitForm);
+
+      const $dictScript = $('#dict--script');
+      $dictScript.addEventListener('change', () => {
+        const oldScript = Preferences.dictScript;
+        Preferences.dictScript = this.value;
+        transliterateElement($('#dict--response'), oldScript, this.value);
+      });
+      $dictScript.value = Preferences.dictScript;
+    }
+  }
+
+  return { init, fetch, submitForm };
+})();
+
+const ParseLayer = (() => {
+  function getBlockSlug(blockID) {
+    // Slice to remove text XML id.
+    return blockID.split('.').slice(1).join('.');
+  }
+
+  function show(blockID) {
+    const blockSlug = getBlockSlug(blockID);
+    const $container = $('#parse--response');
+    const textSlug = URL.getTextSlug();
+
+    const url = URL.parseData(textSlug, blockSlug);
+    Server.getText(
+      url,
       (resp) => {
         const $div = document.createElement('div');
         $div.innerHTML = resp;
-        transliterateElement($div, 'devanagari', getDictScript());
-        $container.innerHTML = $div.innerHTML;
+        transliterateElement($div, 'devanagari', Preferences.dictScript);
 
-        history.replaceState({}, "", URL.dictionaryQuery(version, query));
+        $container.innerHTML = $div.innerHTML;
+        Sidebar.show();
       },
       () => {
-        $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>'
-      }
+        $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
+        Sidebar.show();
+      },
     );
-}
+  }
 
-const $dictForm = $('#dict--form');
-if ($dictForm) {
-  $dictForm.addEventListener('submit', fetchDictEntries);
+  function init() {
+    const $container = $('#parse--response');
+    if ($container) {
+      $container.addEventListener('click', (e) => {
+        e.preventDefault();
+        const link = e.target.closest('a');
 
-  $dictScript = $('#dict--script');
-  $dictScript.addEventListener('change', function() {
-    const oldScript = getDictScript();
-    const newScript = this.value;
-    setDictScript(newScript);
-    transliterateElement($("#dict--response"), oldScript, newScript);
-  });
-  $dictScript.value = getDictScript();
-}
-
-
-// Parse data
-const $textContent = $("#text--content");
-if ($textContent) {
-  $textContent.addEventListener('click', function(e) {
-    const block = e.target.closest("s-lg");
-    if (block !== null && block.id.startsWith("R.")) {
-      const slug = block.id.split(".").slice(1).join(".");
-
-      const $container = $('#parse--response');
-      const url = URL.parseData('ramayanam', slug)
-      getText(url,
-        (resp) => {
-          const $div = document.createElement('div');
-          $div.innerHTML = resp;
-          transliterateElement($div, 'devanagari', getDictScript());
-
-          $container.innerHTML = $div.innerHTML;
-          if (!getShowSidebar()) { toggleSidebar(); }
-        },
-        () => {
-          $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>'
-        }
-      );
+        const $form = $('#dict--form');
+        const query = link.textContent.trim();
+        const version = $form.querySelector('select[name=version]').value;
+        Dictionary.fetch(version, query);
+      });
     }
-  });
-}
+  }
 
-// Text transliteration
+  return { init, show, getBlockSlug };
+})();
 
-const SA_KEY = 'SA_KEY'
-const SA_DEFAULT = 'devanagari';
+const TextContent = (() => {
+  function transliterate(from, to) {
+    const $textContent = $('#text--content');
+    if ($textContent) {
+      transliterateElement($textContent, from, to);
+    }
+  }
 
-function getUserScript() {
-  return localStorage.getItem(SA_KEY) || SA_DEFAULT;
-}
-function setUserScript(value) {
-  localStorage.setItem(SA_KEY, value);
-}
+  function pushState(url, resp) {
+    // Size limit here is 16 MiB per MDN.
+    // Keep in sync with the popstate() call below.
+    window.history.pushState({ textContent: resp }, '', url);
+  }
+  function popState(state) {
+    const $textContent = $('#text--content');
+    $textContent.innerHTML = state.textContent;
+  }
 
-function switchScript(newScript) {
-  const oldScript = getUserScript();
-  setUserScript(newScript);
-  transliterateElement(document, oldScript, newScript);
-}
+  function init() {
+    const $textContent = $('#text--content');
+    if ($textContent) {
+      $textContent.addEventListener('click', (e) => {
+        const paginate = e.target.closest('.text--paginate');
+        if (paginate) {
+          e.preventDefault();
+          // use getAttribute to avoid the hostname.
+          const url = paginate.getAttribute('href');
+          const ajaxURL = URL.ajaxTextContent(url);
+          Server.getText(
+            ajaxURL,
+            (resp) => {
+              // Push state with the un-transliterated content,
+              // to keep the state clean.
+              pushState(url, resp);
+              $textContent.innerHTML = transliterateHTMLString(resp, Preferences.contentScript);
+            },
+            () => {
+              const text = "<p>Sorry, we couldn't load this page.</p>";
+              $textContent.innerHTML = text;
+              pushState(url, text);
+            },
+          );
+        }
 
-const $scriptMenu = $("#switch-sa");
-if ($scriptMenu) {
-  $scriptMenu.addEventListener('change', function() {
-    switchScript(this.value);
-  });
-  transliterateElement(document, SA_DEFAULT, getUserScript());
-  $scriptMenu.value = getUserScript();
-}
+        const block = e.target.closest('s-lg');
+        if (block !== null) {
+          e.preventDefault();
+          ParseLayer.show(block.id);
+        }
+      });
 
+      // This ensures that the browser back button works correctly.
+      window.addEventListener('popstate', (event) => {
+        popState(event.state);
+      });
+    }
+  }
+
+  return { init, transliterate };
+})();
+
+const ScriptMenu = (() => {
+  function switchScript(newScript) {
+    const oldScript = Preferences.contentScript;
+    Preferences.contentScript = newScript;
+    TextContent.transliterate(oldScript, newScript);
+  }
+
+  function init() {
+    const $scriptMenu = $('#switch-sa');
+    if ($scriptMenu) {
+      $scriptMenu.value = Preferences.contentScript;
+      $scriptMenu.addEventListener('change', (e) => {
+        switchScript(e.target.value);
+      });
+    }
+  }
+
+  return { init };
+})();
+
+(() => {
+  ScriptMenu.init();
+  Dictionary.init();
+  ParseLayer.init();
+  TextContent.init();
+
+  TextContent.transliterate('devanagari', Preferences.contentScript);
 })();

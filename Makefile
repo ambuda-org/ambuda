@@ -5,6 +5,7 @@ devserver:
 
 lint:
 	black .
+	npx eslint --fix ambuda/static/js/*.js
 
 test:
 	pytest .

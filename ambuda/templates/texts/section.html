@@ -1,31 +1,9 @@
 {% extends 'header-main-footer.html' %}
 {% import 'macros/dictionaries.html' as m %}
 
-{# Create prev/next navigation #}
-{% macro paginate_link(section, display_text) %}
-<div>
-{% if section %}
-  {% set url = url_for('texts.section', text_slug=text.slug, section_slug=section.slug) %}
-  <a class="sticky top-6 text-zinc-400 rounded hover:bg-zinc-100 p-4" href="{{ url }}">{{ display_text | safe }}</a>
-  {% else %}
-  <span class="p-4">&nbsp;</span>
-{% endif %}
-</div>
-{% endmacro %}
-
-{% macro section_title(text, section) %}
-  <div class="text-center">
-    {% set url = url_for('texts.text', slug=text.slug) %}
-    <span class="text-2xl md:text-4xl">{{ section.title | devanagari }}</span>
-    <a class="block text-sm hover:underline" href="{{ url }}">
-      {{ text.title | devanagari }}
-    </a>
-  </div>
-{% endmacro %}
-
 {# Show site controls (large display only) #}
 {% macro control_panel() %}
-<div class="text-sm text-zinc-400">
+<div class="text-sm text-zinc-400 mr-4">
   <span class="hidden md:inline">
     <a id="toggle-sidebar"
       class="hover:underline hover:text-black" href="#">Toggle sidebar</a>
@@ -42,18 +20,18 @@
 {# Show the dictionary/etc sidebar #}
 {% macro sidebar() %}
 <div id="sidebar" class="hidden md:hidden flex-1 p-2 md:p-8 overflow-y-scroll border-l bg-white">
+  <div id="parse--response" class="text-sm">
+  {% if text.slug == 'ramayanam' %}
+    <p class="text-zinc-500 mb-4">Click on a verse to see its word-for-word
+    analysis. (This is an experimental feature, and the analysis might have
+    some errors.)</p>
+  {% endif %}
+  </div>
+
   {{ m.dict_form() }}
   <div style="overflow: scroll;">
     {{ m.dict_target() }}
   </div>
-
-  {% if text.slug == 'ramayanam' %}
-  <div id="parse--response" class="text-sm">
-    <p class="text-zinc-500">Click on a verse to see its word-for-word
-    analysis. (This is an experimental feature, and the analysis might have
-    some errors.)</p>
-  </div>
-  {% endif %}
 </div>
 {% endmacro %}
 
@@ -74,14 +52,9 @@
 <article class="flex bg-zinc-100" style="height: calc(100vh - 3rem)">
   <div class="overflow-y-scroll flex-1">
     <div id="text--content" class="flex justify-between md:text-xl md:mx-auto md:max-w-3xl pb-16 bg-white">
-      {{ paginate_link(prev, '&laquo;') }}
-      <div class="grow md:mx-8">
-        <nav class="mx-auto mt-8 pb-4 mb-8 border-b">
-          {{ section_title(text, section) }}
-        </nav>
-        {{ content | safe }}
-      </div>
-      {{ paginate_link(next, '&raquo;') }}
+      {% with text=text, section=section, prev=prev, next=next %}
+        {% include 'htmx/text-section.html' %}
+      {% endwith %}
     </div>
   </div>
   {{ sidebar() }}

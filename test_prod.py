@@ -14,13 +14,13 @@ URLS_200 = [
     "/dictionaries/shabdakalpadruma/nara",
     "/dictionaries/vacaspatyam/nara",
     "/texts/",
-    "/texts/mahabharata/1.1",
-    "/texts/mahabharata/18.5",
+    "/texts/mahabharatam/1.1",
+    "/texts/mahabharatam/18.5",
 ]
 
 URLS_404 = [
     "/dictionaries/unknown",
-    "/texts/mahabharata/unknown",
+    "/texts/mahabharatam/unknown",
     "/texts/unknown",
 ]
 
