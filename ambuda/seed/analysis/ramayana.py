@@ -32,7 +32,10 @@ def iter_parsed_blocks():
     buf = []
     cur_slug = None
     text_path = (
-        Path(__file__).parent.parent.parent / "dcs-parse-data" / "files" / "Rāmāyaṇa"
+        Path(__file__).parent.parent.parent.parent
+        / "dcs-parse-data"
+        / "files"
+        / "Rāmāyaṇa"
     )
     for section_path in sorted(text_path.iterdir()):
         for parse in get_parsed_rows(section_path):

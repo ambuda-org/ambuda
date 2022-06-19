@@ -24,6 +24,7 @@
   /* Represents a parsed word. */
   s-w {
     @apply text-green-600;
+    @apply cursor-pointer;
   }
   s-w:hover {
     @apply underline;

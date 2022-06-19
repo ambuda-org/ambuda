@@ -66,12 +66,6 @@ const Preferences = {
   set dictVersion(value) {
     localStorage.setItem('dict-version', value);
   },
-  get showSidebar() {
-    return localStorage.getItem('show-sidebar') === 'true';
-  },
-  set showSidebar(value) {
-    localStorage.setItem('show-sidebar', value);
-  },
 };
 
 // Utilities
@@ -120,29 +114,20 @@ function transliterateHTMLString(s, outputScript) {
 const Sidebar = {
   toggle() {
     const classes = $('#sidebar').classList;
-    classes.toggle('md:block');
-    classes.toggle('md:hidden');
-
-    const isVisible = classes.contains('md:block');
-    Preferences.showSidebar = isVisible;
+    classes.toggle('block');
+    classes.toggle('hidden');
   },
   show() {
-    if (!Preferences.showSidebar) {
+    if ($('#sidebar').classList.contains('hidden')) {
+      this.toggle();
+    }
+  },
+  hide() {
+    if (!$('#sidebar').classList.contains('hidden')) {
       this.toggle();
     }
   },
 };
-
-const $toggleLink = $('#toggle-sidebar');
-if ($toggleLink) {
-  $toggleLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    Sidebar.toggle();
-  });
-  if (Preferences.showSidebar) {
-    Sidebar.toggle();
-  }
-}
 
 // Dictionary
 
@@ -271,6 +256,7 @@ const TextContent = (() => {
     );
   }
 
+  // eslint-disable-next-line no-unused-vars
   function ajaxChangeSection(url) {
     const $textContent = $('#text--content');
     const ajaxURL = URL.ajaxTextContent(url);
@@ -300,18 +286,20 @@ const TextContent = (() => {
           const version = Preferences.dictVersion;
           let query = $word.getAttribute('lemma');
           query = Sanscript.t(query, 'slp1', Preferences.contentScript);
-          Dictionary.fetch(version, query);
-          Sidebar.show();
+          Dictionary.fetch(version, query, () => {
+            Sidebar.show();
+          });
           return;
         }
 
         const $paginate = e.target.closest('.text--paginate');
         if ($paginate) {
-          e.preventDefault();
+          // Disable for now -- includes too much extra state.
+          // e.preventDefault();
           // use getAttribute to avoid the hostname.
-          const url = $paginate.getAttribute('href');
-          ajaxChangeSection($textContent, url);
-          return;
+          // const url = $paginate.getAttribute('href');
+          // ajaxChangeSection(url);
+          // return;
         }
 
         const $lg = e.target.closest('s-lg');

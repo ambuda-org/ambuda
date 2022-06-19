@@ -3,9 +3,11 @@
 devserver:
 	FLASK_ENV=development flask run
 
-lint:
-	black .
+eslint:
 	npx eslint --fix ambuda/static/js/*.js
+
+lint: eslint
+	black .
 
 test:
 	pytest .

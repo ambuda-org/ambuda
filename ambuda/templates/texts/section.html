@@ -1,60 +1,31 @@
 {% extends 'header-main-footer.html' %}
-{% import 'macros/dictionaries.html' as m %}
-
-{# Show site controls (large display only) #}
-{% macro control_panel() %}
-<div class="text-sm text-zinc-400 mr-4">
-  <span class="hidden md:inline">
-    <a id="toggle-sidebar"
-      class="hover:underline hover:text-black" href="#">Toggle sidebar</a>
-    |
-  </span>
-
-  Script:
-  <select id="switch-sa" class="p-1">
-    {% include 'include/script-options.html' %}
-  </select>
-</div>
-{% endmacro %}
+{% import 'macros/dictionaries.html' as m_dict %}
 
 {# Show the dictionary/etc sidebar #}
 {% macro sidebar() %}
-<div id="sidebar" class="hidden md:hidden flex-1 p-2 md:p-8 overflow-y-scroll border-l bg-white">
-  <div id="parse--response" class="text-sm">
-  </div>
-
-  {{ m.dict_form() }}
-  <div style="overflow: scroll;">
-    {{ m.dict_target() }}
+<div id="sidebar" class="hidden">
+  <div class="fixed top-0 bottom-0 left-0 right-0 bg-black/25" onclick="Sidebar.hide()"></div>
+  <div class="fixed top-0 bottom-0 left-0 md:left-1/2 right-0 p-2 md:p-8 overflow-y-scroll bg-white">
+    <button class="fixed top-0 right-0 text-2xl bg-white block p-2" onclick="Sidebar.hide()">&times;</button>
+    <div class="mt-12 overflow-y-scroll">
+      <div id="parse--response" class="text-sm"></div>
+      {{ m_dict.dict_form() }}
+      {{ m_dict.dict_target() }}
+    </div>
   </div>
 </div>
 {% endmacro %}
 
 {% block title %}{{ text.title | devanagari }} {{ section.title }} | Ambuda{% endblock %}
 
-{% block header %}
-<header class="h-12 bg-zinc-100 text-zinc-600 flex justify-between items-center">
-  <div class="ml-4">
-    <a class="hover:underline text-zinc-400 font-bold"
-        href="{{ url_for('site.index') }}">Ambuda</a>
-  </div>
-  {{ control_panel() }}
-</header>
-{% endblock %}
-
 {% block main %}
 {# h-12 (on the header) corresponds to 3rem. #}
-<article class="flex bg-zinc-100" style="height: calc(100vh - 3rem)">
-  <div class="overflow-y-scroll flex-1">
-    <div id="text--content" class="flex justify-between md:text-xl md:mx-auto md:max-w-3xl pb-16 bg-white">
-      {% with text=text, section=section, prev=prev, next=next %}
-        {% include 'htmx/text-section.html' %}
-      {% endwith %}
-    </div>
+<article>
+  <div id="text--content" class="md:text-xl mx-4 md:mx-auto md:max-w-lg pb-16 bg-white">
+    {% with text=text, section=section, prev=prev, next=next %}
+      {% include 'htmx/text-section.html' %}
+    {% endwith %}
   </div>
   {{ sidebar() }}
 </article>
-
 {% endblock %}
-
-{% block footer %}{% endblock %}

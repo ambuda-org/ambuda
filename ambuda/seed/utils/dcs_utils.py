@@ -47,6 +47,8 @@ FIELDS = [
     "unk_3",
     "unk_4",
     "dcs_id",
+    # Alternative if "form" == "_", but often differs from the underlying form.
+    # e.g. underlying "avAptavAn" vs "avAptaH" here.
     "form_no_sandhi",
     "unk_5",
 ]
@@ -161,9 +163,12 @@ def is_multilemma(token):
 
 
 def parse_token(token) -> Token:
-    form = token["form_no_sandhi"]
+    form = token["form"]
     if form == "_":
-        form = token["form"]
+        form = token["form_no_sandhi"]
+        if form == "_":
+            # Worst case -- incorrect, but better than nothing.
+            form = token["lemma"]
 
     lemma = token["lemma"]
     pos = parse_part_of_speech(token["xpos"])

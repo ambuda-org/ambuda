@@ -113,7 +113,32 @@ def transliterate_text_to(xml, source, dest):
             el.tail = sanscript.transliterate(el.tail, source, dest)
 
 
-def align_text_with_parse(xml_blob: str, tokens) -> ET.Element:
+def create_backup_parse(tokens: list[Token]) -> str:
+    div = ET.Element("aside")
+    div.attrib["class"] = "bg-red-100 p-2"
+    for token in tokens:
+        t = ET.Element("s-w")
+        t.text = token.form
+        t.attrib = {
+            "lemma": token.lemma,
+            "parse": token.parse,
+        }
+        if token.is_compounded:
+            t.tail = "-"
+        else:
+            t.tail = " "
+        div.append(t)
+    transliterate_text_to(div, sanscript.SLP1, sanscript.DEVANAGARI)
+
+    explain = ET.Element("p")
+    explain.attrib["class"] = "mb-2 text-sm"
+    explain.text = "This analysis has one or more issues. Use with caution:"
+    div.insert(0, explain)
+
+    return transform(div, tei_xml)
+
+
+def align_text_with_parse(xml_blob: str, tokens: list[Token]) -> ET.Element:
     """Align text and parse data by storing parse data on its source XML blob."""
     iter_tokens = iter(tokens)
 
@@ -128,7 +153,12 @@ def align_text_with_parse(xml_blob: str, tokens) -> ET.Element:
 
         # The text "dharmakSetre kurukSetre" has the two chunks "dharmakSetre" and
         # "kurukSetre".
-        chunks = get_padas_for_text(text, iter_tokens)
+        try:
+            chunks = get_padas_for_text(text, iter_tokens)
+        except StopIteration:
+            # Doesn't line up -- bail out with a lower quality but still usable
+            # parse.
+            return create_backup_parse(tokens)
 
         # Modify source XML with the aligned token data.
         chunk_elems = _make_chunk_elems(chunks)

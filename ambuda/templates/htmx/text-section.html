@@ -1,31 +1,44 @@
 {# Create prev/next navigation #}
-{% macro paginate_link(section, display_text) %}
-<div>
+{% macro paginate_link(text, section, display_text) %}
+{% set base = "rounded text-2xl h-12 w-12 leading-[3rem] text-center" %}
 {% if section %}
   {% set url = url_for('texts.section', text_slug=text.slug, section_slug=section.slug) %}
   {# text--paginate defined only as a JS hook #}
-  <a class="text--paginate sticky top-6 text-zinc-400 rounded hover:bg-zinc-100 p-4" href="{{ url }}">{{ display_text | safe }}</a>
-  {% else %}
-  <span class="p-4">&nbsp;</span>
+  <a class="text--paginate {{ base }} hover:bg-zinc-100" href="{{ url }}"> {{ display_text | safe }}</a>
+{% else %}
+<span class="{{ base }} text-zinc-300">{{ display_text | safe }}</span>
 {% endif %}
-</div>
 {% endmacro %}
 
-{% macro section_title(text, section) %}
-  <div class="text-center">
-    {% set url = url_for('texts.text', slug=text.slug) %}
-    <span class="text-2xl md:text-4xl">{{ section.title | devanagari }}</span>
-    <a class="block text-sm hover:underline" href="{{ url }}">
+<div lang="sa">
+  <nav class="mt-8 pb-4 mb-8 font-bold border-b">
+    <div class="text-center">
+      {% set url = url_for('texts.text', slug=text.slug) %}
+      <span class="text-2xl md:text-4xl">{{ section.title | devanagari }}</span>
+      <a class="block text-sm hover:text-green-600" href="{{ url }}">
+        {{ text.title | devanagari }}
+      </a>
+    </div>
+  </nav>
+  {{ content | safe }}
+</div>
+
+<footer class="flex items-center justify-between fixed bg-white left-0 right-0 bottom-0 border-t">
+<div class="text-sm pl-4">
+  <a class="hover:underline"
+      href="{{ url_for('texts.text', slug=text.slug) }}">
       {{ text.title | devanagari }}
-    </a>
-  </div>
-{% endmacro %}
-
-{{ paginate_link(prev, '&laquo;') }}
-<div lang="sa" class="grow md:mx-8">
-<nav class="mx-auto mt-8 pb-4 mb-8 border-b">
-  {{ section_title(text, section) }}
-</nav>
-{{ content | safe }}
+  </a>
+  {{ section.title | devanagari }}
 </div>
-{{ paginate_link(next, '&raquo;') }}
+<div class="flex items-center">
+  <div class="text-sm border-r pr-4">
+    <span class="hidden md:inline">Script:</span>
+    <select id="switch-sa" class="p-1">
+      {% include 'include/script-options.html' %}
+    </select>
+  </div>
+  {{ paginate_link(text, prev, '&laquo;') }}
+  {{ paginate_link(text, next, '&raquo;') }}
+</div>
+</footer>
