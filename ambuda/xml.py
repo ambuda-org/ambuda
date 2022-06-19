@@ -189,8 +189,7 @@ apte_transforms = {
 }
 
 
-def transform(blob, transforms):
-    xml = ET.fromstring(blob)
+def transform(xml, transforms):
     for el in xml.iter("*"):
         if el.tag in transforms:
             fn = transforms[el.tag]
@@ -203,35 +202,20 @@ def transform(blob, transforms):
 
 
 def transform_mw(blob):
-    return transform(blob, mw_xml)
+    xml = ET.fromstring(blob)
+    return transform(xml, mw_xml)
 
 
 def transform_apte(blob):
-    return transform(blob, apte_xml)
+    xml = ET.fromstring(blob)
+    return transform(xml, apte_xml)
 
 
 def transform_vacaspatyam(blob):
-    return transform(blob, vacaspatyam_xml)
+    xml = ET.fromstring(blob)
+    return transform(xml, vacaspatyam_xml)
 
 
 def transform_tei(blob):
     xml = ET.fromstring(blob)
-    for el in xml.iter("*"):
-        if el.tag in tei_xml:
-            fn = tei_xml[el.tag]
-            if fn is None:
-                # Don't delete the tail, as that would delete meaningful text.
-                el.tag = el.text = None
-            else:
-                fn(el)
-
-    t = sanscript.transliterate
-    xml.attrib["lang"] = "sa"
-    for el in xml.iter("*"):
-        if el.text:
-            el.text = t(el.text, sanscript.HK, sanscript.DEVANAGARI)
-        # Ignore xml.tail
-        if el.tail and el is not xml:
-            el.tail = t(el.tail, sanscript.HK, sanscript.DEVANAGARI)
-
-    return ET.tostring(xml, encoding="utf-8").decode("utf-8")
+    return transform(xml, tei_xml)

@@ -2,7 +2,7 @@
 
 const URL = {
   ajaxTextContent: (path) => `/api${path}`,
-  ajaxDictionaryQuery: (version, query) => `/api/dict/${version}/${query}`,
+  ajaxDictionaryQuery: (version, query) => `/api/dictionaries/${version}/${query}`,
   dictionaryQuery: (version, query) => `/dictionaries/${version}/${query}`,
   parseData: (textSlug, blockSlug) => `/api/parses/${textSlug}/${blockSlug}`,
 
@@ -46,10 +46,25 @@ const Preferences = {
     }
   },
   get dictScript() {
-    return localStorage.getItem('dict-script') || 'devanagari';
+    const val = localStorage.getItem('dict-script');
+    if (!val || val === 'undefined') {
+      return 'devanagari';
+    }
+    return val;
   },
   set dictScript(value) {
     localStorage.setItem('dict-script', value);
+  },
+  get dictVersion() {
+    const val = localStorage.getItem('dict-version');
+    if (!val || val === 'undefined') {
+      // MW for now because of Apte coverage issues.
+      return 'mw';
+    }
+    return val;
+  },
+  set dictVersion(value) {
+    localStorage.setItem('dict-version', value);
   },
   get showSidebar() {
     return localStorage.getItem('show-sidebar') === 'true';
@@ -78,10 +93,21 @@ function forEachTextNode(elem, callback) {
 
 function transliterateElement($el, from, to) {
   $el.querySelectorAll('[lang=sa]').forEach((elem) => {
-    forEachTextNode(elem, (s) => Sanscript.t(s.toLowerCase(), from, to));
+    forEachTextNode(elem, (s) => Sanscript.t(s, from, to));
   });
 }
 
+// Transliterate mixed Sanskrit content.
+function transliterateSanskritBlob(blob, outputScript) {
+  const $div = document.createElement('div');
+  $div.innerHTML = blob;
+  $div.querySelectorAll('*').forEach((elem) => {
+    forEachTextNode(elem, (text) => Sanscript.t(text, 'devanagari', outputScript));
+  });
+  return $div.innerHTML;
+}
+
+// Transliterate mixed English/Sanskrit content.
 function transliterateHTMLString(s, outputScript) {
   const $div = document.createElement('div');
   $div.innerHTML = s;
@@ -123,9 +149,6 @@ if ($toggleLink) {
 const Dictionary = (() => {
   function fetch(version, query, callback) {
     const url = URL.ajaxDictionaryQuery(version, query);
-    if (!query) {
-      return;
-    }
     const $container = $('#dict--response');
     Server.getText(
       url,
@@ -146,6 +169,11 @@ const Dictionary = (() => {
     const $form = $('#dict--form');
     const query = $form.querySelector('input[name=q]').value;
     const version = $form.querySelector('select[name=version]').value;
+
+    if (!query) {
+      return;
+    }
+
     fetch(version, query, () => {
       // FIXME: remove "startsWith" hack and move this to Dictionaries page.
       if (window.location.pathname.startsWith('/dict')) {
@@ -160,12 +188,18 @@ const Dictionary = (() => {
       $dictForm.addEventListener('submit', submitForm);
 
       const $dictScript = $('#dict--script');
-      $dictScript.addEventListener('change', () => {
+      $dictScript.addEventListener('change', (e) => {
         const oldScript = Preferences.dictScript;
-        Preferences.dictScript = this.value;
-        transliterateElement($('#dict--response'), oldScript, this.value);
+        Preferences.dictScript = e.target.value;
+        transliterateElement($('#dict--response'), oldScript, e.value);
       });
       $dictScript.value = Preferences.dictScript;
+
+      const $dictVersion = $('#dict--version');
+      $dictVersion.addEventListener('change', (e) => {
+        Preferences.dictVersion = e.target.value;
+      });
+      $dictVersion.value = Preferences.dictVersion;
     }
   }
 
@@ -178,21 +212,17 @@ const ParseLayer = (() => {
     return blockID.split('.').slice(1).join('.');
   }
 
-  function show(blockID) {
+  function showParsedBlock(blockID) {
     const blockSlug = getBlockSlug(blockID);
     const $container = $('#parse--response');
     const textSlug = URL.getTextSlug();
 
+    const $block = $(`#${blockID.replaceAll('.', '\\.')}`);
     const url = URL.parseData(textSlug, blockSlug);
     Server.getText(
       url,
       (resp) => {
-        const $div = document.createElement('div');
-        $div.innerHTML = resp;
-        transliterateElement($div, 'devanagari', Preferences.dictScript);
-
-        $container.innerHTML = $div.innerHTML;
-        Sidebar.show();
+        $block.outerHTML = transliterateSanskritBlob(resp, Preferences.contentScript);
       },
       () => {
         $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
@@ -216,7 +246,7 @@ const ParseLayer = (() => {
     }
   }
 
-  return { init, show, getBlockSlug };
+  return { init, showParsedBlock, getBlockSlug };
 })();
 
 const TextContent = (() => {
@@ -232,41 +262,62 @@ const TextContent = (() => {
     // Keep in sync with the popstate() call below.
     window.history.pushState({ textContent: resp }, '', url);
   }
+
   function popState(state) {
     const $textContent = $('#text--content');
-    $textContent.innerHTML = state.textContent;
+    $textContent.innerHTML = transliterateHTMLString(
+      state.textContent,
+      Preferences.contentScript,
+    );
+  }
+
+  function ajaxChangeSection(url) {
+    const $textContent = $('#text--content');
+    const ajaxURL = URL.ajaxTextContent(url);
+    Server.getText(
+      ajaxURL,
+      (resp) => {
+        // Push state with the un-transliterated content,
+        // to keep the state clean.
+        pushState(url, resp);
+        $textContent.innerHTML = transliterateHTMLString(resp, Preferences.contentScript);
+      },
+      () => {
+        const text = "<p>Sorry, we couldn't load this page.</p>";
+        $textContent.innerHTML = text;
+        pushState(url, text);
+      },
+    );
   }
 
   function init() {
     const $textContent = $('#text--content');
     if ($textContent) {
       $textContent.addEventListener('click', (e) => {
-        const paginate = e.target.closest('.text--paginate');
-        if (paginate) {
+        const $word = e.target.closest('s-w');
+        if ($word) {
           e.preventDefault();
-          // use getAttribute to avoid the hostname.
-          const url = paginate.getAttribute('href');
-          const ajaxURL = URL.ajaxTextContent(url);
-          Server.getText(
-            ajaxURL,
-            (resp) => {
-              // Push state with the un-transliterated content,
-              // to keep the state clean.
-              pushState(url, resp);
-              $textContent.innerHTML = transliterateHTMLString(resp, Preferences.contentScript);
-            },
-            () => {
-              const text = "<p>Sorry, we couldn't load this page.</p>";
-              $textContent.innerHTML = text;
-              pushState(url, text);
-            },
-          );
+          const version = Preferences.dictVersion;
+          let query = $word.getAttribute('lemma');
+          query = Sanscript.t(query, 'slp1', Preferences.contentScript);
+          Dictionary.fetch(version, query);
+          Sidebar.show();
+          return;
         }
 
-        const block = e.target.closest('s-lg');
-        if (block !== null) {
+        const $paginate = e.target.closest('.text--paginate');
+        if ($paginate) {
           e.preventDefault();
-          ParseLayer.show(block.id);
+          // use getAttribute to avoid the hostname.
+          const url = $paginate.getAttribute('href');
+          ajaxChangeSection($textContent, url);
+          return;
+        }
+
+        const $lg = e.target.closest('s-lg');
+        if ($lg) {
+          e.preventDefault();
+          ParseLayer.showParsedBlock($lg.id);
         }
       });
 

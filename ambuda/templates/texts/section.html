@@ -21,11 +21,6 @@
 {% macro sidebar() %}
 <div id="sidebar" class="hidden md:hidden flex-1 p-2 md:p-8 overflow-y-scroll border-l bg-white">
   <div id="parse--response" class="text-sm">
-  {% if text.slug == 'ramayanam' %}
-    <p class="text-zinc-500 mb-4">Click on a verse to see its word-for-word
-    analysis. (This is an experimental feature, and the analysis might have
-    some errors.)</p>
-  {% endif %}
   </div>
 
   {{ m.dict_form() }}

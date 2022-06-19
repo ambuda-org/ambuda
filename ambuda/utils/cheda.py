@@ -1,3 +1,5 @@
+"""Parse raw analysis data."""
+
 from dataclasses import dataclass
 
 
@@ -6,6 +8,7 @@ class Token:
     form: str
     lemma: str
     parse: str
+    is_compounded: bool
 
 
 POS = {
@@ -47,7 +50,7 @@ NUMBERS = {
 LAKARAS = {
     "lat": "present",
     "lit": "perfect",
-    "lut": "periphrastic. future",
+    "lut": "periphrastic future",
     "lrt": "simple future",
     "lot": "imperative",
     "lan": "imperfect",
@@ -76,8 +79,6 @@ def readable_parse(parse: str):
         sub_parse = f"{person} {number} {lakara}"
     elif pos == "i":
         pass
-    elif pos == "v":
-        person, number, la = fields
     elif pos == "i":
         sub_parse = None
     elif pos == "va":
@@ -94,7 +95,7 @@ def readable_parse(parse: str):
         return f"{part_of_speech}"
 
 
-def render_blob(blob: str):
+def extract_tokens(blob: str) -> list[Token]:
     """Make parse data human-readable.
 
     Parse data is currently just a TSV string. In time, we'll clean it up.
@@ -102,5 +103,9 @@ def render_blob(blob: str):
     rows = []
     for line in blob.splitlines():
         form, lemma, parse = line.split("\t")
-        rows.append(Token(form, lemma, readable_parse(parse)))
+        human_parse = readable_parse(parse)
+        token = Token(
+            form, lemma, human_parse, is_compounded="compounded" in human_parse
+        )
+        rows.append(token)
     return rows

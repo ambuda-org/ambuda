@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, abort
 
 import ambuda.queries as q
-from ambuda.utils import parsing as parse_utils
+from ambuda.utils import cheda as parse_utils
+from ambuda.utils.parse_alignment import align_text_with_parse
 from ambuda.views.api import bp as api
 
 
@@ -14,7 +15,7 @@ def block(text_slug, block_slug):
     if text is None:
         abort(404)
 
-    block = q.block_meta(text.id, block_slug)
+    block = q.block(text.id, block_slug)
     if block is None:
         abort(404)
 
@@ -22,9 +23,9 @@ def block(text_slug, block_slug):
     if parse is None:
         abort(404)
 
-    return render_template(
-        "texts/block-parse.html", tokens=parse_utils.render_blob(parse.data)
-    )
+    tokens = parse_utils.extract_tokens(parse.data)
+    aligned = align_text_with_parse(block.xml, tokens)
+    return render_template("texts/block-parse.html", aligned=aligned)
 
 
 @api.route("/parses/<text_slug>/<block_slug>")
@@ -33,14 +34,14 @@ def block_htmx(text_slug, block_slug):
     if text is None:
         abort(404)
 
-    block = q.block_meta(text.id, block_slug)
+    block = q.block(text.id, block_slug)
     if block is None:
         abort(404)
 
     parse = q.block_parse(block.id)
-    if parse:
-        tokens = parse_utils.render_blob(parse.data)
-    else:
-        tokens = []
+    if not parse:
+        abort(404)
 
-    return render_template("htmx/parsed-tokens.html", tokens=tokens)
+    tokens = parse_utils.extract_tokens(parse.data)
+    aligned = align_text_with_parse(block.xml, tokens)
+    return render_template("htmx/parsed-tokens.html", aligned=aligned)

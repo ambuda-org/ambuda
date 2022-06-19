@@ -3,15 +3,30 @@
 @import "tailwindcss/utilities";
 
 @layer components {
+  ::selection {
+    @apply text-white bg-emerald-500;
+  }
   .x-deva {
     /* TODO: choose a nice typeface. */
   }
+
+  /* Custom elements. */
+
+  /* TEI <lg>, i.e. a Sanskrit verse. */
   s-lg {
     @apply block x-deva leading-normal mb-4;
     @apply cursor-pointer;
   }
+  /* TEI <l>, i.e. a line of Sanskrit verse. */
   s-l {
     @apply block;
+  }
+  /* Represents a parsed word. */
+  s-w {
+    @apply text-green-600;
+  }
+  s-w:hover {
+    @apply underline;
   }
 
   /* Prose context */

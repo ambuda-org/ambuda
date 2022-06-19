@@ -1,3 +1,5 @@
+from xml.etree import ElementTree as ET
+
 from ambuda.xml import elem, transform
 
 
@@ -7,5 +9,6 @@ def test_transform():
         "div": elem("p"),
         "span": elem("strong"),
     }
-    output = transform(blob, transforms)
+    xml = ET.fromstring(blob)
+    output = transform(xml, transforms)
     assert output == "<p>This is a <strong>test</strong> of our xml code.</p>"

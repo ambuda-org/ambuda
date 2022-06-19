@@ -4,7 +4,7 @@ from ambuda import filters
 from ambuda.views.api import bp as api
 from ambuda.views.dictionaries import bp as dictionaries
 from ambuda.views.site import bp as site
-from ambuda.views.parses import bp as parses
+from ambuda.views.cheda import bp as parses
 from ambuda.views.texts import bp as texts
 from config import config
 

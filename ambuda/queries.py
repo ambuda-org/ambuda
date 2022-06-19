@@ -47,18 +47,8 @@ def text_section(text_id: int, slug: str) -> db.TextSection:
     return session.query(db.TextSection).filter_by(text_id=text_id, slug=slug).first()
 
 
-def block_meta(text_id: int, slug) -> db.Text:
-    return (
-        session.query(db.TextBlock)
-        .filter_by(text_id=text_id, slug=slug)
-        .options(
-            load_only(
-                db.TextBlock.id,
-                db.TextBlock.slug,
-            )
-        )
-        .first()
-    )
+def block(text_id: int, slug) -> db.TextBlock:
+    return session.query(db.TextBlock).filter_by(text_id=text_id, slug=slug).first()
 
 
 def block_parse(block_id: int) -> list[db.BlockParse]:

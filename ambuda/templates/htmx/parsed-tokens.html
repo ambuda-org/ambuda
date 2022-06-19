@@ -1,25 +1,14 @@
-{% if tokens %}
-<table class="w-full border">
-  <tr class="text-left border-b bg-zinc-100">
-    {% for s in ['Word', 'Root/Stem', 'Parse'] %}
-    <th class="p-4 px-2">{{ s }}</th>
-    {% endfor %}
-  </tr>
-  {% for token in tokens %}
-  <tr>
-     {% set lemma = token.lemma | slp2dev %}
-     <td class="p-2" lang="sa">{{ token.form | slp2dev }}</td>
-     <td class="p-2" lang="sa">
-       {# Using MW because it's higher-coverage. #}
-       <a class="text-blue-500 underline"
-           href="{{ url_for('dictionaries.entry', version='mw', query=lemma) }}">
-           {{ lemma }}
-       </a>
-     </td>
-     <td class="p-2">{{ token.parse }}</td>
-  </tr>
-{% endfor %}
-</table>
+{% macro token(t) -%}
+{%- set lemma = t.lemma | slp2dev -%}
+{%- set url = url_for('dictionaries.entry', version='mw', query=lemma) -%}
+<s-w lemma="{{ lemma }}" parse="{{ t.parse }}"><a
+        class="text-blue-500 hover:underline"
+        href="{{ url }}">{{ t.form | slp2dev }}</a></s-w>
+{%- if t.is_compounded -%}-{%- else %} {% endif -%}
+{% endmacro %}
+
+{% if aligned %}
+{{ aligned | safe}}
 {% else %}
 <p>Sorry, we don't have any data for this sentence.</p>
 {% endif %}

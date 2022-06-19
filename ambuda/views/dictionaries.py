@@ -57,7 +57,7 @@ def entry(version, query):
     return render_template("dictionaries/index.html", query=query, entries=entries)
 
 
-@api.route("/dict/<version>/<query>")
+@api.route("/dictionaries/<version>/<query>")
 def entry_htmx(version, query):
     dictionaries = q.dictionaries()
     if version not in dictionaries:
