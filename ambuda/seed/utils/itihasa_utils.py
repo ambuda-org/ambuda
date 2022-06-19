@@ -9,6 +9,7 @@ from pathlib import Path
 import zipfile
 
 import requests
+from indic_transliteration import sanscript
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
@@ -115,8 +116,13 @@ def get_verse_xml(verse, xml_id) -> str:
     for i, line in enumerate(verse.lines):
         is_last = i == len(verse.lines) - 1
         if is_last:
-            buf.append(f"<l>{line.text} \u0965 {line.verse} \u0965</l>")
+            num = sanscript.transliterate(
+                str(line.verse), sanscript.HK, sanscript.DEVANAGARI
+            )
+            # Double danda
+            buf.append(f"<l>{line.text} \u0965 {num} \u0965</l>")
         else:
+            # Single danda
             buf.append(f"<l>{line.text} \u0964</l>")
     buf.append("</lg>")
     return "".join(buf)
