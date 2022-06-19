@@ -127,12 +127,20 @@ const Sidebar = {
       this.toggle();
     }
   },
+  setCurrentWord(form, lemma, parse) {
+    const niceForm = Sanscript.t(form, 'slp1', Preferences.contentScript);
+    const niceLemma = Sanscript.t(lemma, 'slp1', Preferences.contentScript);
+    const html = `<h1 class="text-xl">${niceForm}</h1><p class="mb-8">${niceLemma} ${parse}</p>`;
+    $('#parse--response').innerHTML = html;
+  },
 };
 
 // Dictionary
 
 const Dictionary = (() => {
   function fetch(version, query, callback) {
+    $('#dict--form input[name=q]').value = query;
+
     const url = URL.ajaxDictionaryQuery(version, query);
     const $container = $('#dict--response');
     Server.getText(
@@ -176,7 +184,7 @@ const Dictionary = (() => {
       $dictScript.addEventListener('change', (e) => {
         const oldScript = Preferences.dictScript;
         Preferences.dictScript = e.target.value;
-        transliterateElement($('#dict--response'), oldScript, e.value);
+        transliterateElement($('#dict--response'), oldScript, e.target.value);
       });
       $dictScript.value = Preferences.dictScript;
 
@@ -276,19 +284,29 @@ const TextContent = (() => {
     );
   }
 
+  function onClickWord($word) {
+    const lemma = $word.getAttribute('lemma');
+    const form = $word.textContent;
+    const parse = $word.getAttribute('parse');
+
+    const version = Preferences.dictVersion;
+    const query = Sanscript.t(lemma, 'slp1', Preferences.contentScript);
+
+    Dictionary.fetch(version, query, () => {
+      Sidebar.setCurrentWord(form, lemma, parse);
+      Sidebar.show();
+    });
+  }
+
   function init() {
     const $textContent = $('#text--content');
     if ($textContent) {
       $textContent.addEventListener('click', (e) => {
         const $word = e.target.closest('s-w');
+
         if ($word) {
           e.preventDefault();
-          const version = Preferences.dictVersion;
-          let query = $word.getAttribute('lemma');
-          query = Sanscript.t(query, 'slp1', Preferences.contentScript);
-          Dictionary.fetch(version, query, () => {
-            Sidebar.show();
-          });
+          onClickWord($word);
           return;
         }
 

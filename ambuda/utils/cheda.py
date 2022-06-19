@@ -56,6 +56,7 @@ LAKARAS = {
     "lan": "imperfect",
     "vidhilin": "optative",
     "lun": "aorist",
+    "lun_unaug": "aorist (unaugmented)",
     "lrn": "conditional",
 }
 
