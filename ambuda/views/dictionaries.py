@@ -1,10 +1,10 @@
 from indic_transliteration import detect, sanscript
-from flask import abort, jsonify, redirect, render_template, url_for
+from flask import abort, redirect, render_template, url_for
 from flask import Blueprint
 
 import ambuda.queries as q
 from ambuda import xml
-from ambuda.dict_utils import standardize_key, expand_apte_keys
+from ambuda.utils.dict_utils import standardize_key, expand_apte_keys
 from ambuda.views.api import bp as api
 
 

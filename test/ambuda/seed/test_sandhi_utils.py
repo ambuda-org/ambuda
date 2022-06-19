@@ -1,6 +1,6 @@
 import pytest
 
-from ambuda.seed import sandhi_utils
+from ambuda.seed.utils import sandhi_utils
 
 
 @pytest.mark.parametrize(

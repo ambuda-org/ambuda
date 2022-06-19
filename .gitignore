@@ -1,10 +1,12 @@
+.coverage
 .env
 .cache/
-third-party-data/
 dcs-parse-data/
 env/
 gen/
+htmlcov/
 node_modules/
 production/
+third-party-data/
 
 *.db

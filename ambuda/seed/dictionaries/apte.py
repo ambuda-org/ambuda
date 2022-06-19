@@ -4,13 +4,13 @@
 import re
 import xml.etree.ElementTree as ET
 
-from ambuda.dict_utils import standardize_key
-from ambuda.seed import sandhi_utils
-from ambuda.seed.cdsl_utils import (
+from ambuda.utils.dict_utils import standardize_key
+from ambuda.seed.utils import sandhi_utils
+from ambuda.seed.utils.cdsl_utils import (
     iter_entries_as_xml,
     create_from_scratch,
 )
-from ambuda.seed.itihasa_utils import (
+from ambuda.seed.utils.itihasa_utils import (
     fetch_bytes,
     create_db,
     unzip_and_read,

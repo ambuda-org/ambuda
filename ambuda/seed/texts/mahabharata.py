@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
-"""Convert the raw Ramayana text to XML."""
+"""Convert the raw Mahabharata text to XML."""
+
 
 import re
 
-import ambuda.seed.itihasa_utils as iti
+import ambuda.seed.utils.itihasa_utils as iti
 
-BASE_URL = "https://bombay.indology.info/ramayana/text/UD/Ram{n}.txt"
+BASE_URL = "https://bombay.indology.info/mahabharata/text/UD/MBh{n}.txt"
 
 
 def iter_lines(raw: str):
     for line in raw.splitlines():
         if line.startswith("%"):
             continue
-        m = re.match(r"(\d)(\d\d\d)(\d\d\d)([aceg]) (.*)", line)
+        m = re.match(r"(\d\d)(\d\d\d)(\d\d\d)([aceA-Z]?) (.*)", line)
         assert m, f"Bad match: {line}"
 
         kanda = m.group(1)
@@ -40,7 +41,7 @@ def parse_kanda(raw: str) -> iti.Kanda:
 
 
 def run():
-    text_slug = "ramayanam"
+    text_slug = "mahabharatam"
 
     print("Initializing database ...")
     engine = iti.create_db()
@@ -50,7 +51,7 @@ def run():
 
     print("Parsing text ...")
     kandas = []
-    for n in range(1, 7 + 1):
+    for n in range(1, 18 + 1):
         n = str(n)
         if len(n) == 1:
             n = "0" + n
@@ -61,7 +62,11 @@ def run():
 
     print("Writing text ...")
     iti.write_kandas(
-        engine, kandas, text_slug=text_slug, text_title="rAmAyaNam", xml_id_prefix="R"
+        engine,
+        kandas,
+        text_slug=text_slug,
+        text_title="mahAbhAratam",
+        xml_id_prefix="MBh",
     )
 
     print("Done.")

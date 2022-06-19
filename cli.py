@@ -4,7 +4,7 @@ import click
 from sqlalchemy.orm import Session
 
 from ambuda import database as db
-from ambuda.seed.itihasa_utils import create_db
+from ambuda.seed.utils.itihasa_utils import create_db
 
 
 engine = create_db()

@@ -11,6 +11,9 @@ from sqlalchemy.orm import (
 )
 
 
+# TODO: investigate better setup here
+# https://flask.palletsprojects.com/en/2.1.x/patterns/sqlalchemy/
+# https://stackoverflow.com/questions/12223335
 DATABASE_URI = "sqlite:///database.db"
 
 

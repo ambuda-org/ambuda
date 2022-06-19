@@ -3,7 +3,6 @@
 The GRETIL TEI format has some systematic inconsistencies. Instead of using it,
 just process teh plain text.
 """
-import io
 from dataclasses import dataclass
 from pathlib import Path
 from xml.etree import ElementTree as ET
@@ -12,7 +11,7 @@ from indic_transliteration import sanscript
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
-from ambuda.seed.itihasa_utils import create_db, fetch_bytes, delete_existing_text
+from ambuda.seed.utils.itihasa_utils import create_db, delete_existing_text
 
 
 @dataclass

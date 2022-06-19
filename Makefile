@@ -10,5 +10,8 @@ lint:
 test:
 	pytest .
 
+coverage:
+	pytest --cov=ambuda --cov-report=html test/
+
 tailwind_watcher:
 	npx tailwindcss -i ./ambuda/static/css/style.css -o ./ambuda/static/gen/style.css --watch

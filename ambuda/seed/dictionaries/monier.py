@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Add the Monier-Williams dictionary to the database."""
-from ambuda.dict_utils import standardize_key
-from ambuda.seed.cdsl_utils import create_from_scratch, iter_entries_as_strings
-from ambuda.seed.itihasa_utils import (
+
+from ambuda.utils.dict_utils import standardize_key
+from ambuda.seed.utils.cdsl_utils import create_from_scratch, iter_entries_as_strings
+from ambuda.seed.utils.itihasa_utils import (
     fetch_bytes,
     create_db,
     unzip_and_read,

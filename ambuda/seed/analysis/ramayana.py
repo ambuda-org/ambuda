@@ -1,3 +1,5 @@
+"""Add the Ramayana parse data from DCS."""
+
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -5,8 +7,8 @@ from indic_transliteration import sanscript
 from sqlalchemy.orm import Session, load_only
 
 import ambuda.database as db
-import ambuda.seed.itihasa_utils as iti
-from ambuda.seed.dcs_utils import get_parsed_rows
+import ambuda.seed.utils.itihasa_utils as iti
+from ambuda.seed.utils.dcs_utils import get_parsed_rows
 
 
 kanda_slug_map = {
