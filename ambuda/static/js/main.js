@@ -157,8 +157,8 @@ const Dictionary = (() => {
     );
   }
 
-  function submitForm(e) {
-    e.preventDefault();
+  // Submit the form using the current form state.
+  function submitForm() {
     const $form = $('#dict--form');
     const query = $form.querySelector('input[name=q]').value;
     const version = $form.querySelector('select[name=version]').value;
@@ -178,7 +178,10 @@ const Dictionary = (() => {
   function init() {
     const $dictForm = $('#dict--form');
     if ($dictForm) {
-      $dictForm.addEventListener('submit', submitForm);
+      $dictForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        submitForm();
+      });
 
       const $dictScript = $('#dict--script');
       $dictScript.addEventListener('change', (e) => {
@@ -191,12 +194,13 @@ const Dictionary = (() => {
       const $dictVersion = $('#dict--version');
       $dictVersion.addEventListener('change', (e) => {
         Preferences.dictVersion = e.target.value;
+        submitForm();
       });
       $dictVersion.value = Preferences.dictVersion;
     }
   }
 
-  return { init, fetch, submitForm };
+  return { init, fetch };
 })();
 
 const ParseLayer = (() => {
