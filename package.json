@@ -7,6 +7,6 @@
     "eslint": "^8.17.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
-    "lint": "^0.7.0"
+    "lint": "^1.1.2"
   }
 }
