@@ -1,0 +1,99 @@
+"""Add the Ramayana parse data from DCS."""
+
+import xml.etree.ElementTree as ET
+from pathlib import Path
+from typing import Iterator
+
+from indic_transliteration import sanscript
+from sqlalchemy.orm import Session
+
+import ambuda.database as db
+import ambuda.scripts.analysis.dcs_utils as dcs
+from ambuda.seed.utils.itihasa_utils import create_db
+
+TITLE_MAP = {
+    "Rām, Bā": "1",
+    "Rām, Ay": "2",
+    "Rām, Ār": "3",
+    "Rām, Ki": "4",
+    "Rām, Su": "5",
+    "Rām, Yu": "6",
+    "Rām, Utt": "7",
+}
+
+
+def get_kanda_and_sarga(kanda_slug_map, section: dcs.Section) -> tuple[str, str]:
+    kanda_raw, _, sarga = section.slug.rpartition(",")
+    kanda = kanda_slug_map[kanda_raw]
+    return kanda.strip(), sarga.strip()
+
+
+def iter_sections():
+    text_path = (
+        Path(__file__).parent.parent.parent.parent
+        / "dcs-parse-data"
+        / "files"
+        / "Rāmāyaṇa"
+    )
+    for section_path in sorted(text_path.iterdir()):
+        for section in dcs.parse_file(section_path):
+            yield section
+
+
+def iter_parsed_blocks() -> Iterator[tuple[str, str, str]]:
+    for section in iter_sections():
+        kanda, sarga = get_kanda_and_sarga(TITLE_MAP, section)
+        for block in section.blocks:
+            key = dcs.iast_to_slp1(block.raw)
+            key = dcs.make_block_key(key)
+            full_slug = f"{kanda}.{sarga}.{block.slug}"
+            buf = []
+            for token in block.tokens:
+                buf.append("\t".join((token.form, token.lemma, token.parse)))
+            yield key, full_slug, "\n".join(buf)
+
+
+def map_keys_to_slugs(text_slug):
+    key_to_slug = {}
+
+    engine = create_db()
+    with Session(engine) as session:
+        text = session.query(db.Text).filter_by(slug=text_slug).first()
+        blocks = session.query(db.TextBlock).filter_by(text_id=text.id).all()
+        for b in blocks:
+            raw_text = "".join(ET.fromstring(b.xml).itertext())
+            raw_text = sanscript.transliterate(
+                raw_text, sanscript.DEVANAGARI, sanscript.SLP1
+            )
+            block_key = dcs.make_block_key(raw_text)
+            key_to_slug[block_key] = b.slug
+
+    return key_to_slug
+
+
+def map_and_write(text_slug, blocks_iter):
+    print("Mapping source text to slugs ...")
+    key_to_slug = map_keys_to_slugs(text_slug)
+
+    print("Writing ...")
+    with open(f"{text_slug}.txt", "w") as f:
+        for key, slug, blob in blocks_iter:
+            if key in key_to_slug:
+                slug = key_to_slug[key]
+                f.write(f"# id = {slug}\n")
+                f.write(blob)
+                f.write("\n\n")
+            else:
+                print(f"# dcs_id = {slug}")
+                print(f"# key = {key}\n")
+                print(blob)
+                print()
+    print("Done.")
+
+
+def run():
+    map_and_write("ramayanam", iter_parsed_blocks())
+
+
+if __name__ == "__main__":
+    run()

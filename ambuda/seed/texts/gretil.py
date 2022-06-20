@@ -21,7 +21,7 @@ class Spec:
     filename: str
 
 
-PROJECT_DIR = Path(__file__).parent.parent.parent
+PROJECT_DIR = Path(__file__).resolve().parents[3]
 GRETIL_DIR = PROJECT_DIR / "third-party-data" / "gretil"
 ALLOW = [
     Spec("kumarasambhavam", "kumArasambhavam", "sa_kAlidAsa-kumArasaMbhava.xml"),

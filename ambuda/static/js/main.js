@@ -152,7 +152,7 @@ const Dictionary = (() => {
         }
       },
       () => {
-        $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
+        $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
       },
     );
   }

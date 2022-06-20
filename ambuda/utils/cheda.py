@@ -63,31 +63,33 @@ LAKARAS = {
 
 def readable_parse(parse: str):
     """Make the parse readable to English readers."""
-    pos, _, sub_parse = parse.partition("-")
-    fields = sub_parse.split("-")
+    fields = {}
+    for field in parse.split(","):
+        k, v = field.split("=")
+        fields[k] = v
 
-    if pos in ("n", "a"):
-        gender, case_, number = fields
-        gender = GENDERS[gender]
-        case_ = CASES[case_]
-        number = NUMBERS[number]
-        sub_parse = f"{gender} {case_} {number}"
+    pos = fields["pos"]
+    sub_parse = None
+
+    if pos in ("n", "a", "va"):
+        try:
+            gender, case_, number = fields["g"], fields["c"], fields["n"]
+            gender = GENDERS[gender]
+            case_ = CASES[case_]
+            number = NUMBERS[number]
+            sub_parse = f"{gender} {case_} {number}"
+        except KeyError:
+            assert "comp" in fields
+            sub_parse = "compounded"
+
     elif pos == "v":
-        person, number, lakara = fields
+        person, number, lakara = fields["p"], fields["n"], fields["l"]
         person = PERSONS[person]
         number = NUMBERS[number]
         lakara = LAKARAS[lakara]
         sub_parse = f"{person} {number} {lakara}"
-    elif pos == "i":
+    elif pos in ("i", "vi"):
         pass
-    elif pos == "i":
-        sub_parse = None
-    elif pos == "va":
-        gender, case_, number, _ = fields
-        gender = GENDERS[gender]
-        case_ = CASES[case_]
-        number = NUMBERS[number]
-        sub_parse = f"{gender} {case_} {number}"
 
     part_of_speech = POS[pos]
     if sub_parse:
