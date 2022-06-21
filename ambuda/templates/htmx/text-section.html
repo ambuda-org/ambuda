@@ -3,8 +3,7 @@
 {% set base = "rounded text-2xl h-12 w-12 leading-[3rem] text-center" %}
 {% if section %}
   {% set url = url_for('texts.section', text_slug=text.slug, section_slug=section.slug) %}
-  {# text--paginate defined only as a JS hook #}
-  <a class="text--paginate {{ base }} hover:bg-zinc-100" href="{{ url }}"> {{ display_text | safe }}</a>
+  <a class="js--paginate {{ base }} hover:bg-zinc-100" href="{{ url }}"> {{ display_text | safe }}</a>
 {% else %}
 <span class="{{ base }} text-zinc-300">{{ display_text | safe }}</span>
 {% endif %}

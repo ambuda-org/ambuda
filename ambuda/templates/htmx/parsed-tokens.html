@@ -1,14 +1,1 @@
-{% macro token(t) -%}
-{%- set lemma = t.lemma | slp2dev -%}
-{%- set url = url_for('dictionaries.entry', version='mw', query=lemma) -%}
-<s-w lemma="{{ lemma }}" parse="{{ t.parse }}"><a
-        class="text-blue-500 hover:underline"
-        href="{{ url }}">{{ t.form | slp2dev }}</a></s-w>
-{%- if t.is_compounded -%}-{%- else %} {% endif -%}
-{% endmacro %}
-
-{% if aligned %}
 {{ aligned | safe}}
-{% else %}
-<p>Sorry, we don't have any data for this sentence.</p>
-{% endif %}

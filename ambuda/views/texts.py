@@ -113,3 +113,20 @@ def section_htmx(text_slug, section_slug):
         next=next,
         content=content,
     )
+
+
+@api.route("/texts/<text_slug>/blocks/<block_slug>")
+def block_htmx(text_slug, block_slug):
+    text = q.text(text_slug)
+    if text is None:
+        abort(404)
+
+    block = q.block(text.id, block_slug)
+    if not block:
+        abort(404)
+
+    content = xml.transform_tei(block.xml)
+    return render_template(
+        "htmx/text-block.html",
+        content=content,
+    )

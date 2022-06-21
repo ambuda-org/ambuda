@@ -134,11 +134,20 @@ def create_backup_parse(tokens: list[Token]) -> str:
     explain.attrib["class"] = "mb-2 text-sm"
     explain.text = "This analysis has one or more issues. Use with caution:"
     div.insert(0, explain)
+    return div
 
-    return transform(div, tei_xml)
+
+def insert_link(xml, href):
+    a = ET.Element("a")
+    a.attrib["class"] = "text-sm text-zinc-400 hover:underline js--source"
+    a.attrib["href"] = href
+    a.text = "Restore original text"
+    xml.append(a)
 
 
-def align_text_with_parse(xml_blob: str, tokens: list[Token]) -> ET.Element:
+def align_text_with_parse(
+    xml_blob: str, tokens: list[Token], text_slug, block_slug
+) -> ET.Element:
     """Align text and parse data by storing parse data on its source XML blob."""
     iter_tokens = iter(tokens)
 
@@ -158,7 +167,8 @@ def align_text_with_parse(xml_blob: str, tokens: list[Token]) -> ET.Element:
         except StopIteration:
             # Doesn't line up -- bail out with a lower quality but still usable
             # parse.
-            return create_backup_parse(tokens)
+            xml = create_backup_parse(tokens)
+            break
 
         # Modify source XML with the aligned token data.
         chunk_elems = _make_chunk_elems(chunks)
@@ -170,4 +180,6 @@ def align_text_with_parse(xml_blob: str, tokens: list[Token]) -> ET.Element:
             el[:] += chunk_elems
 
     transliterate_text_to(xml, sanscript.SLP1, sanscript.DEVANAGARI)
+    source_url = url_for("api.block_htmx", text_slug=text_slug, block_slug=block_slug)
+    insert_link(xml, source_url)
     return transform(xml, tei_xml)

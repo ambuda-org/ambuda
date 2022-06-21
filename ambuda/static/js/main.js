@@ -314,7 +314,21 @@ const TextContent = (() => {
           return;
         }
 
-        const $paginate = e.target.closest('.text--paginate');
+        const $undoParse = e.target.closest('.js--source');
+        if ($undoParse) {
+          e.preventDefault();
+          Server.getText(
+            $undoParse.href,
+            (resp) => {
+              const transResp = transliterateSanskritBlob(resp, Preferences.contentScript);
+              $undoParse.closest('s-lg').outerHTML = transResp;
+            },
+            () => {},
+          );
+          return;
+        }
+
+        const $paginate = e.target.closest('.js--paginate');
         if ($paginate) {
           // Disable for now -- includes too much extra state.
           // e.preventDefault();
