@@ -106,6 +106,8 @@ def get_padas_for_text(text: str, iter_tokens: Iterator) -> list[Chunk]:
 
 def transliterate_text_to(xml, source, dest):
     for el in xml.iter("*"):
+        if el.attrib.get('lang') == 'en':
+            continue
         if el.text:
             el.text = sanscript.transliterate(el.text, source, dest)
         # Ignore xml.tail, since it's not within `xml`.
@@ -132,6 +134,7 @@ def create_backup_parse(tokens: list[Token]) -> str:
 
     explain = ET.Element("p")
     explain.attrib["class"] = "mb-2 text-sm"
+    explain.attrib["lang"] = "en"
     explain.text = "This analysis has one or more issues. Use with caution:"
     div.insert(0, explain)
     return div
