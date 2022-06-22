@@ -106,7 +106,7 @@ def get_padas_for_text(text: str, iter_tokens: Iterator) -> list[Chunk]:
 
 def transliterate_text_to(xml, source, dest):
     for el in xml.iter("*"):
-        if el.attrib.get('lang') == 'en':
+        if el.attrib.get("lang") == "en":
             continue
         if el.text:
             el.text = sanscript.transliterate(el.text, source, dest)
@@ -144,7 +144,7 @@ def insert_link(xml, href):
     a = ET.Element("a")
     a.attrib["class"] = "text-sm text-zinc-400 hover:underline js--source"
     a.attrib["href"] = href
-    a.text = "Restore original text"
+    a.text = "Show original"
     xml.append(a)
 
 

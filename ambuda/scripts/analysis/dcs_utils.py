@@ -276,15 +276,15 @@ def parse_block(sentence) -> Block:
 
 
 def parse_sections(text: str) -> list[Section]:
-    data = {}
+    blocks = []
     section_slug = None
 
     for sentence in conllu.parse(text, fields=FIELDS):
         # Start of section -- extract metadata and continue.
         if "# chapter" in sentence.metadata:
-            if data:
-                yield Section(slug=section_slug, blocks=list(data.values()))
-                data = {}
+            if blocks:
+                yield Section(slug=section_slug, blocks=blocks)
+                blocks = []
 
             section_slug = sentence.metadata["# chapter"]
             continue
@@ -294,15 +294,10 @@ def parse_sections(text: str) -> list[Section]:
         # Each "sentence" is a half-verse. Merge blocks so that each block
         # represents one verse.
         block = parse_block(sentence)
-        if block.slug not in data:
-            data[block.slug] = block
-        else:
-            prev = data[block.slug]
-            prev.tokens.extend(block.tokens)
-            prev.raw += " " + block.raw
+        blocks.append(block)
 
-    if data:
-        yield Section(slug=section_slug, blocks=list(data.values()))
+    if blocks:
+        yield Section(slug=section_slug, blocks=blocks)
 
 
 def make_block_key(raw: str) -> str:

@@ -56,7 +56,7 @@ def iter_parsed_blocks() -> Iterator[tuple[str, str, str]]:
 
 
 def run():
-    map_and_write("mahabharatam", iter_parsed_blocks())
+    map_and_write("mahabharatam", iter_parsed_blocks(), "M")
 
 
 if __name__ == "__main__":
