@@ -23,7 +23,7 @@ GENDERS = {
     "m": "masculine",
     "f": "feminine",
     "n": "neuter",
-    "_": "",
+    "": "",
 }
 CASES = {
     "1": "nominative",
@@ -45,7 +45,7 @@ NUMBERS = {
     "s": "singular",
     "d": "dual",
     "p": "plural",
-    "_": "",
+    "": "",
 }
 LAKARAS = {
     "lat": "present",

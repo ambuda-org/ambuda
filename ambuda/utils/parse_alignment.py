@@ -116,7 +116,7 @@ def transliterate_text_to(xml, source, dest):
 
 
 def create_backup_parse(tokens: list[Token]) -> str:
-    div = ET.Element("aside")
+    div = ET.Element("s-lg")
     div.attrib["class"] = "bg-red-100 p-2"
     for token in tokens:
         t = ET.Element("s-w")
