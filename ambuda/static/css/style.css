@@ -6,6 +6,11 @@
   ::selection {
     @apply text-white bg-emerald-500;
   }
+  body, html {
+    /* For sticky footers. */
+    @apply h-full;
+  }
+
   .x-deva {
     /* TODO: choose a nice typeface. */
   }
@@ -41,7 +46,7 @@
 
   /* Custom */
   .a-hover-underline a {
-      @apply hover:underline hover:text-black;
+      @apply hover:underline;
   }
 
   /* MW dictionary */

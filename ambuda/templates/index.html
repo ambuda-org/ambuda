@@ -1,4 +1,4 @@
-{% extends 'base-text.html' %}
+{% extends 'header-main-footer.html' %}
 
 {% set mailing_url = 'https://groups.google.com/g/learnsanskrit-announce' %}
 {% set code_url = 'https://github.com/sanskrit/ambuda' %}
@@ -6,19 +6,31 @@
 
 {% block title %}Ambuda{% endblock %}
 
-{% block content %}
-<section class="prose">
+{% block header %}
+<header class="text-center text-sky-900 mt-16 md:mt-32 mb-2 md:mb-6 w-full max-w-xl mx-auto">
+  <h1 class="text-5xl font-bold mb-6">Ambuda</h1>
+  <nav class="flex justify-around border-t border-b w-full py-2 mx-auto a-hover-underline text-sm uppercase">
+    <a href="{{ url_for('texts.index') }}">Texts</a>
+    <a href="{{ url_for('dictionaries.index') }}">Dictionaries</a>
+    <a href="{{ url_for('site.about') }}">About</a>
+    <a href="{{ url_for('site.contact') }}">Contact</a>
+  </nav>
+</header>
+{% endblock %}
 
-<p><dfn>Ambuda</dfn> is an online Sanskrit library. Our goal is to build a
-complete archive of traditional Sanskrit literature and present it as
-beautifully and accessibly as we can.</p>
+{% block main %}
+<article class="p-4 md:p-0 max-w-xl mx-auto">
+<section class="prose">
+<p>Ambuda is a Sanskrit library. Our mission is to build a complete archive of
+traditional Sanskrit literature and present it as beautifully and accessibly as
+we can.</p>
 
 <p><a href="{{ mailing_url }}">Our mailing list</a> shares regular updates on
 Ambuda and our other Sanskrit projects. <a href="{{ code_url }}">Our code</a>
 is all on GitHub, and we eagerly welcome contributors of all backgrounds.</p>
 
-<p>For all other inquiries, please <a href="{{ contact_url }}">reach out to us
-    directly</a>.</p>
+<p>For other questions or comments, please <a href="{{ contact_url }}">reach
+    out to us directly</a>.</p>
 
 </section>
 {% endblock %}

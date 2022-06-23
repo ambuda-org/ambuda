@@ -11,7 +11,7 @@ from ambuda.views.api import bp as api
 bp = Blueprint("dictionaries", __name__)
 
 
-def _fetch_entries(version, query):
+def _fetch_entries(version: str, query: str) -> list[str]:
     query = query.strip()
     input_scheme = detect.detect(query)
 
@@ -62,5 +62,6 @@ def entry_htmx(version, query):
     dictionaries = q.dictionaries()
     if version not in dictionaries:
         abort(404)
+
     entries = _fetch_entries(version, query)
     return render_template("htmx/dictionary-results.html", query=query, entries=entries)

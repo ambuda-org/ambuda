@@ -16,7 +16,7 @@ def client(flask_app):
 
 def test_index(client):
     resp = client.get("/")
-    assert "<dfn>Ambuda</dfn>" in resp.text
+    assert "complete archive" in resp.text
 
 
 def test_about(client):

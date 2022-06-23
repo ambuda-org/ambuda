@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 
 {% block body %}
-<body>
+<body class="flex flex-col">
 {% block header %}
 {% include "include/header.html" %}
 {% endblock %}
 
+<div class="flex-1">
 {% block main %}{% endblock %}
+</div>
 
 {% block footer %}
 {% include "include/footer.html" %}
