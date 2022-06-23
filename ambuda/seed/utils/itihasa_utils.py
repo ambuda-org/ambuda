@@ -50,12 +50,9 @@ def fetch_text(url: str) -> str:
     code = hashlib.sha256(url.encode()).hexdigest()
     path = CACHE_DIR / code
 
-    if path.exists():
-        return path.read_text()
-    else:
-        resp = requests.get(url)
-        path.write_text(resp.text)
-        return resp.text
+    resp = requests.get(url)
+    path.write_text(resp.text)
+    return resp.text
 
 
 def fetch_bytes(url: str) -> bytes:

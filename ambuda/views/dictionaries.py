@@ -25,6 +25,7 @@ def _fetch_entries(version: str, query: str) -> list[str]:
 
     transforms = {
         "apte": xml.transform_apte,
+        "shabdartha-kaustubha": xml.transform_sak,
         "mw": xml.transform_mw,
         "vacaspatyam": xml.transform_vacaspatyam,
         "shabdakalpadruma": xml.transform_mw,

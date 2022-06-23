@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add the Monier-Williams dictionary to the database."""
+"""Add the Shabda-sagara dictionary to the database."""
 
 from ambuda.utils.dict_utils import standardize_key
 from ambuda.seed.utils.cdsl_utils import create_from_scratch, iter_entries_as_strings

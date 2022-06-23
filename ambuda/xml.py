@@ -219,3 +219,8 @@ def transform_vacaspatyam(blob):
 def transform_tei(blob):
     xml = ET.fromstring(blob)
     return transform(xml, tei_xml)
+
+
+def transform_sak(blob):
+    xml = ET.fromstring(blob)
+    return transform(xml, vacaspatyam_xml)
