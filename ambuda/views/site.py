@@ -1,3 +1,5 @@
+"""Views for basic site pages."""
+
 from flask import Blueprint, render_template
 
 

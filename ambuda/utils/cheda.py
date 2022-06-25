@@ -1,4 +1,7 @@
-"""Parse raw analysis data."""
+"""Utilities for working with parse data.
+
+This module is quite sloppy and will likely change in the future.
+"""
 
 from dataclasses import dataclass
 
@@ -61,7 +64,7 @@ LAKARAS = {
 }
 
 
-def readable_parse(parse: str):
+def readable_parse(parse: str) -> str:
     """Make the parse readable to English readers."""
     fields = {}
     for field in parse.split(","):

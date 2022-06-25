@@ -1,3 +1,5 @@
+"""Views related to texts: title pages, sections, verses, etc."""
+
 from flask import Blueprint, render_template, abort
 from indic_transliteration import sanscript
 from sqlalchemy.orm import Session
