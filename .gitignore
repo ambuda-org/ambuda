@@ -2,6 +2,7 @@
 .env
 .cache/
 dcs-parse-data/
+docs/_build
 env/
 gen/
 htmlcov/
