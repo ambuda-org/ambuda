@@ -1,14 +1,16 @@
 Project layout
 ==============
 
-Many of the toplevel files in the project directory are related to production.
-You can ignore almost all of them.
+Many of the toplevel files in the project directory are specific to our
+production environment. You can ignore almost all of them.
 
 `ambuda` contains the main server code, and this is where you will spend most
-of your time. Here are the important toplevel files in this directory:
+of your time.
+
+Here are the important toplevel files in this directory:
 
 - `__init__.py` is the main entrypoint to Ambuda. It creates the app, sets up
-  variosu URL routes, and adds filters that we can use in our template logic.
+  various URL routes, and adds filters that we can use in our template logic.
 
 - `database.py` defines the database schema. This is an important file that you
   should change only with great care.
@@ -20,7 +22,7 @@ of your time. Here are the important toplevel files in this directory:
 And here are the important submodules:
 
 - `scripts` contains utility scripts. Mostly, these are cleanup scripts that
-  prepare text and parse data for the repos Ambuda depends on.
+  prepare text and parse data for the data repos that Ambuda depends on.
 
 - `seed` contains scripts to add data to the database. 
 

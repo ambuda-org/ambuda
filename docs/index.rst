@@ -7,10 +7,17 @@ Ambuda Documentation
 ====================
 
 This is the technical documentation for Ambuda, located at https://ambuda.org.
+We wrote this guide for anyone who wants to run Ambuda locally or contribute
+back to the project.
+
+If you have any questions or comments, please join us on our `Discord`_ channel.
+
+.. _Discord: https://discord.gg/7rGdTyWY7Z
 
 .. toctree::
    :maxdepth: 2
 
+   mission-and-principles
    installation
    quickstart
    project-layout
