@@ -9,8 +9,9 @@ from ambuda.views.api import bp as api
 bp = Blueprint("parses", __name__)
 
 
-@bp.route("<text_slug>/<block_slug>")
+@bp.route("/<text_slug>/<block_slug>")
 def block(text_slug, block_slug):
+    """Show the analysis for a specific block."""
     text = q.text_meta(text_slug)
     if text is None:
         abort(404)

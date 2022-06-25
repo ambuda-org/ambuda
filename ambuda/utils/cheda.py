@@ -8,6 +8,8 @@ from dataclasses import dataclass
 
 @dataclass
 class Token:
+    """Represents a parsed word."""
+
     form: str
     lemma: str
     parse: str

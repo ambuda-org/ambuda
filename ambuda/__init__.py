@@ -9,7 +9,7 @@ from ambuda.views.texts import bp as texts
 from config import config
 
 
-def create_app(config_name):
+def create_app(config_name: str):
     app = Flask(__name__)
 
     # Config

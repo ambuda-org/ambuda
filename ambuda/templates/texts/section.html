@@ -1,7 +1,13 @@
 {% extends 'header-main-footer.html' %}
 {% import 'macros/dictionaries.html' as m_dict %}
 
-{# Show the dictionary/etc sidebar #}
+{# Sidebar with dictionary information, etc.
+
+On small screens, the sidebar is fixed and covers the entire screen.
+On wide screens, the sidebar is on the right side of a split view.
+In the future, it might be nice to let readers customize where this
+sidebar is positioned.
+#}
 {% macro sidebar() %}
 <div id="sidebar" class="
     hidden
@@ -25,7 +31,6 @@
 {% block title %}{{ text.title | devanagari }} {{ section.title }} | Ambuda{% endblock %}
 
 {% block main %}
-{# h-12 (on the header) corresponds to 3rem. #}
 <article class="flex justify-around">
   <div id="text--content" class="md:text-xl mx-4 md:max-w-lg pb-16 bg-white lg:flex-1">
     {% with text=text, section=section, prev=prev, next=next %}

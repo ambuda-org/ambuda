@@ -36,6 +36,7 @@ def _fetch_entries(version: str, query: str) -> list[str]:
 
 @bp.route("/")
 def index():
+    """Show the dictionary lookup tool."""
     return render_template("dictionaries/index.html")
 
 
@@ -50,6 +51,7 @@ def version(slug):
 
 @bp.route("/<version>/<query>")
 def entry(version, query):
+    """Show a specific dictionary entry."""
     dictionaries = q.dictionaries()
     if version not in dictionaries:
         abort(404)

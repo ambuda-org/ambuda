@@ -14,6 +14,11 @@ bp = Blueprint("texts", __name__)
 
 
 def _prev_cur_next(sections: list[db.TextSection], slug: str):
+    """Get the previous, current, and next esctions.
+
+    :param sections: all of the sections in this text.
+    :param slug: the slug for the current section.
+    """
     found = False
     i = 0
     for i, s in enumerate(sections):
@@ -46,6 +51,7 @@ def _hk_to_dev(s: str) -> str:
 
 @bp.route("/")
 def index():
+    """Show all texts."""
     all_texts = q.texts()
     all_texts = sorted(all_texts, key=lambda t: _hk_to_dev(t.title))
     return render_template("texts/index.html", texts=all_texts)
@@ -53,6 +59,7 @@ def index():
 
 @bp.route("/<slug>/")
 def text(slug):
+    """Show a text's title page and contents."""
     text = q.text(slug)
     if text is None:
         abort(404)
@@ -63,6 +70,7 @@ def text(slug):
 
 @bp.route("/<text_slug>/<section_slug>")
 def section(text_slug, section_slug):
+    """Show a specific section."""
     text = q.text(text_slug)
     if text is None:
         abort(404)
