@@ -1,7 +1,12 @@
+{% set discord = "https://discord.gg/7rGdTyWY7Z" %}
+{% set github = "https://github.com/sanskrit/ambuda" %}
 <footer class="mt-16 text-zinc-500 a-hover-underline text-sm text-center p-4">
   <hr class="mb-4 w-48 block mx-auto">
   <a class="px-4" href="{{ url_for('texts.index') }}">Texts</a>
   <a class="px-4" href="{{ url_for('dictionaries.index') }}">Dictionaries</a>
   <a class="px-4" href="{{ url_for('site.about') }}">About</a>
+
   <a class="px-4" href="{{ url_for('site.contact') }}">Contact</a>
+  <a class="px-4" href="{{ github }}">GitHub</a>
+  <a class="px-4" href="{{ discord }}">Discord</a>
 </footer>
