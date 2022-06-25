@@ -42,28 +42,42 @@ file is quite messy right now, but the major dependencies are:
 
 You can install them with::
 
-   $ python -m venv env
-   $ . env/bin/activate
-   $ pip install -r requirements.txt
+    $ python -m venv env
+    $ . env/bin/activate
+    $ pip install -r requirements.txt
 
 Similarly, all of our JavaScript dependencies are declared in `package.json`.
 As of when I wrote this sentence, we use `npm` only for Tailwind::
 
-   $ npm install
+    $ npm install
 
 
 Data dependencies
 -----------------
 
-Ambuda is interesting only because of its data. All of the scripts that add
-data to the database are located under `ambuda/seed`. For example, you might
-add the Apte dictionary::
+Broadly, we use two types of data:
 
-   python -m ambuda.seed.dictionaries.apte
+1. Data that we've sanitized and store in our own Git repositories.
+2. Data that we fetch directly from third-party sources.
+
+To fetch (1), run these two scripts::
+
+    ./scripts/fetch-dcs-data.sh
+    ./scripts/fetch-gretil-data.sh
+
+.. warning::
+
+    You'll need to run the scripts whenever you want to refresh the underlying
+    data. In the future, Ambuda will manage all of this for you.
+
+All of the scripts that add data to the database are located under
+`ambuda/seed`. For example, you might add the Apte dictionary::
+
+    python -m ambuda.seed.dictionaries.apte
 
 Then you might add some texts from our GRETIL snapshot::
 
-   python -m ambuda.seed.texts.gretil
+    python -m ambuda.seed.texts.gretil
 
 These two should be enough to play around with Ambuda. But for the full
 experience, we recommend running all of the scripts in `ambuda/seed`.

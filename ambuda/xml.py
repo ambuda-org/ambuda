@@ -12,9 +12,9 @@ a new class to an HTML element, for example, that change can go into effect
 immediately. If we stored raw HTML instead, we would have to rebuild most of
 the database each time we change this content's presentation.
 
-We use different source documents for each XML "source." For example, the
-Monier-Williams dictionary uses different XML conventions from a TEI document,
-so we handle them with different functions.
+We use different transformation functions for each XML "source." For example,
+the Monier-Williams dictionary uses different XML conventions from a TEI
+document, so we handle them with different functions.
 
 
 Performance
