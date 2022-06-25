@@ -3,13 +3,19 @@
 
 {# Show the dictionary/etc sidebar #}
 {% macro sidebar() %}
-<div id="sidebar" class="hidden">
-  <div class="fixed top-0 bottom-0 left-0 right-0 bg-black/25" onclick="Sidebar.hide()"></div>
-  <div class="fixed top-0 bottom-0 left-0 md:left-1/2 right-0 p-2 md:p-8 overflow-y-scroll bg-white">
-    <button class="fixed top-0 right-0 text-2xl bg-white block p-2" onclick="Sidebar.hide()">&times;</button>
-    <div class="mt-12 overflow-y-scroll">
+<div id="sidebar" class="
+    hidden
+    bg-white p-4 overflow-auto
+    fixed top-0 bottom-0 left-0 right-0
+    flex flex-col flex-1
+    lg:sticky lg:max-w-lg lg:h-[85vh] lg:mr-8 lg:pl-8 lg:border-l">
+  <div>
+    <div>
+      <button class="block text-2xl bg-white p-2" onclick="Sidebar.hide()">&times;</button>
       <div id="parse--response" class="text-sm"></div>
       {{ m_dict.dict_form() }}
+    </div>
+    <div>
       {{ m_dict.dict_target() }}
     </div>
   </div>
@@ -20,8 +26,8 @@
 
 {% block main %}
 {# h-12 (on the header) corresponds to 3rem. #}
-<article>
-  <div id="text--content" class="md:text-xl mx-4 md:mx-auto md:max-w-lg pb-16 bg-white">
+<article class="flex justify-around">
+  <div id="text--content" class="md:text-xl mx-4 md:max-w-lg pb-16 bg-white lg:flex-1">
     {% with text=text, section=section, prev=prev, next=next %}
       {% include 'htmx/text-section.html' %}
     {% endwith %}
