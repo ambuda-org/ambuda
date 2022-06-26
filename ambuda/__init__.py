@@ -28,8 +28,6 @@ def create_app(config_name: str):
             "d": filters.devanagari,
             "devanagari": filters.devanagari,
             "roman": filters.roman,
-            "sa_roman": filters.sa_roman,
-            "slp2dev": filters.slp2dev,
         }
     )
 

@@ -83,7 +83,7 @@ def section(text_slug, section_slug):
     # Fetch with content blocks
     cur = q.text_section(text.id, section_slug)
 
-    with Session(q.engine) as sess:
+    with q.get_session() as sess:
         blob = "<div>" + "".join(b.xml for b in cur.blocks) + "</div>"
         content = xml.transform_tei(blob)
 
@@ -111,7 +111,7 @@ def section_htmx(text_slug, section_slug):
     # Fetch with content blocks
     cur = q.text_section(text.id, section_slug)
 
-    with Session(q.engine) as sess:
+    with q.get_session() as sess:
         blob = "<div>" + "".join(b.xml for b in cur.blocks) + "</div>"
         content = xml.transform_tei(blob)
 

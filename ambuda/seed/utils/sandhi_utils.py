@@ -1,4 +1,7 @@
-"""An adhoc implementation of samAsa-sandhi."""
+"""An adhoc implementation of samAsa-sandhi.
+
+We use this when extracting compound data from the Apte (1890) dictionary.
+"""
 
 # Sound groups defined in the Shiva Sutras.
 AC = "aAiIuUfFxXeoEO"

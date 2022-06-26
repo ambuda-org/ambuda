@@ -7,10 +7,11 @@ def _get(key, default=None):
 
 class Config:
     SECRET_KEY = _get("SECRET_KEY", "local secret")
+    SQLALCHEMY_DATABASE_URI = _get("SQLALCHEMY_DATABASE_URI", "sqlite:///database.db")
 
 
 class TestConfig(Config):
-    pass
+    SQLALCHEMY_DATABASE_URI = _get("SQLALCHEMY_DATABASE_URI", "sqlite:///:memory:")
 
 
 class DevelopmentConfig(Config):

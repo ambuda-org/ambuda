@@ -10,12 +10,3 @@ def devanagari(s: str) -> str:
 def roman(s: str) -> str:
     """HK to Roman."""
     return sanscript.transliterate(s, sanscript.HK, sanscript.IAST)
-
-
-def slp2dev(s: str) -> str:
-    return sanscript.transliterate(s, sanscript.SLP1, sanscript.DEVANAGARI)
-
-
-def sa_roman(s: str) -> str:
-    result = roman(s)
-    return f'<span lang="sa">{result}</span>'

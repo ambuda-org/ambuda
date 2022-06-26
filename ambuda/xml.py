@@ -50,7 +50,10 @@ class Rule:
         if self.text_before:
             el.text = self.text_before + (el.text or "")
         if self.text_after:
-            el.tail = self.text_after + (el.tail or "")
+            if el:
+                el[-1].tail = (el.tail or "") + self.text_after
+            else:
+                el.text = (el.text or "") + self.text_after
 
 
 def elem(tag, attrib=None, text_before="", text_after="") -> Rule:
