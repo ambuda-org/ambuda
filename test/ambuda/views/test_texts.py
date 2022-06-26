@@ -53,4 +53,4 @@ def test_block_htmx(client):
     # <div> becomes <section> through xml.py
     # Test is unchanged because we assume that the source text already in
     # Devanagari, so we don't apply transliteration.
-    assert "<section>Test</section>" in resp.text
+    assert "<section>agniH</section>" in resp.text

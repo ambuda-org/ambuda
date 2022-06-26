@@ -1,6 +1,5 @@
 [tool.coverage.run]
 omit = [
     "ambuda/scripts/*",
-    "ambuda/seed/dictionaries/*",
-    "ambuda/seed/texts/*",
+    "ambuda/seed/**",
 ]

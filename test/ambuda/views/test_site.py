@@ -22,9 +22,15 @@ def initialize_test_db():
     session.flush()
 
     block = db.TextBlock(
-        text_id=text.id, section_id=section.id, slug="1.1", xml="<div>Test</div>", n=1
+        text_id=text.id, section_id=section.id, slug="1.1", xml="<div>agniH</div>", n=1
     )
     session.add(block)
+    session.flush()
+
+    parse = db.BlockParse(
+        text_id=text.id, block_id=block.id, data="agniH\tagni\tpos=n,g=m,c=1,n=s"
+    )
+    session.add(parse)
 
     dictionary = db.Dictionary(slug="test-dict", title="Test Dictionary")
     session.add(dictionary)

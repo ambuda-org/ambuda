@@ -1,0 +1,24 @@
+from indic_transliteration import sanscript
+
+from test_site import flask_app, client
+from ambuda.queries import get_engine
+
+
+def d(s) -> str:
+    return sanscript.transliterate(s, sanscript.HK, sanscript.DEVANAGARI)
+
+
+def test_block(client):
+    resp = client.get("/parses/pariksha/1.1")
+    assert resp.status_code == 200
+    assert d("agniH") in resp.text
+
+
+def test_block__missing_text(client):
+    resp = client.get("/parses/unknown/1.1")
+    assert resp.status_code == 404
+
+
+def test_block__missing_block(client):
+    resp = client.get("/parses/pariksha/1.2")
+    assert resp.status_code == 404
