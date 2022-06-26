@@ -23,7 +23,8 @@
   {{ content | safe }}
 </div>
 
-<footer class="flex items-center justify-between fixed bg-white left-0 right-0 bottom-0 border-t">
+{# z-50 so that the footer renders on top of the sidebar. #}
+<footer class="flex items-center justify-between fixed bg-white left-0 right-0 bottom-0 h-12 border-t z-50">
 <div class="text-sm pl-4">
   <a class="hover:underline"
       href="{{ url_for('texts.text', slug=text.slug) }}">

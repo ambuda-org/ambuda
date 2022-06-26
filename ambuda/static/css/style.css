@@ -11,6 +11,13 @@
     @apply h-full;
   }
 
+  /* Sidebar */
+  .h-full-minus-nav {
+    /* 4rm is based on the header height+margin in include/header.html. */
+    /* 3rm is based on the footer height in text-section.html. */
+    height: calc(100vh - 3rem - 5rem);
+  }
+
   .x-deva {
     /* TODO: choose a nice typeface. */
   }

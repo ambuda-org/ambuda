@@ -7,6 +7,9 @@ On small screens, the sidebar is fixed and covers the entire screen.
 On wide screens, the sidebar is on the right side of a split view.
 In the future, it might be nice to let readers customize where this
 sidebar is positioned.
+
+h-full-minus-nav is defined in style.css.
+lg:top-10 is to vertically center the sidebar when sticky scrolling.
 #}
 {% macro sidebar() %}
 <div id="sidebar" class="
@@ -14,7 +17,8 @@ sidebar is positioned.
     bg-white p-4 overflow-auto
     fixed top-0 bottom-0 left-0 right-0
     flex flex-col flex-1
-    lg:sticky lg:max-w-lg lg:h-[85vh] lg:mr-8 lg:pl-8 lg:border-l">
+    lg:sticky lg:top-10 lg:max-w-lg lg:h-full-minus-nav lg:mr-8 lg:pl-8 lg:border-l
+    lg:z-0">
   <div>
     <div>
       <button class="block text-2xl bg-white p-2" onclick="Sidebar.hide()">&times;</button>
