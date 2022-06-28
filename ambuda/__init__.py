@@ -1,6 +1,7 @@
 from flask import Flask
 
 from ambuda import filters
+from ambuda.views.about import bp as about
 from ambuda.views.api import bp as api
 from ambuda.views.dictionaries import bp as dictionaries
 from ambuda.views.site import bp as site
@@ -20,6 +21,7 @@ def create_app(config_name: str):
     app.register_blueprint(dictionaries, url_prefix="/dictionaries")
     app.register_blueprint(parses, url_prefix="/parses")
     app.register_blueprint(texts, url_prefix="/texts")
+    app.register_blueprint(about, url_prefix="/about")
     app.register_blueprint(site)
 
     # Filters

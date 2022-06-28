@@ -1,0 +1,34 @@
+from flask import Blueprint, render_template
+
+
+bp = Blueprint("about", __name__)
+
+
+@bp.route("/")
+def index():
+    return render_template("about/index.html")
+
+
+@bp.route("/mission")
+def mission():
+    return render_template("about/mission.html")
+
+
+@bp.route("/values")
+def values():
+    return render_template("about/values.html")
+
+
+@bp.route("/roadmap")
+def roadmap():
+    return render_template("about/roadmap.html")
+
+
+@bp.route("/code-and-data")
+def code_and_data():
+    return render_template("about/code-and-data.html")
+
+
+@bp.route("/our-name")
+def name():
+    return render_template("about/our-name.html")
