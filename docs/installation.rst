@@ -4,17 +4,6 @@ Installation
 This guide will show you how to install Ambuda and its dependencies.
 
 
-Our tech stack
---------------
-
-Ambuda's backend code is written in `Flask`_, a Python microframework. Our
-frontend code uses vanilla JavaScript with no extra frameworks. And we manage
-our CSS using `Tailwind`_.
-
-.. _Flask: https://flask.palletsprojects.com/en/2.1.x/
-.. _Tailwind: https://tailwindcss.com
-
-
 Before you begin
 ----------------
 

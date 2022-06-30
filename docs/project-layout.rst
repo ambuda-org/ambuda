@@ -4,6 +4,10 @@ Project layout
 Many of the toplevel files in the project directory are specific to our
 production environment. You can ignore almost all of them.
 
+
+Core code
+---------
+
 `ambuda` contains the main server code, and this is where you will spend most
 of your time.
 

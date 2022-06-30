@@ -8,7 +8,7 @@ Specifically, we have three goals:
 
 2. Publish this archive in an open format.
 
-3. Integrate this archive with learner-friendly tools.
+3. Integrate this archive with intelligent tools.
 
 All three of goals are different faces of the same principle of *radical
 access*. And we mention that principle here, in our technical docs, because
@@ -26,8 +26,8 @@ understand. And it means that we take care to write code that is clear and
 simple.
 
 From a data perspective, radical access means that we rely on open and public
-data and produce open and public data in return. Ancient literature does not
-belong to us, and we formalize that fact by licensing the texts we create under
-the `CC0`_ license.
+data and produce open and public data in return. Although licensing rights
+often prevent it, we strive to release our texts under a `CC0`_ (public domain)
+license.
 
 .. _CC0: https://creativecommons.org/publicdomain/zero/1.0/
