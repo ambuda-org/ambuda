@@ -1,12 +1,33 @@
 {% set discord = "https://discord.gg/7rGdTyWY7Z" %}
 {% set github = "https://github.com/sanskrit/ambuda" %}
-<footer class="mt-16 text-zinc-500 a-hover-underline text-sm text-center p-4">
-  <hr class="mb-4 w-48 block mx-auto">
-  <a class="px-4" href="{{ url_for('texts.index') }}">Texts</a>
-  <a class="px-4" href="{{ url_for('dictionaries.index') }}">Dictionaries</a>
-  <a class="px-4" href="{{ url_for('about.index') }}">About</a>
+{% set reddit = "https://reddit.com/u/learnsanskrit-org" %}
+<footer class="mt-16 text-zinc-400 a-hover-underline text-sm p-12 flex border-t">
+  <section class="mr-24">
+    <h3 class="font-bold my-2">Ambuda</h3>
+    <ul>
+      <li><a href="{{ url_for('texts.index') }}">Texts</a>
+      <li><a href="{{ url_for('dictionaries.index') }}">Dictionaries</a>
+      <li><a href="{{ url_for('site.contact') }}">Contact</a>
+    </ul>
+  </section>
 
-  <a class="px-4" href="{{ url_for('site.contact') }}">Contact</a>
-  <a class="px-4" href="{{ github }}">GitHub</a>
-  <a class="px-4" href="{{ discord }}">Discord</a>
+  <section class="mr-24">
+    <h3 class="font-bold my-2">About</h3>
+    <ul>
+      <li><a href="{{ url_for('about.mission') }}">Mission</a>
+      <li><a href="{{ url_for('about.values') }}">Values</a>
+      <li><a href="{{ url_for('about.roadmap') }}">Roadmap</a>
+      <li><a href="{{ url_for('about.code_and_data') }}">Code and Data</a>
+      <li><a href="{{ url_for('about.name') }}">Our Name</a>
+    </ul>
+  </section>
+
+  <section class="mr-24">
+    <h3 class="font-bold my-2">Community</h3>
+    <ul>
+      <li><a href="{{ github }}">GitHub</a>
+      <li><a href="{{ discord }}">Discord</a>
+      <li><a href="{{ reddit }}">Reddit</a>
+    </ul>
+  </section>
 </footer>
