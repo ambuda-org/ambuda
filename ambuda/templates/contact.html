@@ -6,7 +6,16 @@
 {% set contact_url = 'https://learnsanskrit.org/contact' %}
 <div class="prose">
 <h1>Contact</h1>
-<p>We're still setting up our site contact form. For now, please contact us at
-<a href="{{ contact_url }}">learnsanksrit.org/contact</a>.</p>
+
+<p id="my-form-status" class="bg-red-100"></p>
+
+<form id="my-form" action="https://formspree.io/f/mqknookq" method="POST">
+  <label class="block mb-2 text-slate-600">Email</label>
+  <input required type="email" name="email" class="bg-slate-100 p-2 rounded w-full"/>
+  <label class="block my-2 text-slate-600">Message</label>
+  <textarea required name="message" class="bg-slate-100 p-2 rounded w-full h-48 mb-4"></textarea>
+  <button id="my-form-button" class="bg-slate-600 text-white border rounded p-2">Submit message</button>
+</form>
+
 </div>
 {% endblock %}
