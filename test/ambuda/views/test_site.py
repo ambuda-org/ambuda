@@ -70,11 +70,6 @@ def test_about(client):
     assert "<h1>About</h1>" in resp.text
 
 
-def test_contact(client):
-    resp = client.get("/contact/")
-    assert "<h1>Contact</h1>" in resp.text
-
-
 def test_404(client):
     resp = client.get("/unknown-page/")
     assert "<h1>Not Found" in resp.text

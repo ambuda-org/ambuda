@@ -2,7 +2,7 @@
 
 {% set mailing_url = 'https://groups.google.com/g/learnsanskrit-announce' %}
 {% set code_url = 'https://github.com/sanskrit/ambuda' %}
-{% set contact_url = url_for('site.contact') %}
+{% set contact_url = url_for('about.contact') %}
 
 {% block title %}Ambuda{% endblock %}
 
@@ -12,11 +12,12 @@
   <div class="pt-8 pb-4 max-w-xl mx-auto">
     <h1 class="text-5xl font-bold mt-16">Ambuda</h1>
     <p class="text-sm mt-2 mb-4">A digital Sanskrit library</p>
-    <nav class="flex justify-around py-2 mx-auto a-hover-underline">
+    <nav class="flex justify-center py-2 mx-auto a-hover-underline">
       <a href="{{ url_for('texts.index') }}">Texts</a>
+      <span class="px-4">|</span>
       <a href="{{ url_for('dictionaries.index') }}">Dictionaries</a>
+      <span class="px-4">|</span>
       <a href="{{ url_for('about.index') }}">About</a>
-      <a href="{{ url_for('site.contact') }}">Contact</a>
     </nav>
   </div>
 </header>
@@ -25,8 +26,9 @@
 {% block main %}
 <article class="p-4 md:p-0 max-w-xl mx-auto">
 <section class="prose">
-<p>Ambuda's mission is to build a complete archive of traditional Sanskrit
-literature and present it as beautifully and accessibly as possible.</p>
+<p>Ambuda's mission is to make the Sanskrit tradition radically accessible.
+Specifically, we aim to create a complete archive of traditional Sanskrit
+literature and publish it online for everyone to enjoy and explore.</p>
 
 <p><a href="{{ mailing_url }}">Our mailing list</a> shares regular updates on
 Ambuda and our other Sanskrit projects. <a href="{{ code_url }}">Our code</a>

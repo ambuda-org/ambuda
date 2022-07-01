@@ -24,6 +24,11 @@ def roadmap():
     return render_template("about/roadmap.html")
 
 
+@bp.route("/people")
+def people():
+    return render_template("about/people.html")
+
+
 @bp.route("/code-and-data")
 def code_and_data():
     return render_template("about/code-and-data.html")
@@ -32,3 +37,8 @@ def code_and_data():
 @bp.route("/our-name")
 def name():
     return render_template("about/our-name.html")
+
+
+@bp.route("/contact/")
+def contact():
+    return render_template("about/contact.html")

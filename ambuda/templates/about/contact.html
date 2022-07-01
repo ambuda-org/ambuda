@@ -2,10 +2,16 @@
 
 {% block title %}Contact | Ambuda{% endblock %}
 
+{% set discord = "https://discord.gg/7rGdTyWY7Z" %}
+
 {% block content %}
 {% set contact_url = 'https://learnsanskrit.org/contact' %}
 <div class="prose">
 <h1>Contact</h1>
+
+<p>For longer questions, please use the form below to email us. To ask
+technical questions or learn more about contributing to Ambuda, please <a
+href="{{ discord }}">join us on Discord</a>.</p>
 
 <p id="my-form-status" class="bg-red-100"></p>
 
@@ -14,7 +20,7 @@
   <input required type="email" name="email" class="bg-slate-100 p-2 rounded w-full"/>
   <label class="block my-2 text-slate-600">Message</label>
   <textarea required name="message" class="bg-slate-100 p-2 rounded w-full h-48 mb-4"></textarea>
-  <button id="my-form-button" class="bg-slate-600 text-white border rounded p-2">Submit message</button>
+  <button id="my-form-button" class="bg-slate-600 text-white border rounded p-2">Send message</button>
 </form>
 
 </div>

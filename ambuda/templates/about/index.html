@@ -2,7 +2,7 @@
 
 {% set mailing_url = 'https://groups.google.com/g/learnsanskrit-announce' %}
 {% set code_url = 'https://github.com/sanskrit/ambuda' %}
-{% set contact_url = url_for('site.contact') %}
+{% set contact_url = url_for('about.contact') %}
 
 {% block title %}About | Ambuda{% endblock %}
 
@@ -28,8 +28,10 @@ out to us directly</a>.</p>
   {{ link('about.mission', 'Mission') }}
   {{ link('about.values', 'Values') }}
   {{ link('about.roadmap', 'Roadmap') }}
+  {{ link('about.people', 'People') }}
   {{ link('about.code_and_data', 'Code and Data') }}
   {{ link('about.name', 'Our Name') }}
+  {{ link('about.contact', 'Contact Us') }}
 </ul>
 </div>
 {% endblock %}

@@ -1,7 +1,7 @@
 from indic_transliteration import sanscript
 
-from test_site import flask_app, client
 from ambuda.queries import get_engine
+from test_site import flask_app, client
 
 
 def d(s) -> str:
