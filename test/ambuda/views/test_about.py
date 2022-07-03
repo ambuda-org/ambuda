@@ -21,6 +21,11 @@ def test_values(client):
     assert "<h1>Values</h1>" in resp.text
 
 
+def test_roadmap(client):
+    resp = client.get("/about/roadmap")
+    assert "<h1>Roadmap</h1>" in resp.text
+
+
 def test_people(client):
     resp = client.get("/about/people")
     assert "<h1>People</h1>" in resp.text
@@ -29,3 +34,13 @@ def test_people(client):
 def test_code_and_data(client):
     resp = client.get("/about/code-and-data")
     assert "<h1>Code and Data</h1>" in resp.text
+
+
+def test_name(client):
+    resp = client.get("/about/our-name")
+    assert "<h1>Our Name</h1>" in resp.text
+
+
+def test_contact(client):
+    resp = client.get("/about/contact")
+    assert "<h1>Contact</h1>" in resp.text

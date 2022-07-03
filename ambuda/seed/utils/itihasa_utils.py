@@ -4,17 +4,22 @@
 
 import hashlib
 import io
+import os
 from dataclasses import dataclass
 from pathlib import Path
 import zipfile
 
 import requests
+from dotenv import load_dotenv
 from indic_transliteration import sanscript
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
+import config
 import ambuda.database as db
 
+
+load_dotenv()
 PROJECT_DIR = Path(__file__).parent.parent.parent
 CACHE_DIR = PROJECT_DIR / ".cache"
 
@@ -160,7 +165,10 @@ def write_kandas(
 
 
 def create_db():
-    engine = create_engine(db.DATABASE_URI)
+    flask_env = os.environ["FLASK_ENV"]
+    conf = config.config[flask_env]
+    engine = create_engine(conf.SQLALCHEMY_DATABASE_URI)
+
     db.Base.metadata.create_all(engine)
     return engine
 

@@ -61,6 +61,10 @@ def deploy(_):
                 "-o ambuda/static/gen/style.css --minify"
             )
         )
+
+        # Copy production config settings
+        c.put("production/prod-env", ".env")
+
     r.run("systemctl restart ambuda")
 
 

@@ -39,6 +39,6 @@ def name():
     return render_template("about/our-name.html")
 
 
-@bp.route("/contact/")
+@bp.route("/contact")
 def contact():
     return render_template("about/contact.html")

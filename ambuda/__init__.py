@@ -1,5 +1,6 @@
 from flask import Flask
 
+import config
 from ambuda import filters
 from ambuda.views.about import bp as about
 from ambuda.views.api import bp as api
@@ -7,14 +8,13 @@ from ambuda.views.dictionaries import bp as dictionaries
 from ambuda.views.site import bp as site
 from ambuda.views.cheda import bp as parses
 from ambuda.views.texts import bp as texts
-from config import config
 
 
 def create_app(config_name: str):
     app = Flask(__name__)
 
     # Config
-    app.config.from_object(config[config_name])
+    app.config.from_object(config.config[config_name])
 
     # Blueprints
     app.register_blueprint(api, url_prefix="/api")
