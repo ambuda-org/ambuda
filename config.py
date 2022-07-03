@@ -1,6 +1,11 @@
 import os
 from typing import Optional
 
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
 
 def _env(key: str) -> str:
     """Fetch a value from the local environment.
