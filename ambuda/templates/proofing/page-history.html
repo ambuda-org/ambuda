@@ -1,0 +1,17 @@
+{% extends 'proofing/base.html' %}
+
+{% block content %}
+<div class="prose">
+<h1>Page History</h1>
+
+<ul>
+{% for r in cur.revisions %}
+{% set rev_url = url_for('proofing.revision', project_slug=project.slug, page_slug=cur.slug, revision_id=r.id) %}
+<li>
+  <a href="{{ rev_url }}">{{ r.created.strftime("%Y-%m-%d %H:%M:%S") }}</a>
+</li>
+{% endfor %}
+</ul>
+
+</div>
+{% endblock %}

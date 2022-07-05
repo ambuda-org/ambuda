@@ -1,4 +1,5 @@
 import functools
+from typing import Optional
 
 from flask import current_app
 from sqlalchemy import create_engine
@@ -73,8 +74,6 @@ def block_parse(block_id: int) -> list[db.BlockParse]:
     return session.query(db.BlockParse).filter_by(block_id=block_id).first()
 
 
-# TODO: maybe don't functool cache?
-@functools.cache
 def dictionaries() -> dict[str, db.Dictionary]:
     session = get_session()
     return {d.slug: d for d in session.query(db.Dictionary).all()}
@@ -102,3 +101,35 @@ def dict_entries(version: str, keys: list[str]) -> list[db.DictionaryEntry]:
         )
         .all()
     )
+
+
+def projects() -> list[db.Project]:
+    session = get_session()
+    return session.query(db.Project).all()
+
+
+def project(slug) -> db.Project:
+    session = get_session()
+    return session.query(db.Project).filter(db.Project.slug == slug).first()
+
+
+def page(project_id, page_slug: str) -> db.Project:
+    session = get_session()
+    return (
+        session.query(db.Page)
+        .filter((db.Page.project_id == project_id) & (db.Page.slug == page_slug))
+        .first()
+    )
+
+
+def user(username: str) -> Optional[db.User]:
+    session = get_session()
+    return session.query(db.User).filter_by(username=username).first()
+
+
+def create_user(*, username: str, email: str, raw_password: str):
+    session = get_session()
+    user = db.User(username=username, email=email)
+    user.set_password(raw_password)
+    session.add(user)
+    session.commit()

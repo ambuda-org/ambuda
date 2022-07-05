@@ -1,0 +1,32 @@
+{% extends 'proofing/base.html' %}
+
+{% block content %}
+<div class="prose">
+<h1>Proofreading</h1>
+
+<nav class="mb-4">
+{% if current_user.is_authenticated %}
+{{ current_user.username }} |
+<a href="{{ url_for("auth.sign_out") }}">Sign out</a>
+{% else %}
+<a href="{{ url_for("auth.register") }}">Register</a> |
+<a href="{{ url_for("auth.sign_in") }}">Sign in</a>
+{% endif %}
+</nav>
+
+</div>
+
+<a class="btn btn-submit" href="{{ url_for("proofing.upload") }}">Upload scanned book</a>
+
+<div class="prose mt-4">
+
+<p>Ongoing projects:</p>
+
+<ul>
+{% for p in projects %}
+<li><a href="{{ url_for("proofing.project", slug=p.slug) }}">{{ p.title }}</a></li>
+{% endfor %}
+</ul>
+
+</div>
+{% endblock %}

@@ -1,8 +1,5 @@
 from indic_transliteration import sanscript
 
-from test_site import flask_app, client
-from ambuda.queries import get_engine
-
 
 def d(s) -> str:
     return sanscript.transliterate(s, sanscript.HK, sanscript.DEVANAGARI)

@@ -5,6 +5,7 @@ const URL = {
   ajaxDictionaryQuery: (version, query) => `/api/dictionaries/${version}/${query}`,
   dictionaryQuery: (version, query) => `/dictionaries/${version}/${query}`,
   parseData: (textSlug, blockSlug) => `/api/parses/${textSlug}/${blockSlug}`,
+  googleOCR: (projectSlug, pageSlug) => `/api/ocr/${projectSlug}/${pageSlug}`,
 
   // TODO: where to put this?
   getTextSlug: () => {

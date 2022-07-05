@@ -1,11 +1,3 @@
-import pytest
-
-import ambuda.database as db
-from ambuda import create_app
-from ambuda.queries import get_engine, get_session
-from test_site import flask_app, client
-
-
 def test_index(client):
     resp = client.get("/about/")
     assert "<h1>About</h1>" in resp.text

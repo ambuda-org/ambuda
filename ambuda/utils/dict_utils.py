@@ -4,6 +4,20 @@ import re
 
 
 def standardize_key(s: str) -> str:
+    """Standardize the dictionary lookup key.
+
+    Different dictionary authors follow different conventions when writing Sanskrit
+    words. This function standardizes these conventions so that users have a better
+    lookup experience.
+
+    Right now, the only standardization we apply is to convert an anusvāra followed
+    by a consonant to its appropriate parasavarṇa ("similar to the following") sound.
+
+    For examples, see the unit tests.
+
+    :param s: the key to standardize.
+    :return: a standardize key
+    """
     buf = list(s)
     # Always apply parasavaraNatva.
     for m in re.finditer("(M)(.)", s):

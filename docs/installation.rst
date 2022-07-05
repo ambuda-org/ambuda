@@ -80,3 +80,39 @@ experience, we recommend running all of the scripts in `ambuda/seed`.
 
     So if you're wondering why Ambuda is taking up so much space on disk, check
     the `.cache` directory and delete it if you need to.
+
+
+Service dependencies
+--------------------
+
+.. note::
+    These dependencies are required only for specific features on Ambuda. For
+    general usage, you can skip these.
+
+We have two service dependencies:
+
+- the Cloud Vision API from Google, which we use for OCR.
+- reCAPTCHA, which we use as an anti-spam measure. 
+
+You should set up the Cloud Vision API if you want to run OCR locally. To do
+so, refer to the documentation here:
+
+- `How to add application credentials for Google Cloud`_
+- `How to enable the Vision API`_
+
+.. _`How to add application credentials for Google Cloud`: https://cloud.google.com/docs/authentication/getting-started#auth-cloud-implicit-python
+.. _`How to enable the Vision API`: https://cloud.google.com/vision/docs/before-you-begin
+
+Then, download your JSON credentials and set `GOOGLE_APPLICATION_CREDENTIALS`
+environment variable to point to these credentials.
+
+You should set up reCAPTCHA credentials if you want to test the authentication
+flow locally. To do so, refer to the document here:
+
+- `How to set up reCAPTCHA`_
+
+.. note::
+    Ambuda uses reCAPTCHA v2. It is slightly less sophisticated than v3 but has
+    better privacy guarantees.
+
+.. _`How to set up reCAPTCHA`: https://developers.google.com/recaptcha/intro

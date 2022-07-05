@@ -100,7 +100,7 @@ def iter_sections(path: Path):
 
     n = 1
     for section_slug, div in enumerate(body.findall("./div")):
-        section = Section(slug=(section_slug + 1), blocks=[])
+        section = Section(slug=str(section_slug + 1), blocks=[])
 
         for child in div:
             if child.tag in {"note"}:

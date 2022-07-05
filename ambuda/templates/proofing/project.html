@@ -1,0 +1,16 @@
+{% extends 'proofing/base.html' %}
+
+{% block content %}
+<div class="prose">
+<h1>{{ project.title }}</h1>
+</div>
+
+<ul class="grid grid-cols-10 text-center">
+{% for p in project.pages %}
+{% set url = url_for('proofing.page', project_slug=project.slug, page_slug=p.slug)  %}
+<li><a class="block p-2 hover:bg-slate-100" href="{{ url }}">{{ p.slug }}</a></li>
+{% endfor %}
+</ul>
+
+</div>
+{% endblock %}

@@ -55,5 +55,16 @@ def delete_text(slug: str):
             session.commit()
 
 
+@cli.command()
+@click.argument("username")
+def delete_user(username: str):
+    """Delete the given user."""
+    with Session(engine) as session:
+        u = session.query(db.User).where(db.User.username == username).first()
+        if u:
+            session.delete(u)
+            session.commit()
+
+
 if __name__ == "__main__":
     cli()

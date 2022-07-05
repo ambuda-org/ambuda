@@ -1,0 +1,33 @@
+{% extends 'base-auth-form.html' %}
+
+{% block title %}Register | Ambuda{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl text-center mb-4">Register for Ambuda</h1>
+
+{% if form.errors %}
+<div class="prose p-2 bg-red-100 mb-4">
+  <ul>
+  {% for k, v in form.errors.items() %}
+    <li>{{ v[0] }}</li>
+  {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<form method="POST" class="bg-slate-100 p-4 rounded">
+  {{ form.csrf_token }}
+  {{ form.username.label(class_="block text-slate-600") }}
+  {{ form.username(class_="w-full p-2 mt-2 mb-4 border rounded") }}
+
+  {{ form.password.label(class_="block text-slate-600") }}
+  {{ form.password(class_="w-full p-2 mt-2 mb-4 border rounded") }}
+
+  {{ form.email.label(class_="block text-slate-600") }}
+  {{ form.email(class_="w-full p-2 mt-2 mb-4 border rounded") }}
+
+  {{ form.recaptcha }}
+
+  <input type="submit" class="btn btn-submit w-full" value="Sign in">
+</form>
+{% endblock %}

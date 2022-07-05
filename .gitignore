@@ -1,13 +1,16 @@
 .coverage
 .env
 .cache/
-dcs-parse-data/
 docs/_build
 env/
 gen/
 htmlcov/
 node_modules/
 production/
+
+# TODO: unite these all.
+data/
 third-party-data/
+dcs-parse-data/
 
 *.db
