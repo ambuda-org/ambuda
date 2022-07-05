@@ -13,6 +13,7 @@ class User(UserMixin, Base):
 
     __tablename__ = "users"
 
+    #: Primary key.
     id = pk()
     #: The user's username.
     username = Column(String, nullable=False, unique=True)
@@ -21,8 +22,10 @@ class User(UserMixin, Base):
     #: The user's email.
     email = Column(String, nullable=False, unique=True)
 
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+    def set_password(self, raw_password: str):
+        """Hash and save the given password."""
+        self.password_hash = generate_password_hash(raw_password)
 
-    def check_password(self, password) -> bool:
+    def check_password(self, raw_password: str) -> bool:
+        """Check if the given password matches the user's hash."""
         return check_password_hash(self.password_hash, password)

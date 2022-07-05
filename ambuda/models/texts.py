@@ -18,29 +18,38 @@ class Text(Base):
 
     __tablename__ = "texts"
 
+    #: Primary key.
     id = pk()
     #: Human-readable ID, which we display in the URL.
     slug = Column(String, unique=True, nullable=False)
     #: The title of this text.
     title = Column(String, nullable=False)
-
+    #: An ordered list of the sections contained within this text.
     sections = relationship("TextSection", backref="text", cascade="delete")
 
 
 class TextSection(Base):
 
     """Ordered divisions of text content. This represent divisions like kāṇḍas,
-    sargas, etc."""
+    sargas, etc.
+
+    A TextSection is the "unit of viewing." By default, Ambuda will display a
+    text one section at a time.
+
+    NOTE: sections are not nested.
+    """
 
     __tablename__ = "text_sections"
 
+    #: Primary key.
     id = pk()
+    #: The text that contains this section.
     text_id = foreign_key("texts.id")
     #: Human-readable ID, which we display in the URL.
     slug = Column(String, index=True, nullable=False)
     #: The title of this section.
     title = Column(String, nullable=False)
-
+    #: An ordered list of the blocks contained within this section.
     blocks = relationship(
         "TextBlock", backref="section", order_by=lambda: TextBlock.n, cascade="delete"
     )
@@ -49,11 +58,13 @@ class TextSection(Base):
 class TextBlock(Base):
     """A verse or paragraph.
 
-    A block is the basic unit (block) of content in the library.
+    A TextBlock is the "unit of reuse." When we make cross-references between
+    texts, we do so at the TextBlock level.
     """
 
     __tablename__ = "text_blocks"
 
+    #: Primary key.
     id = pk()
     #: The text this block belongs to.
     text_id = foreign_key("texts.id")

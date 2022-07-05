@@ -1,3 +1,5 @@
+# For convenience, import all models into this module.
+
 from ambuda.models.base import Base
 from ambuda.models.dictionaries import *
 from ambuda.models.parse import *

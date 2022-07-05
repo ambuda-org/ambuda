@@ -3,6 +3,10 @@ Quickstart
 
 All of Ambuda's major commands are in `Makefile`.
 
+
+Running the development server
+------------------------------
+
 After you've followed the :doc:`/installation` guide, you can bring up the
 Ambuda server with::
 

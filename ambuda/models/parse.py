@@ -13,6 +13,7 @@ class BlockParse(Base):
 
     __tablename__ = "block_parses"
 
+    #: Primary key.
     id = pk()
     #: The text this data corresponds to.
     text_id = foreign_key("texts.id")

@@ -18,10 +18,11 @@ If you have any questions or comments, please join us on our `Discord`_ channel.
    :maxdepth: 2
 
    mission-and-principles
-   architecture
    installation
    quickstart
+   architecture
    project-layout
+   tei-xml
 
 
 

@@ -8,8 +8,13 @@ from ambuda.models.base import Base, pk, foreign_key
 
 
 class Dictionary(Base):
+
+    """A dictionary that maps Sanskrit expressions to definitions in
+    various languages."""
+
     __tablename__ = "dictionaries"
 
+    #: Primary key.
     id = pk()
     #: Human-readable ID, which we display in the URL.
     slug = Column(String, unique=True, nullable=False)
@@ -19,13 +24,20 @@ class Dictionary(Base):
 
 
 class DictionaryEntry(Base):
+
+    """Dictionary definitions for a specific entry key.
+
+    A given key is allowed to have multiple entries.
+    """
+
     __tablename__ = "dictionary_entries"
 
+    #: Primary key.
     id = pk()
+    #: The dictionary this entry belongs to.
     dictionary_id = foreign_key("dictionaries.id")
     #: A standardized lookup key for this entry.
-    #: We standardize by e.g. applying parasavarṇa rules. For more examples, see
-    #: `dict_utils.standardize_key`.
+    #: For the standardization logic, see `dict_utils.standardize_key`.
     key = Column(String, index=True, nullable=False)
     #: XML payload. We convert this to HTML at serving time.
     value = Column(String, nullable=False)

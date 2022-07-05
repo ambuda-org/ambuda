@@ -19,12 +19,14 @@ class Project(Base):
 
     __tablename__ = "proof_projects"
 
+    #: Primary key.
     id = pk()
     #: Human-readable ID, which we display in the URL.
     slug = Column(String, unique=True, nullable=False)
     #: Human-readable title, which we show on the page.
     title = Column(String, nullable=False)
 
+    #: An ordered list of pages belonging to this project.
     pages = relationship(
         "Page", order_by=lambda: Page.order, backref="project", cascade="delete"
     )
@@ -38,6 +40,7 @@ class Page(Base):
 
     __tablename__ = "proof_pages"
 
+    #: Primary key.
     id = pk()
     #: The project that owns this page.
     project_id = foreign_key("proof_projects.id")
@@ -51,6 +54,7 @@ class Page(Base):
     #: for edit conflicts. See the `add_revision` function for details.
     version = Column(Integer, default=0)
 
+    #: An ordered list of revisions for this page (newest first).
     revisions = relationship(
         "Revision",
         order_by=lambda: Revision.created.desc(),
@@ -68,6 +72,7 @@ class Revision(Base):
 
     __tablename__ = "proof_revisions"
 
+    #: Primary key.
     id = pk()
     #: The project that owns this revision.
     project_id = foreign_key("proof_projects.id")
