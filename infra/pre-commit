@@ -1,0 +1,19 @@
+#!/bin/bash
+# Runs 'black' over all modified Python files.
+
+# Look for any added or modified (but not deleted) Python files in the diff.
+modified_python_files=`git diff "$@" --no-prefix --cached --name-only --diff-filter=d -- '***.py'`
+
+if [ -n "${modified_python_files}" ]; then
+    # When black is not available or fails to run, refuse to commit
+    { black --version && black ${modified_python_files}; } \
+        || \
+        { echo "Failed to format with 'black', refusing to commit." \
+               "Please ensure you have black installed: 'python -m pip install black'." \
+               "Alternatively, you can skip the pre-commit hook by" \
+               "commiting with the '--no-verify' option." && exit 1 \
+        ;}
+fi
+
+# Need to add the files again since the hook might have modified them.
+git add ${modified_python_files}

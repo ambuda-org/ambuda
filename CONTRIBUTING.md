@@ -28,6 +28,11 @@ Patch standards:
 
 - Format your code with `black`.
 
+  On Linux and OS X, you can enable the included pre-commit hook to automate this:
+  ```bash
+  ln -snfr infra/pre-commit .git/hooks/pre-commit
+  ```
+
 - Include tests if you're changing code. Your tests should succeed with your
   patch and fail without it.
 
