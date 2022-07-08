@@ -67,6 +67,18 @@ const Preferences = {
   set dictVersion(value) {
     localStorage.setItem('dict-version', value);
   },
+  get contentFontSize() {
+    const ls = localStorage.getItem('user-font-size');
+    if (!ls || ls === 'undefined') {
+      return 'md:text-xl';
+    }
+    return ls;
+  },
+  set contentFontSize(value) {
+    if (value) {
+      localStorage.setItem('user-font-size', value);
+    }
+  },
 };
 
 // Utilities
@@ -248,6 +260,11 @@ const ParseLayer = (() => {
 })();
 
 const TextContent = (() => {
+  function changeFontSize(from, to) {
+    const $contentClass = $('#text--content');
+    $contentClass.classList.replace(from, to);
+  }
+
   function transliterate(from, to) {
     const $textContent = $('#text--content');
     if ($textContent) {
@@ -353,7 +370,7 @@ const TextContent = (() => {
     }
   }
 
-  return { init, transliterate };
+  return { init, transliterate, changeFontSize };
 })();
 
 const ScriptMenu = (() => {
@@ -376,11 +393,33 @@ const ScriptMenu = (() => {
   return { init };
 })();
 
+const FontSizeMenu = (() => {
+  function switchFontSize(newFontSize) {
+    const oldFontSize = Preferences.contentFontSize;
+    Preferences.contentFontSize = newFontSize;
+    TextContent.changeFontSize(oldFontSize, newFontSize);
+  }
+
+  function init() {
+    const $fontSizeMenu = $('#switch-font-size');
+    if ($fontSizeMenu) {
+      $fontSizeMenu.value = Preferences.contentFontSize;
+      $fontSizeMenu.addEventListener('change', (e) => {
+        switchFontSize(e.target.value);
+      });
+    }
+  }
+
+  return { init };
+})();
+
 (() => {
+  FontSizeMenu.init();
   ScriptMenu.init();
   Dictionary.init();
   ParseLayer.init();
   TextContent.init();
 
+  TextContent.changeFontSize('md:text-xl', Preferences.contentFontSize);
   TextContent.transliterate('devanagari', Preferences.contentScript);
 })();

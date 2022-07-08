@@ -33,7 +33,13 @@
   {{ section.title | devanagari }}
 </div>
 <div class="flex items-center">
-  <div class="text-sm border-r pr-4">
+  <div class="hidden md:inline text-sm border-r px-4">
+    <span class="hidden md:inline">Font Size:</span>
+    <select id="switch-font-size" class="p-1">
+      {% include 'include/font-size-options.html' %}
+    </select>
+  </div>
+  <div class="text-sm border-r px-4">
     <span class="hidden md:inline">Script:</span>
     <select id="switch-sa" class="p-1">
       {% include 'include/script-options.html' %}
