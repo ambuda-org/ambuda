@@ -12,7 +12,7 @@ from ambuda.views.api import bp as api
 from ambuda.views.cheda import bp as parses
 from ambuda.views.dictionaries import bp as dictionaries
 
-# from ambuda.views.proofing import bp as proofing
+from ambuda.views.proofing import bp as proofing
 from ambuda.views.site import bp as site
 from ambuda.views.texts import bp as texts
 
@@ -35,7 +35,7 @@ def create_app(config_name: str):
     app.register_blueprint(auth)
     app.register_blueprint(dictionaries, url_prefix="/dictionaries")
     app.register_blueprint(parses, url_prefix="/parses")
-    # app.register_blueprint(proofing, url_prefix="/proofing")
+    app.register_blueprint(proofing, url_prefix="/proofing")
     app.register_blueprint(site)
     app.register_blueprint(texts, url_prefix="/texts")
 

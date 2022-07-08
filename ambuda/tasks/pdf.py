@@ -13,11 +13,19 @@ command_template = (
 )
 
 
-def create_pages(session, project: db.Project, pdf_path: Path):
+def create_pages(project_id: int, pdf_path: Path):
     """Split an uploaded PDF into individual pages.
 
     We need the PDF only so that we can create image pages.
+
+    NOTE: this is a background task. Arguments must be JSON-serializable.
+    TODO(arun): use celery/dramatiq for task scheduling
+
+    :param project_id: db ID for the parent project
+    :param pdf_path: path to the PDF file on disc.
     """
+    session = Session(get_engine())
+
     # String interpolation is safe as long as pdf_path is safe.
     print("Splitting PDF pages.")
     output_path = str(pdf_path.parent / "%d.jpg")
@@ -25,6 +33,11 @@ def create_pages(session, project: db.Project, pdf_path: Path):
         filename=pdf_path, output_path=output_path, num_threads=4
     )
     subprocess.run(command, shell=True)
+
+    # Tasks must be idempotent -- clean up any prior state from an old run.
+    assert project_id
+    session.query(db.Page).filter_by(project_id=project_id).delete()
+    session.commit()
 
     print("Committing ...")
     for path in sorted(pdf_path.parent.iterdir()):
@@ -34,7 +47,7 @@ def create_pages(session, project: db.Project, pdf_path: Path):
         order = int(path.stem)
         session.add(
             db.Page(
-                project_id=project.id,
+                project_id=project_id,
                 slug=str(order),
                 order=order,
                 image_path=str(path),
@@ -42,13 +55,3 @@ def create_pages(session, project: db.Project, pdf_path: Path):
         )
     session.commit()
     print("Committed.")
-
-
-def create_project(title: str, slug: str, pdf_path: Path):
-    session = Session(get_engine())
-
-    project = db.Project(slug=slug, title=title)
-    session.add(project)
-    session.commit()
-
-    create_pages(session, project, pdf_path)

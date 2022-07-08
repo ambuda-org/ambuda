@@ -113,6 +113,14 @@ def project(slug) -> db.Project:
     return session.query(db.Project).filter(db.Project.slug == slug).first()
 
 
+def create_project(*, title: str, slug: str):
+    session = get_session()
+    project = db.Project(slug=slug, title=title)
+
+    session.add(project)
+    session.commit()
+
+
 def page(project_id, page_slug: str) -> db.Project:
     session = get_session()
     return (
@@ -131,5 +139,7 @@ def create_user(*, username: str, email: str, raw_password: str):
     session = get_session()
     user = db.User(username=username, email=email)
     user.set_password(raw_password)
+
     session.add(user)
     session.commit()
+    return user

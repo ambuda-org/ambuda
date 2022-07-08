@@ -77,14 +77,15 @@
 </article>
 
 <script src="https://cdn.jsdelivr.net/npm/openseadragon@3.1/build/openseadragon/openseadragon.min.js"></script>
+{% set image_url = url_for("site.page_image", project_slug=project.slug, page_slug=cur.slug) %}
 <script type="text/javascript">
-const IMAGE_URL = "{{ image_path }}";
+const IMAGE_URL = "{{ image_url }}";
 // Image panning
 const viewer = OpenSeadragon({
     id: "osd-image",
     tileSources: {
         type: 'image',
-        url: "{{ image_path }}",
+        url: "{{ image_url }}",
         buildPyramid: false,
     },
 

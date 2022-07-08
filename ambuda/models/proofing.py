@@ -46,8 +46,6 @@ class Page(Base):
     project_id = foreign_key("proof_projects.id")
     #: Human-readable ID, which we display in the URL.
     slug = Column(String, index=True, nullable=False)
-    #: Filepath corresponding to this image.
-    image_path = Column(String, nullable=False)
     #: (internal-only) A comes before B iff A.order < B.order.
     order = Column(Integer, nullable=False)
     #: (internal-only) used only so that we can implement optimistic locking

@@ -10,6 +10,7 @@ from flask import (
     render_template,
     redirect,
     request,
+    send_file,
     url_for,
 )
 from flask_wtf import FlaskForm
@@ -24,7 +25,8 @@ from werkzeug.utils import secure_filename
 import ambuda.queries as q
 from ambuda import database as db
 from ambuda.utils import google_ocr
-from ambuda.utils import pdf
+from ambuda.tasks import pdf
+from ambuda.views.site import bp as site
 from ambuda.views.api import bp as api
 
 
@@ -41,8 +43,18 @@ class PageForm(FlaskForm):
     content = StringField("Content", widget=TextArea(), validators=[DataRequired()])
 
 
-def is_allowed_file(filename: str) -> bool:
+def _is_allowed_document_file(filename: str) -> bool:
     return Path(filename).suffix == ".pdf"
+
+
+def _is_allowed_image_file(filename: str) -> bool:
+    return Path(filename).suffix == ".jpg"
+
+
+def _get_image_filesystem_path(project_slug: str, page_slug: str) -> Path:
+    """Get the location of the given image on disk."""
+    image_dir = Path(current_app.config["UPLOAD_FOLDER"]) / project_slug
+    return image_dir / (page_slug + ".jpg")
 
 
 def _prev_cur_next(pages: list[db.Page], slug: str):
@@ -67,7 +79,9 @@ def _prev_cur_next(pages: list[db.Page], slug: str):
     return prev, cur, next
 
 
-def add_revision(page: db.Page, message: str, content: str, version: int) -> int:
+def add_revision(
+    page: db.Page, message: str, content: str, version: int, author_id: int
+) -> int:
     # If this doesn't update any rows, there's an edit conflict.
     # Details: https://gist.github.com/shreevatsa/237bd6592771caadecc68c9515403bc3
     # FIXME: rather than do this on the application side, do an `exists` query
@@ -89,7 +103,12 @@ def add_revision(page: db.Page, message: str, content: str, version: int) -> int
     # If this fails, the application data is in a weird state.
     assert num_rows_changed == 1
 
-    revision = db.Revision(project_id=page.project_id, page_id=page.id, content=content)
+    revision = db.Revision(
+        project_id=page.project_id,
+        page_id=page.id,
+        content=content,
+        author_id=author_id,
+    )
     session.add(revision)
     session.commit()
     return new_version
@@ -97,6 +116,7 @@ def add_revision(page: db.Page, message: str, content: str, version: int) -> int
 
 @bp.route("/")
 def index():
+    """List all available proofreading projects."""
     projects = q.projects()
     return render_template("proofing/index.html", projects=projects)
 
@@ -104,12 +124,75 @@ def index():
 @bp.route("/upload")
 @login_required
 def upload():
-    return render_template("proofing/upload.html")
+    return render_template("proofing/upload-images.html")
 
 
 @bp.route("/upload", methods=["POST"])
 @login_required
-def upload_post():
+def upload_post_image_only():
+    if "file" not in request.files:
+        # Request has no file data
+        flash("Sorry, there's a server error.")
+        return redirect(request.url)
+
+    title = request.form.get("title", None)
+    if not title:
+        # Missing title.
+        flash("Please submit a title.")
+        return redirect(request.url)
+
+    # Check that we have a valid slug.
+    # `secure_filename` might be redundant given what `slugify` already does,
+    # but let's call it anyway so that we're not coupled to the internals of
+    # `slugify` here.
+    slug = slugify(title)
+    slug = secure_filename(slug)
+    if not slug:
+        # Slug is empty -- bad title.
+        flash("Please submit a valid title.")
+        return redirect(request.url)
+
+    q.create_project(title=title, slug=slug)
+    # FIXME: Need to fetch again, otherwise DetachedInstanceError?
+    # https://sqlalche.me/e/14/bhk3
+    _project = q.project(slug)
+
+    image_dir = _get_image_filesystem_path(_project.slug, "1").parent
+    image_dir.mkdir(exist_ok=True, parents=True)
+
+    session = q.get_session()
+    for i, file in enumerate(request.files.getlist("file")):
+        if file.filename == "":
+            # Empty file submitted.
+            flash("Please submit valid files.")
+            session.rollback()
+            return redirect(request.url)
+
+        if file and _is_allowed_image_file(file.filename):
+            n = i + 1
+            image_path = _get_image_filesystem_path(_project.slug, str(n))
+            file.save(image_path)
+
+            session.add(
+                db.Page(
+                    project_id=_project.id,
+                    slug=str(n),
+                    order=n,
+                )
+            )
+
+        else:
+            flash("Please submit .jpg files only.")
+            session.rollback()
+            return redirect(request.url)
+
+    session.commit()
+    return redirect(url_for("proofing.index"))
+
+
+# Unused in prod -- needs task queue support (celery/dramatiq)
+@login_required
+def upload_post_pdf_only():
     if "file" not in request.files:
         # Request has no file data
         flash("Sorry, there's a server error.")
@@ -138,12 +221,17 @@ def upload_post():
         flash("Please submit a valid title.")
         return redirect(request.url)
 
-    if file and is_allowed_file(file.filename):
+    if file and _is_allowed_image_file(file.filename):
         pdf_path = Path(current_app.config["UPLOAD_FOLDER"]) / slug / "original.pdf"
         pdf_path.parent.mkdir(exist_ok=True, parents=True)
         file.save(pdf_path)
 
-        pdf.create_project(title, slug, pdf_path)
+        q.create_project(title=title, slug=slug)
+        # FIXME: Need to fetch again, otherwise DetachedInstanceError?
+        # https://sqlalche.me/e/14/bhk3
+        _project = q.project(slug)
+
+        pdf.create_pages.send(_project.id, pdf_path)
         return redirect(url_for("proofing.index"))
 
     flash("Please submit a PDF file.")
@@ -172,7 +260,6 @@ def page(project_slug, page_slug):
         latest_revision = cur.revisions[0]
         form.content.data = latest_revision.content
 
-    image_path = f"/static/upload/{page_slug}.jpg"
     return render_template(
         "proofing/page-edit.html",
         form=form,
@@ -180,7 +267,6 @@ def page(project_slug, page_slug):
         prev=prev,
         cur=cur,
         next=next,
-        image_path=image_path,
     )
 
 
@@ -228,6 +314,14 @@ def page_post(project_slug, page_slug):
     )
 
 
+@site.route("/static/uploads/<project_slug>/<page_slug>.jpg")
+def page_image(project_slug, page_slug):
+    # In production, serve this directly via nginx.
+    assert current_app.debug
+    image_path = _get_image_filesystem_path(project_slug, page_slug)
+    return send_file(image_path)
+
+
 @bp.route("/<project_slug>/<page_slug>/history")
 def page_history(project_slug, page_slug):
     _project = q.project(project_slug)
@@ -243,6 +337,7 @@ def page_history(project_slug, page_slug):
 
 @bp.route("/<project_slug>/<page_slug>/revision/<revision_id>")
 def revision(project_slug, page_slug, revision_id):
+    """View a specific revision for some page."""
     _project = q.project(project_slug)
     if not _project:
         abort(404)
@@ -268,6 +363,7 @@ def revision(project_slug, page_slug, revision_id):
 @api.route("/ocr/<project_slug>/<page_slug>")
 @login_required
 def ocr(project_slug, page_slug):
+    """Apply Google OCR to the given page."""
     _project = q.project(project_slug)
     if _project is None:
         abort(404)
@@ -276,8 +372,6 @@ def ocr(project_slug, page_slug):
     if not _page:
         abort(404)
 
-    # FIXME: image path hack
-    filename = _page.slug.zfill(5)
-    path = f"/Users/akp/projects/ambuda/ambuda/static/upload/{filename}.jpg"
-    result = google_ocr.full_text_annotation(path)
+    image_path = _get_image_filesystem_path(project_slug, page_slug)
+    result = google_ocr.full_text_annotation(image_path)
     return result

@@ -9,7 +9,7 @@ $('#run-ocr').addEventListener('click', (e) => {
   $button.disabled = true;
 
   const { pathname } = window.location;
-  const url = pathname.replace('/proof/', '/api/ocr/');
+  const url = pathname.replace('/proofing/', '/api/ocr/');
 
   Server.getText(url, (text) => {
     $('[name=content]').value = text;

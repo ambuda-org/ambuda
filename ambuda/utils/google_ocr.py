@@ -35,9 +35,9 @@ def full_text_annotation(file_path):
 
     document = response.full_text_annotation
 
-    print("Writing as json")
-    with open("out.json", "w") as f:
-        f.write(AnnotateImageResponse.to_json(response))
+    # print("Writing as json")
+    # with open("out.json", "w") as f:
+    #     f.write(AnnotateImageResponse.to_json(response))
 
     buf = []
     for page in document.pages:
