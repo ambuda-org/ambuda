@@ -22,8 +22,9 @@ documentation about Ambuda's technical design.
 How to contribute
 -----------------
 
-For details on how to contribute to Ambuda, see `CONTRIBUDING.md`. We also
+For details on how to contribute to Ambuda, see [`CONTRIBUTING.md`][CONTRIBUTING.md]. We also
 strongly recommend joining our [Discord channel][discord], where we have an
 ongoing informal discussion about Ambuda's technical problems and roadmap.
 
 [discord]: https://discord.gg/7rGdTyWY7Z
+[CONTRIBUTING.md]: /CONTRIBUTING.md
