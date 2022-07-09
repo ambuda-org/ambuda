@@ -1,13 +1,17 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from fabric import Connection, task
 
 
 load_dotenv()
-PROJECT_DIRECTORY = os.environ["APP_SERVER_DIRECTORY"]
-USER = os.environ["APP_SERVER_USER"]
-HOST = os.environ["APP_SERVER_HOST"]
+APP_DIRECTORY = Path(os.environ["SERVER_APP_DIRECTORY"])
+UPLOADS_DIRECTORY = Path(os.environ["SERVER_UPLOADS_DIRECTORY"])
+SECRETS_DIRECTORY = Path(os.environ["SERVER_SECRETS_DIRECTORY"])
+
+USER = os.environ["SERVER_USER"]
+HOST = os.environ["SERVER_HOST"]
 
 r = Connection(f"root@{HOST}")
 c = Connection(f"{USER}@{HOST}")
@@ -35,9 +39,16 @@ def install_python_3_10(_):
 
 
 @task
-def initialize(_):
+def initialize_secrets(_):
+    c.run(f"mkdir -p {SECRETS_DIRECTORY}")
+    json_path = str(SECRETS_DIRECTORY / "google-cloud-credentials.json")
+    c.put("production/google-cloud-credentials.json", json_path)
+
+
+@task
+def initialize_repo(_):
     url = "https://github.com/sanskrit/ambuda.git"
-    with c.cd(PROJECT_DIRECTORY):
+    with c.cd(APP_DIRECTORY):
         c.run("git init .")
         c.run(f"git remote add origin https://github.com/sanskrit/ambuda.git")
     deploy(c)
@@ -45,7 +56,7 @@ def initialize(_):
 
 @task
 def deploy(_):
-    with c.cd(PROJECT_DIRECTORY):
+    with c.cd(APP_DIRECTORY):
         c.run("git fetch origin")
         c.run("git checkout main")
         c.run("git reset --hard origin/main")
@@ -63,14 +74,15 @@ def deploy(_):
         )
 
         # Copy production config settings
-        c.put("production/prod-env", ".env")
+        env_path = str(APP_DIRECTORY / ".env")
+        c.put("production/prod-env", env_path)
 
     r.run("systemctl restart ambuda")
 
 
 @task
 def seed_db(_):
-    with c.cd(PROJECT_DIRECTORY):
+    with c.cd(APP_DIRECTORY):
         with c.prefix("source env/bin/activate"):
             print("Starting seed ...")
             c.run("python -m ambuda.seed.monier")
@@ -81,7 +93,7 @@ def seed_db(_):
 
 @task
 def seed_gretil(_):
-    with c.cd(PROJECT_DIRECTORY):
+    with c.cd(APP_DIRECTORY):
         c.run("./scripts/fetch-gretil-data.sh")
         with c.prefix("source env/bin/activate"):
             print("Starting GRETIL install ...")

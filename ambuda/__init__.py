@@ -1,7 +1,10 @@
+import os
 from pathlib import Path
 
+import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask
+from sentry_sdk.integrations.flask import FlaskIntegration
 
 import config
 from ambuda import auth as auth_manager
@@ -17,8 +20,21 @@ from ambuda.views.site import bp as site
 from ambuda.views.texts import bp as texts
 
 
+def _initialize_sentry():
+    """Initialize basic monitoring."""
+    sentry_dsn = os.environ.get("SENTRY_DSN")
+    if sentry_dsn is None:
+        print("Sentry is misconfigured -- skipping setup.")
+        return
+
+    sentry_sdk.init(
+        dsn=sentry_dsn, integrations=[FlaskIntegration()], traces_sample_rate=0
+    )
+
+
 def create_app(config_name: str):
     load_dotenv(".env")
+    _initialize_sentry()
 
     app = Flask(__name__)
 

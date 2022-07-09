@@ -11,6 +11,12 @@ def index():
     return render_template("index.html")
 
 
+@bp.route("/test-sentry-500")
+def sentry_500():
+    """Sentry integration test. Should trigger a 500 error in prod."""
+    _ = 1 / 0
+
+
 @bp.app_errorhandler(404)
 def page_not_found(e):
     return render_template("404.html"), 404
