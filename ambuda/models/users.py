@@ -28,4 +28,4 @@ class User(UserMixin, Base):
 
     def check_password(self, raw_password: str) -> bool:
         """Check if the given password matches the user's hash."""
-        return check_password_hash(self.password_hash, password)
+        return check_password_hash(self.password_hash, raw_password)

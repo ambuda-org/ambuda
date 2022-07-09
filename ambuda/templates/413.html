@@ -1,0 +1,14 @@
+{% extends 'base-text.html' %}
+
+{% block title %}Too large (413) | Ambuda{% endblock %}
+
+{% block content %}
+{% set contact_url = url_for('about.contact') %}
+<div class="prose">
+<h1>Too Large (413)</h1>
+<p>Sorry! The data you tried to upload is too large for Ambuda to handle. If
+you think you've found a bug in our project, <a href="{{ contact_url }}">let us
+    know</a> and we'll fix it as soon as we can.</p>
+</div>
+{% endblock %}
+
