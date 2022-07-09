@@ -3,7 +3,13 @@ from typing import Optional
 
 from flask import current_app
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, load_only, selectinload
+from sqlalchemy.orm import (
+    Session,
+    load_only,
+    selectinload,
+    scoped_session,
+    sessionmaker,
+)
 
 import ambuda.database as db
 
@@ -19,9 +25,17 @@ def get_engine():
     return create_engine(database_uri)
 
 
+@functools.cache
+def get_session_class():
+    # Scoped sessions remove various kinds of errors, e.g. when using database
+    # objects created on different threads.
+    session_factory = sessionmaker(bind=get_engine())
+    return scoped_session(session_factory)
+
+
 def get_session():
-    # TODO: session scoping
-    return Session(get_engine())
+    Session = get_session_class()
+    return Session()
 
 
 def texts() -> list[db.Text]:
