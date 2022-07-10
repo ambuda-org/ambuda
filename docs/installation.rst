@@ -31,7 +31,7 @@ file is quite messy right now, but the major dependencies are:
 
 You can install them with::
 
-    $ python -m venv env
+    $ python3 -m venv env
     $ . env/bin/activate
     $ pip install -r requirements.txt
 
