@@ -31,6 +31,7 @@ ALLOW = [
     Spec("rtusamharam", "RtusaMhAram", "sa_kAlidAsa-RtusaMhAra.xml"),
     Spec("shatakatrayam", "zatakatrayam", "sa_bhatRhari-zatakatraya.xml"),
     Spec("bhattikavyam", "bhaTTikAvyam", "sa_bhaTTi-rAvaNavadha.xml"),
+    Spec("meghadutam-kale", "meghadUtam", "sa_kAlidAsa-meghadUta-edkale.xml"),
     # Spec("agnipurana", "agnipurANam", "sa_agnipurANa.xml"),
     # Spec("bhagavatapurana", "zrImadbhAgavatapurANam", "sa_bhAgavatapurANa.xml"),
 ]
@@ -103,10 +104,10 @@ def iter_sections(path: Path):
         section = Section(slug=str(section_slug + 1), blocks=[])
 
         for child in div:
-            if child.tag in {"note"}:
+            if child.tag in {"note", "del"}:
                 continue
 
-            assert child.tag in {"lg", "head", "p"}, child.tag
+            assert child.tag in {"lg", "head", "p", "trailer"}, child.tag
             if child.tag == "head":
                 block_slug = "head"
             else:
