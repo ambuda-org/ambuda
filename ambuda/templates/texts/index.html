@@ -4,7 +4,7 @@
 <ul>
   {% for text in texts %}
   {% set url = url_for('texts.text', slug=text.slug) %}
-  <li><a class="py-1 block text-2xl hover:underline" href="{{ url }}">{{ text.title | devanagari }}</a></li>
+  <li><a class="py-1 block text-2xl hover:underline" href="{{ url }}">{{'*' if text.has_any_parse}} {{ text.title | devanagari }}</a></li>
   {% endfor %}
 </ul> 
 {% endmacro %}
@@ -18,6 +18,8 @@
   <p>Our main focus right now is on building out the core features of our
   library. Once those features are in place, we will radically increase the
   size and quality of our collection.</p>
+
+  <p>Texts with word-by-word meaning are indicated with (*).</p>
 </div>
 
 {{ text_list(texts) }}

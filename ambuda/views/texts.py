@@ -53,6 +53,13 @@ def _hk_to_dev(s: str) -> str:
 def index():
     """Show all texts."""
     all_texts = q.texts()
+    # session.query(db.BlockParse).filter_by(block_id=block_id).first()
+    parsed_texts = q.get_session().execute("SELECT DISTINCT text_id FROM block_parses")
+    parsed_texts = set(t[0] for t in parsed_texts)
+    print(parsed_texts)
+    for text in all_texts:
+        if text.id in parsed_texts:
+            text.has_any_parse = True
     all_texts = sorted(all_texts, key=lambda t: _hk_to_dev(t.title))
     return render_template("texts/index.html", texts=all_texts)
 
