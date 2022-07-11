@@ -41,6 +41,25 @@ As of when I wrote this sentence, we use `npm` only for Tailwind::
     $ npm install
 
 
+Environment Setup
+-----------------
+
+It's suggested to keep all relevant environment variables in a `.env` file.
+The list of necessary variables are as followed::
+
+    export FLASK_ENV=development
+    export GOOGLE_APPLICATION_CREDENTIALS=
+
+Run the following to pull all these environment variables::
+    
+    $ source .env
+
+This sourcing is included as part of make command when you run the flask
+server::
+
+    $ make devserver
+
+
 Data dependencies
 -----------------
 
@@ -70,6 +89,9 @@ Then you might add some texts from our GRETIL snapshot::
 
 These two should be enough to play around with Ambuda. But for the full
 experience, we recommend running all of the scripts in `ambuda/seed`.
+
+If you see a `KeyError` related to `FLASK_ENV`, make sure to set your environment
+variables, as detailed in the previous section.
 
 .. note::
 
@@ -104,7 +126,7 @@ so, refer to the documentation here:
 .. _`How to enable the Vision API`: https://cloud.google.com/vision/docs/before-you-begin
 
 Then, download your JSON credentials and set `GOOGLE_APPLICATION_CREDENTIALS`
-environment variable to point to these credentials.
+environment variable to point to these credentials (in your .env file).
 
 You should set up reCAPTCHA credentials if you want to test the authentication
 flow locally. To do so, refer to the document here:
