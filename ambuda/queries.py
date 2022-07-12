@@ -14,6 +14,18 @@ from sqlalchemy.orm import (
 import ambuda.database as db
 
 
+# NOTE: this logic is copied from Flask-SQLAlchemy. We avoid Flask-SQLAlchemy
+# because we also need to access the database from a non-Flask context when
+# we run database seed scripts.
+# ~~~
+# Scope the session to the current greenlet if greenlet is available,
+# otherwise fall back to the current thread.
+try:
+    from greenlet import getcurrent as _ident_func
+except ImportError:
+    from threading import get_ident as _ident_func
+
+
 @functools.cache
 def get_engine():
     # Wrapped call so that we read database URI from app config.
@@ -30,7 +42,7 @@ def get_session_class():
     # Scoped sessions remove various kinds of errors, e.g. when using database
     # objects created on different threads.
     session_factory = sessionmaker(bind=get_engine())
-    return scoped_session(session_factory)
+    return scoped_session(session_factory, scopefunc=_ident_func)
 
 
 def get_session():
