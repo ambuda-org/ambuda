@@ -153,7 +153,8 @@ def upload_post_image_only():
         return redirect(request.url)
 
     # Before writing to the DB, validate the form data.
-    for i, file in enumerate(request.files.getlist("file")):
+    all_files = request.files.getlist("file")
+    for i, file in enumerate(all_files):
         if file.filename == "":
             flash("Please submit valid files.")
             return redirect(request.url)
@@ -171,7 +172,7 @@ def upload_post_image_only():
     image_dir.mkdir(exist_ok=True, parents=True)
 
     session = q.get_session()
-    for i, file in enumerate(request.files.getlist("file")):
+    for i, file in enumerate(all_files):
         n = i + 1
         image_path = _get_image_filesystem_path(_project.slug, str(n))
         file.save(image_path)
