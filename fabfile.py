@@ -47,10 +47,10 @@ def initialize_secrets(_):
 
 @task
 def initialize_repo(_):
-    url = "https://github.com/sanskrit/ambuda.git"
+    url = "https://github.com/ambuda-project/ambuda.git"
     with c.cd(APP_DIRECTORY):
         c.run("git init .")
-        c.run(f"git remote add origin https://github.com/sanskrit/ambuda.git")
+        c.run(f"git remote add origin https://github.com/ambuda-project/ambuda.git")
     deploy(c)
 
 
