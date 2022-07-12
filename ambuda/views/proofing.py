@@ -152,6 +152,16 @@ def upload_post_image_only():
         flash("Please submit a valid title.")
         return redirect(request.url)
 
+    # Before writing to the DB, validate the form data.
+    for i, file in enumerate(request.files.getlist("file")):
+        if file.filename == "":
+            flash("Please submit valid files.")
+            return redirect(request.url)
+
+        if not file or not _is_allowed_image_file(file.filename):
+            flash("Please submit .jpg files only.")
+            return redirect(request.url)
+
     q.create_project(title=title, slug=slug)
     # FIXME: Need to fetch again, otherwise DetachedInstanceError?
     # https://sqlalche.me/e/14/bhk3
@@ -162,29 +172,17 @@ def upload_post_image_only():
 
     session = q.get_session()
     for i, file in enumerate(request.files.getlist("file")):
-        if file.filename == "":
-            # Empty file submitted.
-            flash("Please submit valid files.")
-            session.rollback()
-            return redirect(request.url)
+        n = i + 1
+        image_path = _get_image_filesystem_path(_project.slug, str(n))
+        file.save(image_path)
 
-        if file and _is_allowed_image_file(file.filename):
-            n = i + 1
-            image_path = _get_image_filesystem_path(_project.slug, str(n))
-            file.save(image_path)
-
-            session.add(
-                db.Page(
-                    project_id=_project.id,
-                    slug=str(n),
-                    order=n,
-                )
+        session.add(
+            db.Page(
+                project_id=_project.id,
+                slug=str(n),
+                order=n,
             )
-
-        else:
-            flash("Please submit .jpg files only.")
-            session.rollback()
-            return redirect(request.url)
+        )
 
     session.commit()
     return redirect(url_for("proofing.index"))
