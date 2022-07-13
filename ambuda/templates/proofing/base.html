@@ -1,5 +1,9 @@
 {% extends 'header-main-footer.html' %}
 
+{% block header %}
+{% include "include/header-login.html" %}
+{% endblock %}
+
 {% block main %}
 <article class="p-4 xl:p-0 max-w-2xl mx-auto">
 {% block content %}{% endblock %}

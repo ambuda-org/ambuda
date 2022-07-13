@@ -82,3 +82,9 @@ class Revision(Base):
     created = Column(DateTime, default=datetime.utcnow)
     #: The actual content of this revision.
     content = Column(_Text, nullable=False)
+
+    #: An ordered list of revisions for this page (newest first).
+    author = relationship(
+        "User",
+        backref="revisions",
+    )
