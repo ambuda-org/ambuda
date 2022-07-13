@@ -50,11 +50,12 @@ def register():
 
     form = SignupForm()
     if form.validate_on_submit():
-        q.create_user(
+        user = q.create_user(
             username=form.username.data,
             email=form.email.data,
             raw_password=form.password.data,
         )
+        login_user(user, remember=True)
         return redirect(url_for(POST_AUTH_ROUTE))
     else:
         return render_template("auth/register.html", form=form)
