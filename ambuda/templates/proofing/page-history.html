@@ -3,15 +3,22 @@
 {% block content %}
 <div class="prose">
 <h1>Page History</h1>
+</div>
 
+{% if revisions %}
 <ul>
-{% for r in cur.revisions %}
-{% set rev_url = url_for('proofing.revision', project_slug=project.slug, page_slug=cur.slug, revision_id=r.id) %}
-<li>
-  <a href="{{ rev_url }}">{{ r.created.strftime("%Y-%m-%d %H:%M:%S") }}</a>
-</li>
-{% endfor %}
+  {% for r in cur.revisions %}
+  {% set rev_url = url_for('proofing.revision', project_slug=project.slug, page_slug=cur.slug, revision_id=r.id) %}
+  <li>
+    <a class="underline" href="{{ rev_url }}">{{ r.created.strftime("%Y-%m-%d %H:%M:%S") }}</a>
+    {{ r.author.username }}
+    {% if message %}<i>({{ r.message }})</i>{% endif %}
+  </li>
+  {% endfor %}
 </ul>
+{% else %}
+<p>There are no revisions for this page.</p>
+{% endif %}
 
 </div>
 {% endblock %}

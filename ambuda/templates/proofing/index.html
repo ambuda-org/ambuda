@@ -4,16 +4,6 @@
 <div class="prose">
 <h1>Proofreading</h1>
 
-<nav class="mb-4">
-{% if current_user.is_authenticated %}
-{{ current_user.username }} |
-<a href="{{ url_for("auth.sign_out") }}">Sign out</a>
-{% else %}
-<a href="{{ url_for("auth.register") }}">Register</a> |
-<a href="{{ url_for("auth.sign_in") }}">Sign in</a>
-{% endif %}
-</nav>
-
 </div>
 
 <a class="btn btn-submit" href="{{ url_for("proofing.upload") }}">Upload scanned book</a>

@@ -16,6 +16,10 @@ from ambuda import database as db
 bp = Blueprint("auth", __name__)
 
 
+# FIXME: redirect to site.index once user accounts are more useful.
+POST_AUTH_ROUTE = "proofing.index"
+
+
 class SignupForm(FlaskForm):
     username = StringField("Username", [val.Length(min=6, max=25), val.DataRequired()])
     password = PasswordField("Password", [val.Length(min=8), val.DataRequired()])
@@ -51,7 +55,7 @@ def register():
             email=form.email.data,
             raw_password=form.password.data,
         )
-        return redirect(url_for("site.index"))
+        return redirect(url_for(POST_AUTH_ROUTE))
     else:
         return render_template("auth/register.html", form=form)
 
@@ -66,7 +70,7 @@ def sign_in():
         user = q.user(form.username.data)
         if user and user.check_password(form.password.data):
             login_user(user, remember=True)
-            return redirect(url_for("site.index"))
+            return redirect(url_for(POST_AUTH_ROUTE))
         else:
             flash("Invalid username or password")
     return render_template("auth/sign-in.html", form=form)
@@ -75,4 +79,4 @@ def sign_in():
 @bp.route("/sign-out")
 def sign_out():
     logout_user()
-    return redirect(url_for("site.index"))
+    return redirect(url_for(POST_AUTH_ROUTE))
