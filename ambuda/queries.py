@@ -1,3 +1,4 @@
+from ambuda.models.users import UserPermissions
 import functools
 from typing import Optional
 
@@ -165,6 +166,10 @@ def create_user(*, username: str, email: str, raw_password: str):
     session = get_session()
     user = db.User(username=username, email=email)
     user.set_password(raw_password)
+    # FIXME: There should be no way to register as an admin - this permission
+    # should only be added by existing admins.
+    if user.username in ["akprasad", "akpall", "svat", "heliokles"]:
+        user.set_permission(UserPermissions.ADMIN)
 
     session.add(user)
     session.commit()
