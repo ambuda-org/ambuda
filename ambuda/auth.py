@@ -5,10 +5,16 @@ from typing import Optional
 
 from flask import abort, redirect, request, url_for
 from flask_bcrypt import Bcrypt
-from flask_login import LoginManager, login_url
+from flask_login import AnonymousUserMixin, LoginManager, login_url
 
 from ambuda.database import User
 from ambuda.queries import get_session
+
+
+class AmbudaAnonymousUser(AnonymousUserMixin):
+    @property
+    def is_admin(self):
+        return False
 
 
 def _load_user(user_id: int) -> Optional[User]:
@@ -25,13 +31,7 @@ def _unauthorized():
 def create_login_manager():
     login_manager = LoginManager()
     login_manager.user_loader(_load_user)
-
-    return login_manager
-
-
-def create_login_manager():
-    login_manager = LoginManager()
-    login_manager.user_loader(_load_user)
     login_manager.unauthorized_handler(_unauthorized)
+    login_manager.anonymous_user = AmbudaAnonymousUser
 
     return login_manager
