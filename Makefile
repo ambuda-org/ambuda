@@ -1,7 +1,7 @@
 .PHONY: docs test
 
 devserver:
-	FLASK_ENV=development flask run
+	flask run
 
 tailwind_watcher:
 	npx tailwindcss -i ./ambuda/static/css/style.css -o ./ambuda/static/gen/style.css --watch
