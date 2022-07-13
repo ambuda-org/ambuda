@@ -1,0 +1,35 @@
+name: 'Basic (Unit) Tests'
+
+# **What it does**: Setups up python dependencies and runs tests.
+# **Why we have it**: Automatically run tests to ensure code doesn't introduce regressions.
+# **Who does it impact**: Python small-scale "unit" tests.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+# This allows a subsequently queued workflow run to interrupt previous runs
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Python3
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9.x'
+
+      - name: Install dependencies
+        run: python3 -m pip install -r requirements.txt
+
+      - name: Run Tests
+        run: make test
