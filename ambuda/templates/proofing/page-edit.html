@@ -1,36 +1,15 @@
 {% extends 'header-main-footer.html' %}
-
-{% macro page_link(page, text) %}
-{% set url = url_for('proofing.page', project_slug=project.slug, page_slug=page.slug) %}
-<a href="{{ url }}">{{ text|safe }}</a>
-{% endmacro %}
+{% import "macros/proofing.html" as m %}
 
 {% macro button(id, text) %}
 <button id="{{ id }}" class="p-2 hover:bg-slate-300">{{ text|safe }}</button>
 {% endmacro %}
 
-
-{% block title %}{{ project.title }}/{{ cur.slug }}{% endblock %}
+{% block title %}Edit: {{ project.title }}/{{ cur.slug }} | Ambuda{% endblock %}
 
 {% block main %}
 <article class="p-4">
-  <div class="a-hover-underline flex justify-between items-center mb-4">
-  <div>
-    <h1 class="text-3xl">
-      <a class="text-slate-400" href="{{ url_for("proofing.project", slug=project.slug) }}">
-       {{ project.title }}</a>
-       /{{ cur.slug }}
-    </h1>
-    <nav class="text-slate-500 text-sm">
-      {% set history_url = url_for("proofing.page_history", project_slug=project.slug, page_slug=cur.slug) %}
-      <a href="{{ history_url }}">History</a>
-    </nav>
-  </div>
-  <p>
-    {{ page_link(prev, "&larr; Previous") }} |
-    {{ page_link(next, "Next &rarr;") }}
-  </p>
-  </div>
+  {{ m.page_header(project, cur=cur, prev=prev, next=next) }}
 
   {% with messages = get_flashed_messages() %}
     {% if messages %}

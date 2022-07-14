@@ -1,5 +1,13 @@
 {% extends 'proofing/base.html' %}
+{% import "macros/proofing.html" as m %}
+
+{% block title %}Revision: {{ project.title }}/{{ cur.slug }} | Ambuda{% endblock %}
 
 {% block content %}
-{{ revision.content }}
+<div class="mb-4">
+  {{ m.page_header(project, cur, prev=prev, next=next) }}
+  {{ revision.created.strftime("%Y-%m-%d %H:%M:%S") }} by {{ revision.author.username }}
+</div>
+
+<pre class="p-4 bg-slate-100">{{ revision.content }}</pre>
 {% endblock %}

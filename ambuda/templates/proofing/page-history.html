@@ -1,11 +1,14 @@
 {% extends 'proofing/base.html' %}
+{% import "macros/proofing.html" as m %}
+
+{% block title %}History: {{ project.title }}/{{ cur.slug }} | Ambuda{% endblock %}
 
 {% block content %}
-<div class="prose">
-<h1>Page History</h1>
+<div class="mb-4">
+{{ m.page_header(project, cur=cur, prev=prev, next=next) }}
 </div>
 
-{% if revisions %}
+{% if cur.revisions %}
 <ul>
   {% for r in cur.revisions %}
   {% set rev_url = url_for('proofing.revision', project_slug=project.slug, page_slug=cur.slug, revision_id=r.id) %}

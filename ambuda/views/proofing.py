@@ -331,7 +331,9 @@ def page_history(project_slug, page_slug):
     except ValueError:
         abort(404)
 
-    return render_template("proofing/page-history.html", project=_project, cur=cur)
+    return render_template(
+        "proofing/page-history.html", project=_project, cur=cur, prev=prev, next=next
+    )
 
 
 @bp.route("/<project_slug>/<page_slug>/revision/<revision_id>")
@@ -341,21 +343,27 @@ def revision(project_slug, page_slug, revision_id):
     if not _project:
         abort(404)
 
-    _page = q.page(_project.id, page_slug)
-    if not _page:
+    try:
+        prev, cur, next = _prev_cur_next(_project.pages, page_slug)
+    except ValueError:
         abort(404)
 
-    cur = None
-    for r in _page.revisions:
+    cur_revision = None
+    for r in cur.revisions:
         if r.id == int(revision_id):
-            cur = r
+            cur_revision = r
             break
 
-    if not cur:
+    if not cur_revision:
         abort(404)
 
     return render_template(
-        "proofing/revision.html", project=_project, page=_page, revision=cur
+        "proofing/revision.html",
+        project=_project,
+        cur=cur,
+        prev=prev,
+        next=next,
+        revision=cur_revision,
     )
 
 
