@@ -48,6 +48,7 @@ NS = {
 @dataclass
 class Block:
     slug: str
+    #: XML blob.
     blob: str
 
 
@@ -57,17 +58,31 @@ class Section:
     blocks: list[Block]
 
 
+@dataclass
+class Document:
+    #: <teiHeader> XML blob.
+    header: str
+    sections: list[Section]
+
+
 def log(*a):
     print(*a)
 
 
-def remove_namespace(xml, prefix):
+def remove_namespace(xml: ET.Element, prefix: str):
+    """Remove the given namespace prefix from all elements.
+
+    ElementTree expands tidy namespaced names like "xml:id" into names like
+    "{http://www.w3.org/XML/1998/namespace}id", which are less usable. This
+    function removes these namespaces so that downstream code can be more
+    readable.
+    """
     for el in xml.iter("*"):
         if el.tag.startswith(prefix):
             el.tag = el.tag[len(prefix) :]
 
 
-def to_slp1(xml):
+def to_slp1(xml: ET.Element):
     """Transliterate inline elements."""
     t = sanscript.transliterate
     for el in xml.iter("*"):
@@ -77,7 +92,8 @@ def to_slp1(xml):
             el.tail = t(el.tail, sanscript.IAST, sanscript.DEVANAGARI)
 
 
-def delete_unused_elems(xml):
+def delete_unused_elems(xml: ET.Element):
+    """Remove unused elements in-place."""
     for L in xml.iter("l"):
         for el in L:
             if el.tag in {"seg", "hi"}:
@@ -91,14 +107,12 @@ def delete_unused_elems(xml):
         L.text = text
 
 
-def iter_sections(path: Path):
-    xml = ET.parse(path).getroot()
-    remove_namespace(xml, "{" + NS["tei"] + "}")
-
+def parse_sections(xml: ET.Element) -> list[Section]:
     body = xml.find("./text/body")
     delete_unused_elems(xml)
     to_slp1(body)
 
+    sections = []
     n = 1
     for section_slug, div in enumerate(body.findall("./div")):
         section = Section(slug=str(section_slug + 1), blocks=[])
@@ -118,21 +132,37 @@ def iter_sections(path: Path):
             block = Block(slug=block_slug, blob=blob)
             section.blocks.append(block)
 
-        yield section
+        sections.append(section)
+    return sections
 
 
-def add_text(engine, spec: Spec):
+def parse_tei_document(xml: ET.Element) -> Document:
+    remove_namespace(xml, "{" + NS["tei"] + "}")
+
+    header = xml.find("./teiHeader")
+    assert header
+    header_blob = ET.tostring(header, encoding="utf-8").decode("utf-8")
+
+    sections = parse_sections(xml)
+    assert sections
+
+    return Document(header=header_blob, sections=sections)
+
+
+def add_document(engine, spec: Spec):
     log(f"Writing text: {spec.slug}")
-    path = GRETIL_DIR / spec.filename
+    document_path = GRETIL_DIR / spec.filename
 
     delete_existing_text(engine, spec.slug)
     with Session(engine) as session:
-        text = db.Text(slug=spec.slug, title=spec.title)
+        xml = ET.parse(document_path).getroot()
+        document = parse_tei_document(xml)
+
+        text = db.Text(slug=spec.slug, title=spec.title, header=document.header)
         session.add(text)
         session.flush()
-
         n = 1
-        for section in iter_sections(path):
+        for section in document.sections:
             db_section = db.TextSection(
                 text_id=text.id, slug=section.slug, title=section.slug
             )
@@ -159,7 +189,7 @@ def run():
     engine = create_db()
 
     for spec in ALLOW:
-        add_text(engine, spec)
+        add_document(engine, spec)
     log("Done.")
 
 

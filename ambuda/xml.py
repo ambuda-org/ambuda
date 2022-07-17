@@ -25,6 +25,7 @@ or pre-build common requests.
 """
 
 from dataclasses import dataclass
+from typing import Optional
 from xml.etree import ElementTree as ET
 
 from indic_transliteration import sanscript
@@ -54,6 +55,11 @@ class Rule:
                 el[-1].tail = (el.tail or "") + self.text_after
             else:
                 el.text = (el.text or "") + self.text_after
+
+
+def _delete(xml: ET.Element):
+    xml.clear()
+    xml.tag = None
 
 
 def elem(tag, attrib=None, text_before="", text_after="") -> Rule:
@@ -196,6 +202,22 @@ def to_verse(el: ET.Element):
 
 
 # Defined against the TEI spec
+tei_header_xml = {
+    "teiHeader": elem("section"),
+    "revisionDesc": _delete,
+    "profileDesc": _delete,
+    "encodingDesc": _delete,
+    "notesStmt": _delete,
+    "email": elem("kbd"),
+    "date": _delete,
+    "sourceDesc": None,
+    "publisher": None,
+    "bibl": elem("p"),
+    "licence": elem("p"),
+}
+
+
+# Defined against the TEI spec
 tei_xml = {
     "head": elem("h1"),
     "div": elem("section"),
@@ -225,7 +247,7 @@ apte_transforms = {
 }
 
 
-def transform(xml: ET.Element, transforms: dict[str, Rule]):
+def transform(xml: ET.Element, transforms: dict[str, Rule]) -> str:
     for el in xml.iter("*"):
         if el.tag in transforms:
             fn = transforms[el.tag]
@@ -237,31 +259,60 @@ def transform(xml: ET.Element, transforms: dict[str, Rule]):
     return ET.tostring(xml, encoding="utf-8").decode("utf-8")
 
 
-def transform_mw(blob) -> str:
+def transform_mw(blob: str) -> str:
     """Transform XML for the Monier-Williams dictionary."""
     xml = ET.fromstring(blob)
     return transform(xml, mw_xml)
 
 
-def transform_apte(blob) -> str:
+def transform_apte(blob: str) -> str:
     """Transform XML for the Apte dictionary."""
     xml = ET.fromstring(blob)
     return transform(xml, apte_xml)
 
 
-def transform_vacaspatyam(blob) -> str:
+def transform_vacaspatyam(blob: str) -> str:
     """Transform XML for the Vacaspatyam."""
     xml = ET.fromstring(blob)
     return transform(xml, vacaspatyam_xml)
 
 
-def transform_tei(blob) -> str:
+def _text_of(xml, path: str, default) -> str:
+    try:
+        return xml.find(path).text
+    except AttributeError:
+        return default
+
+
+def parse_tei_header(blob: Optional[str]) -> dict[str, str]:
+    """Transform a TEI `teiHeader` element to HTML."""
+    if not blob:
+        return ""
+
+    xml = ET.fromstring(blob)
+
+    file_desc = xml.find("./fileDesc")
+    availability_xml = file_desc.find("./publicationStmt/availability")
+    if availability_xml is not None:
+        availability = transform(availability_xml, tei_header_xml)
+    else:
+        availability = ""
+
+    return {
+        "title": _text_of(file_desc, "./titleStmt/title", "Unknown"),
+        "author": _text_of(file_desc, "./titleStmt/author", "Unknown"),
+        "publisher": _text_of(file_desc, "./publicationStmt/publisher", "Unknown"),
+        "availability": availability,
+    }
+
+
+def transform_tei(blob: str) -> str:
     """Transform XML for a TEI document."""
     xml = ET.fromstring(blob)
     return transform(xml, tei_xml)
 
 
-def transform_sak(blob) -> str:
+def transform_sak(blob: str) -> str:
     """Transform XML for the Shabdarthakaustubha."""
     xml = ET.fromstring(blob)
     # Reuse the Vacaspatyam xml config, since it's close enough.

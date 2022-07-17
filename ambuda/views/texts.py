@@ -64,8 +64,11 @@ def text(slug):
     if text is None:
         abort(404)
 
+    header_data = xml.parse_tei_header(text.header)
     section_groups = _section_groups(text.sections)
-    return render_template("texts/text.html", text=text, section_groups=section_groups)
+    return render_template(
+        "texts/text.html", text=text, header=header_data, section_groups=section_groups
+    )
 
 
 @bp.route("/<text_slug>/<section_slug>")

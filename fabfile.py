@@ -77,7 +77,8 @@ def deploy(_):
         )
 
         # Apply database migrations.
-        c.run("alembic upgrade head")
+        with c.prefix("source env/bin/activate"):
+            c.run("alembic upgrade head")
 
         # Copy production config settings.
         env_path = str(APP_DIRECTORY / ".env")
