@@ -38,7 +38,7 @@ class DevelopmentConfig:
 
     DEBUG = True
     SECRET_KEY = "insecure local secret"
-    SQLALCHEMY_DATABASE_URI = "sqlite:///database.db"
+    SQLALCHEMY_DATABASE_URI = _env("SQLALCHEMY_DATABASE_URI")
 
     UPLOAD_FOLDER = _env("FLASK_UPLOAD_FOLDER")
 

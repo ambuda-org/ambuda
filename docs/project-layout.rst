@@ -2,7 +2,18 @@ Project layout
 ==============
 
 Many of the toplevel files in the project directory are specific to our
-production environment. You can ignore almost all of them.
+production environment.
+
+- `ambuda` contains the main server code.
+
+- `data` contains third-party data. [Not in version control.]
+
+- `migrations` contains database migration logic. For details on how to run
+  migrations, see the :doc:`/quickstart`.
+
+- `production` contains production configs. [Not in version control.]
+
+- `test` contains all unit tests.
 
 
 Core code

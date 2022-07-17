@@ -57,14 +57,17 @@ def initialize_repo(_):
 @task
 def deploy(_):
     with c.cd(APP_DIRECTORY):
+        # Fetch the application code.
         c.run("git fetch origin")
         c.run("git checkout main")
         c.run("git reset --hard origin/main")
+
+        # Install project requirements.
         c.run("python3.10 -m venv env")
         with c.prefix("source env/bin/activate"):
             c.run("pip install -r requirements.txt")
 
-        # For tailwind
+        # Build production CSS with Tailwind.
         c.run("npm install")
         c.run(
             (
@@ -73,10 +76,14 @@ def deploy(_):
             )
         )
 
-        # Copy production config settings
+        # Apply database migrations.
+        c.run("alembic upgrade head")
+
+        # Copy production config settings.
         env_path = str(APP_DIRECTORY / ".env")
         c.put("production/prod-env", env_path)
 
+    # Restart the production gunicorn instance.
     r.run("systemctl restart ambuda")
 
 

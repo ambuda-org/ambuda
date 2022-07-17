@@ -24,6 +24,8 @@ class Text(Base):
     slug = Column(String, unique=True, nullable=False)
     #: The title of this text.
     title = Column(String, nullable=False)
+    #: Metadata for this text, as a <teiHeader> element.
+    header = Column(_Text)
     #: An ordered list of the sections contained within this text.
     sections = relationship("TextSection", backref="text", cascade="delete")
 

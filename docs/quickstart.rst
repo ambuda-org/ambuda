@@ -42,6 +42,28 @@ And to check test coverage, run::
     make coverage
 
 
+Database migrations
+-------------------
+
+Migrations are in the `migrations/` directory.
+
+Check the current migration setup and status::
+
+    alembic current
+
+Autogenerate a revision::
+
+    alembic revision --autogenerate -m "Add my cool column"
+
+Upgrade to the latest revision::
+
+    alembic upgrade head
+
+For more information, see the `Alembic tutorial`_.
+
+.. _Alembic tutorial: https://alembic.sqlalchemy.org/en/latest/tutorial.html
+
+
 Documentation
 -------------
 
