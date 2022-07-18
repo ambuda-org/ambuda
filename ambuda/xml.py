@@ -287,7 +287,7 @@ def _text_of(xml, path: str, default) -> str:
 def parse_tei_header(blob: Optional[str]) -> dict[str, str]:
     """Transform a TEI `teiHeader` element to HTML."""
     if not blob:
-        return ""
+        return {}
 
     xml = ET.fromstring(blob)
 

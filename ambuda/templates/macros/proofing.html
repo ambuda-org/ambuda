@@ -1,5 +1,5 @@
 {% macro _page_nav_link(project, page, text) %}
-{% set url = url_for('proofing.page', project_slug=project.slug, page_slug=page.slug) %}
+{% set url = url_for('proofing.edit_page', project_slug=project.slug, page_slug=page.slug) %}
 <a href="{{ url }}">{{ text|safe }}</a>
 {% endmacro %}
 
@@ -12,7 +12,7 @@
        /{{ cur.slug }}
     </h1>
 
-    {% set edit_url = url_for("proofing.page", project_slug=project.slug, page_slug=cur.slug) %}
+    {% set edit_url = url_for("proofing.edit_page", project_slug=project.slug, page_slug=cur.slug) %}
     {% set history_url = url_for("proofing.page_history", project_slug=project.slug, page_slug=cur.slug) %}
     <nav class="text-slate-500 text-sm">
       <a href="{{ edit_url }}">Edit</a> |

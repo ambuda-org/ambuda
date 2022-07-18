@@ -1,4 +1,6 @@
-from flask import abort, url_for, request
+"""Manages an internal admin view for site data."""
+
+from flask import abort
 from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib import sqla
 from flask_login import current_user
@@ -26,15 +28,15 @@ class BaseView(sqla.ModelView):
 
 
 class UserView(BaseView):
-    column_list = form_columns = ["id", "username", "password_hash", "email"]
+    column_list = form_columns = ["username", "password_hash", "email"]
 
 
 class TextView(BaseView):
-    column_list = form_columns = ["id", "slug", "title"]
+    column_list = form_columns = ["slug", "title"]
 
 
 class ProjectView(BaseView):
-    column_list = form_columns = ["id", "slug", "title"]
+    column_list = form_columns = ["slug", "title"]
 
 
 def create_admin_manager(app):

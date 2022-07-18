@@ -1,5 +1,4 @@
 from indic_transliteration import sanscript
-from markupsafe import Markup
 
 
 def devanagari(s: str) -> str:

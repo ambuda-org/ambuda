@@ -4,8 +4,7 @@ from http import HTTPStatus
 from typing import Optional
 
 from flask import abort, redirect, request, url_for
-from flask_bcrypt import Bcrypt
-from flask_login import AnonymousUserMixin, LoginManager, login_url
+from flask_login import AnonymousUserMixin, LoginManager
 
 from ambuda.database import User
 from ambuda.queries import get_session

@@ -7,6 +7,7 @@ from flask import (
     abort,
     current_app,
     flash,
+    make_response,
     render_template,
     redirect,
     request,
@@ -34,20 +35,24 @@ bp = Blueprint("proofing", __name__)
 
 
 class EditException(Exception):
+    """Raised if a user's attempt to edit a page fails."""
+
     pass
 
 
-class PageForm(FlaskForm):
+class EditPageForm(FlaskForm):
     message = StringField("Summary of changes made:")
     version = HiddenField("Page version")
     content = StringField("Content", widget=TextArea(), validators=[DataRequired()])
 
 
 def _is_allowed_document_file(filename: str) -> bool:
+    """True iff we accept this type of document upload."""
     return Path(filename).suffix == ".pdf"
 
 
 def _is_allowed_image_file(filename: str) -> bool:
+    """True iff we accept this type of image upload."""
     return Path(filename).suffix == ".jpg"
 
 
@@ -57,7 +62,7 @@ def _get_image_filesystem_path(project_slug: str, page_slug: str) -> Path:
     return image_dir / (page_slug + ".jpg")
 
 
-def _prev_cur_next(pages: list[db.Page], slug: str):
+def _prev_cur_next(pages: list[db.Page], slug: str) -> tuple[db.Page, db.Page, db.Page]:
     """Get the previous, current, and next pages.
 
     :param pages: all of the pages in this project.
@@ -123,13 +128,13 @@ def index():
 
 @bp.route("/upload")
 @login_required
-def upload():
+def upload_images():
     return render_template("proofing/upload-images.html")
 
 
 @bp.route("/upload", methods=["POST"])
 @login_required
-def upload_post_image_only():
+def upload_images_post():
     if "file" not in request.files:
         # Request has no file data
         flash("Sorry, there's a server error.")
@@ -191,7 +196,7 @@ def upload_post_image_only():
 
 # Unused in prod -- needs task queue support (celery/dramatiq)
 @login_required
-def upload_post_pdf_only():
+def upload_pdf_post():
     if "file" not in request.files:
         # Request has no file data
         flash("Sorry, there's a server error.")
@@ -243,8 +248,24 @@ def project(slug):
     return render_template("proofing/project.html", project=_project)
 
 
+@bp.route("/<slug>/download")
+def download_project(slug):
+    _project = q.project(slug)
+    buf = []
+    for i, page in enumerate(_project.pages):
+        page_number = i + 1
+        buf.append(f'<pb n="{page_number} />')
+        if page.revisions:
+            buf.append(page.revisions[0].content)
+
+    raw_text = "\n\n".join(buf)
+    response = make_response(raw_text, 200)
+    response.mimetype = "text/plain"
+    return response
+
+
 @bp.route("/<project_slug>/<page_slug>")
-def page(project_slug, page_slug):
+def edit_page(project_slug, page_slug):
     _project = q.project(project_slug)
     if not _project:
         abort(404)
@@ -253,7 +274,7 @@ def page(project_slug, page_slug):
     except ValueError:
         abort(404)
 
-    form = PageForm()
+    form = EditPageForm()
     form.version.data = cur.version
     if cur.revisions:
         latest_revision = cur.revisions[0]
@@ -271,7 +292,7 @@ def page(project_slug, page_slug):
 
 @bp.route("/<project_slug>/<page_slug>", methods=["POST"])
 @login_required
-def page_post(project_slug, page_slug):
+def edit_page_post(project_slug, page_slug):
     assert current_user.is_authenticated
 
     _project = q.project(project_slug)
@@ -282,7 +303,7 @@ def page_post(project_slug, page_slug):
     except ValueError:
         abort(404)
 
-    form = PageForm()
+    form = EditPageForm()
     conflict = None
 
     if form.validate_on_submit():

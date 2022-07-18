@@ -5,7 +5,7 @@ from sqlalchemy import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from ambuda.models.base import Base, pk, foreign_key
+from ambuda.models.base import Base, pk
 
 
 class User(UserMixin, Base):

@@ -3,13 +3,14 @@
 {% block title %}{{ project.title }} | Ambuda{% endblock %}
 
 {% block content %}
-<div class="prose">
-<h1>{{ project.title }}</h1>
+<div class="my-8 a-hover-underline">
+<h1 class="text-3xl font-bold">{{ project.title }}</h1>
+<a href="{{ url_for("proofing.download_project", slug=project.slug) }}">Download as plain text</a>
 </div>
 
 <ul class="grid grid-cols-10 text-center">
 {% for p in project.pages %}
-{% set url = url_for('proofing.page', project_slug=project.slug, page_slug=p.slug)  %}
+{% set url = url_for('proofing.edit_page', project_slug=project.slug, page_slug=p.slug)  %}
 <li><a class="block p-2 hover:bg-slate-100" href="{{ url }}">{{ p.slug }}</a></li>
 {% endfor %}
 </ul>

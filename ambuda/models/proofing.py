@@ -6,7 +6,6 @@ from sqlalchemy import (
     Integer,
     String,
     Text as _Text,
-    ForeignKey,
 )
 from sqlalchemy.orm import relationship
 

@@ -15,7 +15,7 @@ into images. For now, see upload-images.html #}
   {% endif %}
 {% endwith %}
 
-<form action="{{ url_for('proofing.upload') }}" method="POST" enctype="multipart/form-data">
+<form action="{{ url_for('proofing.upload_images') }}" method="POST" enctype="multipart/form-data">
   <label class="block text-slate-500">File to upload</label>
   <input class="block my-2" type="file" name="file" />
 
