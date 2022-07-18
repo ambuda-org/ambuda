@@ -15,6 +15,17 @@
 </div>
 {% endif %}
 
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+<div class="prose p-2 bg-red-100 mb-4">
+  {% for message in messages %}
+  <p class="bg-green-100 my-4 p-2">{{ message }}</p>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+
 <form method="POST" class="bg-slate-100 p-4 rounded">
   {{ form.csrf_token }}
   {{ form.username.label(class_="block text-slate-600") }}

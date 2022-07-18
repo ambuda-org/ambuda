@@ -46,8 +46,8 @@ def initialize_test_db():
     session.add(dictionary_entry)
 
     # Auth
-    user = db.User(username="rama", email="rama@ayodhya.com")
-    user.set_password("sita")
+    user = db.User(username="ramacandra", email="rama@ayodhya.com")
+    user.set_password("maithili")
     session.add(user)
     session.flush()
 
@@ -82,6 +82,5 @@ def client(flask_app):
 @pytest.fixture()
 def rama_client(flask_app):
     session = get_session()
-    user = session.query(db.User).filter_by(username="rama").first()
-    with flask_app.test_client(user=user) as client:
-        yield client
+    user = session.query(db.User).filter_by(username="ramacandra").first()
+    return flask_app.test_client(user=user)

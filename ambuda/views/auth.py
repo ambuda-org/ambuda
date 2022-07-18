@@ -3,7 +3,7 @@
 UX reference: https://www.uxmatters.com/mt/archives/2018/09/signon-signoff-and-registration.php
 """
 
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, flash, render_template, redirect, url_for
 from flask_login import current_user, login_user, logout_user
 from flask_wtf import FlaskForm, RecaptchaField
 from wtforms import StringField, PasswordField

@@ -28,6 +28,7 @@ class UnitTestConfig:
     SECRET_KEY = "insecure unit test secret"
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     UPLOAD_FOLDER = _make_path(Path(__file__).parent / "data" / "file-uploads")
+    WTF_CSRF_ENABLED = False
 
     RECAPTCHA_PUBLIC_KEY = "re-public"
     RECAPTCHA_PRIVATE_KEY = "re-private"
