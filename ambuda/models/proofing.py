@@ -79,6 +79,8 @@ class Revision(Base):
     author_id = foreign_key("users.id")
     #: Timestamp at which this revision was created.
     created = Column(DateTime, default=datetime.utcnow)
+    #: An optional editor summary for this revision.
+    summary = Column(_Text, nullable=False, default="")
     #: The actual content of this revision.
     content = Column(_Text, nullable=False)
 

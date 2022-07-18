@@ -15,7 +15,7 @@
   <li>
     <a class="underline" href="{{ rev_url }}">{{ r.created.strftime("%Y-%m-%d %H:%M:%S") }}</a>
     {{ r.author.username }}
-    {% if message %}<i>({{ r.message }})</i>{% endif %}
+    {% if r.summary %}<i>({{ r.summary }})</i>{% endif %}
   </li>
   {% endfor %}
 </ul>

@@ -41,7 +41,7 @@ class EditException(Exception):
 
 
 class EditPageForm(FlaskForm):
-    message = StringField("Summary of changes made:")
+    summary = StringField("Summary of changes made:")
     version = HiddenField("Page version")
     content = StringField("Content", widget=TextArea(), validators=[DataRequired()])
 
@@ -85,7 +85,7 @@ def _prev_cur_next(pages: list[db.Page], slug: str) -> tuple[db.Page, db.Page, d
 
 
 def add_revision(
-    page: db.Page, message: str, content: str, version: int, author_id: int
+    page: db.Page, summary: str, content: str, version: int, author_id: int
 ) -> int:
     # If this doesn't update any rows, there's an edit conflict.
     # Details: https://gist.github.com/shreevatsa/237bd6592771caadecc68c9515403bc3
@@ -111,6 +111,7 @@ def add_revision(
     revision = db.Revision(
         project_id=page.project_id,
         page_id=page.id,
+        summary=summary,
         content=content,
         author_id=author_id,
     )
@@ -310,7 +311,7 @@ def edit_page_post(project_slug, page_slug):
         try:
             new_version = add_revision(
                 cur,
-                message=form.message.data,
+                summary=form.summary.data,
                 content=form.content.data,
                 version=int(form.version.data),
                 author_id=current_user.id,
