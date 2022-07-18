@@ -40,12 +40,11 @@ def standardize_key(s: str) -> str:
 
 
 def expand_apte_keys(key: str) -> list[str]:
-    """Standardize Apte's conventions against the other dictionaries.
+    """Expand a "standard" dict key when searching Apte.
 
-    Apte uses aH and aM to compactly encode the gender of -a stems.
-    For those who don't know this convention, it can be difficult
-    to look up a word. So, standardize by removing H/M from the end
-    of nominal stems.
+    Apte uses aH and aM to compactly encode the gender of -a stems. For those
+    who don't know this convention, it can be difficult to look up a word. So,
+    expand the search space by generating extra search keys.
     """
     keys = [key]
     if key[-1] == "a":
@@ -55,4 +54,55 @@ def expand_apte_keys(key: str) -> list[str]:
         keys.append(key + "H")
     if key[-1] == "m":
         keys.append(key[:-1] + "M")
+    return keys
+
+
+def expand_skd_keys(key: str) -> list[str]:
+    """Expand a "standard" dict key when searching the Shabdakalpadruma.
+
+    The Shabdakalpadruma generally states nominal stems in their prathamA-
+    ekavacana (case 1 singular) form. Allow stem-based lookup by expanding
+    search terms and speculatively generating pra-ek forms for each stem.
+    """
+    keys = [key]
+
+    # Vowels
+    if key[-1] == "a":
+        # puṁliṅga
+        keys.append(key + "H")
+        # napuṁsakaliṅga
+        keys.append(key + "M")
+    elif key[-1] in "AiIuUfFxXeEoO":
+        # puṁliṅga
+        keys.append(key + "H")
+
+    # Consonants
+    elif key.endswith("an"):
+        # puṁliṅga & napuṁsakaliṅga
+        keys.append(key[:-2] + "A")
+        keys.append(key[:-2] + "a")
+    elif key.endswith("in"):
+        # puṁliṅga & napuṁsakaliṅga
+        keys.append(key[:-2] + "I")
+        keys.append(key[:-2] + "i")
+    else:
+        prefix, last = key[:-1], key[-1]
+        if last in "kKgG":
+            keys.append(prefix + "k")
+        elif last in "cCjJS":
+            # vAc -> vAk
+            # dfS -> dfk
+            keys.append(prefix + "k")
+            if last in "jJS":
+                # rAj -> rAT
+                # For more, see Ashtadhyayi 8.2.36
+                keys.append(prefix + "w")
+        elif last in "tTdD":
+            # samiD -> samit
+            keys.append(prefix + "t")
+        elif last in "pPbB":
+            # kakuB -> kakup
+            keys.append(prefix + "p")
+        elif last in "sr":
+            keys.append(prefix + "H")
     return keys

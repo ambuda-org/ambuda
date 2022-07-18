@@ -4,7 +4,7 @@ from flask import Blueprint
 
 import ambuda.queries as q
 from ambuda import xml
-from ambuda.utils.dict_utils import standardize_key, expand_apte_keys
+from ambuda.utils.dict_utils import standardize_key, expand_apte_keys, expand_skd_keys
 from ambuda.views.api import bp as api
 
 
@@ -19,6 +19,9 @@ def _fetch_entries(version: str, query: str) -> list[str]:
     slp1_key = standardize_key(slp1_key)
     if version == "apte":
         keys = expand_apte_keys(slp1_key)
+        rows = q.dict_entries(version, keys)
+    elif version == "shabdakalpadruma":
+        keys = expand_skd_keys(slp1_key)
         rows = q.dict_entries(version, keys)
     else:
         rows = q.dict_entry(version, slp1_key)
