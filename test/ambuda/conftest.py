@@ -1,4 +1,6 @@
 import pytest
+from flask_login import FlaskLoginClient
+
 import ambuda.database as db
 from ambuda import create_app
 from ambuda.queries import get_engine, get_session
@@ -13,6 +15,7 @@ def initialize_test_db():
 
     session = get_session()
 
+    # Text and parse data
     text = db.Text(slug="pariksha", title="parIkSA")
     session.add(text)
     session.flush()
@@ -32,6 +35,7 @@ def initialize_test_db():
     )
     session.add(parse)
 
+    # Dictionaries
     dictionary = db.Dictionary(slug="test-dict", title="Test Dictionary")
     session.add(dictionary)
     session.flush()
@@ -41,6 +45,20 @@ def initialize_test_db():
     )
     session.add(dictionary_entry)
 
+    # Auth
+    user = db.User(username="rama", email="rama@ayodhya.com")
+    user.set_password("sita")
+    session.add(user)
+    session.flush()
+
+    # Proofreading
+    project = db.Project(slug="test-project", title="Test Project")
+    session.add(project)
+    session.flush()
+
+    page = db.Page(project_id=project.id, slug="1", order=1)
+    session.add(page)
+
     session.commit()
 
 
@@ -48,6 +66,7 @@ def initialize_test_db():
 def flask_app():
     app = create_app("testing")
     app.config.update({"TESTING": True})
+    app.test_client_class = FlaskLoginClient
 
     with app.app_context():
         initialize_test_db()
@@ -58,3 +77,11 @@ def flask_app():
 @pytest.fixture()
 def client(flask_app):
     return flask_app.test_client()
+
+
+@pytest.fixture()
+def rama_client(flask_app):
+    session = get_session()
+    user = session.query(db.User).filter_by(username="rama").first()
+    with flask_app.test_client(user=user) as client:
+        yield client
