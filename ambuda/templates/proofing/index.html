@@ -9,12 +9,23 @@
 <a class="btn btn-submit" href="{{ url_for("proofing.upload_images") }}">Upload scanned book</a>
 
 <div class="prose mt-4">
-
 <p>Ongoing projects:</p>
+</div>
 
 <ul>
 {% for p in projects %}
-<li><a href="{{ url_for("proofing.project", slug=p.slug) }}">{{ p.title }}</a></li>
+<li>
+  <h3 class="font-lg mt-4 mb-2 a-hover-underline">
+    <a class="font-bold" href="{{ url_for("proofing.project", slug=p.slug) }}">{{ p.title }}</a>
+    ({{ all_page_counts[p.slug] }} pages)
+  </h3>
+
+  <div class="flex border">
+  {% for cls, width in all_counts[p.slug].items() %}
+    <div class="h-2 {{ cls }}" style="width: {{ width * 100 }}%"></div>
+  {% endfor %}
+  </div>
+</li>
 {% endfor %}
 </ul>
 

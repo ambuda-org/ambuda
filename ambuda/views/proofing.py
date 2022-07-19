@@ -134,7 +134,28 @@ def add_revision(
 def index():
     """List all available proofreading projects."""
     projects = q.projects()
-    return render_template("proofing/index.html", projects=projects)
+
+    all_counts = {}
+    all_page_counts = {}
+    for project in projects:
+        page_statuses = [p.status.name for p in project.pages]
+        num_pages = len(page_statuses)
+        project_counts = {
+            "bg-green-200": page_statuses.count("reviewed-2") / num_pages,
+            "bg-yellow-200": page_statuses.count("reviewed-1") / num_pages,
+            "bg-red-300": page_statuses.count("reviewed-0") / num_pages,
+            "bg-slate-100": page_statuses.count("skip") / num_pages,
+        }
+
+        all_counts[project.slug] = project_counts
+        all_page_counts[project.slug] = num_pages
+
+    return render_template(
+        "proofing/index.html",
+        projects=projects,
+        all_counts=all_counts,
+        all_page_counts=all_page_counts,
+    )
 
 
 @bp.route("/upload")
