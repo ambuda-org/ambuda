@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy import (
     Column,
     DateTime,
+    ForeignKey,
     Integer,
     String,
     Text as _Text,
@@ -45,11 +46,18 @@ class Page(Base):
     project_id = foreign_key("proof_projects.id")
     #: Human-readable ID, which we display in the URL.
     slug = Column(String, index=True, nullable=False)
+    #: Page status
+    status_id = Column(
+        Integer, ForeignKey("proof_page_statuses.id"), index=True, nullable=False
+    )
     #: (internal-only) A comes before B iff A.order < B.order.
     order = Column(Integer, nullable=False)
     #: (internal-only) used only so that we can implement optimistic locking
     #: for edit conflicts. See the `add_revision` function for details.
     version = Column(Integer, default=0)
+
+    #: The status of this page.
+    status = relationship("PageStatus", backref="pages")
 
     #: An ordered list of revisions for this page (newest first).
     revisions = relationship(
@@ -58,6 +66,16 @@ class Page(Base):
         backref="page",
         cascade="delete",
     )
+
+
+class PageStatus(Base):
+
+    __tablename__ = "proof_page_statuses"
+
+    #: Primary key.
+    id = pk()
+    #: Short human-readable label for this status.
+    name = Column(String, nullable=False, unique=True)
 
 
 class Revision(Base):

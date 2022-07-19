@@ -10,8 +10,19 @@
 
 <ul class="grid grid-cols-10 text-center">
 {% for p in project.pages %}
-{% set url = url_for('proofing.edit_page', project_slug=project.slug, page_slug=p.slug)  %}
-<li><a class="block p-2 hover:bg-slate-100" href="{{ url }}">{{ p.slug }}</a></li>
+  {% set status = p.status.name %}
+  {% set extra -%}
+    {%- if status == 'reviewed-0' %}bg-red-200 text-red-800
+    {%- elif status == 'reviewed-1' %}bg-yellow-200 text-yellow-800
+    {%- elif status == 'reviewed-2' %}bg-green-200 text-green-800
+    {%- else %}bg-gray-100 text-gray-800
+    {%- endif -%}
+  {%- endset %}
+
+  {% set url = url_for('proofing.edit_page', project_slug=project.slug, page_slug=p.slug)  %}
+  <li>
+    <a class="block p-2 {{ extra }}" href="{{ url }}">{{ p.slug }}</a>
+  </li>
 {% endfor %}
 </ul>
 

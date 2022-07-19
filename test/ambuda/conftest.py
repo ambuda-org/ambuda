@@ -56,7 +56,11 @@ def initialize_test_db():
     session.add(project)
     session.flush()
 
-    page = db.Page(project_id=project.id, slug="1", order=1)
+    page_status = db.PageStatus(name="reviewed-0")
+    session.add(page_status)
+    session.flush()
+
+    page = db.Page(project_id=project.id, slug="1", order=1, status_id=page_status.id)
     session.add(page)
 
     session.commit()

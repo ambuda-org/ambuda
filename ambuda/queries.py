@@ -54,6 +54,11 @@ def texts() -> list[db.Text]:
     return session.query(db.Text).all()
 
 
+def page_statuses() -> list[db.PageStatus]:
+    session = get_session()
+    return session.query(db.PageStatus).all()
+
+
 def text(slug: str) -> db.Text:
     session = get_session()
     return (

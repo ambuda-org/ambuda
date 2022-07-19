@@ -18,7 +18,7 @@ from flask_wtf import FlaskForm
 from flask_login import current_user, login_required
 from slugify import slugify
 from sqlalchemy import update
-from wtforms import StringField, HiddenField
+from wtforms import StringField, HiddenField, SelectField
 from wtforms.validators import DataRequired
 from wtforms.widgets import TextArea
 from werkzeug.utils import secure_filename
@@ -44,6 +44,15 @@ class EditPageForm(FlaskForm):
     summary = StringField("Summary of changes made:")
     version = HiddenField("Page version")
     content = StringField("Content", widget=TextArea(), validators=[DataRequired()])
+    status = SelectField(
+        "Status",
+        choices=[
+            ("reviewed-0", "Unreviewed"),
+            ("reviewed-1", "Proofread once"),
+            ("reviewed-2", "Proofread twice"),
+            ("skip", "No useful text"),
+        ],
+    )
 
 
 def _is_allowed_document_file(filename: str) -> bool:
@@ -85,18 +94,19 @@ def _prev_cur_next(pages: list[db.Page], slug: str) -> tuple[db.Page, db.Page, d
 
 
 def add_revision(
-    page: db.Page, summary: str, content: str, version: int, author_id: int
+    page: db.Page, summary: str, content: str, status: str, version: int, author_id: int
 ) -> int:
     # If this doesn't update any rows, there's an edit conflict.
     # Details: https://gist.github.com/shreevatsa/237bd6592771caadecc68c9515403bc3
     # FIXME: rather than do this on the application side, do an `exists` query
     # FIXME: instead? Not sure if this is a clear win, but worth thinking about.
     session = q.get_session()
+    status_ids = {s.name: s.id for s in q.page_statuses()}
     new_version = version + 1
     result = session.execute(
         update(db.Page)
         .where((db.Page.id == page.id) & (db.Page.version == version))
-        .values(version=new_version)
+        .values(version=new_version, status_id=status_ids[status])
     )
     session.commit()
 
@@ -291,6 +301,11 @@ def edit_page(project_slug, page_slug):
 
     form = EditPageForm()
     form.version.data = cur.version
+
+    # FIXME: less hacky approach?
+    status_names = {s.id: s.name for s in q.page_statuses()}
+    form.status.data = status_names[cur.status_id]
+
     if cur.revisions:
         latest_revision = cur.revisions[0]
         form.content.data = latest_revision.content
@@ -327,6 +342,7 @@ def edit_page_post(project_slug, page_slug):
                 cur,
                 summary=form.summary.data,
                 content=form.content.data,
+                status=form.status.data,
                 version=int(form.version.data),
                 author_id=current_user.id,
             )
