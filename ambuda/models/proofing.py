@@ -107,3 +107,6 @@ class Revision(Base):
         "User",
         backref="revisions",
     )
+
+    #: The project this revision belongs to.
+    project = relationship("Project")

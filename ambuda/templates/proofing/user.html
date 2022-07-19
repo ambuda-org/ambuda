@@ -1,0 +1,32 @@
+{% extends 'proofing/base.html' %}
+{% import "macros/proofing.html" as m %}
+
+{% block title %}User: {{ user.username }} | Ambuda{% endblock %}
+
+{% block content %}
+<div class="prose">
+<h1>{{ user.username }}</h1>
+
+<h2>Edits</h2>
+</div>
+
+{% if user_revisions %}
+<ul class="a-hover-underline">
+  {% for r in user_revisions|reverse %}
+  <li>
+    {% set url = url_for('proofing.revision',
+        project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
+    {% set page_title = r.project.title + "/" + r.page.slug %}
+
+    <a href="{{ url }}">{{ r.created.strftime("%Y-%m-%d %H:%M:%S") }}</a>
+    {{ page_title }}
+    {% if r.summary %}<i>({{ r.summary }})</i>{% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>This user has not made any edits.</p>
+{% endif %}
+
+{% endblock %}
+

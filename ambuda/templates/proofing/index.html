@@ -6,17 +6,17 @@
 
 </div>
 
-<a class="btn btn-submit" href="{{ url_for("proofing.upload_images") }}">Upload scanned book</a>
+<a class="btn btn-submit" href="{{ url_for("proofing.upload_images") }}">Create new project</a>
 
-<div class="prose mt-4">
-<p>Ongoing projects:</p>
+<div class="prose">
+<h2>Active projects</h2>
 </div>
 
 <ul>
 {% for p in projects %}
 <li>
-  <h3 class="font-lg mt-4 mb-2 a-hover-underline">
-    <a class="font-bold" href="{{ url_for("proofing.project", slug=p.slug) }}">{{ p.title }}</a>
+  <h3 class="mt-4 mb-2 a-hover-underline">
+    <a href="{{ url_for("proofing.project", slug=p.slug) }}">{{ p.title }}</a>
     ({{ all_page_counts[p.slug] }} pages)
   </h3>
 

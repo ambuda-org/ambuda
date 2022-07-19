@@ -281,6 +281,19 @@ def upload_pdf_post():
     return redirect(request.url)
 
 
+@bp.route("/users/<username>")
+def user(username):
+    user_ = q.user(username)
+    if not user_:
+        abort(404)
+
+    session = q.get_session()
+    user_revisions = session.query(db.Revision).filter_by(author_id=user_.id).all()
+    return render_template(
+        "proofing/user.html", user=user_, user_revisions=user_revisions
+    )
+
+
 @bp.route("/<slug>/")
 def project(slug):
     _project = q.project(slug)

@@ -12,9 +12,11 @@
 <ul>
   {% for r in cur.revisions|reverse %}
   {% set rev_url = url_for('proofing.revision', project_slug=project.slug, page_slug=cur.slug, revision_id=r.id) %}
+  {% set author_url = url_for('proofing.user', username=r.author.username) %}
   <li>
     <a class="underline" href="{{ rev_url }}">{{ r.created.strftime("%Y-%m-%d %H:%M:%S") }}</a>
-    {{ r.author.username }}
+    by
+    <a class="underline" href="{{ author_url }}">{{ r.author.username }}</a>
     {% if r.summary %}<i>({{ r.summary }})</i>{% endif %}
   </li>
   {% endfor %}
