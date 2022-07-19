@@ -255,9 +255,23 @@ def download_project(slug):
     buf = []
     for i, page in enumerate(_project.pages):
         page_number = i + 1
-        buf.append(f'<pb n="{page_number} />')
+        buf.append(f'<pb n="{page_number}" />')
         if page.revisions:
-            buf.append(page.revisions[0].content)
+            raw_page_content = page.revisions[0].content
+            page_buf = []
+            for line in raw_page_content.splitlines():
+                line = line.strip()
+                # Join hyphens
+                if line.endswith("-"):
+                    page_buf.append(line[:-1])
+                else:
+                    # FIXME: we should also join lines if a paragraph, but we
+                    # can reliably separate paragraphs/verses only if there's
+                    # markup.
+                    page_buf.append(line)
+                    page_buf.append("\n")
+            clean_page_content = "".join(page_buf)
+            buf.append(clean_page_content)
 
     raw_text = "\n\n".join(buf)
     response = make_response(raw_text, 200)
