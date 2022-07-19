@@ -130,6 +130,13 @@ def add_revision(
     return new_version
 
 
+import difflib
+
+
+def _revision_diff(old: str, new: str):
+    return list(difflib.Differ().compare(old.splitlines(), new.splitlines()))
+
+
 @bp.route("/")
 def index():
     """List all available proofreading projects."""
@@ -288,7 +295,7 @@ def download_project(slug):
         page_number = i + 1
         buf.append(f'<pb n="{page_number}" />')
         if page.revisions:
-            raw_page_content = page.revisions[0].content
+            raw_page_content = page.revisions[-1].content
             page_buf = []
             for line in raw_page_content.splitlines():
                 line = line.strip()
@@ -310,7 +317,7 @@ def download_project(slug):
     return response
 
 
-@bp.route("/<project_slug>/<page_slug>")
+@bp.route("/<project_slug>/<page_slug>/")
 def edit_page(project_slug, page_slug):
     _project = q.project(project_slug)
     if not _project:
@@ -328,7 +335,7 @@ def edit_page(project_slug, page_slug):
     form.status.data = status_names[cur.status_id]
 
     if cur.revisions:
-        latest_revision = cur.revisions[0]
+        latest_revision = cur.revisions[-1]
         form.content.data = latest_revision.content
 
     return render_template(
@@ -341,7 +348,7 @@ def edit_page(project_slug, page_slug):
     )
 
 
-@bp.route("/<project_slug>/<page_slug>", methods=["POST"])
+@bp.route("/<project_slug>/<page_slug>/", methods=["POST"])
 @login_required
 def edit_page_post(project_slug, page_slug):
     assert current_user.is_authenticated
@@ -372,7 +379,7 @@ def edit_page_post(project_slug, page_slug):
         except EditException:
             # FIXME: in the future, use a proper edit conflict view.
             flash("Edit conflict. Please incorporate the changes below:")
-            conflict = cur.revisions[0]
+            conflict = cur.revisions[-1]
             form.version.data = cur.version
 
     return render_template(
@@ -421,14 +428,22 @@ def revision(project_slug, page_slug, revision_id):
     except ValueError:
         abort(404)
 
+    prev_revision = None
     cur_revision = None
     for r in cur.revisions:
         if r.id == int(revision_id):
             cur_revision = r
             break
+        else:
+            prev_revision = r
 
     if not cur_revision:
         abort(404)
+
+    if prev_revision:
+        diff = _revision_diff(prev_revision.content, cur_revision.content)
+    else:
+        diff = _revision_diff("", cur_revision.content)
 
     return render_template(
         "proofing/revision.html",
@@ -437,6 +452,7 @@ def revision(project_slug, page_slug, revision_id):
         prev=prev,
         next=next,
         revision=cur_revision,
+        diff=diff,
     )
 
 

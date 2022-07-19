@@ -9,5 +9,14 @@
   {{ revision.created.strftime("%Y-%m-%d %H:%M:%S") }} by {{ revision.author.username }}
 </div>
 
-<pre class="p-4 bg-slate-100">{{ revision.content }}</pre>
+<div class="font-mono">
+{% for line in diff %}
+  {% set line = line.strip() or '&nbsp;'|safe %}
+  {% if line.startswith('+') -%}<div class="p-1 bg-green-200">{{ line }}</div>
+  {% elif line.startswith('-') -%}<div class="p-1 bg-red-200">{{ line }}</div>
+  {% else -%}<div class="p-1 bg-gray-100">{{ line }}</div>
+  {% endif %}
+{% endfor %}
+</div>
+
 {% endblock %}

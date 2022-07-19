@@ -59,10 +59,10 @@ class Page(Base):
     #: The status of this page.
     status = relationship("PageStatus", backref="pages")
 
-    #: An ordered list of revisions for this page (newest first).
+    #: An ordered list of revisions for this page (oldest first).
     revisions = relationship(
         "Revision",
-        order_by=lambda: Revision.created.desc(),
+        order_by=lambda: Revision.created,
         backref="page",
         cascade="delete",
     )

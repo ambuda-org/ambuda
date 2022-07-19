@@ -24,7 +24,7 @@ def test_download_project(client):
 
 
 def test_edit_page(client):
-    resp = client.get("/proofing/test-project/1")
+    resp = client.get("/proofing/test-project/1/")
     assert resp.status_code == 200
 
 
