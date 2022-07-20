@@ -21,26 +21,26 @@ TEI_HEADER_BOILERPLATE = """
 """.strip()
 
 
+def transform_blob_to_page(blob: str) -> str:
+    """Parses blob into text as page (linebreaks removed)."""
+    page_buf = []
+    for line in blob.splitlines():
+        line = line.strip()
+        # Join hyphens
+        if line.endswith("-"):
+            page_buf.append(line[:-1])
+        else:
+            # FIXME: we should also join lines if a paragraph, but we
+            # can reliably separate paragraphs/verses only if there's
+            # markup.
+            page_buf.append(line)
+            page_buf.append("\n")
+    return "".join(page_buf)
+
+
 def to_plain_text(blobs: list[str]) -> str:
     """Publish a project as plain text."""
-    buf = []
-    for i, blob in enumerate(blobs):
-        page_number = i + 1
-        page_buf = []
-        for line in blob.splitlines():
-            line = line.strip()
-            # Join hyphens
-            if line.endswith("-"):
-                page_buf.append(line[:-1])
-            else:
-                # FIXME: we should also join lines if a paragraph, but we
-                # can reliably separate paragraphs/verses only if there's
-                # markup.
-                page_buf.append(line)
-                page_buf.append("\n")
-        clean_page_content = "".join(page_buf)
-        buf.append(clean_page_content)
-    return "\n\n".join(buf)
+    return "\n\n".join([transform_blob_to_page(b) for b in blobs])
 
 
 def to_tei_xml(blobs: list[str]) -> str:
@@ -50,19 +50,7 @@ def to_tei_xml(blobs: list[str]) -> str:
     for i, blob in enumerate(blobs):
         page_number = i + 1
         buf.append(f'<pb n="{page_number}" />')
-        page_buf = []
-        for line in blob.splitlines():
-            line = line.strip()
-            # Join hyphens
-            if line.endswith("-"):
-                page_buf.append(line[:-1])
-            else:
-                # FIXME: we should also join lines if a paragraph, but we
-                # can reliably separate paragraphs/verses only if there's
-                # markup.
-                page_buf.append(line)
-                page_buf.append("\n")
-        clean_page_content = "".join(page_buf)
+        clean_page_content = transform_blob_to_page(blob)
         buf.append(clean_page_content)
 
     buf.append("</body></text></TEI>")
