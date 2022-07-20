@@ -250,6 +250,8 @@ def upload_images_post():
     image_dir.mkdir(exist_ok=True, parents=True)
 
     session = q.get_session()
+
+    default_status = session.query(db.PageStatus).filter_by(name="reviewed-0").one()
     for i, file in enumerate(all_files):
         n = i + 1
         image_path = _get_image_filesystem_path(project_.slug, str(n))
@@ -260,6 +262,7 @@ def upload_images_post():
                 project_id=project_.id,
                 slug=str(n),
                 order=n,
+                status_id=default_status.id,
             )
         )
 

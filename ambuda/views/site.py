@@ -1,6 +1,7 @@
 """Views for basic site pages."""
 
 from flask import Blueprint, render_template
+from sqlalchemy import exc
 
 
 bp = Blueprint("site", __name__)
@@ -30,3 +31,9 @@ def request_too_large(e):
 @bp.app_errorhandler(500)
 def internal_server_error(e):
     return render_template("500.html"), 500
+
+
+@bp.errorhandler(exc.SQLAlchemyError)
+def handle_db_exceptions(error):
+    """Rollback errors so that the db can handle future requests."""
+    db.session.rollback()
