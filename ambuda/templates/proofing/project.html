@@ -1,4 +1,5 @@
 {% extends 'proofing/base.html' %}
+{% import "macros/proofing.html" as m %}
 
 {% block title %}{{ project.title }} | Ambuda{% endblock %}
 
@@ -7,11 +8,15 @@
 <h1>{{ project.title }}</h1>
 </div>
 
-<p class="my-4 text-sm pb-4 border-b">
+<p class="my-4 text-sm pb-4">
 Download as:
 <a class="btn bg-slate-100 hover:bg-slate-200" href="{{ url_for("proofing.download_as_text", slug=project.slug) }}">text</a>
 <a class="btn bg-slate-100 hover:bg-slate-200" href="{{ url_for("proofing.download_as_xml", slug=project.slug) }}">XML</a>
 </p>
+
+<div class="prose">
+  <h2>Pages</h2>
+</div>
 
 <ul class="grid grid-cols-10 gap-2 text-center">
 {% for p in project.pages %}
@@ -31,5 +36,10 @@ Download as:
 {% endfor %}
 </ul>
 
+<div class="prose">
+  <h2>Recent changes</h2>
 </div>
+
+{{ m.revision_list(recent_revisions) }}
+
 {% endblock %}

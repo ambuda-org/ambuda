@@ -325,7 +325,18 @@ def user(username):
 @bp.route("/<slug>/")
 def project(slug):
     project_ = q.project(slug)
-    return render_template("proofing/project.html", project=project_)
+
+    session = q.get_session()
+    recent_revisions = (
+        session.query(db.Revision)
+        .filter_by(project_id=project_.id)
+        .order_by(db.Revision.created.desc())
+        .limit(10)
+        .all()
+    )
+    return render_template(
+        "proofing/project.html", project=project_, recent_revisions=recent_revisions
+    )
 
 
 @bp.route("/<slug>/download/text")
