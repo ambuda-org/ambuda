@@ -530,7 +530,9 @@ def revision(project_slug, page_slug, revision_id):
     )
 
 
-@api.route("/ocr/<project_slug>/<page_slug>")
+# FIXME: added trailing slash as a quick hack to support OCR routes on
+# frontend, which just concatenate the window URL onto "/api/ocr".
+@api.route("/ocr/<project_slug>/<page_slug>/")
 @login_required
 def ocr(project_slug, page_slug):
     """Apply Google OCR to the given page."""
