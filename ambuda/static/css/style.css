@@ -10,6 +10,12 @@
     /* For sticky footers. */
     @apply h-full;
   }
+  ins {
+    @apply bg-green-200 text-green-700 no-underline;
+  }
+  del {
+    @apply bg-red-200 text-red-700;
+  }
 
   /* Form controls */
   .btn {

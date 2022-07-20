@@ -133,8 +133,27 @@ def add_revision(
 import difflib
 
 
-def _revision_diff(old: str, new: str):
-    return list(difflib.Differ().compare(old.splitlines(), new.splitlines()))
+def _revision_diff(old: str, new: str) -> str:
+    print("-" * 50)
+    print(old)
+    print("-" * 50)
+    print(new)
+    print("-" * 50)
+    matcher = difflib.SequenceMatcher(a=old, b=new)
+    output = []
+    for opcode, a0, a1, b0, b1 in matcher.get_opcodes():
+        if opcode == "equal":
+            output.append(matcher.a[a0:a1])
+        elif opcode == "insert":
+            output.append("<ins>" + matcher.b[b0:b1] + "</ins>")
+        elif opcode == "delete":
+            output.append("<del>" + matcher.a[a0:a1] + "</del>")
+        elif opcode == "replace":
+            output.append("<del>" + matcher.a[a0:a1] + "</del>")
+            output.append("<ins>" + matcher.b[b0:b1] + "</ins>")
+        else:
+            raise RuntimeError(f"Unexpected opcode {opcode}")
+    return "".join(output)
 
 
 @bp.route("/")

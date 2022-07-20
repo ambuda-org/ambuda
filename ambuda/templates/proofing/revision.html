@@ -9,13 +9,12 @@
   {{ revision.created.strftime("%Y-%m-%d %H:%M:%S") }} by {{ revision.author.username }}
 </div>
 
-<div class="font-mono">
-{% for line in diff %}
-  {% set line = line.strip() or '&nbsp;'|safe %}
-  {% if line.startswith('+') -%}<div class="p-1 bg-green-200">{{ line }}</div>
-  {% elif line.startswith('-') -%}<div class="p-1 bg-red-200">{{ line }}</div>
-  {% else -%}<div class="p-1 bg-gray-100">{{ line }}</div>
-  {% endif %}
+<div class="font-mono border p-2">
+{% for line in diff.splitlines() %}
+  {% set line = line.strip()|safe or '&nbsp;'|safe %}
+  {# Use <br> so <ins> and <del> can wrap lines. #}
+  {% if loop.index0 %}<br>{% endif %}
+  {{ line }}
 {% endfor %}
 </div>
 
