@@ -37,6 +37,31 @@ Download as:
 </ul>
 
 <div class="prose">
+  <h2>About this project</h2>
+</div>
+
+<a class="my-2 underline text-sm block" href="{{ url_for("proofing.edit_project", slug=project.slug) }}">Edit this project's information</a>
+
+<div class="bg-slate-100 p-4 w-2/3">
+<table class="w-full">
+  <tr>
+    <th class="text-left">Author</th>
+    <td class="text-right">{{ project.author or "(none)" }}</td>
+  </tr>
+  <tr>
+    <th class="text-left">Editor</th>
+    <td class="text-right">{{ project.editor or "(none)" }}</td></tr>
+  <tr>
+    <th class="text-left">Publisher</th>
+    <td class="text-right">{{ project.publisher or "(none)" }}</td></tr>
+  <tr>
+    <th class="text-left">Publication year</th>
+    <td class="text-right">{{ project.publication_year or "(none)" }}</td>
+  </tr>
+</table>
+</div>
+
+<div class="prose">
   <h2>Recent changes</h2>
 </div>
 

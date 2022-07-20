@@ -1,0 +1,36 @@
+{% extends 'proofing/base.html' %}
+{% import "macros/proofing.html" as m %}
+
+{% macro field(f) %}
+<div class="my-2">
+  {{ f.label(class_="block text-slate-500 my-2") }}
+  {{ f(class_="p-2 block w-full my-2") }}
+</div>
+{% endmacro %}
+
+{% block title %}Edit: {{ project.title }} | Ambuda{% endblock %}
+
+{% block content %}
+<div class="prose a-hover-underline">
+<h1>Edit {{ project.title }}</h1>
+</div>
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+    <p class="bg-green-100 my-4 p-2">{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<form method="POST" class="bg-slate-100 p-4">
+  {{ form.csrf_token }}
+  {{ field(form.author) }}
+  {{ field(form.editor) }}
+  {{ field(form.publisher) }}
+  {{ field(form.publication_year) }}
+
+  <input class="btn btn-submit" type="submit" value="Save changes">
+</form>
+
+{% endblock %}

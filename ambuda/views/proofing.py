@@ -55,6 +55,13 @@ class EditPageForm(FlaskForm):
     )
 
 
+class EditProjectMetadataForm(FlaskForm):
+    author = StringField("Author")
+    editor = StringField("Editor")
+    publisher = StringField("Publisher")
+    publication_year = StringField("Publication year")
+
+
 def _is_allowed_document_file(filename: str) -> bool:
     """True iff we accept this type of document upload."""
     return Path(filename).suffix == ".pdf"
@@ -336,6 +343,25 @@ def project(slug):
     )
     return render_template(
         "proofing/project.html", project=project_, recent_revisions=recent_revisions
+    )
+
+
+@bp.route("/<slug>/edit", methods=["GET", "POST"])
+def edit_project(slug):
+    project_ = q.project(slug)
+    form = EditProjectMetadataForm(obj=project_)
+
+    if form.validate_on_submit():
+        flash("Saved changes.")
+
+        session = q.get_session()
+        form.populate_obj(project_)
+        session.commit()
+
+    return render_template(
+        "proofing/edit-project.html",
+        project=project_,
+        form=form,
     )
 
 

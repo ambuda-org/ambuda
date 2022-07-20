@@ -13,6 +13,10 @@ from sqlalchemy.orm import relationship
 from ambuda.models.base import Base, pk, foreign_key
 
 
+def string(default=""):
+    return Column(String, nullable=False, default="")
+
+
 class Project(Base):
 
     """A proofreading project. Each project has exactly one book."""
@@ -25,6 +29,15 @@ class Project(Base):
     slug = Column(String, unique=True, nullable=False)
     #: Human-readable title, which we show on the page.
     title = Column(String, nullable=False)
+
+    #: The document's author.
+    author = string()
+    #: The document's editor.
+    editor = string()
+    #: The document's publisher.
+    publisher = string()
+    #: The document's publication year.
+    publication_year = string()
 
     #: An ordered list of pages belonging to this project.
     pages = relationship(
