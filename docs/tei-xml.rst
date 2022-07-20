@@ -2,8 +2,8 @@ TEI XML
 =======
 
 
-What is TEI XML, and why do we use it?
---------------------------------------
+What is TEI XML?
+----------------
 
 Ambuda's text data is stored as XML, both on disk and in our database.
 Specifically, we use a set of XML conventions defined by the *Text Encoding

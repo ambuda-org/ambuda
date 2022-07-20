@@ -9,7 +9,8 @@
 
 <p class="my-4 text-sm pb-4 border-b">
 Download as:
-<a class="btn bg-slate-100 hover:bg-slate-200" href="{{ url_for("proofing.download_project", slug=project.slug) }}">text</a>
+<a class="btn bg-slate-100 hover:bg-slate-200" href="{{ url_for("proofing.download_as_text", slug=project.slug) }}">text</a>
+<a class="btn bg-slate-100 hover:bg-slate-200" href="{{ url_for("proofing.download_as_xml", slug=project.slug) }}">XML</a>
 </p>
 
 <ul class="grid grid-cols-10 gap-2 text-center">

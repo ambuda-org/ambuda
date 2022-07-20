@@ -25,7 +25,7 @@ from werkzeug.utils import secure_filename
 
 import ambuda.queries as q
 from ambuda import database as db
-from ambuda.utils import google_ocr
+from ambuda.utils import google_ocr, proofing_utils
 from ambuda.tasks import pdf
 from ambuda.views.site import bp as site
 from ambuda.views.api import bp as api
@@ -309,33 +309,29 @@ def project(slug):
     return render_template("proofing/project.html", project=project_)
 
 
-@bp.route("/<slug>/download")
-def download_project(slug):
+@bp.route("/<slug>/download/text")
+def download_as_text(slug):
     project_ = q.project(slug)
-    buf = []
-    for i, page in enumerate(project_.pages):
-        page_number = i + 1
-        buf.append(f'<pb n="{page_number}" />')
-        if page.revisions:
-            raw_page_content = page.revisions[-1].content
-            page_buf = []
-            for line in raw_page_content.splitlines():
-                line = line.strip()
-                # Join hyphens
-                if line.endswith("-"):
-                    page_buf.append(line[:-1])
-                else:
-                    # FIXME: we should also join lines if a paragraph, but we
-                    # can reliably separate paragraphs/verses only if there's
-                    # markup.
-                    page_buf.append(line)
-                    page_buf.append("\n")
-            clean_page_content = "".join(page_buf)
-            buf.append(clean_page_content)
+    content_blobs = [
+        p.revisions[-1].content if p.revisions else "" for p in project_.pages
+    ]
+    raw_text = proofing_utils.to_plain_text(content_blobs)
 
-    raw_text = "\n\n".join(buf)
     response = make_response(raw_text, 200)
     response.mimetype = "text/plain"
+    return response
+
+
+@bp.route("/<slug>/download/xml")
+def download_as_xml(slug):
+    project_ = q.project(slug)
+    content_blobs = [
+        p.revisions[-1].content if p.revisions else "" for p in project_.pages
+    ]
+    xml_blob = proofing_utils.to_tei_xml(content_blobs)
+
+    response = make_response(xml_blob, 200)
+    response.mimetype = "text/xml"
     return response
 
 

@@ -18,8 +18,13 @@ def test_project(client):
     assert resp.status_code == 200
 
 
-def test_download_project(client):
-    resp = client.get("/proofing/test-project/download")
+def test_download_as_text(client):
+    resp = client.get("/proofing/test-project/download/text")
+    assert resp.status_code == 200
+
+
+def test_download_as_xml(client):
+    resp = client.get("/proofing/test-project/download/xml")
     assert resp.status_code == 200
 
 
