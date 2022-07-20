@@ -25,6 +25,7 @@
 
 <form method="POST" class="bg-slate-100 p-4">
   {{ form.csrf_token }}
+  {{ field(form.title) }}
   {{ field(form.author) }}
   {{ field(form.editor) }}
   {{ field(form.publisher) }}

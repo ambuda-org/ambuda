@@ -4,6 +4,15 @@
 {% block title %}{{ project.title }} | Ambuda{% endblock %}
 
 {% block content %}
+
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    {% for message in messages %}
+    <p class="bg-green-100 my-4 p-2">{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
 <div class="prose a-hover-underline">
 <h1>{{ project.title }}</h1>
 </div>
@@ -44,6 +53,10 @@ Download as:
 
 <div class="bg-slate-100 p-4 w-2/3">
 <table class="w-full">
+  <tr>
+    <th class="text-left">Title</th>
+    <td class="text-right">{{ project.title or "(none)" }}</td>
+  </tr>
   <tr>
     <th class="text-left">Author</th>
     <td class="text-right">{{ project.author or "(none)" }}</td>

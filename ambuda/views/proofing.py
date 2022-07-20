@@ -363,11 +363,12 @@ def edit_project(slug):
     form = EditProjectMetadataForm(obj=project_)
 
     if form.validate_on_submit():
-        flash("Saved changes.")
-
         session = q.get_session()
         form.populate_obj(project_)
         session.commit()
+
+        flash("Saved changes.")
+        return redirect(url_for("proofing.project", slug=slug))
 
     return render_template(
         "proofing/edit-project.html",
