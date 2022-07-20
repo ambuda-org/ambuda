@@ -103,10 +103,6 @@ class Revision(Base):
     content = Column(_Text, nullable=False)
 
     #: An ordered list of revisions for this page (newest first).
-    author = relationship(
-        "User",
-        backref="revisions",
-    )
-
+    author = relationship("User", backref="revisions")
     #: The project this revision belongs to.
     project = relationship("Project")

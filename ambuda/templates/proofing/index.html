@@ -4,9 +4,13 @@
 <div class="prose">
 <h1>Proofreading</h1>
 
-</div>
 
-<a class="btn btn-submit" href="{{ url_for("proofing.upload_images") }}">Create new project</a>
+<ul>
+  <li><a href="{{ url_for("proofing.upload_images") }}">Create new project</a></li>
+  <li><a href="{{ url_for("proofing.recent_changes") }}">Recent changes</a></li>
+</ul>
+
+</div>
 
 <div class="prose">
 <h2>Active projects</h2>

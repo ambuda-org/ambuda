@@ -1,0 +1,18 @@
+{% extends 'proofing/base.html' %}
+{% import "macros/proofing.html" as m %}
+
+{% block title %}Recent Changes | Ambuda{% endblock %}
+
+{% block content %}
+<div class="prose">
+  <h1>Recent changes</h1>
+</div>
+
+{% if revisions %}
+{{ m.revision_list(revisions) }}
+{% else %}
+<p>No changes found.</p>
+{% endif %}
+
+{% endblock %}
+

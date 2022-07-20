@@ -281,6 +281,15 @@ def upload_pdf_post():
     return redirect(request.url)
 
 
+@bp.route("/recent-changes")
+def recent_changes():
+    session = q.get_session()
+    recent_revisions = (
+        session.query(db.Revision).order_by(db.Revision.created.desc()).limit(100).all()
+    )
+    return render_template("proofing/recent-changes.html", revisions=recent_revisions)
+
+
 @bp.route("/users/<username>")
 def user(username):
     user_ = q.user(username)
