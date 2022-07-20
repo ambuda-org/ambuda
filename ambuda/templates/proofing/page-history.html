@@ -4,23 +4,10 @@
 {% block title %}History: {{ project.title }}/{{ cur.slug }} | Ambuda{% endblock %}
 
 {% block content %}
-<div class="mb-4">
 {{ m.page_header(project, cur=cur, prev=prev, next=next) }}
-</div>
 
 {% if cur.revisions %}
-<ul>
-  {% for r in cur.revisions|reverse %}
-  {% set rev_url = url_for('proofing.revision', project_slug=project.slug, page_slug=cur.slug, revision_id=r.id) %}
-  {% set author_url = url_for('proofing.user', username=r.author.username) %}
-  <li>
-    <a class="underline" href="{{ rev_url }}">{{ r.created.strftime("%Y-%m-%d %H:%M:%S") }}</a>
-    by
-    <a class="underline" href="{{ author_url }}">{{ r.author.username }}</a>
-    {% if r.summary %}<i>({{ r.summary }})</i>{% endif %}
-  </li>
-  {% endfor %}
-</ul>
+{{ m.page_revision_list(cur.revisions|reverse) }}
 {% else %}
 <p>There are no revisions for this page.</p>
 {% endif %}

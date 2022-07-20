@@ -3,13 +3,13 @@ def test_index(client):
     assert ">Proofreading<" in resp.text
 
 
-def test_upload__unauth(client):
-    resp = client.get("/proofing/upload")
+def test_create_new_project__unauth(client):
+    resp = client.get("/proofing/create-new-project")
     assert resp.status_code == 302
 
 
-def test_upload__auth(rama_client):
-    resp = rama_client.get("/proofing/upload")
+def test_create_new_project__auth(rama_client):
+    resp = rama_client.get("/proofing/create-new-project")
     assert resp.status_code == 200
 
 

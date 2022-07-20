@@ -4,12 +4,13 @@
 {% endmacro %}
 
 {% macro page_header(project, cur, prev, next) %}
-<div class="a-hover-underline flex justify-between items-center mb-4">
+<div class="a-hover-underline flex justify-between items-center my-4">
   <div>
-    <h1 class="text-3xl">
-      <a class="text-slate-400" href="{{ url_for("proofing.project", slug=project.slug) }}">
-       {{ project.title }}</a>
-       /{{ cur.slug }}
+    <h1 class="text-4xl">
+      <a class="text-slate-400 font-bold"
+          href="{{ url_for("proofing.project", slug=project.slug) }}">
+         {{ project.title }}</a>
+      /{{ cur.slug }}
     </h1>
 
     {% set edit_url = url_for("proofing.edit_page", project_slug=project.slug, page_slug=cur.slug) %}
@@ -24,4 +25,51 @@
     {{ _page_nav_link(project, next, "Next &rarr;") }}
   </p>
 </div>
+{% endmacro %}
+
+{# List the given revisions. Revisions might correspond to multiple pages. #}
+{% macro revision_list(revisions) %}
+<ul class="a-hover-underline">
+  {% for r in revisions %}
+  <li class="my-2">
+    {% set revision_url = url_for('proofing.revision',
+        project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
+    {% set page_url = url_for('proofing.edit_page',
+        project_slug=r.project.slug, page_slug=r.page.slug) %}
+    {% set author_url = url_for('proofing.user',
+        username=r.author.username) %}
+    {% set page_title = r.project.title + "/" + r.page.slug %}
+    {% set author = r.author.username %}
+
+    <a class="text-slate-400 text-sm"
+        href="{{ revision_url }}">{{ r.created.strftime("%Y-%m-%d %H:%M") }}</a>
+    <a href="{{ page_url }}">{{ page_title }}</a>
+    by <a href="{{ author_url }}">{{ author }}</a>
+    {% if r.summary %}<i>({{ r.summary }})</i>{% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% endmacro %}
+
+{# List the revisions for some page. #}
+{% macro page_revision_list(revisions) %}
+<ul class="a-hover-underline">
+  {% for r in revisions %}
+  <li class="my-2">
+    {% set revision_url = url_for('proofing.revision',
+        project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
+    {% set page_url = url_for('proofing.edit_page',
+        project_slug=r.project.slug, page_slug=r.page.slug) %}
+    {% set author_url = url_for('proofing.user',
+        username=r.author.username) %}
+    {% set page_title = r.project.title + "/" + r.page.slug %}
+    {% set author = r.author.username %}
+
+    <a class="text-slate-400 text-sm"
+        href="{{ revision_url }}">{{ r.created.strftime("%Y-%m-%d %H:%M") }}</a>
+    by <a href="{{ author_url }}">{{ author }}</a>
+    {% if r.summary %}<i>({{ r.summary }})</i>{% endif %}
+  </li>
+  {% endfor %}
+</ul>
 {% endmacro %}

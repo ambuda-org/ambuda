@@ -1,4 +1,4 @@
-{% extends 'header-main-footer.html' %}
+{% extends 'proofing/base.html' %}
 {% import "macros/proofing.html" as m %}
 
 {% macro button(id, text) %}
@@ -47,14 +47,14 @@
         </div>
       </div>
     </div>
-    <div class="p-4 mt-4 bg-slate-300">
-      {{ form.summary.label }}
+    <div class="p-4 mt-4 bg-slate-200">
+      {{ form.summary.label(class_="text-slate-600 mb-2 block") }}
       {{ form.summary(class_="block rounded bg-white w-full mb-4 p-2") }}
-      {{ form.status.label }}
+
+      {{ form.status.label(class_="text-slate-600 mb-2 block") }}
       {{ form.status(class_="block rounded bg-white w-full mb-4 p-2") }}
-    </div>
-    <div class="p-4 mt-4 bg-slate-300">
-      <input class="btn bg-slate-600 text-white mr-4" type="submit" value="Publish changes">
+
+      <input class="btn btn-submit" type="submit" value="Publish changes">
     </div>
   </form>
 </article>

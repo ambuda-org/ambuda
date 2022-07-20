@@ -41,7 +41,7 @@ class EditException(Exception):
 
 
 class EditPageForm(FlaskForm):
-    summary = StringField("Summary of changes made:")
+    summary = StringField("Summary of changes made")
     version = HiddenField("Page version")
     content = StringField("Content", widget=TextArea(), validators=[DataRequired()])
     status = SelectField(
@@ -165,13 +165,13 @@ def index():
     )
 
 
-@bp.route("/upload")
+@bp.route("/create-new-project")
 @login_required
 def upload_images():
     return render_template("proofing/upload-images.html")
 
 
-@bp.route("/upload", methods=["POST"])
+@bp.route("/create-new-project", methods=["POST"])
 @login_required
 def upload_images_post():
     if "file" not in request.files:
@@ -210,20 +210,20 @@ def upload_images_post():
     q.create_project(title=title, slug=slug)
     # FIXME: Need to fetch again, otherwise DetachedInstanceError?
     # https://sqlalche.me/e/14/bhk3
-    _project = q.project(slug)
+    project_ = q.project(slug)
 
-    image_dir = _get_image_filesystem_path(_project.slug, "1").parent
+    image_dir = _get_image_filesystem_path(project_.slug, "1").parent
     image_dir.mkdir(exist_ok=True, parents=True)
 
     session = q.get_session()
     for i, file in enumerate(all_files):
         n = i + 1
-        image_path = _get_image_filesystem_path(_project.slug, str(n))
+        image_path = _get_image_filesystem_path(project_.slug, str(n))
         file.save(image_path)
 
         session.add(
             db.Page(
-                project_id=_project.id,
+                project_id=project_.id,
                 slug=str(n),
                 order=n,
             )
@@ -272,9 +272,9 @@ def upload_pdf_post():
         q.create_project(title=title, slug=slug)
         # FIXME: Need to fetch again, otherwise DetachedInstanceError?
         # https://sqlalche.me/e/14/bhk3
-        _project = q.project(slug)
+        project_ = q.project(slug)
 
-        pdf.create_pages.send(_project.id, pdf_path)
+        pdf.create_pages.send(project_.id, pdf_path)
         return redirect(url_for("proofing.index"))
 
     flash("Please submit a PDF file.")
@@ -305,15 +305,15 @@ def user(username):
 
 @bp.route("/<slug>/")
 def project(slug):
-    _project = q.project(slug)
-    return render_template("proofing/project.html", project=_project)
+    project_ = q.project(slug)
+    return render_template("proofing/project.html", project=project_)
 
 
 @bp.route("/<slug>/download")
 def download_project(slug):
-    _project = q.project(slug)
+    project_ = q.project(slug)
     buf = []
-    for i, page in enumerate(_project.pages):
+    for i, page in enumerate(project_.pages):
         page_number = i + 1
         buf.append(f'<pb n="{page_number}" />')
         if page.revisions:
@@ -341,11 +341,11 @@ def download_project(slug):
 
 @bp.route("/<project_slug>/<page_slug>/")
 def edit_page(project_slug, page_slug):
-    _project = q.project(project_slug)
-    if not _project:
+    project_ = q.project(project_slug)
+    if not project_:
         abort(404)
     try:
-        prev, cur, next = _prev_cur_next(_project.pages, page_slug)
+        prev, cur, next = _prev_cur_next(project_.pages, page_slug)
     except ValueError:
         abort(404)
 
@@ -361,9 +361,9 @@ def edit_page(project_slug, page_slug):
         form.content.data = latest_revision.content
 
     return render_template(
-        "proofing/page-edit.html",
+        "proofing/edit-page.html",
         form=form,
-        project=_project,
+        project=project_,
         prev=prev,
         cur=cur,
         next=next,
@@ -375,11 +375,11 @@ def edit_page(project_slug, page_slug):
 def edit_page_post(project_slug, page_slug):
     assert current_user.is_authenticated
 
-    _project = q.project(project_slug)
-    if not _project:
+    project_ = q.project(project_slug)
+    if not project_:
         abort(404)
     try:
-        prev, cur, next = _prev_cur_next(_project.pages, page_slug)
+        prev, cur, next = _prev_cur_next(project_.pages, page_slug)
     except ValueError:
         abort(404)
 
@@ -405,9 +405,9 @@ def edit_page_post(project_slug, page_slug):
             form.version.data = cur.version
 
     return render_template(
-        "proofing/page-edit.html",
+        "proofing/edit-page.html",
         form=form,
-        project=_project,
+        project=project_,
         prev=prev,
         cur=cur,
         next=next,
@@ -425,28 +425,28 @@ def page_image(project_slug, page_slug):
 
 @bp.route("/<project_slug>/<page_slug>/history")
 def page_history(project_slug, page_slug):
-    _project = q.project(project_slug)
-    if not _project:
+    project_ = q.project(project_slug)
+    if not project_:
         abort(404)
     try:
-        prev, cur, next = _prev_cur_next(_project.pages, page_slug)
+        prev, cur, next = _prev_cur_next(project_.pages, page_slug)
     except ValueError:
         abort(404)
 
     return render_template(
-        "proofing/page-history.html", project=_project, cur=cur, prev=prev, next=next
+        "proofing/page-history.html", project=project_, cur=cur, prev=prev, next=next
     )
 
 
 @bp.route("/<project_slug>/<page_slug>/revision/<revision_id>")
 def revision(project_slug, page_slug, revision_id):
     """View a specific revision for some page."""
-    _project = q.project(project_slug)
-    if not _project:
+    project_ = q.project(project_slug)
+    if not project_:
         abort(404)
 
     try:
-        prev, cur, next = _prev_cur_next(_project.pages, page_slug)
+        prev, cur, next = _prev_cur_next(project_.pages, page_slug)
     except ValueError:
         abort(404)
 
@@ -469,7 +469,7 @@ def revision(project_slug, page_slug, revision_id):
 
     return render_template(
         "proofing/revision.html",
-        project=_project,
+        project=project_,
         cur=cur,
         prev=prev,
         next=next,
@@ -482,12 +482,12 @@ def revision(project_slug, page_slug, revision_id):
 @login_required
 def ocr(project_slug, page_slug):
     """Apply Google OCR to the given page."""
-    _project = q.project(project_slug)
-    if _project is None:
+    project_ = q.project(project_slug)
+    if project_ is None:
         abort(404)
 
-    _page = q.page(_project.id, page_slug)
-    if not _page:
+    page_ = q.page(project_.id, page_slug)
+    if not page_:
         abort(404)
 
     image_path = _get_image_filesystem_path(project_slug, page_slug)

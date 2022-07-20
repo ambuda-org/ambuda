@@ -3,25 +3,29 @@
 {% block title %}{{ project.title }} | Ambuda{% endblock %}
 
 {% block content %}
-<div class="my-8 a-hover-underline">
-<h1 class="text-3xl font-bold">{{ project.title }}</h1>
-<a href="{{ url_for("proofing.download_project", slug=project.slug) }}">Download as plain text</a>
+<div class="prose a-hover-underline">
+<h1>{{ project.title }}</h1>
 </div>
 
-<ul class="grid grid-cols-10 text-center">
+<p class="my-4 text-sm pb-4 border-b">
+Download as:
+<a class="btn bg-slate-100 hover:bg-slate-200" href="{{ url_for("proofing.download_project", slug=project.slug) }}">text</a>
+</p>
+
+<ul class="grid grid-cols-10 gap-2 text-center">
 {% for p in project.pages %}
   {% set status = p.status.name %}
   {% set extra -%}
-    {%- if status == 'reviewed-0' %}bg-red-200 text-red-800
-    {%- elif status == 'reviewed-1' %}bg-yellow-200 text-yellow-800
-    {%- elif status == 'reviewed-2' %}bg-green-200 text-green-800
-    {%- else %}bg-gray-100 text-gray-800
+    {%- if status == 'reviewed-0' %}bg-red-200 text-red-800 hover:bg-red-300
+    {%- elif status == 'reviewed-1' %}bg-yellow-200 text-yellow-800 hover:bg-yellow-300
+    {%- elif status == 'reviewed-2' %}bg-green-200 text-green-800 hover:bg-green-300
+    {%- else %}bg-gray-100 text-gray-800 hover:bg-gray-200
     {%- endif -%}
   {%- endset %}
 
   {% set url = url_for('proofing.edit_page', project_slug=project.slug, page_slug=p.slug)  %}
   <li>
-    <a class="block p-2 {{ extra }}" href="{{ url }}">{{ p.slug }}</a>
+    <a class="block rounded py-1 {{ extra }}" href="{{ url }}">{{ p.slug }}</a>
   </li>
 {% endfor %}
 </ul>

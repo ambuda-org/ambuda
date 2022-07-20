@@ -1,16 +1,16 @@
 {% extends 'proofing/base.html' %}
 
+{% block title %}Proofreading | Ambuda{% endblock %}
+
 {% block content %}
 <div class="prose">
 <h1>Proofreading</h1>
+</div>
 
-
-<ul>
+<ul class="rounded bg-slate-100 text-slate-500 p-4 pl-8 list-disc a-hover-underline">
   <li><a href="{{ url_for("proofing.upload_images") }}">Create new project</a></li>
   <li><a href="{{ url_for("proofing.recent_changes") }}">Recent changes</a></li>
 </ul>
-
-</div>
 
 <div class="prose">
 <h2>Active projects</h2>
