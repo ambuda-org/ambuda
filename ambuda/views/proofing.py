@@ -56,6 +56,7 @@ class EditPageForm(FlaskForm):
 
 
 class EditProjectMetadataForm(FlaskForm):
+    title = StringField("Title")
     author = StringField("Author")
     editor = StringField("Editor")
     publisher = StringField("Publisher")
@@ -172,6 +173,13 @@ def index():
     all_page_counts = {}
     for project in projects:
         page_statuses = [p.status.name for p in project.pages]
+
+        # FIXME(arun): catch this properly, prevent prod issues
+        if not page_statuses:
+            all_counts[project.slug] = {}
+            all_page_counts[project.slug] = {}
+            continue
+
         num_pages = len(page_statuses)
         project_counts = {
             "bg-green-200": page_statuses.count("reviewed-2") / num_pages,
