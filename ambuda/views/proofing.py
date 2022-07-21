@@ -393,10 +393,19 @@ def download_as_text(slug):
 @bp.route("/<slug>/download/xml")
 def download_as_xml(slug):
     project_ = q.project(slug)
+
+    project_meta = {
+        "title": project_.title,
+        "author": project_.author,
+        "publication_year": project_.publication_year,
+        "publisher": project_.publisher,
+        "editor": project_.editor,
+    }
+    project_meta = {k: v or "TODO" for k, v in project_meta.items()}
     content_blobs = [
         p.revisions[-1].content if p.revisions else "" for p in project_.pages
     ]
-    xml_blob = proofing_utils.to_tei_xml(content_blobs)
+    xml_blob = proofing_utils.to_tei_xml(project_meta, content_blobs)
 
     response = make_response(xml_blob, 200)
     response.mimetype = "text/xml"

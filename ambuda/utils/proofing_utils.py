@@ -1,15 +1,19 @@
 TEI_HEADER_BOILERPLATE = """
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- This file was automatically generated. Please review it for markup mistakes. -->
+<!-- This file was automatically generated. Please review it for markup mistakes
+and resolve any TODOs. -->
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
   <teiHeader>
     <fileDesc>
       <titleStmt>
-        <title>TODO</title>
-        <author>TODO</author>
+        <title>{title}</title>
+        <author>{author}</author>
+        <editor>{editor}</editor>
       </titleStmt>
       <publicationStmt>
-        <publisher>Ambuda</publisher>
+        <publisher>{publisher}</publisher>
+        <date>{publication_year}</date>
+        <distributor>Ambuda</distributor>
         <availability>
           TODO
         </availability>
@@ -43,10 +47,10 @@ def to_plain_text(blobs: list[str]) -> str:
     return "\n\n".join(buf)
 
 
-def to_tei_xml(blobs: list[str]) -> str:
+def to_tei_xml(project_meta: dict[str, str], blobs: list[str]) -> str:
     """Publish a project as TEI XML."""
     # FIXME: add much more TEI boilerplate
-    buf = [TEI_HEADER_BOILERPLATE]
+    buf = [TEI_HEADER_BOILERPLATE.format(**project_meta)]
     for i, blob in enumerate(blobs):
         page_number = i + 1
         buf.append(f'<pb n="{page_number}" />')
