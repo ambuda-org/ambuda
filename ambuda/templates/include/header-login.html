@@ -2,14 +2,15 @@
 <header class="p-4 mb-4 border-b flex justify-between items-center a-hover-underline text-sky-900 bg-slate-100">
   <div class="flex items-center">
     <a class="font-bold text-lg" href="{{ url_for('site.index') }}">Ambuda</a>
-    <a class="block ml-8" href="{{ url_for('texts.index') }}">Texts</a>
-    <a class="block ml-8" href="{{ url_for('dictionaries.index') }}">Dictionaries</a>
-    <a class="block ml-8" href="{{ url_for('proofing.index') }}">Proofing</a>
+    <a class="block ml-4 md:ml-8" href="{{ url_for('texts.index') }}">Texts</a>
+    <a class="block ml-4 md:ml-8" href="{{ url_for('dictionaries.index') }}">Dictionaries</a>
+    <a class="block ml-4 md:ml-8" href="{{ url_for('proofing.index') }}">Proofing</a>
   </div>
   <div>
     <nav>
     {% if current_user.is_authenticated %}
-    {{ current_user.username }} |
+    {% set name = current_user.username %}
+    <a href="{{ url_for("proofing.user", username=name) }}">{{ name }}</a> |
     <a href="{{ url_for("auth.sign_out") }}">Sign out</a>
     {% else %}
     <a href="{{ url_for("auth.register") }}">Register</a> |
