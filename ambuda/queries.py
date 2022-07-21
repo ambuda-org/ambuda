@@ -231,7 +231,15 @@ def create_user(*, username: str, email: str, raw_password: str) -> db.User:
     session = get_session()
     user = db.User(username=username, email=email)
     user.set_password(raw_password)
-
     session.add(user)
+    session.flush()
+
+    # Allow all users to be proofreaders
+    proofreader_role = (
+        session.query(db.Role).filter_by(name=db.SiteRole.P1.value).first()
+    )
+    user_role = db.UserRoles(user_id=user.id, role_id=proofreader_role.id)
+    session.add(user_role)
+
     session.commit()
     return user

@@ -15,6 +15,10 @@ class AmbudaAnonymousUser(AnonymousUserMixin):
     def is_admin(self):
         return False
 
+    @property
+    def is_proofreader(self):
+        return False
+
 
 def _load_user(user_id: int) -> Optional[User]:
     session = get_session()
