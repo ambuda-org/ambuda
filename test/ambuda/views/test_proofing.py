@@ -1,6 +1,6 @@
 def test_index(client):
     resp = client.get("/proofing/")
-    assert ">Proofreading<" in resp.text
+    assert ">Proofing<" in resp.text
 
 
 def test_create_new_project__unauth(client):

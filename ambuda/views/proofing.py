@@ -1,5 +1,6 @@
 """Views for basic site pages."""
 
+import difflib
 from pathlib import Path
 
 from flask import (
@@ -138,15 +139,7 @@ def add_revision(
     return new_version
 
 
-import difflib
-
-
 def _revision_diff(old: str, new: str) -> str:
-    print("-" * 50)
-    print(old)
-    print("-" * 50)
-    print(new)
-    print("-" * 50)
     matcher = difflib.SequenceMatcher(a=old, b=new)
     output = []
     for opcode, a0, a1, b0, b1 in matcher.get_opcodes():
@@ -177,7 +170,7 @@ def index():
         # FIXME(arun): catch this properly, prevent prod issues
         if not page_statuses:
             all_counts[project.slug] = {}
-            all_page_counts[project.slug] = {}
+            all_page_counts[project.slug] = 0
             continue
 
         num_pages = len(page_statuses)
@@ -197,6 +190,12 @@ def index():
         all_counts=all_counts,
         all_page_counts=all_page_counts,
     )
+
+
+@bp.route("/beginners-guide")
+@login_required
+def beginners_guide():
+    return render_template("proofing/beginners-guide.html")
 
 
 @bp.route("/create-new-project")
@@ -358,6 +357,7 @@ def project(slug):
 
 
 @bp.route("/<slug>/edit", methods=["GET", "POST"])
+@login_required
 def edit_project(slug):
     project_ = q.project(slug)
     form = EditProjectMetadataForm(obj=project_)
