@@ -28,7 +28,7 @@ class BaseView(sqla.ModelView):
 
 
 class UserView(BaseView):
-    column_list = form_columns = ["username", "password_hash", "email"]
+    column_list = form_columns = ["username", "email"]
 
 
 class TextView(BaseView):

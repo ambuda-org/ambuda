@@ -34,7 +34,8 @@ def _initialize_sentry():
 
 def create_app(config_name: str):
     load_dotenv(".env")
-    _initialize_sentry()
+    if config_name == "production":
+        _initialize_sentry()
 
     app = Flask(__name__)
 

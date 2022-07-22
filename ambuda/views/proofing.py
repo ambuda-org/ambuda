@@ -342,6 +342,8 @@ def user(username):
 @bp.route("/<slug>/")
 def project(slug):
     project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
 
     session = q.get_session()
     recent_revisions = (
@@ -380,6 +382,9 @@ def edit_project(slug):
 @bp.route("/<slug>/download/text")
 def download_as_text(slug):
     project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
     content_blobs = [
         p.revisions[-1].content if p.revisions else "" for p in project_.pages
     ]
@@ -393,6 +398,8 @@ def download_as_text(slug):
 @bp.route("/<slug>/download/xml")
 def download_as_xml(slug):
     project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
 
     project_meta = {
         "title": project_.title,
