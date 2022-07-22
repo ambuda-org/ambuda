@@ -12,6 +12,12 @@ from ambuda.views.api import bp as api
 
 bp = Blueprint("texts", __name__)
 
+# A hacky list that decides which texts have parse data.
+HAS_PARSE = {
+    "ramayanam",
+    "mahabharatam",
+}
+
 
 def _prev_cur_next(sections: list[db.TextSection], slug: str):
     """Get the previous, current, and next esctions.
@@ -90,6 +96,8 @@ def section(text_slug, section_slug):
         blob = "<div>" + "".join(b.xml for b in cur.blocks) + "</div>"
         content = xml.transform_tei(blob)
 
+    has_parse = text.slug in HAS_PARSE
+
     return render_template(
         "texts/section.html",
         text=text,
@@ -97,6 +105,7 @@ def section(text_slug, section_slug):
         section=cur,
         next=next,
         content=content,
+        has_parse=has_parse,
     )
 
 
