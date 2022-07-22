@@ -3,7 +3,7 @@
 const URL = {
   ajaxTextContent: (path) => `/api${path}`,
   ajaxDictionaryQuery: (version, query) => `/api/dictionaries/${version}/${query}`,
-  dictionaryQuery: (version, query) => `/dictionaries/${version}/${query}`,
+  dictionaryQuery: (version, query) => `/tools/dictionaries/${version}/${query}`,
   parseData: (textSlug, blockSlug) => `/api/parses/${textSlug}/${blockSlug}`,
   googleOCR: (projectSlug, pageSlug) => `/api/ocr/${projectSlug}/${pageSlug}`,
 
@@ -182,7 +182,7 @@ const Dictionary = (() => {
 
     fetch(version, query, () => {
       // FIXME: remove "startsWith" hack and move this to Dictionaries page.
-      if (window.location.pathname.startsWith('/dict')) {
+      if (window.location.pathname.startsWith('/tools/dict')) {
         window.history.replaceState({}, '', URL.dictionaryQuery(version, query));
       }
     });
