@@ -23,6 +23,8 @@
   <pre class="p-2 bg-slate-100 my-4">{{ conflict.content }}</pre>
   {% endif %}
 
+  {{ m.page_status(cur.status.name) }}
+
   <form method="POST">
     {{ form.csrf_token }}
     {{ form.version }}

@@ -133,6 +133,7 @@ def add_revision(
         summary=summary,
         content=content,
         author_id=author_id,
+        status_id=status_ids[status],
     )
     session.add(revision)
     session.commit()

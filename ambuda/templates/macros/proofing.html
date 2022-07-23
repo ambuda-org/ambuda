@@ -73,3 +73,17 @@
   {% endfor %}
 </ul>
 {% endmacro %}
+
+{# Displays the page's revision status as a human-readable banner. #}
+{% macro page_status(status) %}
+{% if status == 'reviewed-0' %}
+<p class="p-2 my-4 bg-red-200 text-red-700">This page has not been fully proofread.</p>
+{% elif status == 'reviewed-1' %}
+<p class="p-2 my-4 bg-yellow-200 text-yellow-700">This page has been fully proofread once and needs a second look.</p>
+{% elif status == 'reviewed-2' %}
+<p class="p-2 my-4 bg-green-200 text-green-700">This page has been fully proofread twice.</p>
+{% elif status == 'skip' %}
+<p class="p-2 my-4 bg-gray-200 text-gray-700">This page does not need to be proofread.</p>
+{% endif %}
+{% endmacro %}
+

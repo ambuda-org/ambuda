@@ -108,6 +108,10 @@ class Revision(Base):
     page_id = foreign_key("proof_pages.id")
     #: The author of this revision.
     author_id = foreign_key("users.id")
+    #: Page status
+    status_id = Column(
+        Integer, ForeignKey("proof_page_statuses.id"), index=True, nullable=False
+    )
     #: Timestamp at which this revision was created.
     created = Column(DateTime, default=datetime.utcnow)
     #: An optional editor summary for this revision.
@@ -119,3 +123,5 @@ class Revision(Base):
     author = relationship("User", backref="revisions")
     #: The project this revision belongs to.
     project = relationship("Project")
+    #: The status of this page.
+    status = relationship("PageStatus", backref="revisions")

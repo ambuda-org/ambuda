@@ -9,6 +9,8 @@
   {{ revision.created.strftime("%Y-%m-%d %H:%M:%S") }} by {{ revision.author.username }}
 </div>
 
+{{ m.page_status(revision.status.name) }}
+
 <div class="font-mono border p-2">
 {% for line in diff.splitlines() %}
   {% set line = line.strip()|safe or '&nbsp;'|safe %}
