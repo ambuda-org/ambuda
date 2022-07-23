@@ -29,7 +29,7 @@
 {% set page_url = url_for("proofing.edit_page", project_slug=project.slug, page_slug=page.slug) %}
 <li>
     <a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}</a>
-    (found {{ page.count }} {{ sp("time", "times", page.count) }})
+    ({{ page.count }} {{ sp("match", "matches", page.count) }})
 </li>
 {% endfor %}
 </ul>

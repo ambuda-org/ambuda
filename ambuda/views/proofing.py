@@ -17,6 +17,7 @@ from flask import (
 )
 from flask_wtf import FlaskForm
 from flask_login import current_user, login_required
+from markupsafe import escape, Markup
 from slugify import slugify
 from sqlalchemy import update
 from wtforms import StringField, HiddenField, SelectField
@@ -152,14 +153,38 @@ def _revision_diff(old: str, new: str) -> str:
     output = []
     for opcode, a0, a1, b0, b1 in matcher.get_opcodes():
         if opcode == "equal":
-            output.append(matcher.a[a0:a1])
+            output.append(escape(matcher.a[a0:a1]))
         elif opcode == "insert":
-            output.append("<ins>" + matcher.b[b0:b1] + "</ins>")
+            output.extend(
+                [
+                    Markup("<ins>"),
+                    escape(matcher.b[b0:b1]),
+                    Markup("</ins>"),
+                ]
+            )
         elif opcode == "delete":
-            output.append("<del>" + matcher.a[a0:a1] + "</del>")
+            output.extend(
+                [
+                    Markup("<del>"),
+                    escape(matcher.a[a0:a1]),
+                    Markup("</del>"),
+                ]
+            )
         elif opcode == "replace":
-            output.append("<del>" + matcher.a[a0:a1] + "</del>")
-            output.append("<ins>" + matcher.b[b0:b1] + "</ins>")
+            output.extend(
+                [
+                    Markup("<del>"),
+                    escape(matcher.a[a0:a1]),
+                    Markup("</del>"),
+                ]
+            )
+            output.extend(
+                [
+                    Markup("<ins>"),
+                    escape(matcher.b[b0:b1]),
+                    Markup("</ins>"),
+                ]
+            )
         else:
             raise RuntimeError(f"Unexpected opcode {opcode}")
     return "".join(output)
