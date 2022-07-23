@@ -465,19 +465,28 @@ def search_project(slug):
         )
 
     query = form.query.data
-    assert query
     results = []
     for page_ in project_.pages:
         if not page_.revisions:
             continue
 
+        matches = []
+
         latest = page_.revisions[-1]
-        count = latest.content.count(query)
-        if count:
+        for line in latest.content.splitlines():
+            if query in line:
+                matches.append(
+                    {
+                        "text": escape(line).replace(
+                            query, Markup(f"<mark>{query}</mark>")
+                        ),
+                    }
+                )
+        if matches:
             results.append(
                 {
                     "slug": page_.slug,
-                    "count": count,
+                    "matches": matches,
                 }
             )
     return render_template(

@@ -10,6 +10,9 @@
     /* For sticky footers. */
     @apply h-full;
   }
+  mark {
+    @apply bg-yellow-200 p-1;
+  }
   ins {
     @apply bg-green-200 text-green-700 no-underline;
   }
