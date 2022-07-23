@@ -7,12 +7,12 @@ import requests
 
 URLS_200 = [
     "/",
-    "/api/dict/vacaspatyam/nara",
-    "/dictionaries/",
-    "/dictionaries/apte/nara",
-    "/dictionaries/mw/nara",
-    "/dictionaries/shabdakalpadruma/nara",
-    "/dictionaries/vacaspatyam/nara",
+    "/api/dictionaries/vacaspatyam/nara",
+    "/tools/dictionaries/",
+    "/tools/dictionaries/apte/nara",
+    "/tools/dictionaries/mw/nara",
+    "/tools/dictionaries/shabdakalpadruma/nara",
+    "/tools/dictionaries/vacaspatyam/nara",
     "/texts/",
     "/texts/mahabharatam/1.1",
     "/texts/mahabharatam/18.5",

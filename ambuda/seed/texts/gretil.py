@@ -22,7 +22,7 @@ class Spec:
 
 
 PROJECT_DIR = Path(__file__).resolve().parents[3]
-GRETIL_DIR = PROJECT_DIR / "third-party-data" / "gretil"
+GRETIL_DIR = PROJECT_DIR / "data" / "ambuda-gretil"
 ALLOW = [
     Spec("kumarasambhavam", "kumArasambhavam", "sa_kAlidAsa-kumArasaMbhava.xml"),
     Spec("raghuvamsham", "raghuvaMzam", "sa_kAlidAsa-raghuvaMza.xml"),
