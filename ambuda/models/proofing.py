@@ -67,7 +67,7 @@ class Page(Base):
     order = Column(Integer, nullable=False)
     #: (internal-only) used only so that we can implement optimistic locking
     #: for edit conflicts. See the `add_revision` function for details.
-    version = Column(Integer, default=0)
+    version = Column(Integer, default=0, nullable=False)
 
     #: The status of this page.
     status = relationship("PageStatus", backref="pages")
@@ -113,7 +113,7 @@ class Revision(Base):
         Integer, ForeignKey("proof_page_statuses.id"), index=True, nullable=False
     )
     #: Timestamp at which this revision was created.
-    created = Column(DateTime, default=datetime.utcnow)
+    created = Column(DateTime, default=datetime.utcnow, nullable=False)
     #: An optional editor summary for this revision.
     summary = Column(_Text, nullable=False, default="")
     #: The actual content of this revision.
