@@ -44,8 +44,10 @@ def get_session_class():
     # Scoped sessions remove various kinds of errors, e.g. when using database
     # objects created on different threads.
     #
-    # For details, see: https://stackoverflow.com/questions/12223335
-    session_factory = sessionmaker(bind=get_engine())
+    # For details, see:
+    # - https://stackoverflow.com/questions/12223335
+    # - https://flask.palletsprojects.com/en/2.1.x/patterns/sqlalchemy/
+    session_factory = sessionmaker(bind=get_engine(), autoflush=False, autocommit=False)
     return scoped_session(session_factory, scopefunc=_ident_func)
 
 

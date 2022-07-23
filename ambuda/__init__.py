@@ -5,10 +5,13 @@ import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask
 from sentry_sdk.integrations.flask import FlaskIntegration
+from sqlalchemy import exc
 
 import config
 from ambuda import auth as auth_manager
 from ambuda import admin as admin_manager
+from ambuda import database
+from ambuda import queries
 from ambuda import filters
 from ambuda.views.about import bp as about
 from ambuda.views.auth import bp as auth
@@ -32,6 +35,19 @@ def _initialize_sentry():
     )
 
 
+def _initialize_db(app):
+    @app.teardown_appcontext
+    def shutdown_session(exception=None):
+        """Reset session state to prevent caching and memory leaks."""
+        print("shutdown")
+        queries.get_session_class().remove()
+
+    @app.errorhandler(exc.SQLAlchemyError)
+    def handle_db_exceptions(error):
+        """Rollback errors so that the db can handle future requests."""
+        database.session.rollback()
+
+
 def create_app(config_name: str):
     load_dotenv(".env")
     if config_name == "production":
@@ -41,6 +57,9 @@ def create_app(config_name: str):
 
     # Config
     app.config.from_object(config.config[config_name])
+
+    # Database
+    _initialize_db(app)
 
     # Extensions
     login_manager = auth_manager.create_login_manager()
