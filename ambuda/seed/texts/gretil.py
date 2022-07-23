@@ -3,6 +3,7 @@
 The GRETIL TEI format has some systematic inconsistencies. Instead of using it,
 just process teh plain text.
 """
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from xml.etree import ElementTree as ET
@@ -21,8 +22,10 @@ class Spec:
     filename: str
 
 
+REPO = "https://github.com/ambuda-project/gretil.git"
 PROJECT_DIR = Path(__file__).resolve().parents[3]
-GRETIL_DIR = PROJECT_DIR / "data" / "ambuda-gretil"
+DATA_DIR = PROJECT_DIR / "data" / "ambuda-gretil"
+
 ALLOW = [
     Spec("kumarasambhavam", "kumArasambhavam", "sa_kAlidAsa-kumArasaMbhava.xml"),
     Spec("raghuvamsham", "raghuvaMzam", "sa_kAlidAsa-raghuvaMza.xml"),
@@ -43,6 +46,17 @@ NS = {
     "tei": "http://www.tei-c.org/ns/1.0",
     "": "http://www.tei-c.org/ns/1.0",
 }
+
+
+def fetch_latest_data():
+    """Fetch the latest data from our GitHub repo."""
+    if not DATA_DIR.exists():
+        subprocess.run(f"mkdir -p {DATA_DIR}", shell=True)
+        subprocess.run(f"git clone --branch=main {REPO} {DATA_DIR}", shell=True)
+
+    subprocess.call("git fetch origin", shell=True, cwd=DATA_DIR)
+    subprocess.call("git checkout main", shell=True, cwd=DATA_DIR)
+    subprocess.call("git reset --hard origin/main", shell=True, cwd=DATA_DIR)
 
 
 @dataclass
@@ -113,10 +127,11 @@ def parse_sections(xml: ET.Element) -> list[Section]:
     to_slp1(body)
 
     sections = []
-    n = 1
-    for section_slug, div in enumerate(body.findall("./div")):
-        section = Section(slug=str(section_slug + 1), blocks=[])
+    for i, div in enumerate(body.findall("./div")):
+        section_slug = str(i + 1)
+        section = Section(slug=section_slug, blocks=[])
 
+        n = 1
         for child in div:
             if child.tag in {"note", "del"}:
                 continue
@@ -129,7 +144,8 @@ def parse_sections(xml: ET.Element) -> list[Section]:
                 n += 1
 
             blob = ET.tostring(child, encoding="utf-8").decode("utf-8")
-            block = Block(slug=block_slug, blob=blob)
+            slug = f"{section_slug}.{block_slug}"
+            block = Block(slug=slug, blob=blob)
             section.blocks.append(block)
 
         sections.append(section)
@@ -151,7 +167,7 @@ def parse_tei_document(xml: ET.Element) -> Document:
 
 def add_document(engine, spec: Spec):
     log(f"Writing text: {spec.slug}")
-    document_path = GRETIL_DIR / spec.filename
+    document_path = DATA_DIR / "1_sanskr" / "tei" / spec.filename
 
     delete_existing_text(engine, spec.slug)
     with Session(engine) as session:
@@ -185,6 +201,9 @@ def add_document(engine, spec: Spec):
 
 
 def run():
+    log("Downloading the latest data ...")
+    fetch_latest_data()
+
     log("Initializing database ...")
     engine = create_db()
 

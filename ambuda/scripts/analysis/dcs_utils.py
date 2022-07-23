@@ -21,8 +21,8 @@ class Token:
 
 
 @dataclass
-class Block:
-    """A block of tokens, usually corresponding to a verse."""
+class Phrase:
+    """A group of tokens, usually corresponding to a half-verse."""
 
     raw: str
     slug: str
@@ -31,10 +31,10 @@ class Block:
 
 @dataclass
 class Section:
-    """A group of blocks, usually a sarga."""
+    """A group of phrases, usually a sarga."""
 
     slug: str
-    blocks: list[Block]
+    phrases: list[Phrase]
 
 
 # The DCS CONLLU fields in order.
@@ -245,7 +245,7 @@ def parse_token(token) -> Token:
             form = token["lemma"]
 
     form = iast_to_slp1(form)
-    if form[-1] in {"z", "S", "r"}:
+    if re.search("[aAiIuUfFxXeEoO][zSr]$", form):
         form = form[:-1] + "H"
     elif form[-1] == "M":
         form = form[:-1] + "m"
@@ -262,13 +262,13 @@ def parse_token(token) -> Token:
     return Token(form, lemma, tags)
 
 
-def parse_block(sentence) -> Block:
-    """Parse the given token list into a block.
+def parse_phrase(sentence) -> Phrase:
+    """Parse the given token list into a phrase.
 
     :param sentence: a CoNLL-U "sentence," here usually representing a
         half-verse.
     """
-    return Block(
+    return Phrase(
         raw=sentence.metadata["text_line"],
         slug=sentence.metadata["text_line_counter"],
         tokens=[parse_token(t) for t in sentence if not is_multilemma(t)],
@@ -276,28 +276,27 @@ def parse_block(sentence) -> Block:
 
 
 def parse_sections(text: str) -> list[Section]:
-    blocks = []
+    phrases = []
     section_slug = None
 
     for sentence in conllu.parse(text, fields=FIELDS):
         # Start of section -- extract metadata and continue.
         if "# chapter" in sentence.metadata:
-            if blocks:
-                yield Section(slug=section_slug, blocks=blocks)
-                blocks = []
+            if phrases:
+                yield Section(slug=section_slug, phrases=phrases)
+                phrases = []
 
             section_slug = sentence.metadata["# chapter"]
             continue
 
         assert section_slug
 
-        # Each "sentence" is a half-verse. Merge blocks so that each block
-        # represents one verse.
-        block = parse_block(sentence)
-        blocks.append(block)
+        # Each "sentence" is a half-verse.
+        phrase = parse_phrase(sentence)
+        phrases.append(phrase)
 
-    if blocks:
-        yield Section(slug=section_slug, blocks=blocks)
+    if phrases:
+        yield Section(slug=section_slug, phrases=phrases)
 
 
 def make_block_key(raw: str) -> str:

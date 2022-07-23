@@ -9,10 +9,11 @@ from ambuda.seed.utils.itihasa_utils import create_db
 
 REPO = "https://github.com/ambuda-project/dcs.git"
 PROJECT_DIR = Path(__file__).resolve().parents[2]
-DATA_DIR = PROJECT_DIR / "third-party-data" / "ambuda-dcs"
+DATA_DIR = PROJECT_DIR / "data" / "ambuda-dcs"
 
 
 def fetch_latest_data():
+    """Fetch the latest data from the parse data repo."""
     if not DATA_DIR.exists():
         subprocess.run(f"mkdir -p {DATA_DIR}", shell=True)
         subprocess.run(f"git clone --branch=main {REPO} {DATA_DIR}", shell=True)
@@ -22,11 +23,12 @@ def fetch_latest_data():
     subprocess.call("git reset --hard origin/main", shell=True, cwd=DATA_DIR)
 
 
-def drop_existing_parse_data(session, text_id):
+def drop_existing_parse_data(session, text_id: int):
     session.query(db.BlockParse).filter_by(text_id=text_id).delete()
 
 
-def get_slug_id_map(session, text_id):
+def get_slug_id_map(session, text_id: int) -> dict[str, int]:
+    """For each block, map its slug to its ID."""
     blocks = (
         session.query(db.TextBlock)
         .filter_by(text_id=text_id)

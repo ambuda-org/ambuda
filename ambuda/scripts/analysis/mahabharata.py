@@ -33,7 +33,8 @@ TITLE_MAP = {
 def iter_sections():
     text_path = (
         Path(__file__).parent.parent.parent.parent
-        / "dcs-parse-data"
+        / "data"
+        / "dcs-raw"
         / "files"
         / "Mahābhārata"
     )
@@ -45,7 +46,7 @@ def iter_sections():
 def iter_parsed_blocks() -> Iterator[tuple[str, str, str]]:
     for section in iter_sections():
         kanda, sarga = get_kanda_and_sarga(TITLE_MAP, section)
-        for block in section.blocks:
+        for block in section.phrases:
             key = dcs.iast_to_slp1(block.raw)
             key = dcs.make_block_key(key)
             full_slug = f"{kanda}.{sarga}.{block.slug}"
