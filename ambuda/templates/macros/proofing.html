@@ -41,7 +41,8 @@
     {% set page_title = r.project.title + "/" + r.page.slug %}
     {% set author = r.author.username %}
 
-    <a class="text-slate-400 text-sm"
+    <span class="{{ revision_colors(r.status.name) }} inline-block w-2 h-2 mr-0.5 rounded-full"></span>
+    <a class="text-slate-400 text-sm p-0.5 rounded"
         href="{{ revision_url }}">{{ r.created.strftime("%Y-%m-%d %H:%M") }}</a>
     <a href="{{ page_url }}">{{ page_title }}</a>
     by <a href="{{ author_url }}">{{ author }}</a>
@@ -65,6 +66,7 @@
     {% set page_title = r.project.title + "/" + r.page.slug %}
     {% set author = r.author.username %}
 
+    <span class="{{ revision_colors(r.status.name) }} inline-block w-2 h-2 mr-0.5 rounded-full"></span>
     <a class="text-slate-400 text-sm"
         href="{{ revision_url }}">{{ r.created.strftime("%Y-%m-%d %H:%M") }}</a>
     by <a href="{{ author_url }}">{{ author }}</a>
@@ -74,16 +76,29 @@
 </ul>
 {% endmacro %}
 
+{# CSS for each revision status. #}
+{% macro revision_colors(status) %}
+{% if status == 'reviewed-0' %}
+bg-red-200 text-red-800
+{% elif status == 'reviewed-1' %}
+bg-yellow-200 text-yellow-800
+{% elif status == 'reviewed-2' %}
+bg-green-200 text-green-800
+{% elif status == 'skip' %}
+bg-gray-200 text-gray-800
+{% endif %}
+{% endmacro %}
+
 {# Displays the page's revision status as a human-readable banner. #}
 {% macro page_status(status) %}
 {% if status == 'reviewed-0' %}
-<p class="p-2 my-4 bg-red-200 text-red-700">This page has not been fully proofread.</p>
+<p class="p-2 my-4 {{ revision_colors(status) }}">This page has not been fully proofread.</p>
 {% elif status == 'reviewed-1' %}
-<p class="p-2 my-4 bg-yellow-200 text-yellow-700">This page has been fully proofread once and needs a second look.</p>
+<p class="p-2 my-4 {{ revision_colors(status) }}">This page has been fully proofread once and needs a second look.</p>
 {% elif status == 'reviewed-2' %}
-<p class="p-2 my-4 bg-green-200 text-green-700">This page has been fully proofread twice.</p>
+<p class="p-2 my-4 {{ revision_colors(status) }}">This page has been fully proofread twice.</p>
 {% elif status == 'skip' %}
-<p class="p-2 my-4 bg-gray-200 text-gray-700">This page does not need to be proofread.</p>
+<p class="p-2 my-4 {{ revision_colors(status) }}">This page does not need to be proofread.</p>
 {% endif %}
 {% endmacro %}
 

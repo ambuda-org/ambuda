@@ -30,18 +30,10 @@ Download as:
 
 <ul class="grid grid-cols-10 gap-2 text-center">
 {% for p in project.pages %}
-  {% set status = p.status.name %}
-  {% set extra -%}
-    {%- if status == 'reviewed-0' %}bg-red-200 text-red-800 hover:bg-red-300
-    {%- elif status == 'reviewed-1' %}bg-yellow-200 text-yellow-800 hover:bg-yellow-300
-    {%- elif status == 'reviewed-2' %}bg-green-200 text-green-800 hover:bg-green-300
-    {%- else %}bg-gray-100 text-gray-800 hover:bg-gray-200
-    {%- endif -%}
-  {%- endset %}
-
+  {% set colors = m.revision_colors(p.status.name) %}
   {% set url = url_for('proofing.edit_page', project_slug=project.slug, page_slug=p.slug)  %}
   <li>
-    <a class="block rounded py-1 {{ extra }}" href="{{ url }}">{{ p.slug }}</a>
+    <a class="block rounded py-1 {{ colors }}" href="{{ url }}">{{ p.slug }}</a>
   </li>
 {% endfor %}
 </ul>
