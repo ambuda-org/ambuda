@@ -10,15 +10,16 @@ from sqlalchemy.orm import (
 )
 
 
-#: The base class for all of Ambuda's models.
+#: The base class for all of Ambuda's models. All new models should inherit
+#: from this class.
 Base = declarative_base()
 
 
 def pk():
-    """A simple integer primary key."""
+    """Define a simple integer primary key."""
     return Column(Integer, primary_key=True, autoincrement=True)
 
 
 def foreign_key(field: str):
-    """A simple foreign key."""
+    """Define a simple foreign key."""
     return Column(Integer, ForeignKey(field), nullable=False, index=True)

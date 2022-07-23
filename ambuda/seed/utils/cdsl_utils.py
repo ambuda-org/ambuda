@@ -10,7 +10,7 @@ import ambuda.database as db
 def iter_entries_as_xml(blob: str):
     """Iterate over CDSL-style dictionary XML."""
     tag_str = (
-        "H1 H1A H1B H1C H1E H2 H2A H2B H2C H2E " "H3 H3A H3B H3C H3E H4 H4A H4B H4C H4E"
+        "H1 H1A H1B H1C H1E H2 H2A H2B H2C H2E H3 H3A H3B H3C H3E H4 H4A H4B H4C H4E"
     )
     allowed_tags = set(tag_str.split())
 

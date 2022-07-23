@@ -1,8 +1,8 @@
 """Functions for transforming XML into HTML.
 
 
-Method
-------
+Approach
+--------
 We store most of our content in the database at XML. At request time, we fetch
 these XML strings and convert them into HTML.
 

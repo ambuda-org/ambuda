@@ -1,3 +1,5 @@
+"""Manages various small template filters."""
+
 from indic_transliteration import sanscript
 
 

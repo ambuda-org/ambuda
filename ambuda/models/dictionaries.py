@@ -18,6 +18,7 @@ class Dictionary(Base):
     id = pk()
     #: Human-readable ID, which we display in the URL.
     slug = Column(String, unique=True, nullable=False)
+    #: Human-readable dictionary title.
     title = Column(String, nullable=False)
 
     entries = relationship("DictionaryEntry", backref="dictionary", cascade="delete")

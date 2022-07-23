@@ -93,7 +93,7 @@ def create_plain_text_block(lines: list[str]) -> str:
     return "".join(buf).strip()
 
 
-def create_tei_header_boilerplate(**kw):
+def create_tei_header_boilerplate(**kw) -> str:
     # FIXME: add much more TEI boilerplate
     return TEI_HEADER_BOILERPLATE.format(**kw)
 

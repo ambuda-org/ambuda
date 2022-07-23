@@ -13,7 +13,6 @@ from ambuda.seed.utils.cdsl_utils import create_from_scratch
 from ambuda.seed.utils.itihasa_utils import (
     fetch_text,
     create_db,
-    unzip_and_read,
 )
 
 

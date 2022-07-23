@@ -5,9 +5,13 @@ from ambuda.seed.utils.itihasa_utils import create_db
 
 
 FIELD_NAMES = [
+    # Page has never been fully proofread.
     "reviewed-0",
+    # Page has been fully proofread once.
     "reviewed-1",
+    # Page has been fully proofread twice.
     "reviewed-2",
+    # Page is out of scope for proofreading.
     "skip",
 ]
 

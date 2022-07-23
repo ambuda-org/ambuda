@@ -53,7 +53,7 @@ def _ac_sandhi(first, second) -> str:
             return first[:-1] + YAN[f] + second
 
 
-def _visarga_sandhi(first, second) -> str:
+def _visarga_sandhi(first: str, second: str) -> str:
     # Won't appear in compounds
     assert first[-1] in "sr"
 
@@ -87,7 +87,7 @@ def _visarga_sandhi(first, second) -> str:
     return prefix + "H" + second
 
 
-def _reduce_final_consonant(s):
+def _reduce_final_consonant(s: str) -> str:
     """s and r handled elsewhere."""
     f = s[-1]
     if s == "anaquh":

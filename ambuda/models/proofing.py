@@ -13,7 +13,8 @@ from sqlalchemy.orm import relationship
 from ambuda.models.base import Base, pk, foreign_key
 
 
-def string(default=""):
+def string():
+    """Create a non-nullable string column that defaults to the empty string."""
     return Column(String, nullable=False, default="")
 
 
@@ -82,6 +83,11 @@ class Page(Base):
 
 
 class PageStatus(Base):
+
+    """The transcription status of a given page.
+
+    For specific values, see `ambuda.seed.lookup.page_status`.
+    """
 
     __tablename__ = "proof_page_statuses"
 

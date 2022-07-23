@@ -8,6 +8,7 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 import zipfile
+from typing import Iterator
 
 import requests
 from dotenv import load_dotenv
@@ -26,6 +27,8 @@ CACHE_DIR = PROJECT_DIR / "data" / "download-cache"
 
 @dataclass
 class Line:
+    """A line (half-verse) in a large text."""
+
     kanda: int
     section: int
     verse: int
@@ -35,6 +38,8 @@ class Line:
 
 @dataclass
 class Verse:
+    """A verse in a large text."""
+
     kanda: int
     section: int
     n: int
@@ -43,13 +48,28 @@ class Verse:
 
 @dataclass
 class Section:
+    """A subsection of a large text."""
+
     kanda: int
     n: int
     blocks: list[Verse]
 
 
+@dataclass
+class Kanda:
+    """A subsection of a large text."""
+
+    n: int
+    sections: list[Section]
+
+
 def fetch_text(url: str) -> str:
-    """Simple cache to avoid network overhead."""
+    """Fetch text data against a simple cache.
+
+    In production, we don't need the cache at all. But during development, it's
+    useful to use a cache so that we can iterate on the end-to-end setup without
+    waiting on network overhead.
+    """
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
     code = hashlib.sha256(url.encode()).hexdigest()
@@ -61,7 +81,12 @@ def fetch_text(url: str) -> str:
 
 
 def fetch_bytes(url: str) -> bytes:
-    """Simple cache to avoid network overhead."""
+    """Fetch binary data against a simple cache.
+
+    In production, we don't need the cache at all. But during development, it's
+    useful to use a cache so that we can iterate on the end-to-end setup without
+    waiting on network overhead.
+    """
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
     code = hashlib.sha256(url.encode()).hexdigest()
@@ -76,18 +101,13 @@ def fetch_bytes(url: str) -> bytes:
 
 
 def unzip_and_read(zip_bytes: bytes, filepath: str) -> str:
+    """Open a zip archive and read plain-text data from one of its files."""
     with zipfile.ZipFile(io.BytesIO(zip_bytes), "r") as ref:
         with ref.open(filepath) as f:
             return f.read()
 
 
-@dataclass
-class Kanda:
-    n: int
-    sections: list[Section]
-
-
-def get_verses(lines):
+def get_verses(lines) -> Iterator[Verse]:
     group = {}
     for L in lines:
         key = (L.kanda, L.section, L.verse)
@@ -100,7 +120,7 @@ def get_verses(lines):
         yield Verse(kanda=L.kanda, section=L.section, n=L.verse, lines=lines)
 
 
-def get_sections(verses):
+def get_sections(verses) -> Iterator[Section]:
     group = {}
     for v in verses:
         key = (v.kanda, v.section)
