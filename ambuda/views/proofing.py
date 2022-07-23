@@ -64,6 +64,13 @@ class EditProjectMetadataForm(FlaskForm):
     publication_year = StringField("Publication year")
 
 
+class SearchProjectForm(FlaskForm):
+    class Meta:
+        csrf = False
+
+    query = StringField("Query", validators=[DataRequired()])
+
+
 def _is_allowed_document_file(filename: str) -> bool:
     """True iff we accept this type of document upload."""
     return Path(filename).suffix == ".pdf"
@@ -194,7 +201,6 @@ def index():
 
 
 @bp.route("/beginners-guide")
-@login_required
 def beginners_guide():
     return render_template("proofing/beginners-guide.html")
 
@@ -418,6 +424,44 @@ def download_as_xml(slug):
     response = make_response(xml_blob, 200)
     response.mimetype = "text/xml"
     return response
+
+
+@bp.route("/<slug>/search")
+@login_required
+def search_project(slug):
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    form = SearchProjectForm(request.args)
+    if not form.validate():
+        return render_template(
+            "proofing/project-search.html", project=project_, form=form
+        )
+
+    query = form.query.data
+    assert query
+    results = []
+    for page_ in project_.pages:
+        if not page_.revisions:
+            continue
+
+        latest = page_.revisions[-1]
+        count = latest.content.count(query)
+        if count:
+            results.append(
+                {
+                    "slug": page_.slug,
+                    "count": count,
+                }
+            )
+    return render_template(
+        "proofing/project-search.html",
+        project=project_,
+        form=form,
+        query=query,
+        results=results,
+    )
 
 
 @bp.route("/<project_slug>/<page_slug>/")

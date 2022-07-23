@@ -1,0 +1,39 @@
+{% extends 'proofing/base.html' %}
+{% from "macros/forms.html" import field %}
+
+{% block title %}Search {{ project.title }} | Ambuda{% endblock %}
+
+{% block content %}
+
+<div class="prose">
+  <h1>Search {{ project.title }}</h1>
+
+  <p>Use this simple search form to find typos across this project.</p>
+</div>
+
+<form method="GET" class="bg-slate-100 p-4 my-4">
+  {{ field(form.query) }}
+  <input class="btn btn-submit" type="submit" value="Search project">
+</form>
+
+{% if query %}
+<div class="prose">
+
+{% macro sp(s, p, n) %}{% if n == 1 %}{{ s }}{% else %}{{ p }}{% endif %}{% endmacro %}
+
+{% set nr = results|length %}
+<p>Found {{ nr }} {{ sp("page", "pages", nr) }} that {{ sp("contains", "contain", nr) }} <kbd>{{ query }}</kbd>.</p>
+
+<ul>
+{% for page in results %}
+{% set page_url = url_for("proofing.edit_page", project_slug=project.slug, page_slug=page.slug) %}
+<li>
+    <a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}</a>
+    (found {{ page.count }} {{ sp("time", "times", page.count) }})
+</li>
+{% endfor %}
+</ul>
+
+</div>
+{% endif %}
+{% endblock %}

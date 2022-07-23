@@ -1,0 +1,8 @@
+{# Render a form field. #}
+{% macro field(f) %}
+<div class="my-2">
+  {{ f.label(class_="block text-slate-500 my-2") }}
+  {{ f(class_="p-2 block w-full my-2") }}
+</div>
+{% endmacro %}
+
