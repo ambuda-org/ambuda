@@ -50,7 +50,7 @@ class Section:
 
 def fetch_text(url: str) -> str:
     """Simple cache to avoid network overhead."""
-    CACHE_DIR.mkdir(exist_ok=True)
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
     code = hashlib.sha256(url.encode()).hexdigest()
     path = CACHE_DIR / code
@@ -62,7 +62,7 @@ def fetch_text(url: str) -> str:
 
 def fetch_bytes(url: str) -> bytes:
     """Simple cache to avoid network overhead."""
-    CACHE_DIR.mkdir(exist_ok=True)
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
     code = hashlib.sha256(url.encode()).hexdigest()
     path = CACHE_DIR / code

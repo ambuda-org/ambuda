@@ -76,34 +76,39 @@ def deploy(_):
             )
         )
 
-        # Apply database migrations.
-        with c.prefix("source env/bin/activate"):
-            c.run("alembic upgrade head")
+        upgrade_db(_)
 
         # Copy production config settings.
         env_path = str(APP_DIRECTORY / ".env")
         c.put("production/prod-env", env_path)
 
-    # Restart the production gunicorn instance.
+    restart(_)
+
+
+def upgrade_db(_):
+    """Upgrade to the latest database migration."""
+    with c.prefix("source env/bin/activate"):
+        c.run("alembic upgrade head")
+
+
+@task
+def restart(_):
+    """Restart the production gunicorn instance."""
     r.run("systemctl restart ambuda")
 
 
 @task
-def seed_db(_):
+def run_module(_, module):
+    assert module
     with c.cd(APP_DIRECTORY):
         with c.prefix("source env/bin/activate"):
-            print("Starting seed ...")
-            c.run("python -m ambuda.seed.monier")
-            c.run("python -m ambuda.seed.ramayana")
-            c.run("python -m ambuda.seed.mahabharata")
-            print("Done.")
+            print(f"{module}")
+            print("=" * len(module))
+            c.run(f"python -m {module}")
 
 
 @task
 def seed_gretil(_):
     with c.cd(APP_DIRECTORY):
         c.run("./scripts/fetch-gretil-data.sh")
-        with c.prefix("source env/bin/activate"):
-            print("Starting GRETIL install ...")
-            c.run("python -m ambuda.seed.gretil")
-            print("Done.")
+        run_module(_, "ambuda.seed.gretil")
