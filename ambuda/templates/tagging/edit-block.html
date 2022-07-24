@@ -1,10 +1,54 @@
 {% extends 'proofing/base.html' %}
 
+{% macro _block_nav_link(text, block_, display_text) %}
+{% set url = url_for('tagging.edit_block', text_slug=text.slug, block_slug=block_.slug) %}
+<a href="#">{{ display_text }}</a>
+{% endmacro %}
+
+{% macro block_header() %}
+<div class="a-hover-underline my-4">
+  <h1 class="text-4xl">
+    <a class="text-slate-400 font-bold"
+        href="{{ url_for("tagging.text", slug=text.slug) }}">
+       {{ text.title|devanagari }}</a>
+    &mdash; {{ block.slug }}
+  </h1>
+</div>
+{% endmacro %}
+
 {% block content %}
+{{ block_header() }}
+
 <div class="prose">
-<h1>{{ text.title|devanagari }}/{{ block.slug }}</h1>
+<h2>Original</h2>
+<div class="text-xl p-4 bg-slate-100">
+{{ mula|safe }}
 </div>
 
-<pre class="p-4 bg-slate-100">{{ parse.data }}</pre>
+<h2>Segmented</h2>
+<div class="text-xl p-4 bg-slate-100">
+{% for token in tokens -%}
+{{ token.form|slp2dev }}{% if token.is_compounded %}-{% else %} {% endif -%}
+{% endfor %}
+</div>
 
+<h2>Analysis</h2>
+<div class="bg-slate-100 p-4">
+<table class="font-mono w-full">
+  <tr class="text-left">
+    <th>Word</th>
+    <th>Lemma</th>
+    <th>Parse</th>
+  </tr>
+  {% for token in tokens %}
+  <tr>
+    <td>{{ token.form|slp2dev }}</td>
+    <td>{{ token.lemma|slp2dev }}</td>
+    <td>{{ token.raw_parse }}</td>
+  </tr>
+  {% endfor %}
+</table>
+</div>
+
+</div>
 {% endblock %}

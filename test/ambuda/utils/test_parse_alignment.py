@@ -46,6 +46,6 @@ def test_iter_xml_with_parent():
     ],
 )
 def test_get_padas_for_text(text, token_strings, num_kept):
-    tokens = [Token(t, "", "", False) for t in token_strings]
+    tokens = [Token(t, "", "", "", False) for t in token_strings]
     chunks = get_padas_for_text(text, iter(tokens))
     assert chunks[0].tokens == tokens[:num_kept]

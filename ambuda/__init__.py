@@ -83,6 +83,7 @@ def create_app(config_name: str):
     app.jinja_env.filters.update(
         {
             "d": filters.devanagari,
+            "slp2dev": filters.slp_to_devanagari,
             "devanagari": filters.devanagari,
             "roman": filters.roman,
         }

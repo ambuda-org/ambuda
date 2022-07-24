@@ -12,7 +12,8 @@ class Token:
 
     form: str
     lemma: str
-    parse: str
+    raw_parse: str
+    en_parse: str
     is_compounded: bool
 
 
@@ -113,7 +114,11 @@ def extract_tokens(blob: str) -> list[Token]:
         form, lemma, parse = line.split("\t")
         human_parse = readable_parse(parse)
         token = Token(
-            form, lemma, human_parse, is_compounded="compounded" in human_parse
+            form,
+            lemma,
+            raw_parse=parse,
+            en_parse=human_parse,
+            is_compounded="compounded" in human_parse,
         )
         rows.append(token)
     return rows

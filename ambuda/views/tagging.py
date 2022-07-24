@@ -11,6 +11,8 @@ from wtforms.widgets import TextArea
 
 import ambuda.queries as q
 from ambuda import database as db
+from ambuda import xml
+from ambuda.utils import cheda
 
 bp = Blueprint("tagging", __name__)
 
@@ -76,9 +78,18 @@ def edit_block(text_slug, block_slug):
     if block_parse is None:
         abort(404)
 
+    mula = xml.transform_tei(block.xml)
+    tokens = cheda.extract_tokens(block_parse.data)
+
     form = EditBlockForm()
     return render_template(
-        "tagging/edit-block.html", text=text_, block=block, parse=block_parse, form=form
+        "tagging/edit-block.html",
+        text=text_,
+        block=block,
+        mula=mula,
+        tokens=tokens,
+        parse=block_parse,
+        form=form,
     )
 
 

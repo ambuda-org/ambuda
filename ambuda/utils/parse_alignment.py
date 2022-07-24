@@ -57,7 +57,7 @@ def _make_chunk_elems(chunks: list[Chunk]) -> list[ET.Element]:
             token_el.text = token.form
             token_el.attrib = {
                 "lemma": token.lemma,
-                "parse": token.parse,
+                "parse": token.en_parse,
             }
             if token.is_compounded:
                 token_el.tail = "-"
