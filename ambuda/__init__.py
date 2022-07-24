@@ -19,6 +19,7 @@ from ambuda.views.api import bp as api
 from ambuda.views.cheda import bp as parses
 from ambuda.views.dictionaries import bp as dictionaries
 from ambuda.views.proofing import bp as proofing
+from ambuda.views.tagging import bp as tagging
 from ambuda.views.site import bp as site
 from ambuda.views.texts import bp as texts
 
@@ -39,7 +40,6 @@ def _initialize_db(app):
     @app.teardown_appcontext
     def shutdown_session(exception=None):
         """Reset session state to prevent caching and memory leaks."""
-        print("shutdown")
         queries.get_session_class().remove()
 
     @app.errorhandler(exc.SQLAlchemyError)
@@ -75,6 +75,7 @@ def create_app(config_name: str):
     app.register_blueprint(dictionaries, url_prefix="/tools/dictionaries")
     app.register_blueprint(parses, url_prefix="/parses")
     app.register_blueprint(proofing, url_prefix="/proofing")
+    app.register_blueprint(tagging, url_prefix="/proofing/tagging")
     app.register_blueprint(site)
     app.register_blueprint(texts, url_prefix="/texts")
 

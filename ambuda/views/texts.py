@@ -16,6 +16,9 @@ bp = Blueprint("texts", __name__)
 HAS_PARSE = {
     "ramayanam",
     "mahabharatam",
+    "meghadutam-kale",
+    "kiratarjuniyam",
+    "kumarasambhavam",
 }
 
 

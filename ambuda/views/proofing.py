@@ -15,8 +15,8 @@ from flask import (
     send_file,
     url_for,
 )
-from flask_wtf import FlaskForm
 from flask_login import current_user, login_required
+from flask_wtf import FlaskForm
 from markupsafe import escape, Markup
 from slugify import slugify
 from sqlalchemy import update

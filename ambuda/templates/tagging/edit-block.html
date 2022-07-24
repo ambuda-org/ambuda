@@ -1,0 +1,10 @@
+{% extends 'proofing/base.html' %}
+
+{% block content %}
+<div class="prose">
+<h1>{{ text.title|devanagari }}/{{ block.slug }}</h1>
+</div>
+
+<pre class="p-4 bg-slate-100">{{ parse.data }}</pre>
+
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'proofing/base.html' %}
+
+{% block content %}
+<div class="prose">
+  <h1>{{ text.title|devanagari }} / {{ section.title }}</h1>
+</div>
+
+<ul class="grid grid-cols-10 gap-4 text-center a-hover-underline">
+  {% for block in section.blocks %}
+  {% set url = url_for('tagging.edit_block', text_slug=text.slug, block_slug=block.slug) %}
+  <li><a class="block" href="{{ url }}">{{ block.slug }}</a></li>
+  {% endfor %}
+</ul>
+
+{% endblock %}

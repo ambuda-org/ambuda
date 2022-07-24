@@ -110,7 +110,7 @@ def text_section(text_id: int, slug: str) -> Optional[db.TextSection]:
     return session.query(db.TextSection).filter_by(text_id=text_id, slug=slug).first()
 
 
-def block(text_id: int, slug) -> Optional[db.TextBlock]:
+def block(text_id: int, slug: str) -> Optional[db.TextBlock]:
     session = get_session()
     return session.query(db.TextBlock).filter_by(text_id=text_id, slug=slug).first()
 

@@ -1,0 +1,22 @@
+{% extends 'proofing/base.html' %}
+
+{% block content %}
+<div class="prose">
+
+<h1>{{ text.title|devanagari }}</h1>
+
+{% if num_parsed_blocks == 0 %}
+<p class="bg-red-200 p-1">This text doesn't have any parse data.</p>
+{% else %}
+<p>{{ num_parsed_blocks }} / {{ num_blocks}} blocks have parse data.</p>
+{% endif %}
+
+<ul>
+{% for section in text.sections %}
+{% set url = url_for("tagging.section", text_slug=text.slug, section_slug=section.slug)  %}
+<li><a href="{{ url }}">{{ section.title }}</a></li>
+{% endfor %}
+</ul>
+
+</div>
+{% endblock %}
