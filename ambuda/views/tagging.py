@@ -43,7 +43,7 @@ def text(slug):
     )
 
 
-@bp.route("/<text_slug>/<section_slug>")
+@bp.route("/<text_slug>/<section_slug>/")
 def section(text_slug, section_slug):
     text_ = q.text(text_slug)
     if text_ is None:
