@@ -19,6 +19,8 @@ HAS_PARSE = {
     "meghadutam-kale",
     "kiratarjuniyam",
     "kumarasambhavam",
+    "saundaranandam",
+    "kokilasandesha",
 }
 
 

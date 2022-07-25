@@ -35,6 +35,10 @@ ALLOW = [
     Spec("shatakatrayam", "zatakatrayam", "sa_bhatRhari-zatakatraya.xml"),
     Spec("bhattikavyam", "bhaTTikAvyam", "sa_bhaTTi-rAvaNavadha.xml"),
     Spec("meghadutam-kale", "meghadUtam", "sa_kAlidAsa-meghadUta-edkale.xml"),
+    Spec("kokilasandesha", "kokilasaMdezaH", "sa_uddaNDa-kokilasaMdesa.xml"),
+    Spec(
+        "saundaranandam", "saundaranandam", "sa_azvaghoSa-saundarAnanda-edmatsunami.xml"
+    ),
     # Spec("agnipurana", "agnipurANam", "sa_agnipurANa.xml"),
     # Spec("bhagavatapurana", "zrImadbhAgavatapurANam", "sa_bhAgavatapurANa.xml"),
 ]

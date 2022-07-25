@@ -123,7 +123,7 @@ def create_backup_parse(tokens: list[Token]) -> str:
         t.text = token.form
         t.attrib = {
             "lemma": token.lemma,
-            "parse": token.parse,
+            "parse": token.en_parse,
         }
         if token.is_compounded:
             t.tail = "-"
