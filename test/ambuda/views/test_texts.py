@@ -8,12 +8,10 @@ def d(s) -> str:
 def test_index(client):
     resp = client.get("/texts/")
     assert "<h1>Texts</h1>" in resp.text
-    assert d("parIkSA") in resp.text
 
 
 def test_text(client):
     resp = client.get("/texts/pariksha/")
-    assert resp.status_code == 200
     assert d("parIkSA") in resp.text
 
 

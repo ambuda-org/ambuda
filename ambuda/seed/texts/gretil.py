@@ -36,6 +36,7 @@ ALLOW = [
     Spec("bhattikavyam", "bhaTTikAvyam", "sa_bhaTTi-rAvaNavadha.xml"),
     Spec("meghadutam-kale", "meghadUtam", "sa_kAlidAsa-meghadUta-edkale.xml"),
     Spec("kokilasandesha", "kokilasaMdezaH", "sa_uddaNDa-kokilasaMdesa.xml"),
+    Spec("bodhicaryavatara", "bodhicAryAvatAraH", "sa_zAntideva-bodhicaryAvatAra.xml"),
     Spec(
         "saundaranandam", "saundaranandam", "sa_azvaghoSa-saundarAnanda-edmatsunami.xml"
     ),
@@ -198,7 +199,6 @@ def add_document(engine, spec: Spec):
                     n=n,
                 )
                 session.add(db_block)
-                session.flush()
                 n += 1
 
         session.commit()

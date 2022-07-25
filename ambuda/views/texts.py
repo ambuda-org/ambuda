@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 import ambuda.database as db
 import ambuda.queries as q
 from ambuda import xml
+from ambuda.consts import TEXT_CATEGORIES
 from ambuda.views.api import bp as api
 
 
@@ -21,6 +22,7 @@ HAS_PARSE = {
     "kumarasambhavam",
     "saundaranandam",
     "kokilasandesha",
+    "bodhicaryavatara",
 }
 
 
@@ -63,9 +65,10 @@ def _hk_to_dev(s: str) -> str:
 @bp.route("/")
 def index():
     """Show all texts."""
-    all_texts = q.texts()
-    all_texts = sorted(all_texts, key=lambda t: _hk_to_dev(t.title))
-    return render_template("texts/index.html", texts=all_texts)
+    all_texts = {t.slug: t for t in q.texts()}
+    return render_template(
+        "texts/index.html", categories=TEXT_CATEGORIES, texts=all_texts
+    )
 
 
 @bp.route("/<slug>/")
