@@ -65,7 +65,7 @@ Then you might add parse data::
 And a few dictionaries::
 
     python -m ambuda.seed.dictionaries.apte
-    python -m ambuda.seed.dictionaries.mw
+    python -m ambuda.seed.dictionaries.monier
 
 For the full experience, we recommend running all of the scripts in `ambuda/seed`.
 
