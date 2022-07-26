@@ -1,5 +1,8 @@
 .PHONY: docs test
 
+install:
+	./scripts/install_from_scratch.sh
+
 devserver:
 	flask run
 

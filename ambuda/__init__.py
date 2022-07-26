@@ -45,7 +45,8 @@ def _initialize_db(app):
     @app.errorhandler(exc.SQLAlchemyError)
     def handle_db_exceptions(error):
         """Rollback errors so that the db can handle future requests."""
-        database.session.rollback()
+        session = queries.get_session()
+        session.rollback()
 
 
 def create_app(config_name: str):

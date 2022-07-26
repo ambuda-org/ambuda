@@ -22,86 +22,58 @@ specific to the Ambuda project, please let us know on our Discord channel.
 Code dependencies
 -----------------
 
-All of Ambuda's Python dependencies are declared in `requirements.txt`. The
-file is quite messy right now, but the major dependencies are:
+Start by downloading our project code from GitHub::
 
-- `Flask` for web serving.
-- `SQLAlchemy` for querying the database.
-- `indic_transliteration` for transliterating Sanskrit text.
+    $ git clone git@github.com:ambuda-project/ambuda.git
 
-You can install them with::
+You can install all dependencies with a simple `make` call::
 
-    $ python3 -m venv env
-    $ . env/bin/activate
-    $ pip install -r requirements.txt
-
-Similarly, all of our JavaScript dependencies are declared in `package.json`.
-As of when I wrote this sentence, we use `npm` only for Tailwind::
-
-    $ npm install
+    $ make install
 
 
-Environment Setup
+Environment setup
 -----------------
 
-It's suggested to keep all relevant environment variables in a `.env` file.
-The list of necessary variables are as followed::
+We configure Ambuda by setting various environment variables, which is the
+standard practice for Flask applications. To organize all of these settings, we
+keep environment variables in a `.env` file in the project root.
 
-    export FLASK_ENV=development
-    export GOOGLE_APPLICATION_CREDENTIALS=
+`make install` creates an `.env` file for you. If you ever need to add more
+variables in the future, just edit that file. All Ambuda code will refer to
+that file by default.
 
-Run the following to pull all these environment variables::
+If you need access to these environment variables as part of some other script,
+you can run::
     
     $ source .env
-
-This sourcing is included as part of make command when you run the flask
-server::
-
-    $ make devserver
 
 
 Data dependencies
 -----------------
 
-Broadly, we use two types of data:
+Ambuda is more interesting when it can serve useful data. To start, you might
+install our current texts::
 
-1. Data that we've sanitized and store in our own Git repositories.
-2. Data that we fetch directly from third-party sources.
-
-To fetch (1), run these two scripts::
-
-    ./scripts/fetch-dcs-data.sh
-    ./scripts/fetch-gretil-data.sh
-
-.. warning::
-
-    You'll need to run the scripts whenever you want to refresh the underlying
-    data. In the future, Ambuda will manage all of this for you.
-
-All of the scripts that add data to the database are located under
-`ambuda/seed`. For example, you might add the Apte dictionary::
-
-    python -m ambuda.seed.dictionaries.apte
-
-Then you might add some texts from our GRETIL snapshot::
-
+    python -m ambuda.seed.texts.ramayana
+    python -m ambuda.seed.texts.mahabharata
     python -m ambuda.seed.texts.gretil
 
-These two should be enough to play around with Ambuda. But for the full
-experience, we recommend running all of the scripts in `ambuda/seed`.
+Then you might add parse data::
 
-If you see a `KeyError` related to `FLASK_ENV`, make sure to set your environment
-variables, as detailed in the previous section.
+    python -m ambuda.seed.dcs
+
+And a few dictionaries::
+
+    python -m ambuda.seed.dictionaries.apte
+    python -m ambuda.seed.dictionaries.mw
+
+For the full experience, we recommend running all of the scripts in `ambuda/seed`.
 
 .. note::
 
     Ambuda's seed scripts download data from the Internet. Generally, our seed
-    scripts cache this data in a `.cache` directory located at the project
-    root. This cache makes it easy to iterate on a script that fetches data
-    from the Internet.
-
-    So if you're wondering why Ambuda is taking up so much space on disk, check
-    the `.cache` directory and delete it if you need to.
+    scripts cache this data in a cache directory at `data/download-cache` in
+    case you need to re-run them.
 
 
 Service dependencies

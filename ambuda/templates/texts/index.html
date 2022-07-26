@@ -4,7 +4,7 @@
 <h2 class="font-bold text-2xl py-2 my-8 border-b">{{ title|devanagari }}</h2>
 
 <ul>
-{% for slug in categories[key] %}
+{% for slug in categories[key] if slug in texts %}
   {% set text = texts[slug] %}
   {% set url = url_for('texts.text', slug=text.slug) %}
   <li><a class="py-1 block text-xl hover:underline" href="{{ url }}">
