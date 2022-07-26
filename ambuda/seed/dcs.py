@@ -12,6 +12,14 @@ PROJECT_DIR = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_DIR / "data" / "ambuda-dcs"
 
 
+class UpdateException(Exception):
+    pass
+
+
+def log(*a):
+    print(*a)
+
+
 def fetch_latest_data():
     """Fetch the latest data from the parse data repo."""
     if not DATA_DIR.exists():
@@ -66,9 +74,11 @@ def iter_parse_data(path: Path):
 
 def add_parse_data(text_slug: str, path: Path):
     engine = create_db()
-
     with Session(engine) as session:
         text = session.query(db.Text).filter_by(slug=text_slug).first()
+        if not text:
+            raise UpdateException()
+
         drop_existing_parse_data(session, text.id)
 
         slug_id_map = get_slug_id_map(session, text.id)
@@ -80,14 +90,31 @@ def add_parse_data(text_slug: str, path: Path):
 
 
 def run():
-    print("Fetching latest data ...")
+    log("Fetching latest data ...")
     fetch_latest_data()
 
+    skipped = []
     for path in DATA_DIR.iterdir():
         if path.suffix == ".txt":
-            print(f"Adding {path.stem} to the database ...")
-            add_parse_data(path.stem, path)
-    print("Done.")
+            try:
+                add_parse_data(path.stem, path)
+                log(f"- Added {path.stem} parse data to the database.")
+            except UpdateException:
+                log(f"- Skipped {path.stem}.")
+                skipped.append(path.stem)
+
+    log("Done.")
+
+    if skipped:
+        log("")
+        log("The following texts were skipped because we couldn't find them")
+        log("in the database:")
+        for slug in skipped:
+            log(f"- {slug}")
+        log("")
+        log("To add these texts, run the seed scripts in ambuda/seed/texts.")
+        log("Note that the Ramayana and the Mahabharata have their own special")
+        log("seed scripts.")
 
 
 if __name__ == "__main__":
