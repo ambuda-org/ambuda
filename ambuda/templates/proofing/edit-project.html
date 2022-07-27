@@ -5,8 +5,13 @@
 {% block title %}Edit: {{ project.title }} | Ambuda{% endblock %}
 
 {% block content %}
-<div class="prose a-hover-underline">
-<h1>Edit {{ project.title }}</h1>
+{{ m.project_header_nested(project, "Edit:") }}
+{{ m.project_nav(project=project, active='edit') }}
+{% set search_url = url_for("proofing.search_project", slug=project.slug)  %}
+
+<div class="prose">
+<p>We'll add more useful tools here soon. For now, you can <a href="{{
+    search_url }}">search the project</a> or edit its metadata:</p>
 </div>
 
 {% with messages = get_flashed_messages() %}

@@ -1,0 +1,23 @@
+{% extends 'proofing/base.html' %}
+{% import "macros/proofing.html" as m %}
+
+{% block title %}Download: {{ project.title }} | Ambuda{% endblock %}
+
+{% block content %}
+
+{{ m.project_header_nested(project, "Download:") }}
+{{ m.project_nav(project=project, active='download') }}
+
+<div class="prose">
+  <p>You can use these links to download the latest version of the transcribed
+  proect. To save these files to your local machine, right-click and click
+  <kbd>Save As &hellip;</kbd> or whatever similar option your computer gives
+  you.</p>
+
+<ul class="my-4 pb-4">
+  <li><a href="{{ url_for("proofing.download_as_text", slug=project.slug) }}">Download as plain text</a></li>
+  <li><a href="{{ url_for("proofing.download_as_xml", slug=project.slug) }}">Download as TEI XML</a></li>
+</ul>
+
+</div>
+{% endblock %}

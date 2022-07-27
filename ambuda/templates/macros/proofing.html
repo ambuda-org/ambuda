@@ -1,3 +1,32 @@
+{% macro project_header_nested(project, label) %}
+<header class="a-hover-underline font-bold text-4xl my-4">
+  {% set url = url_for("proofing.project", slug=project.slug) %}
+  <h1>{{ label}} <a class="text-slate-400" href="{{ url }}">{{ project.title }}</a></h1>
+</header>
+{% endmacro %}
+
+{% macro project_nav(project, active) %}
+{% set routes = [
+  ("summary", "proofing.project", "Summary"),
+  ("talk", "proofing.talk.board", "Talk"),
+  ("edit", "proofing.edit_project", "Edit"),
+  ("download", "proofing.download_project", "Download"),
+] %}
+<nav class="border-b mb-8">
+  <ul class="flex a-hover-underline">
+    {% for name, route, label in routes %}
+    {% if name == active %}
+    <li class="font-bold p-4 border-b-2 border-black">{{ label }}</li>
+    {% else %}
+    <li class="p-4 border-b-2 border-transparent text-slate-700">
+      <a href="{{ url_for(route, slug=project.slug) }}">{{ label }}</a>
+    </li>
+    {% endif %}
+    {% endfor %}
+  </ul>
+</nav>
+{% endmacro %}
+
 {% macro _page_nav_link(project, page, text) %}
 {% set url = url_for('proofing.edit_page', project_slug=project.slug, page_slug=page.slug) %}
 <a href="{{ url }}">{{ text|safe }}</a>

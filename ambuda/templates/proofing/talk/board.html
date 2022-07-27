@@ -1,13 +1,12 @@
 {% extends 'proofing/base.html' %}
+{% import "macros/proofing.html" as m %}
 {% from "macros/forms.html" import field %}
 
-{% block title %}Discuss {{ project.title }} | Ambuda{% endblock %}
+{% block title %}Talk: {{ project.title }} | Ambuda{% endblock %}
 
 {% block content %}
-<header class="a-hover-underline font-bold text-4xl my-4">
-  {% set url = url_for("proofing.project", slug=project.slug) %}
-  <h1>Discuss <a class="text-slate-400" href="{{ url }}">{{ project.title }}</a></h1>
-</header>
+{{ m.project_header_nested(project, "Talk:") }}
+{{ m.project_nav(project=project, active='talk') }}
 
 <div class="my-4">
 <a class="btn btn-basic" href="{{ url_for('proofing.talk.create_thread', slug=project.slug) }}">Create thread</a>

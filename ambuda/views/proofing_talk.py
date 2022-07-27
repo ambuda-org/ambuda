@@ -26,7 +26,7 @@ class CreatePostForm(FlaskForm):
     )
 
 
-@bp.route("/<slug>/discuss/")
+@bp.route("/<slug>/talk/")
 def board(slug):
     project_ = q.project(slug)
     if project_ is None:
@@ -37,7 +37,7 @@ def board(slug):
     )
 
 
-@bp.route("/<slug>/discuss/create-thread", methods=["GET", "POST"])
+@bp.route("/<slug>/talk/create-thread", methods=["GET", "POST"])
 @login_required
 def create_thread(slug):
     project_ = q.project(slug)
@@ -59,7 +59,7 @@ def create_thread(slug):
     )
 
 
-@bp.route("/<project_slug>/discuss/<thread_id>")
+@bp.route("/<project_slug>/talk/<thread_id>")
 def thread(project_slug, thread_id):
     project_ = q.project(project_slug)
     if project_ is None:
@@ -72,7 +72,7 @@ def thread(project_slug, thread_id):
     return render_template("proofing/talk/thread.html", project=project_, thread=thread)
 
 
-@bp.route("/<project_slug>/discuss/<thread_id>create", methods=["GET", "POST"])
+@bp.route("/<project_slug>/talk/<thread_id>create", methods=["GET", "POST"])
 @login_required
 def create_post(project_slug, thread_id):
     project_ = q.project(project_slug)

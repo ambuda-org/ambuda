@@ -60,7 +60,7 @@ class EditPageForm(FlaskForm):
 
 
 class EditProjectMetadataForm(FlaskForm):
-    title = StringField("Title")
+    title = StringField("Title", validators=[DataRequired()])
     author = StringField("Author")
     editor = StringField("Editor")
     publisher = StringField("Publisher")
@@ -394,7 +394,7 @@ def project(slug):
 
 @bp.route("/<slug>/edit", methods=["GET", "POST"])
 @login_required
-def edit_project(slug):
+def edit_project_metadata(slug):
     project_ = q.project(slug)
     form = EditProjectMetadataForm(obj=project_)
 
@@ -411,6 +411,24 @@ def edit_project(slug):
         project=project_,
         form=form,
     )
+
+
+@bp.route("/<slug>/edit")
+def edit_project(slug):
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    return render_template("proofing/edit-project.html", project=project_)
+
+
+@bp.route("/<slug>/download/text")
+def download_project(slug):
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    return render_template("proofing/download-project.html", project=project_)
 
 
 @bp.route("/<slug>/download/text")

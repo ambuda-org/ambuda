@@ -17,13 +17,7 @@
 <h1>{{ project.title }}</h1>
 </div>
 
-<p class="my-4 text-sm pb-4">
-Download as:
-<a class="btn bg-slate-100 hover:bg-slate-200" href="{{ url_for("proofing.download_as_text", slug=project.slug) }}">Text</a>
-<a class="btn bg-slate-100 hover:bg-slate-200" href="{{ url_for("proofing.download_as_xml", slug=project.slug) }}">XML</a>
-| <a href="{{ url_for("proofing.search_project", slug=project.slug) }}">Search</a>
-| <a href="{{ url_for("proofing.talk.board", slug=project.slug) }}">Talk</a>
-</p>
+{{ m.project_nav(project=project, active='summary') }}
 
 <div class="prose">
   <h2>Pages</h2>
@@ -40,10 +34,10 @@ Download as:
 </ul>
 
 <div class="prose">
-  <h2>About this project</h2>
+  <h2>About</h2>
 </div>
 
-<a class="my-2 underline text-sm block" href="{{ url_for("proofing.edit_project", slug=project.slug) }}">Edit this project's information</a>
+<a class="my-2 underline text-sm block" href="{{ url_for("proofing.edit_project_metadata", slug=project.slug) }}">Edit this project's information</a>
 
 <div class="bg-slate-100 p-4 w-2/3">
 <table class="w-full">
