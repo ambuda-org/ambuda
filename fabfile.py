@@ -18,7 +18,7 @@ c = Connection(f"{USER}@{HOST}")
 
 
 @task
-def install_python_3_10(_):
+def init_python_3_10(_):
     py_3_10 = "https://www.python.org/ftp/python/3.10.4/Python-3.10.4.tgz"
 
     r.sudo("apt-get install libssl-dev openssl make gcc")
@@ -39,14 +39,14 @@ def install_python_3_10(_):
 
 
 @task
-def initialize_secrets(_):
+def init_secrets(_):
     c.run(f"mkdir -p {SECRETS_DIRECTORY}")
     json_path = str(SECRETS_DIRECTORY / "google-cloud-credentials.json")
     c.put("production/google-cloud-credentials.json", json_path)
 
 
 @task
-def initialize_repo(_):
+def init_repo(_):
     url = "https://github.com/ambuda-project/ambuda.git"
     with c.cd(APP_DIRECTORY):
         c.run("git init .")
@@ -54,13 +54,16 @@ def initialize_repo(_):
     deploy(c)
 
 
-@task
-def deploy(_):
+def deploy_to_commit(_, pointer: str):
+    """Deploy the given branch pointer to production.
+
+    :param pointer: a commit SHA, branch name, etc.
+    """
     with c.cd(APP_DIRECTORY):
         # Fetch the application code.
         c.run("git fetch origin")
         c.run("git checkout main")
-        c.run("git reset --hard origin/main")
+        c.run(f"git reset --hard {pointer}")
 
         # Install project requirements.
         c.run("python3.10 -m venv env")
@@ -83,6 +86,21 @@ def deploy(_):
         c.put("production/prod-env", env_path)
 
     restart(_)
+
+
+@task
+def deploy(_):
+    """Deploy the latest production commit."""
+    deploy_to_commit(_, "origin/main")
+
+
+@task
+def rollback(_, commit):
+    """Roll back to a specific prior commit.
+
+    :param commit: the commit SHA to roll back to.
+    """
+    deploy_to_commit(_, commit)
 
 
 def upgrade_db(_):
