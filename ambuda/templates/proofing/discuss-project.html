@@ -1,0 +1,38 @@
+{% extends 'proofing/base.html' %}
+{% from "macros/forms.html" import field %}
+
+{% block title %}Discuss {{ project.title }} | Ambuda{% endblock %}
+
+{% block content %}
+<header class="a-hover-underline font-bold text-4xl my-4">
+  {% set url = url_for("proofing.project", slug=project.slug) %}
+  <h1>Discuss <a class="text-slate-400" href="{{ url }}">{{ project.title }}</a></h1>
+</header>
+
+<div class="my-4">
+<a class="btn btn-basic" href="{{ url_for('proofing.create_thread', slug=project.slug) }}">Create thread</a>
+</div>
+
+{% if board.threads %}
+<ul>
+  {% for thread in board.threads %}
+  {% set thread_url = url_for('proofing.project_thread', project_slug=project.slug, thread_id=thread.id)  %}
+  {% set author_url = url_for('proofing.user', username=thread.author.username) %}
+  <li class="p-4 border-t a-hover-underline flex justify-between">
+    <div>
+      <a href="{{ thread_url }}">{{ thread.title }}</a>
+      <p class="text-sm text-slate-400">Created by
+        <a href="{{ author_url }}">{{ thread.author.username }}</a>
+      </p>
+    </div>
+    <p class="text-sm">
+      Updated {{ thread.updated_at|time_ago }}
+    </p>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>This project doesn't have any ongoing discussion.</p>
+{% endif %}
+
+{% endblock %}

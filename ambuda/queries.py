@@ -162,9 +162,49 @@ def project(slug: str) -> Optional[db.Project]:
 
 def create_project(*, title: str, slug: str):
     session = get_session()
+
+    board = db.Board(title(f"{slug} discussion board"))
+    session.add(board)
+    session.flush()
+
     project = db.Project(slug=slug, title=title)
+    project.board_id = board.id
 
     session.add(project)
+    session.commit()
+
+
+def thread(*, id: int) -> Optional[db.Thread]:
+    session = get_session()
+    return session.query(db.Thread).filter_by(id=id).first()
+
+
+def create_thread(*, board_id: int, user_id: int, title: str, content: str):
+    session = get_session()
+
+    assert board_id
+    thread = db.Thread(board_id=board_id, author_id=user_id, title=title)
+    session.add(thread)
+    session.flush()
+
+    post = db.Post(
+        board_id=board_id, author_id=user_id, thread_id=thread.id, content=content
+    )
+    session.add(post)
+    session.commit()
+
+
+def create_post(*, board_id: int, thread: db.Thread, user_id: int, content: str):
+    session = get_session()
+    post = db.Post(
+        board_id=board_id, author_id=user_id, thread_id=thread.id, content=content
+    )
+    session.add(post)
+    session.flush()
+
+    assert post.created_at
+    thread.updated_at = post.created_at
+    session.add(thread)
     session.commit()
 
 

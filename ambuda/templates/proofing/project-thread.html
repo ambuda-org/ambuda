@@ -1,0 +1,25 @@
+{% extends 'proofing/base.html' %}
+{% from "macros/forms.html" import field, show_errors_if_any %}
+
+{% block title %}{{ thread.title }} | Ambuda{% endblock %}
+
+{% block content %}
+<header class="prose">
+  <h1>{{ thread.title }}</h1>
+  <p>Updated {{ thread.updated_at|time_ago }}</p>
+</header>
+
+{% for post in thread.posts %}
+<article class="border-t py-2 my-2 pb-4">
+  {% set username = post.author.username %}
+  <h1 class="text-sm mb-2 text-slate-500 a-hover-underline">
+    <a class="font-bold" href="{{ url_for("proofing.user", username=username) }}">{{ username }}</a>
+    {{ post.updated_at|time_ago }}
+  </h1>
+  {{ post.content }}
+</article>
+{% endfor %}
+
+<a href="{{ url_for('proofing.create_post', project_slug=project.slug, thread_id=thread.id) }}" class="btn btn-submit">Add a post</a>
+
+{% endblock %}

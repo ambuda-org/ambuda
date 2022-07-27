@@ -1,0 +1,19 @@
+{% extends 'proofing/base.html' %}
+{% from "macros/forms.html" import field, show_errors_if_any %}
+
+{% block title %}Create thread on {{ project.title }} | Ambuda{% endblock %}
+
+{% block content %}
+<div class="prose">
+  <h1>{{ thread.title }} &mdash; create post</h1>
+</div>
+
+{{ show_errors_if_any(form.errors) }}
+
+<form method="POST" class="p-4 bg-zinc-100">
+  {{ form.csrf_token }}
+  {{ field(form.content) }}
+  <input type="submit" class="btn btn-submit" value="Submit">
+</form>
+
+{% endblock %}

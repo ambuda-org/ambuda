@@ -1,5 +1,8 @@
 """Manages various small template filters."""
 
+from datetime import datetime
+
+from dateutil.relativedelta import relativedelta
 from indic_transliteration import sanscript
 
 
@@ -16,3 +19,14 @@ def devanagari(s: str) -> str:
 def roman(s: str) -> str:
     """HK to Roman."""
     return sanscript.transliterate(s, sanscript.HK, sanscript.IAST)
+
+
+def time_ago(dt: datetime) -> str:
+    rd = relativedelta(datetime.utcnow(), dt)
+    for name in ["months", "days", "hours", "minutes", "seconds"]:
+        n = getattr(rd, name)
+        if n:
+            if n == 1:
+                name = name[:-1]
+            return f"{n} {name} ago"
+    return "now"

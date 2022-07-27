@@ -60,7 +60,11 @@ def initialize_test_db():
     session.flush()
 
     # Proofreading
-    project = db.Project(slug="test-project", title="Test Project")
+    board = db.Board(title="board")
+    session.add(board)
+    session.flush()
+
+    project = db.Project(slug="test-project", title="Test Project", board_id=board.id)
     session.add(project)
     session.flush()
 

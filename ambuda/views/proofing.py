@@ -21,7 +21,7 @@ from markupsafe import escape, Markup
 from slugify import slugify
 from sqlalchemy import update
 from wtforms import StringField, HiddenField, SelectField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length
 from wtforms.widgets import TextArea
 from werkzeug.utils import secure_filename
 
@@ -63,6 +63,19 @@ class EditProjectMetadataForm(FlaskForm):
     editor = StringField("Editor")
     publisher = StringField("Publisher")
     publication_year = StringField("Publication year")
+
+
+class CreateThreadForm(FlaskForm):
+    title = StringField("Title")
+    content = StringField(
+        "Message", widget=TextArea(), validators=[DataRequired(), Length(max=10000)]
+    )
+
+
+class CreatePostForm(FlaskForm):
+    content = StringField(
+        "Message", widget=TextArea(), validators=[DataRequired(), Length(max=10000)]
+    )
 
 
 class SearchProjectForm(FlaskForm):
@@ -449,6 +462,84 @@ def download_as_xml(slug):
     response = make_response(xml_blob, 200)
     response.mimetype = "text/xml"
     return response
+
+
+@bp.route("/<slug>/discuss")
+def discuss_project(slug):
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    return render_template(
+        "proofing/discuss-project.html", project=project_, board=project_.board
+    )
+
+
+@bp.route("/<slug>/discuss/create", methods=["GET", "POST"])
+@login_required
+def create_thread(slug):
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    form = CreateThreadForm()
+    if form.validate_on_submit():
+        q.create_thread(
+            board_id=project_.board_id,
+            user_id=current_user.id,
+            title=form.title.data,
+            content=form.content.data,
+        )
+        return redirect(url_for("proofing.discuss_project", slug=slug))
+
+    return render_template("proofing/create-thread.html", project=project_, form=form)
+
+
+@bp.route("/<project_slug>/discuss/<thread_id>")
+def project_thread(project_slug, thread_id):
+    project_ = q.project(project_slug)
+    if project_ is None:
+        abort(404)
+
+    thread = q.thread(id=thread_id)
+    if thread is None:
+        abort(404)
+
+    return render_template(
+        "proofing/project-thread.html", project=project_, thread=thread
+    )
+
+
+@bp.route("/<project_slug>/discuss/<thread_id>create", methods=["GET", "POST"])
+@login_required
+def create_post(project_slug, thread_id):
+    project_ = q.project(project_slug)
+    if project_ is None:
+        abort(404)
+
+    thread_ = q.thread(id=thread_id)
+    if thread_ is None or thread_.board_id != project_.board_id:
+        abort(404)
+
+    form = CreatePostForm()
+    if form.validate_on_submit():
+        q.create_post(
+            board_id=project_.board_id,
+            thread=thread_,
+            user_id=current_user.id,
+            content=form.content.data,
+        )
+        return redirect(
+            url_for(
+                "proofing.project_thread",
+                project_slug=project_.slug,
+                thread_id=thread_.id,
+            )
+        )
+
+    return render_template(
+        "proofing/create-post.html", project=project_, thread=thread_, form=form
+    )
 
 
 @bp.route("/<slug>/search")

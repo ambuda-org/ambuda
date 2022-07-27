@@ -40,6 +40,11 @@ class Project(Base):
     #: The document's publication year.
     publication_year = string()
 
+    #: Discussion board for this project.
+    board_id = foreign_key("discussion_boards.id")
+
+    board = relationship("Board", cascade="delete")
+
     #: An ordered list of pages belonging to this project.
     pages = relationship(
         "Page", order_by=lambda: Page.order, backref="project", cascade="delete"
