@@ -87,6 +87,7 @@ def create_app(config_name: str):
             "slp2dev": filters.slp_to_devanagari,
             "devanagari": filters.devanagari,
             "roman": filters.roman,
+            "markdown": filters.markdown,
             "time_ago": filters.time_ago,
         }
     )

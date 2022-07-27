@@ -16,7 +16,7 @@
     <a class="font-bold" href="{{ url_for("proofing.user", username=username) }}">{{ username }}</a>
     {{ post.updated_at|time_ago }}
   </h1>
-  {{ post.content }}
+  {{ post.content|markdown|safe }}
 </article>
 {% endfor %}
 

@@ -4,6 +4,10 @@ from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
 from indic_transliteration import sanscript
+from markdown_it import MarkdownIt
+
+
+MARKDOWN = MarkdownIt()
 
 
 def slp_to_devanagari(s: str) -> str:
@@ -22,6 +26,7 @@ def roman(s: str) -> str:
 
 
 def time_ago(dt: datetime) -> str:
+    """Print a datetime relative to right now."""
     rd = relativedelta(datetime.utcnow(), dt)
     for name in ["months", "days", "hours", "minutes", "seconds"]:
         n = getattr(rd, name)
@@ -30,3 +35,8 @@ def time_ago(dt: datetime) -> str:
                 name = name[:-1]
             return f"{n} {name} ago"
     return "now"
+
+
+def markdown(text: str) -> str:
+    """Render the given Markdown text as HTML."""
+    return MARKDOWN.render(text)
