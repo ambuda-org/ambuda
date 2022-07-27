@@ -10,13 +10,13 @@
 </header>
 
 <div class="my-4">
-<a class="btn btn-basic" href="{{ url_for('proofing.create_thread', slug=project.slug) }}">Create thread</a>
+<a class="btn btn-basic" href="{{ url_for('proofing.talk.create_thread', slug=project.slug) }}">Create thread</a>
 </div>
 
 {% if board.threads %}
 <ul>
   {% for thread in board.threads %}
-  {% set thread_url = url_for('proofing.project_thread', project_slug=project.slug, thread_id=thread.id)  %}
+  {% set thread_url = url_for('proofing.talk.thread', project_slug=project.slug, thread_id=thread.id)  %}
   {% set author_url = url_for('proofing.user', username=thread.author.username) %}
   <li class="p-4 border-t a-hover-underline flex justify-between">
     <div>

@@ -22,7 +22,7 @@ Download as:
 <a class="btn bg-slate-100 hover:bg-slate-200" href="{{ url_for("proofing.download_as_text", slug=project.slug) }}">Text</a>
 <a class="btn bg-slate-100 hover:bg-slate-200" href="{{ url_for("proofing.download_as_xml", slug=project.slug) }}">XML</a>
 | <a href="{{ url_for("proofing.search_project", slug=project.slug) }}">Search</a>
-| <a href="{{ url_for("proofing.discuss_project", slug=project.slug) }}">Discuss</a>
+| <a href="{{ url_for("proofing.talk.board", slug=project.slug) }}">Talk</a>
 </p>
 
 <div class="prose">

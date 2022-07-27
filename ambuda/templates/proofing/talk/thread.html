@@ -20,6 +20,6 @@
 </article>
 {% endfor %}
 
-<a href="{{ url_for('proofing.create_post', project_slug=project.slug, thread_id=thread.id) }}" class="btn btn-submit">Add a post</a>
+<a href="{{ url_for('proofing.talk.create_post', project_slug=project.slug, thread_id=thread.id) }}" class="btn btn-submit">Add a post</a>
 
 {% endblock %}
