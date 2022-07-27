@@ -8,7 +8,6 @@ from flask import (
     abort,
     current_app,
     flash,
-    make_response,
     render_template,
     redirect,
     request,
@@ -27,15 +26,17 @@ from werkzeug.utils import secure_filename
 
 import ambuda.queries as q
 from ambuda import database as db
-from ambuda.utils import google_ocr, proofing_utils
+from ambuda.utils import google_ocr
 from ambuda.tasks import pdf
 from ambuda.views.site import bp as site
 from ambuda.views.api import bp as api
 from ambuda.views.proofing_talk import bp as talk
+from ambuda.views.proofing_projects import bp as projects_bp
 
 
 bp = Blueprint("proofing", __name__)
 bp.register_blueprint(talk)
+bp.register_blueprint(projects_bp)
 
 
 class EditException(Exception):
@@ -57,21 +58,6 @@ class EditPageForm(FlaskForm):
             ("skip", "No useful text"),
         ],
     )
-
-
-class EditProjectMetadataForm(FlaskForm):
-    title = StringField("Title", validators=[DataRequired()])
-    author = StringField("Author")
-    editor = StringField("Editor")
-    publisher = StringField("Publisher")
-    publication_year = StringField("Publication year")
-
-
-class SearchProjectForm(FlaskForm):
-    class Meta:
-        csrf = False
-
-    query = StringField("Query", validators=[DataRequired()])
 
 
 def _is_allowed_document_file(filename: str) -> bool:
@@ -370,153 +356,6 @@ def user(username):
     user_revisions = session.query(db.Revision).filter_by(author_id=user_.id).all()
     return render_template(
         "proofing/user.html", user=user_, user_revisions=user_revisions
-    )
-
-
-@bp.route("/<slug>/")
-def project(slug):
-    project_ = q.project(slug)
-    if project_ is None:
-        abort(404)
-
-    session = q.get_session()
-    recent_revisions = (
-        session.query(db.Revision)
-        .filter_by(project_id=project_.id)
-        .order_by(db.Revision.created.desc())
-        .limit(10)
-        .all()
-    )
-    return render_template(
-        "proofing/project.html", project=project_, recent_revisions=recent_revisions
-    )
-
-
-@bp.route("/<slug>/edit", methods=["GET", "POST"])
-@login_required
-def edit_project_metadata(slug):
-    project_ = q.project(slug)
-    form = EditProjectMetadataForm(obj=project_)
-
-    if form.validate_on_submit():
-        session = q.get_session()
-        form.populate_obj(project_)
-        session.commit()
-
-        flash("Saved changes.")
-        return redirect(url_for("proofing.project", slug=slug))
-
-    return render_template(
-        "proofing/edit-project.html",
-        project=project_,
-        form=form,
-    )
-
-
-@bp.route("/<slug>/edit")
-def edit_project(slug):
-    project_ = q.project(slug)
-    if project_ is None:
-        abort(404)
-
-    return render_template("proofing/edit-project.html", project=project_)
-
-
-@bp.route("/<slug>/download/text")
-def download_project(slug):
-    project_ = q.project(slug)
-    if project_ is None:
-        abort(404)
-
-    return render_template("proofing/download-project.html", project=project_)
-
-
-@bp.route("/<slug>/download/text")
-def download_as_text(slug):
-    project_ = q.project(slug)
-    if project_ is None:
-        abort(404)
-
-    content_blobs = [
-        p.revisions[-1].content if p.revisions else "" for p in project_.pages
-    ]
-    raw_text = proofing_utils.to_plain_text(content_blobs)
-
-    response = make_response(raw_text, 200)
-    response.mimetype = "text/plain"
-    return response
-
-
-@bp.route("/<slug>/download/xml")
-def download_as_xml(slug):
-    project_ = q.project(slug)
-    if project_ is None:
-        abort(404)
-
-    project_meta = {
-        "title": project_.title,
-        "author": project_.author,
-        "publication_year": project_.publication_year,
-        "publisher": project_.publisher,
-        "editor": project_.editor,
-    }
-    project_meta = {k: v or "TODO" for k, v in project_meta.items()}
-    content_blobs = [
-        p.revisions[-1].content if p.revisions else "" for p in project_.pages
-    ]
-    xml_blob = proofing_utils.to_tei_xml(project_meta, content_blobs)
-
-    response = make_response(xml_blob, 200)
-    response.mimetype = "text/xml"
-    return response
-
-
-@bp.route("/<slug>/search")
-@login_required
-def search_project(slug):
-    project_ = q.project(slug)
-    if project_ is None:
-        abort(404)
-
-    form = SearchProjectForm(request.args)
-    if not form.validate():
-        return render_template(
-            "proofing/project-search.html", project=project_, form=form
-        )
-
-    query = form.query.data
-    results = []
-    for page_ in project_.pages:
-        if not page_.revisions:
-            continue
-
-        matches = []
-
-        latest = page_.revisions[-1]
-        for line in latest.content.splitlines():
-            if query in line:
-                print(escape(line))
-                matches.append(
-                    {
-                        "text": escape(line).replace(
-                            query, Markup(f"<mark>{escape(query)}</mark>")
-                        ),
-                    }
-                )
-                print(matches[-1])
-        if matches:
-            results.append(
-                {
-                    "slug": page_.slug,
-                    "matches": matches,
-                }
-            )
-    return render_template(
-        "proofing/project-search.html",
-        project=project_,
-        form=form,
-        query=query,
-        results=results,
     )
 
 

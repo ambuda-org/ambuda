@@ -1,16 +1,16 @@
 {% macro project_header_nested(project, label) %}
-<header class="a-hover-underline font-bold text-4xl my-4">
-  {% set url = url_for("proofing.project", slug=project.slug) %}
+<header class="a-hover-underline font-bold text-3xl my-4">
+  {% set url = url_for("proofing.projects.summary", slug=project.slug) %}
   <h1>{{ label}} <a class="text-slate-400" href="{{ url }}">{{ project.title }}</a></h1>
 </header>
 {% endmacro %}
 
 {% macro project_nav(project, active) %}
 {% set routes = [
-  ("summary", "proofing.project", "Summary"),
+  ("summary", "proofing.projects.summary", "Summary"),
   ("talk", "proofing.talk.board", "Talk"),
-  ("edit", "proofing.edit_project", "Edit"),
-  ("download", "proofing.download_project", "Download"),
+  ("edit", "proofing.projects.edit", "Edit"),
+  ("download", "proofing.projects.download", "Download"),
 ] %}
 <nav class="border-b mb-8">
   <ul class="flex a-hover-underline">
@@ -37,7 +37,7 @@
   <div>
     <h1 class="text-4xl">
       <a class="text-slate-400 font-bold"
-          href="{{ url_for("proofing.project", slug=project.slug) }}">
+          href="{{ url_for("proofing.projects.summary", slug=project.slug) }}">
          {{ project.title }}</a>
       /{{ cur.slug }}
     </h1>
