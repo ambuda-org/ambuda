@@ -1,29 +1,3 @@
-{% macro dict_form() %}
-<form id="dict--form" class="mb-4">
-  <div class="flex mb-2">
-    <input name="q" type="text" placeholder="राम, ರಾಮ, rāma, rAma, ..." class="p-2 flex-1 bg-zinc-100 rounded-tl rounded-bl">
-    <input type="submit" value="Search" class="bg-zinc-800 text-white p-2 rounded-tr rounded-br"></input>
-  </div>
-  <select id="dict--version" name="version" class="text-sm bg-zinc-100 text-zinc-400 hover:text-zinc-800 p-1">
-    <optgroup label="Sanskrit-English">
-      <option value="apte">Apte (1890)</option>
-      <option value="mw" selected>Monier-Williams (1899)</option>
-      <option value="shabdasagara">Shabdasagara (1900)</option>
-    </optgroup>
-    <optgroup label="Sanskrit-Sanskrit">
-      <option value="vacaspatyam">Vācaspatyam (1873)</option>
-      <option value="shabdakalpadruma">Śabdakalpadrumaḥ (1886)</option>
-    </optgroup>
-    <optgroup label="Sanskrit-Kannada">
-      <option value="shabdartha-kaustubha">Shabdarthakaustubha</option>
-    </optgroup>
-  </select>
-  <select id="dict--script" class="text-sm bg-zinc-100 text-zinc-400 hover:text-zinc-800 p-1">
-    {% include 'include/script-options.html' %}
-  </select>
-</form>
-{% endmacro %}
-
 {% macro dict_target() %}
 <ul id="dict--response"></ul>
 {% endmacro %}

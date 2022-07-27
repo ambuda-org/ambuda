@@ -1,4 +1,6 @@
 /* global Sanscript */
+/* Main code for the reading environment.
+ * TODO: when able, separate this into modules and add a JS build system. */
 
 const URL = {
   ajaxTextContent: (path) => `/api${path}`,
@@ -45,16 +47,6 @@ const Preferences = {
     if (value) {
       localStorage.setItem('user-script', value);
     }
-  },
-  get dictScript() {
-    const val = localStorage.getItem('dict-script');
-    if (!val || val === 'undefined') {
-      return 'devanagari';
-    }
-    return val;
-  },
-  set dictScript(value) {
-    localStorage.setItem('dict-script', value);
   },
   get dictVersion() {
     const val = localStorage.getItem('dict-version');
@@ -143,8 +135,18 @@ const Sidebar = {
   setCurrentWord(form, lemma, parse) {
     const niceForm = Sanscript.t(form, 'slp1', Preferences.contentScript);
     const niceLemma = Sanscript.t(lemma, 'slp1', Preferences.contentScript);
-    const html = `<h1 class="text-xl">${niceForm}</h1><p class="mb-8">${niceLemma} ${parse}</p>`;
+    const html = `
+    <header lang="sa">
+      <h1 class="text-xl">${niceForm}</h1>
+      <p class="mb-8">${niceLemma} ${parse}</p>
+    </header>`;
     $('#parse--response').innerHTML = html;
+  },
+  transliterate(from, to) {
+    const $content = $('#sidebar');
+    if ($content) {
+      transliterateElement($content, from, to);
+    }
   },
 };
 
@@ -159,7 +161,7 @@ const Dictionary = (() => {
     Server.getText(
       url,
       (resp) => {
-        $container.innerHTML = transliterateHTMLString(resp, Preferences.dictScript);
+        $container.innerHTML = transliterateHTMLString(resp, Preferences.contentScript);
         if (callback) {
           callback();
         }
@@ -195,14 +197,6 @@ const Dictionary = (() => {
         e.preventDefault();
         submitForm();
       });
-
-      const $dictScript = $('#dict--script');
-      $dictScript.addEventListener('change', (e) => {
-        const oldScript = Preferences.dictScript;
-        Preferences.dictScript = e.target.value;
-        transliterateElement($('#dict--response'), oldScript, e.target.value);
-      });
-      $dictScript.value = Preferences.dictScript;
 
       const $dictVersion = $('#dict--version');
       $dictVersion.addEventListener('change', (e) => {
@@ -261,8 +255,10 @@ const ParseLayer = (() => {
 
 const TextContent = (() => {
   function changeFontSize(from, to) {
-    const $contentClass = $('#text--content');
-    $contentClass.classList.replace(from, to);
+    const $textContent = $('#text--content');
+    if ($textContent) {
+      $textContent.classList.replace(from, to);
+    }
   }
 
   function transliterate(from, to) {
@@ -378,6 +374,7 @@ const ScriptMenu = (() => {
     const oldScript = Preferences.contentScript;
     Preferences.contentScript = newScript;
     TextContent.transliterate(oldScript, newScript);
+    Sidebar.transliterate(oldScript, newScript);
   }
 
   function init() {
@@ -422,4 +419,5 @@ const FontSizeMenu = (() => {
 
   TextContent.changeFontSize('md:text-xl', Preferences.contentFontSize);
   TextContent.transliterate('devanagari', Preferences.contentScript);
+  Sidebar.transliterate('devanagari', Preferences.contentScript);
 })();
