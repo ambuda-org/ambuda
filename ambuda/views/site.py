@@ -11,6 +11,11 @@ def index():
     return render_template("index.html")
 
 
+@bp.route("/support")
+def support():
+    return render_template("support.html")
+
+
 @bp.route("/test-sentry-500")
 def sentry_500():
     """Sentry integration test. Should trigger a 500 error in prod."""

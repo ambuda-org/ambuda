@@ -26,16 +26,23 @@
 {% block main %}
 <article class="p-4 md:p-0 max-w-xl mx-auto">
 <section class="prose">
-<p>Ambuda's mission is to make the Sanskrit tradition radically accessible.
-Specifically, we aim to create a complete archive of traditional Sanskrit
-literature and publish it online for everyone to enjoy and explore.</p>
+<p>Ambuda is building a complete archive of traditional Sanskrit literature.
+Our cutting-edge software makes Sanskrit radically accessible and lets you
+explore its works like never before.</p>
 
-<p><a href="{{ mailing_url }}">Our mailing list</a> shares regular updates on
-Ambuda and our other Sanskrit projects. <a href="{{ code_url }}">Our code</a>
-is all on GitHub, and we eagerly welcome contributors of all backgrounds.</p>
+{% set group = "https://groups.google.com/u/2/g/learnsanskrit-announce" %}
+<p>Our project is growing rapidly! <a href="{{ group }}">Sign up for our
+mailing list</a> to receive regular updates on our progress and milestones.</p>
 
-<p>For other questions or comments, please <a href="{{ contact_url }}">reach
-    out to us directly</a>.</p>
+{#
+<form method="POST" action="" class="flex rounded my-8">
+  <input type="email" placeholder="Enter your email address" class="bg-slate-100 p-2 block w-full"/>
+  <input type="submit" class="btn btn-submit" value="Sign up">
+</form>
+#}
 
+<p>Ambuda is run entirely by volunteers, and we would be thrilled to have your
+support in whatever form you can provide it. Learn more about
+<a href="{{ url_for('site.support') }}">how you can help Ambuda grow</a>.</p>
 </section>
 {% endblock %}

@@ -76,6 +76,9 @@
   .prose ul { @apply list-disc pl-8 my-4; }
 
   /* Custom */
+  .a-underline a {
+      @apply underline;
+  }
   .a-hover-underline a {
       @apply hover:underline;
   }
