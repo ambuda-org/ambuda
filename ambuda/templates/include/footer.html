@@ -1,33 +1,45 @@
 {% set discord = "https://discord.gg/7rGdTyWY7Z" %}
 {% set github = "https://github.com/ambuda-project/ambuda" %}
 {% set reddit = "https://reddit.com/u/learnsanskrit-org" %}
-<footer class="mt-16 text-slate-400 a-hover-underline text-sm p-12 md:flex border-t">
+<footer class="mt-16 bg-slate-100 text-slate-700 a-hover-underline text-sm p-12 md:flex justify-between border-t">
+  <div class="max-w-xs mr-8 prose">
+  <p class="max-w-xs mr-8">Ambuda is run entirely by volunteers for the public
+  benefit. Learn more about how you can <a href="{{ url_for('site.support') }}">
+  help Ambuda grow</a>.</p>
+
+  <p>{{ 'satyaM vada dharmaM cara |'|devanagari }}</p>
+  </div>
+
+  <div class="md:flex">
   <section class="mr-24">
-    <h3 class="font-bold my-2">Ambuda</h3>
+    <h3 class="font-bold mb-2">Ambuda</h3>
     <ul>
       <li><a href="{{ url_for('texts.index') }}">Texts</a>
       <li><a href="{{ url_for('dictionaries.index') }}">Dictionaries</a>
       <li><a href="{{ url_for('proofing.index') }}">Proofing</a>
-    </ul>
-  </section>
-
-  <section class="mr-24">
-    <h3 class="font-bold my-2">About</h3>
-    <ul>
-      <li><a href="{{ url_for('about.mission') }}">Mission</a>
-      <li><a href="{{ url_for('about.values') }}">Values</a>
-      <li><a href="{{ url_for('about.people') }}">People</a>
-      <li><a href="{{ url_for('about.code_and_data') }}">Code and Data</a>
+      <li><a href="{{ url_for('site.support') }}">Support</a>
       <li><a href="{{ url_for('about.contact') }}">Contact</a>
     </ul>
   </section>
 
   <section class="mr-24">
-    <h3 class="font-bold my-2">Community</h3>
+    <h3 class="font-bold mb-2"><a href="{{ url_for('about.index') }}">About</a></h3>
+    <ul>
+      <li><a href="{{ url_for('about.mission') }}">Mission</a>
+      <li><a href="{{ url_for('about.values') }}">Values</a>
+      <li><a href="{{ url_for('about.roadmap') }}">Roadmap</a>
+      <li><a href="{{ url_for('about.people') }}">People</a>
+      <li><a href="{{ url_for('about.code_and_data') }}">Code and Data</a>
+    </ul>
+  </section>
+
+  <section>
+    <h3 class="font-bold mb-2">Community</h3>
     <ul>
       <li><a href="{{ github }}">GitHub</a>
       <li><a href="{{ discord }}">Discord</a>
       <li><a href="{{ reddit }}">Reddit</a>
     </ul>
   </section>
+  </div>
 </footer>

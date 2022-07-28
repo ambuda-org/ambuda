@@ -7,9 +7,10 @@
 {% set values = url_for("about.values") %}
 
 {% set contents = {
-  'transcription': 'Transcription and proofreading',
-  'tagging': 'Tagging and annotation',
-  'technical': 'Technical work',
+  'sharing': 'Use and share Ambuda',
+  'transcription': 'Transcribe and proofread texts',
+  'tagging': 'Tag and annotate sentences',
+  'technical': 'Build our technical platform',
   'other': 'Other open problems',
 } %}
 
@@ -29,17 +30,26 @@ it is now.
 <p>We need to build the capacity and the capital for such an effort before it
 is too late. <strong>We can do so only with your help.</strong>
 
-<p>If you are short on time, the easiest way to help is to use Ambuda and share
-it with others. But, our real need right now is to grow our team of volunteers.
-If our team grows, we can move faster and work on more ambitious projects.
-
-<p>Here are our main opportunities for volunteer work:
+<p>Here is how you can help Ambuda grow:
 
 <ul>
   {% for anchor, title in contents.items() %}
   <li><a href="#{{ anchor }}">{{ title }}</a></li>
   {% endfor %}
 </ul>
+
+
+{{ _h('sharing') }}
+
+<p>If you're short on time, using Ambuda and sharing it with others is the
+easiest way to help our project.
+
+<p><a href="{{ contact }}">Let us know</a> how Ambuda has benefited you, and
+let us know about any issues or errors you encounter as well. Please also share
+Ambuda with others who might feel the same way as you.
+
+<p>Seeing others use and enjoy our work boosts team morale, and it also helps us
+recruit more volunteers. Every little bit helps!</p>
 
 
 {{ _h('transcription') }}
@@ -131,7 +141,7 @@ manual correction before we can show them to a user.
 <section class="p-4 my-4 bg-slate-100 a-underline">
 <p class="font-bold mb-4">How to get started:</p>
 <ol class="list-decimal pl-6">
-  <li>Download and build <a href="{{ sign_up }}">our repo</a>.</li>
+  <li>Download and build <a href="{{ repo }}">our repo</a>.</li>
   <li>Read our <a href="{{ issues }}">open issues</a>.</li>
   <li>Join us on <a href="{{ discord }}">our Discord server</a>.</li>
 </ol>
@@ -140,7 +150,7 @@ manual correction before we can show them to a user.
 <div class="prose">
 <p>Ambuda's technical work is massive and unending, and it touches basically
 every part of the stack: frontend, backend, infra, storage, databases,
-security, OCR & NLP, UX and user research, and many more.
+security, OCR &amp; NLP, UX and user research, and many more.
 
 <p>Basic work includes:
 

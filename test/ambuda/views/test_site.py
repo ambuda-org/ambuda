@@ -1,6 +1,6 @@
 def test_index(client):
     resp = client.get("/")
-    assert "complete archive" in resp.text
+    assert "A revolutionary Sanskrit library" in resp.text
 
 
 def test_about(client):

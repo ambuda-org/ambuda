@@ -6,33 +6,45 @@
 
 {% block title %}Ambuda{% endblock %}
 
+{% set links = [
+  ('texts.index', 'Texts'),
+  ('dictionaries.index', 'Dictionaries'),
+  ('proofing.index', 'Proofing'),
+  ('site.support', 'Support'),
+  ('about.index', 'About'),
+] %}
+
+{% set mobile_only = ["proofing.index", "site.support"] %}
+
 {% block header %}
-<!-- mt-16 md:mt-32 mb-2 md:mb-6 mx-auto max-w-xl -->
-<header class="text-center text-sky-900 bg-slate-100 mb-8">
-  <div class="pt-8 pb-4 max-w-xl mx-auto">
-    <h1 class="text-5xl font-bold mt-16">Ambuda</h1>
-    <p class="text-sm mt-2 mb-4">A digital Sanskrit library</p>
-    <nav class="flex justify-center py-2 mx-auto a-hover-underline">
-      <a href="{{ url_for('texts.index') }}">Texts</a>
-      <span class="px-4">|</span>
-      <a href="{{ url_for('dictionaries.index') }}">Dictionaries</a>
-      <span class="px-4">|</span>
-      <a href="{{ url_for('proofing.index') }}">Proofing</a>
-    </nav>
+<header class="text-center bg-brand text-white shrink-0 pt-4 pb-16 mb-4 md:mb-16">
+  <nav class="flex justify-center mb-4 mx-auto text-slate-400 a-hover-underline">
+    {% for route, text in links %}
+    {% set mob = "hidden md:block" if route in mobile_only else "" %}
+    <a class="px-4 hover:text-white {{ mob }}" href="{{ url_for(route) }}">{{ text }}</a>
+    {% endfor %}
+  </nav>
+
+  <div class="max-w-xl mx-auto mt-24 mb-12">
+    <h1 class="text-7xl font-bold">Ambuda</h1>
+    <p class="mt-2 mb-4">A revolutionary Sanskrit library</p>
   </div>
+  <p>
+  <a class="transition rounded btn border border-slate-500 text-slate-200 hover:bg-white hover:text-brand" href="{{ url_for("texts.index") }}">Explore the library</a>
+  </p>
 </header>
 {% endblock %}
 
 {% block main %}
 <article class="p-4 md:p-0 max-w-xl mx-auto">
 <section class="prose">
-<p>Ambuda is building a complete archive of traditional Sanskrit literature.
-Our cutting-edge software makes Sanskrit radically accessible and lets you
-explore its works like never before.</p>
+<p>Ambuda is building a breakthrough digital library of traditional Sanskrit
+literature. Our state-of-the-art technology lets you explore Sanskrit on your
+own terms and delve into the literature like never before.</p>
 
 {% set group = "https://groups.google.com/u/2/g/learnsanskrit-announce" %}
-<p>Our project is growing rapidly! <a href="{{ group }}">Sign up for our
-mailing list</a> to receive regular updates on our progress and milestones.</p>
+<p>Our library is growing rapidly! <a href="{{ group }}">Sign up for our
+mailing list</a> to receive regular updates on new content and features.</p>
 
 {#
 <form method="POST" action="" class="flex rounded my-8">
@@ -43,6 +55,6 @@ mailing list</a> to receive regular updates on our progress and milestones.</p>
 
 <p>Ambuda is run entirely by volunteers, and we would be thrilled to have your
 support in whatever form you can provide it. Learn more about
-<a href="{{ url_for('site.support') }}">how you can help Ambuda grow</a>.</p>
+how you can <a href="{{ url_for('site.support') }}">help Ambuda grow</a>.</p>
 </section>
 {% endblock %}

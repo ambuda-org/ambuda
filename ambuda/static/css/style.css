@@ -4,7 +4,7 @@
 
 @layer components {
   ::selection {
-    @apply text-white bg-emerald-500;
+    @apply text-black bg-yellow-300;
   }
   body, html {
     /* For sticky footers. */
@@ -19,6 +19,10 @@
   del {
     @apply bg-red-200 text-red-700;
   }
+
+  /* Theme colors */
+  .text-brand { color: #152b48; }
+  .bg-brand { background: #152b48; }
 
   /* Form controls */
   .btn {
@@ -63,12 +67,12 @@
   }
 
   /* Prose context */
-  .prose a { @apply underline hover:text-blue-600; }
+  .prose a { @apply text-sky-700 underline hover:text-sky-900; }
   .prose dt { @apply font-bold; }
   .prose dd { @apply mb-4; }
   .prose dfn { @apply font-bold not-italic; }
   .prose h1 { @apply font-bold text-2xl md:text-4xl my-4; }
-  .prose h2 { @apply font-bold text-xl md:text-2xl my-4; }
+  .prose h2 { @apply font-bold text-xl md:text-2xl mt-8 mb-4; }
   .prose h3 { @apply font-bold my-4 text-slate-600; }
   .prose kbd { @apply bg-slate-100 p-1; }
   .prose p { @apply mb-4; }

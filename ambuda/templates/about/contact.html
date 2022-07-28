@@ -2,16 +2,16 @@
 
 {% block title %}Contact | Ambuda{% endblock %}
 
-{% set discord = "https://discord.gg/7rGdTyWY7Z" %}
+{% set support = url_for('site.support') %}
 
 {% block content %}
 {% set contact_url = 'https://learnsanskrit.org/contact' %}
 <div class="prose">
 <h1>Contact</h1>
 
-<p>For longer questions, please use the form below to email us. To ask
-technical questions or learn more about contributing to Ambuda, please <a
-href="{{ discord }}">join us on Discord</a>.</p>
+<p>For comments, questions, and feedback on our work, please use the form below
+to email us. If you want to help Ambuda grow, <a href="{{ support }}">click here</a>
+to learn more about how you can do so.</p>
 
 <p id="my-form-status" class="bg-red-100"></p>
 
