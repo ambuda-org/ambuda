@@ -163,7 +163,7 @@ def project(slug: str) -> Optional[db.Project]:
 def create_project(*, title: str, slug: str):
     session = get_session()
 
-    board = db.Board(title(f"{slug} discussion board"))
+    board = db.Board(title=f"{slug} discussion board")
     session.add(board)
     session.flush()
 
