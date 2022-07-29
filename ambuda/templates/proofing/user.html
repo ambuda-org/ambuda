@@ -6,6 +6,8 @@
 {% block content %}
 <div class="prose">
 <h1>{{ user.username }}</h1>
+<p class="italic">Joined {{ user.created_at|time_ago }}</p>
+
 
 <h2>Recent edits</h2>
 </div>

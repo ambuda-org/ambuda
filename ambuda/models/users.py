@@ -1,6 +1,9 @@
+from datetime import datetime
+
 from flask_login import UserMixin
 from sqlalchemy import (
     Column,
+    DateTime,
     String,
 )
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -21,6 +24,8 @@ class User(UserMixin, Base):
     password_hash = Column(String, nullable=False)
     #: The user's email.
     email = Column(String, nullable=False, unique=True)
+    #: Timestamp at which this user record was created.
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     def set_password(self, raw_password: str):
         """Hash and save the given password."""
