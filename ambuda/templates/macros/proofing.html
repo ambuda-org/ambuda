@@ -27,15 +27,18 @@
 </nav>
 {% endmacro %}
 
-{% macro _page_nav_link(project, page, text) %}
+{% macro _page_nav_link(project, page, full_text, short_text) %}
 {% set url = url_for('proofing.edit_page', project_slug=project.slug, page_slug=page.slug) %}
-<a href="{{ url }}">{{ text|safe }}</a>
+<a href="{{ url }}">
+  <span class="hidden md:inline">{{ full_text|safe }}</span>
+  <span class="inline md:hidden">{{ short_text|safe }}</span>
+</a>
 {% endmacro %}
 
 {% macro page_header(project, cur, prev, next) %}
 <div class="a-hover-underline flex justify-between items-center my-4">
   <div>
-    <h1 class="text-4xl">
+    <h1 class="text-3xl">
       <a class="text-slate-400 font-bold"
           href="{{ url_for("proofing.projects.summary", slug=project.slug) }}">
          {{ project.title }}</a>
@@ -50,8 +53,8 @@
     </nav>
   </div>
   <p>
-    {{ _page_nav_link(project, prev, "&larr; Previous") }} |
-    {{ _page_nav_link(project, next, "Next &rarr;") }}
+    {{ _page_nav_link(project, prev, "&larr; Previous", "&larr;") }} |
+    {{ _page_nav_link(project, next, "Next &rarr;", "&rarr;") }}
   </p>
 </div>
 {% endmacro %}

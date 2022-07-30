@@ -28,8 +28,11 @@
   <form method="POST">
     {{ form.csrf_token }}
     {{ form.version }}
-    <div class="flex">
-      <div class="flex-1 mr-4 border">
+
+    <div class="flex flex-col-reverse md:flex-row">
+
+      {# Text box #}
+      <div class="flex-1 mt-4 md:mt-0 md:mr-4 border">
         <div class="bg-slate-200 flex justify-between">
           <div>
             {{ button("run-ocr", "OCR") }}
@@ -39,9 +42,10 @@
             {{ button("text-decrease", "A<sup>-</sup>") }}
           </div>
         </div>
-        {{ form.content(class_="p-4 w-full h-[90vh] resize-none") }}
+        {{ form.content(class_="p-2 md:p-4 w-full h-[20vh] md:h-[90vh] resize-none") }}
       </div>
 
+      {# Raw image #}
       <div class="flex-1 border bg-slate-100">
         <div class="bg-slate-200">
           {{ button("osd-zoom-in", "&#x1f50d;<sup>+</sup>") }}
@@ -51,7 +55,7 @@
           {{ button("osd-rotate-right", "&#x27f3;") }}
         </div>
 
-        <div id="osd-image" class="h-[90vh]">
+        <div id="osd-image" class="h-[20vh] md:h-[90vh]">
         </div>
       </div>
     </div>
