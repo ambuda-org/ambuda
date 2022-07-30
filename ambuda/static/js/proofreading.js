@@ -21,6 +21,24 @@ $('#run-ocr').addEventListener('click', (e) => {
   });
 });
 
+// Resize textarea text size
+$('#text-increase').addEventListener('click', (e) => {
+  e.preventDefault();
+  const $textarea = $('textarea');
+  const oldSize = $textarea.dataset.size || '1.0';
+  const newSize = parseFloat(oldSize) + 0.2;
+  $textarea.dataset.size = newSize;
+  $textarea.style.fontSize = `${newSize}rem`;
+});
+$('#text-decrease').addEventListener('click', (e) => {
+  e.preventDefault();
+  const $textarea = $('textarea');
+  const oldSize = $textarea.dataset.size || '1.0';
+  const newSize = parseFloat(oldSize) - 0.2;
+  $textarea.dataset.size = newSize;
+  $textarea.style.fontSize = `${newSize}rem`;
+});
+
 // Warn the user if leaving the page after changing the text box.
 let hasUnsavedChanges = false;
 $('[name=content]').addEventListener('change', () => {

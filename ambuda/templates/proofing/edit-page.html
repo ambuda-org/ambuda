@@ -2,7 +2,7 @@
 {% import "macros/proofing.html" as m %}
 
 {% macro button(id, text) %}
-<button id="{{ id }}" class="p-2 hover:bg-slate-300">{{ text|safe }}</button>
+<button type="button" id="{{ id }}" class="p-2 hover:bg-slate-300">{{ text|safe }}</button>
 {% endmacro %}
 
 {% block title %}Edit: {{ project.title }}/{{ cur.slug }} | Ambuda{% endblock %}
@@ -30,8 +30,14 @@
     {{ form.version }}
     <div class="flex">
       <div class="flex-1 mr-4 border">
-        <div class="bg-slate-200">
-          {{ button("run-ocr", "OCR") }}
+        <div class="bg-slate-200 flex justify-between">
+          <div>
+            {{ button("run-ocr", "OCR") }}
+          </div>
+          <div>
+            {{ button("text-increase", "A<sup>+</sup>") }}
+            {{ button("text-decrease", "A<sup>-</sup>") }}
+          </div>
         </div>
         {{ form.content(class_="p-4 w-full h-[90vh] resize-none") }}
       </div>
@@ -93,5 +99,5 @@ const viewer = OpenSeadragon({
     zoomPerClick: 1.2,
 });
 </script>
-<script defer src="/static/js/proofreading.js"></script>
+<script defer src="/static/js/proofreading.js?v=2"></script>
 {% endblock %}
