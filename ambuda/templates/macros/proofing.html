@@ -16,10 +16,10 @@
   <ul class="flex a-hover-underline">
     {% for name, route, label in routes %}
     {% if name == active %}
-    <li class="font-bold p-4 border-b-2 border-black">{{ label }}</li>
+    <li class="p-4 font-bold p-4 border-b-2 border-black">{{ label }}</li>
     {% else %}
-    <li class="p-4 border-b-2 border-transparent text-slate-700">
-      <a href="{{ url_for(route, slug=project.slug) }}">{{ label }}</a>
+    <li class="border-b-2 border-transparent text-slate-700">
+      <a class="block p-4" href="{{ url_for(route, slug=project.slug) }}">{{ label }}</a>
     </li>
     {% endif %}
     {% endfor %}

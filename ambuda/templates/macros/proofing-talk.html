@@ -1,0 +1,17 @@
+{% macro thread_list(project_slug, threads) %}
+<ul>
+  {% for thread in threads %}
+  {% set thread_url = url_for('proofing.talk.thread', project_slug=project_slug, thread_id=thread.id)  %}
+  {% set author_url = url_for('proofing.user', username=thread.author.username) %}
+  <li class="p-4 border-t a-hover-underline flex justify-between">
+    <div>
+      <a href="{{ thread_url }}">{{ thread.title }}</a>
+      <p class="text-sm text-slate-400">Created by
+        <a href="{{ author_url }}">{{ thread.author.username }}</a>
+      </p>
+    </div>
+    <p class="text-sm">{{ thread.updated_at|time_ago }}</p>
+  </li>
+  {% endfor %}
+</ul>
+{% endmacro %}

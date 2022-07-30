@@ -6,7 +6,7 @@
 {% block content %}
 <header class="prose">
   <h1>{{ thread.title }}</h1>
-  <p>Updated {{ thread.updated_at|time_ago }}</p>
+  <p>{{ thread.updated_at|time_ago }}</p>
 </header>
 
 {% for post in thread.posts %}

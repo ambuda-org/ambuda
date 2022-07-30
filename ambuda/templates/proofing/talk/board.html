@@ -1,5 +1,6 @@
 {% extends 'proofing/base.html' %}
 {% import "macros/proofing.html" as m %}
+{% import "macros/proofing-talk.html" as m_talk %}
 {% from "macros/forms.html" import field %}
 
 {% block title %}Talk: {{ project.title }} | Ambuda{% endblock %}
@@ -13,23 +14,7 @@
 </div>
 
 {% if board.threads %}
-<ul>
-  {% for thread in board.threads %}
-  {% set thread_url = url_for('proofing.talk.thread', project_slug=project.slug, thread_id=thread.id)  %}
-  {% set author_url = url_for('proofing.user', username=thread.author.username) %}
-  <li class="p-4 border-t a-hover-underline flex justify-between">
-    <div>
-      <a href="{{ thread_url }}">{{ thread.title }}</a>
-      <p class="text-sm text-slate-400">Created by
-        <a href="{{ author_url }}">{{ thread.author.username }}</a>
-      </p>
-    </div>
-    <p class="text-sm">
-      Updated {{ thread.updated_at|time_ago }}
-    </p>
-  </li>
-  {% endfor %}
-</ul>
+{{ m_talk.thread_list(project.slug, board.threads) }}
 {% else %}
 <p>This project doesn't have any ongoing discussion.</p>
 {% endif %}

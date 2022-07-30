@@ -40,7 +40,7 @@ def summary(slug):
         session.query(db.Revision)
         .filter_by(project_id=project_.id)
         .order_by(db.Revision.created.desc())
-        .limit(10)
+        .limit(5)
         .all()
     )
     return render_template(
