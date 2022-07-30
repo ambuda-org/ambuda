@@ -13,13 +13,12 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 #}
 {% macro sidebar() %}
 <div id="sidebar" class="
-    hidden
-    bg-slate-100 lg:bg-white
-    p-4 overflow-auto
+    hidden overscroll-contain
     fixed top-1/2 bottom-0 left-0 right-0
     flex flex-col flex-1
-    text-sm md:text-base
-    border-t lg:border-t-0
+    p-4 overflow-auto
+    bg-slate-100 text-sm border-t
+    md:text-base lg:border-t-0 lg:bg-white
     lg:sticky lg:top-10 lg:max-w-lg lg:h-full-minus-nav lg:mr-8 lg:pl-8 lg:border-l
     lg:z-0">
   <div>

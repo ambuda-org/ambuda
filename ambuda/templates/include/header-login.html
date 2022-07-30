@@ -1,21 +1,37 @@
 {# like include/header.html, but with login options #}
-<header class="p-4 mb-4 border-b md:flex justify-between items-center a-hover-underline text-sky-900 bg-slate-100">
-  <div class="flex items-center">
-    <a class="font-bold text-lg" href="{{ url_for('site.index') }}">Ambuda</a>
-    <a class="block ml-4 md:ml-8" href="{{ url_for('texts.index') }}">Texts</a>
-    <a class="block ml-4 md:ml-8" href="{{ url_for('dictionaries.index') }}">Dictionaries</a>
-    <a class="hidden md:block ml-4 md:ml-8" href="{{ url_for('proofing.index') }}">Proofing</a>
+{# https://css-tricks.com/snippets/svg/svg-hamburger-menu/ #}
+{% macro hamburger() %}
+<svg viewBox="0 0 100 80" width="20" height="20">
+  <rect width="100" height="10"></rect>
+  <rect y="30" width="100" height="10"></rect>
+  <rect y="60" width="100" height="10"></rect>
+</svg>
+{% endmacro %}
+
+<nav class="mb-4 border-b md:flex justify-between
+    items-center a-hover-underline text-sky-900 bg-slate-100">
+  <div class="flex justify-between items-center">
+    <a class="p-4 font-bold text-lg" href="{{ url_for('site.index') }}">Ambuda</a>
+    <div class="block p-4 md:hidden">
+      <button id="hamburger" type="button">{{ hamburger() }}</button>
+    </div>
   </div>
-  <div>
-    <nav>
+  <ul id="navbar" class="hidden md:flex">
+    <li><a class="block p-4 py-2" href="{{ url_for('texts.index') }}">Texts</a></li>
+    <li><a class="block p-4 py-2" href="{{ url_for('dictionaries.index') }}">Dictionaries</a></li>
+    <li><a class="block p-4 py-2" href="{{ url_for('proofing.index') }}">Proofing</a></li>
+    <li><a class="block p-4 py-2" href="{{ url_for('about.index') }}">About</a></li>
     {% if current_user.is_authenticated %}
     {% set name = current_user.username %}
-    <a href="{{ url_for("proofing.user", username=name) }}">{{ name }}</a> |
-    <a href="{{ url_for("auth.sign_out") }}">Sign out</a>
+    <li class="p-4 py-2">
+      <a href="{{ url_for("proofing.user", username=name) }}">{{ name }}</a> |
+      <a href="{{ url_for("auth.sign_out") }}">Sign out</a>
+    </li>
     {% else %}
-    <a href="{{ url_for("auth.register") }}">Register</a> |
-    <a href="{{ url_for("auth.sign_in") }}">Sign in</a>
+    <li class="p-4 py-2">
+      <a href="{{ url_for("auth.register") }}">Register</a> |
+      <a href="{{ url_for("auth.sign_in") }}">Sign in</a>
+    </li>
     {% endif %}
-    </nav>
-  </div>
-</header>
+  </ul>
+</nav>

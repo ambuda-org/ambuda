@@ -1,7 +1,7 @@
 {% extends 'base-text.html' %}
 
 {% macro text_list(key, title) %}
-<h2 class="font-bold text-2xl py-2 my-8 border-b">{{ title|devanagari }}</h2>
+<h2 class="font-bold text-2xl py-2 mt-8 mb-4 border-b">{{ title|devanagari }}</h2>
 
 <ul>
 {% for slug in categories[key] if slug in texts %}

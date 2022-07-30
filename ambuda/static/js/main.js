@@ -410,12 +410,28 @@ const FontSizeMenu = (() => {
   return { init };
 })();
 
+const HamburgerButton = (() => {
+  function init() {
+    const $ham = $('#hamburger');
+    if ($ham) {
+      $ham.addEventListener('click', (e) => {
+        e.preventDefault();
+        $('#navbar').classList.toggle('hidden');
+      });
+    }
+  }
+
+  return { init };
+})();
+
+
 (() => {
   FontSizeMenu.init();
   ScriptMenu.init();
   Dictionary.init();
   ParseLayer.init();
   TextContent.init();
+  HamburgerButton.init();
 
   TextContent.changeFontSize('md:text-xl', Preferences.contentFontSize);
   TextContent.transliterate('devanagari', Preferences.contentScript);

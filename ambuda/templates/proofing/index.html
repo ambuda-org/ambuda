@@ -26,6 +26,7 @@
   <p class="text-center">
   <a class="btn p-4 bg-black border border-black text-white transition
   hover:bg-white hover:text-black" href="{{ url_for('auth.register') }}">Create an account</a>
+  <a class="btn p-4 border border-slate-400" href="{{ url_for('auth.sign_in') }}">Sign in</a>
   </p>
 </div>
 {% endif %}
@@ -35,11 +36,11 @@
 <h2>Ongoing projects</h2>
 </div>
 
-<ul class="flex text-xs bg-slate-100 p-2 my-4">
-  <li class="mr-4 flex items-center">{{ _badge("bg-red-200 border-red-400") }} Needs proofing</li>
-  <li class="mr-4 flex items-center">{{ _badge("bg-yellow-200 border-yellow-400") }} Proofed once</li>
-  <li class="mr-4 flex items-center">{{ _badge("bg-green-200 border-green-400") }} Proofed twice</li>
-  <li class="flex items-center">{{ _badge("bg-gray-200 border-gray-400") }} Not relevant</li>
+<ul class="text-xs bg-slate-100 my-4 grid grid-cols-2 md:flex">
+  <li class="p-2 flex items-center">{{ _badge("bg-red-200 border-red-400") }} Needs proofing</li>
+  <li class="p-2 flex items-center">{{ _badge("bg-yellow-200 border-yellow-400") }} Proofed once</li>
+  <li class="p-2 flex items-center">{{ _badge("bg-green-200 border-green-400") }} Proofed twice</li>
+  <li class="p-2 flex items-center">{{ _badge("bg-gray-200 border-gray-400") }} Not relevant</li>
 </ul>
 
 <ul>
