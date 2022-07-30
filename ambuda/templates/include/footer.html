@@ -11,7 +11,7 @@
   </div>
 
   <div class="md:flex">
-  <section class="mr-24">
+  <section class="mr-24 mt-4 md:mt-0">
     <h3 class="font-bold mb-2">Ambuda</h3>
     <ul>
       <li><a href="{{ url_for('texts.index') }}">Texts</a>
@@ -22,7 +22,7 @@
     </ul>
   </section>
 
-  <section class="mr-24">
+  <section class="mr-24 mt-4 md:mt-0">
     <h3 class="font-bold mb-2"><a href="{{ url_for('about.index') }}">About</a></h3>
     <ul>
       <li><a href="{{ url_for('about.mission') }}">Mission</a>
@@ -33,11 +33,11 @@
     </ul>
   </section>
 
-  <section>
+  <section class="mt-4 md:mt-0">
     <h3 class="font-bold mb-2">Community</h3>
     <ul>
-      <li><a href="{{ github }}">GitHub</a>
       <li><a href="{{ discord }}">Discord</a>
+      <li><a href="{{ github }}">GitHub</a>
       <li><a href="{{ reddit }}">Reddit</a>
     </ul>
   </section>
