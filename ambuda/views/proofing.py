@@ -360,6 +360,7 @@ def user(username):
 
 
 @bp.route("/<project_slug>/<page_slug>/")
+@login_required
 def edit_page(project_slug, page_slug):
     project_ = q.project(project_slug)
     if not project_:

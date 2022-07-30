@@ -30,6 +30,11 @@ You can install all dependencies with a simple `make` call::
 
     $ make install
 
+Then, enter the project's virtual environment:
+
+    # If you have a Bash shell
+    $ source env/bin/activate
+
 
 Environment setup
 -----------------

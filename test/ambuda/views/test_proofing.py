@@ -28,8 +28,13 @@ def test_download_as_xml(client):
     assert resp.status_code == 200
 
 
-def test_edit_page(client):
+def test_edit_page__unauth(client):
     resp = client.get("/proofing/test-project/1/")
+    assert resp.status_code == 302
+
+
+def test_edit_page(rama_client):
+    resp = rama_client.get("/proofing/test-project/1/")
     assert resp.status_code == 200
 
 

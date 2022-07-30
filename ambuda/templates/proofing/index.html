@@ -2,24 +2,45 @@
 
 {% block title %}Proofing | Ambuda{% endblock %}
 
+{% macro _badge(bg) %}
+<span class="inline-block rounded-full border w-4 h-4 mr-1 {{ bg }}"></span>
+{% endmacro %}
+
 {% block content %}
 <div class="prose">
   <h1>Proofing</h1>
-
-  <p>Thousands of Sanskrit texts are available only in print. Join our global
-  volunteer effort to digitize these texts and make them accessible to all.</p>
 </div>
 
+{% if current_user.is_authenticated %}
 <ul class="rounded bg-slate-100 text-slate-500 p-4 pl-8 list-disc a-hover-underline">
-  <li><a class="font-bold" href="{{ url_for("proofing.beginners_guide") }}">Beginner's guide to proofing</a></li>
+  <li><a class="text-black font-bold" href="{{ url_for("proofing.beginners_guide") }}">Beginner's guide to proofing</a></li>
   <li><a href="{{ url_for("proofing.upload_images") }}">Create new project</a></li>
   <li><a href="{{ url_for("proofing.recent_changes") }}">Recent changes</a></li>
   <li><a href="{{ url_for("tagging.index") }}">Tagging</a></li>
 </ul>
+{% else %}
+<div class="bg-slate-100 p-4 md:p-8 my-8 pb-12">
+  <p class="mb-8">Thousands of Sanskrit texts are available only in print. Join our global
+  volunteer effort to digitize these texts and make them accessible to all.</p>
+
+  <p class="text-center">
+  <a class="btn p-4 bg-black border border-black text-white transition
+  hover:bg-white hover:text-black" href="{{ url_for('auth.register') }}">Create an account</a>
+  </p>
+</div>
+{% endif %}
+
 
 <div class="prose">
-<h2>Active projects</h2>
+<h2>Ongoing projects</h2>
 </div>
+
+<ul class="flex text-xs bg-slate-100 p-2 my-4">
+  <li class="mr-4 flex items-center">{{ _badge("bg-red-200 border-red-400") }} Needs proofing</li>
+  <li class="mr-4 flex items-center">{{ _badge("bg-yellow-200 border-yellow-400") }} Proofed once</li>
+  <li class="mr-4 flex items-center">{{ _badge("bg-green-200 border-green-400") }} Proofed twice</li>
+  <li class="flex items-center">{{ _badge("bg-gray-200 border-gray-400") }} Not relevant</li>
+</ul>
 
 <ul>
 {% for p in projects %}

@@ -22,7 +22,7 @@
   <h2>Pages</h2>
 </div>
 
-<ul class="grid grid-cols-10 gap-2 text-center">
+<ul class="grid grid-cols-5 md:grid-cols-10 gap-2 text-center">
 {% for p in project.pages %}
   {% set colors = m.revision_colors(p.status.name) %}
   {% set url = url_for('proofing.edit_page', project_slug=project.slug, page_slug=p.slug)  %}
