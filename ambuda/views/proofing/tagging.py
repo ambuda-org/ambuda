@@ -14,6 +14,7 @@ from ambuda import database as db
 from ambuda import xml
 from ambuda.utils import cheda
 
+
 bp = Blueprint("tagging", __name__)
 
 
@@ -25,7 +26,7 @@ class EditBlockForm(FlaskForm):
 @bp.route("/")
 def index():
     texts = q.texts()
-    return render_template("tagging/index.html", texts=texts)
+    return render_template("proofing/tagging/index.html", texts=texts)
 
 
 @bp.route("/<slug>/")
@@ -38,7 +39,7 @@ def text(slug):
     num_blocks = session.query(db.TextBlock).filter_by(text_id=text_.id).count()
     num_parsed_blocks = session.query(db.BlockParse).filter_by(text_id=text_.id).count()
     return render_template(
-        "tagging/text.html",
+        "proofing/tagging/text.html",
         text=text_,
         num_blocks=num_blocks,
         num_parsed_blocks=num_parsed_blocks,
@@ -61,7 +62,9 @@ def section(text_slug, section_slug):
         abort(404)
 
     form = EditBlockForm()
-    return render_template("tagging/section.html", text=text_, section=cur, form=form)
+    return render_template(
+        "proofing/tagging/section.html", text=text_, section=cur, form=form
+    )
 
 
 @bp.route("/<text_slug>/blocks/<block_slug>")
@@ -83,7 +86,7 @@ def edit_block(text_slug, block_slug):
 
     form = EditBlockForm()
     return render_template(
-        "tagging/edit-block.html",
+        "proofing/tagging/edit-block.html",
         text=text_,
         block=block,
         mula=mula,
@@ -101,4 +104,4 @@ def edit_block_post(text_slug, block_slug):
         abort(404)
 
     form = EditBlockForm()
-    return render_template("tagging/edit-block.html", text=text_, form=form)
+    return render_template("proofing/tagging/edit-block.html", text=text_, form=form)

@@ -18,7 +18,7 @@
 {% endmacro %}
 
 {% macro _page_nav_link(project, page, full_text, short_text) %}
-{% set url = url_for('proofing.edit_page', project_slug=project.slug, page_slug=page.slug) %}
+{% set url = url_for('proofing.pages.edit', project_slug=project.slug, page_slug=page.slug) %}
 <a href="{{ url }}">
   <span class="hidden md:inline">{{ full_text|safe }}</span>
   <span class="inline md:hidden">{{ short_text|safe }}</span>
@@ -35,8 +35,8 @@
       /{{ cur.slug }}
     </h1>
 
-    {% set edit_url = url_for("proofing.edit_page", project_slug=project.slug, page_slug=cur.slug) %}
-    {% set history_url = url_for("proofing.page_history", project_slug=project.slug, page_slug=cur.slug) %}
+    {% set edit_url = url_for("proofing.pages.edit", project_slug=project.slug, page_slug=cur.slug) %}
+    {% set history_url = url_for("proofing.pages.history", project_slug=project.slug, page_slug=cur.slug) %}
     <nav class="text-slate-500 text-sm">
       <a href="{{ edit_url }}">Edit</a> |
       <a href="{{ history_url }}">History</a>
@@ -54,9 +54,9 @@
 <ul class="a-hover-underline">
   {% for r in revisions %}
   <li class="my-2">
-    {% set revision_url = url_for('proofing.revision',
+    {% set revision_url = url_for('proofing.pages.revision',
         project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
-    {% set page_url = url_for('proofing.edit_page',
+    {% set page_url = url_for('proofing.pages.edit',
         project_slug=r.project.slug, page_slug=r.page.slug) %}
     {% set author_url = url_for('proofing.user',
         username=r.author.username) %}
@@ -79,9 +79,9 @@
 <ul class="a-hover-underline">
   {% for r in revisions %}
   <li class="my-2">
-    {% set revision_url = url_for('proofing.revision',
+    {% set revision_url = url_for('proofing.pages.revision',
         project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
-    {% set page_url = url_for('proofing.edit_page',
+    {% set page_url = url_for('proofing.pages.edit',
         project_slug=r.project.slug, page_slug=r.page.slug) %}
     {% set author_url = url_for('proofing.user',
         username=r.author.username) %}

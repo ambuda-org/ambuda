@@ -1,7 +1,7 @@
 {% extends 'proofing/base.html' %}
 
 {% macro _block_nav_link(text, block_, display_text) %}
-{% set url = url_for('tagging.edit_block', text_slug=text.slug, block_slug=block_.slug) %}
+{% set url = url_for('proofing.tagging.edit_block', text_slug=text.slug, block_slug=block_.slug) %}
 <a href="#">{{ display_text }}</a>
 {% endmacro %}
 
@@ -9,7 +9,7 @@
 <div class="a-hover-underline my-4">
   <h1 class="text-4xl">
     <a class="text-slate-400 font-bold"
-        href="{{ url_for("tagging.text", slug=text.slug) }}">
+        href="{{ url_for("proofing.tagging.text", slug=text.slug) }}">
        {{ text.title|devanagari }}</a>
     &mdash; {{ block.slug }}
   </h1>

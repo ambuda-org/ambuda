@@ -13,7 +13,7 @@
 
 <ul>
 {% for section in text.sections %}
-{% set url = url_for("tagging.section", text_slug=text.slug, section_slug=section.slug)  %}
+{% set url = url_for("proofing.tagging.section", text_slug=text.slug, section_slug=section.slug)  %}
 <li><a href="{{ url }}">{{ section.title }}</a></li>
 {% endfor %}
 </ul>

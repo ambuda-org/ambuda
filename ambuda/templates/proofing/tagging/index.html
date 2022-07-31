@@ -11,7 +11,7 @@
 <ul>
 {% for text in texts %}
 <li>
-    <a href="{{ url_for('tagging.text', slug=text.slug) }}">{{ text.title|devanagari }}</a>
+    <a href="{{ url_for('proofing.tagging.text', slug=text.slug) }}">{{ text.title|devanagari }}</a>
 </li>
 {% endfor %}
 </ul>
