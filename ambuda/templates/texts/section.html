@@ -43,7 +43,13 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 </div>
 {% endmacro %}
 
-{% block title %}{{ text.title | devanagari }} {{ section.title }} | Ambuda{% endblock %}
+{# Title and section. For single-section texts, show just the title. #}
+{% if prev or next %}
+{% set page_title = text.title|devanagari + " " + section.title|devanagari%}
+{% else %}
+{% set page_title = text.title|devanagari %}
+{% endif %}
+{% block title %}{{ page_title }} | Ambuda{% endblock %}
 
 {% block main %}
 <article class="flex justify-around">
@@ -56,4 +62,5 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 </article>
 {% endblock %}
 
+{# Hide footer because we have a position:fixed nav "footer" already. #}
 {% block footer %}{% endblock %}

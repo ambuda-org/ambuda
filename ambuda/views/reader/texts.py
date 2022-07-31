@@ -2,7 +2,6 @@
 
 from flask import Blueprint, render_template, abort
 from indic_transliteration import sanscript
-from sqlalchemy.orm import Session
 
 import ambuda.database as db
 import ambuda.queries as q
