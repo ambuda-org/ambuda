@@ -27,9 +27,15 @@ class User(UserMixin, Base):
     #: Timestamp at which this user record was created.
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
+    @staticmethod
+    def hash(raw_password: str):
+        # Defined as a static method so that we can use this for hacky password
+        # recovery.
+        return generate_password_hash(raw_password)
+
     def set_password(self, raw_password: str):
         """Hash and save the given password."""
-        self.password_hash = generate_password_hash(raw_password)
+        self.password_hash = self.hash(raw_password)
 
     def check_password(self, raw_password: str) -> bool:
         """Check if the given password matches the user's hash."""

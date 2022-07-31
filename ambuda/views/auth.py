@@ -43,6 +43,10 @@ class SignInForm(FlaskForm):
     password = PasswordField("Password", [val.Length(min=8), val.DataRequired()])
 
 
+class RecoverForm(FlaskForm):
+    password = PasswordField("Password", [val.Length(min=8), val.DataRequired()])
+
+
 @bp.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
@@ -81,3 +85,13 @@ def sign_in():
 def sign_out():
     logout_user()
     return redirect(url_for(POST_AUTH_ROUTE))
+
+
+@bp.route("/recover", methods=["GET", "POST"])
+def recover():
+    form = RecoverForm()
+    if form.validate_on_submit():
+        hashed = db.User.hash(form.password.data)
+    else:
+        hashed = ""
+    return render_template("auth/recover.html", form=form, hashed=hashed)

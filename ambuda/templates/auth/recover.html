@@ -1,0 +1,39 @@
+{% extends 'base-auth-form.html' %}
+
+
+{% block title %}Recover | Ambuda{% endblock %}
+
+{% block content %}
+<h1 class="text-3xl text-center mb-4">Recover your account</h1>
+
+{% if form.errors %}
+<div class="prose p-2 bg-red-100 mb-4">
+  <ul>
+  {% for k, v in form.errors.items() %}
+    <li>{{ v[0] }}</li>
+  {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+{% if hashed %}
+<p class="my-4">Your password hash is:</p>
+
+<p class="max-w-xl break-words">{{ hashed }}</p>
+
+<p>Send this to <kbd>akprasad</kbd> on the Ambuda Discord server by private
+message.</p>
+
+{% else %}
+<p class="my-4">Enter your new password here:</p>
+
+<form method="POST" class="bg-slate-100 p-4 rounded">
+  {{ form.csrf_token }}
+  {{ form.password.label(class_="block text-slate-600") }}
+  {{ form.password(class_="w-full p-2 mt-2 mb-4 border rounded") }}
+
+  <input type="submit" class="btn btn-submit w-full" value="Sign in">
+</form>
+{% endif %}
+{% endblock %}
+
