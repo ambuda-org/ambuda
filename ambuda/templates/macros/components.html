@@ -6,6 +6,14 @@
 {% endmacro %}
 
 
+{# Large notes box, e.g. for form info messages. #}
+{% macro div_note() %}
+<div class="p-2 md:p-4 bg-yellow-100 border border-yellow-300 my-4">
+  {{ caller() }}
+</div>
+{% endmacro %}
+
+
 {# Show messages added with the `flash()` call. #}
 {% macro flash_messages() %}
 {% with messages = get_flashed_messages(with_categories=true) %}

@@ -3,6 +3,16 @@ def test_index(client):
     assert ">Proofing<" in resp.text
 
 
+def test_index(client):
+    resp = client.get("/proofing/beginners-guide")
+    assert ">Beginner's" in resp.text
+
+
+def test_guidelines(client):
+    resp = client.get("/proofing/complete-guidelines")
+    assert ">" in resp.text
+
+
 def test_create_new_project__unauth(client):
     resp = client.get("/proofing/create-new-project")
     assert resp.status_code == 302

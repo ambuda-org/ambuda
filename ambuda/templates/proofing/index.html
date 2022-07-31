@@ -12,12 +12,18 @@
 </div>
 
 {% if current_user.is_authenticated %}
-<ul class="rounded bg-slate-100 text-slate-500 p-4 pl-8 list-disc a-hover-underline">
+<div class="rounded bg-slate-100 text-slate-500 p-4 pl-8 a-hover-underline">
+<ul class="list-disc mb-4">
   <li><a class="text-black font-bold" href="{{ url_for("proofing.beginners_guide") }}">Beginner's guide to proofing</a></li>
+  <li><a href="{{ url_for("proofing.complete_guide") }}">Complete guidelines</a></li>
+</ul>
+
+<ul class="list-disc">
   <li><a href="{{ url_for("proofing.upload_images") }}">Create new project</a></li>
   <li><a href="{{ url_for("proofing.recent_changes") }}">Recent changes</a></li>
   <li><a href="{{ url_for("proofing.tagging.index") }}">Tagging</a></li>
 </ul>
+</div>
 {% else %}
 <div class="bg-slate-100 p-4 md:p-8 my-8 pb-12">
   <p class="mb-8">Thousands of Sanskrit texts are available only in print. Join our global

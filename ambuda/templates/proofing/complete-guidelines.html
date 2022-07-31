@@ -1,0 +1,268 @@
+{% extends 'base-text.html' %}
+{% import "macros/components.html" as components %}
+
+
+{% set contents = {
+  'what-is-our-goal': 'What is our goal?',
+  'the-golden-rule': 'The golden rule',
+  'characters': 'Characters',
+    'eol-hyphens': 'Hyphens at the end of a line',
+    'eol-dashes': 'Hyphens and dashes',
+    'auto-spaces': '[auto] Spaces around punctuation characters',
+    'auto-quotes': '[auto] Quotation marks',
+    'auto-eol-spaces': '[auto] Spaces at the end of a line',
+  'paragraphs': 'Paragraphs',
+    'para-breaks': 'Line breaks and line-ending hyphens',
+    'para-blank-lines': 'Spaces between paragraphs',
+    'para-headers': 'Page headers and page footers',
+    'para-footnotes': 'Footnotes',
+    'para-indenting': '[auto] Indenting paragraphs',
+  'pages': 'Pages',
+  'unanswered': "If your question isn't answered here",
+} %}
+
+{% macro _h(anchor) %}
+<h2 id="{{ anchor }}">{{ contents[anchor] }}</h2>
+{% endmacro %}
+
+{% macro _h2(anchor) %}
+<h3 id="{{ anchor }}">{{ contents[anchor] }}</h3>
+{% endmacro %}
+
+{% macro _a(anchor) %}
+<a href="#{{ anchor }}">{{ contents[anchor] }}</a>
+{% endmacro %}
+
+{% macro _compare(wrong, right) %}
+<aside class="mt-4 pl-4 border-l-4">
+    <p>Wrong: <span class="font-mono bg-red-100 text-red-600">{{ wrong }}</span></p>
+    <p>Right: <span class="bg-green-100 text-green-600">{{ right }}</span></p>
+</aside>
+{% endmacro %}
+
+{% macro _example() %}
+<pre class="font-mono my-4 pl-4 border-l-4">{{ caller()|d }}</pre>
+{% endmacro %}
+
+{% macro _table_of_contents(contents) %}
+<ul>
+  <li>{{ _a('what-is-our-goal') }}</li>
+  <li>{{ _a('the-golden-rule') }}</li>
+  <li>{{ _a('characters') }}
+    <ul>
+      <li>{{ _a('eol-hyphens') }}</li>
+      <li>{{ _a('eol-dashes') }}</li>
+      <li>{{ _a('auto-spaces') }}</li>
+      <li>{{ _a('auto-quotes') }}</li>
+      <li>{{ _a('auto-eol-spaces') }}</li>
+    </ul>
+  </li>
+  <li>{{ _a('paragraphs') }}
+    <ul>
+      <li>{{ _a('para-breaks') }}</li>
+      <li>{{ _a('para-blank-lines') }}</li>
+      <li>{{ _a('para-headers') }}</li>
+      <li>{{ _a('para-footnotes') }}</li>
+      <li>{{ _a('para-indenting') }}</li>
+    </ul>
+  </li>
+  <li>{{ _a('pages') }}</li>
+  <li>{{ _a('unanswered') }}</li>
+</ul>
+{% endmacro %}
+
+
+{% block title %}Proofing guidelines | Ambuda{% endblock %}
+
+
+{% block content %}
+<div class="prose">
+<h1>Proofing guidelines</h1>
+
+<p>This document defines the proofreading guidelines we use on Ambuda.
+Generally, these guidelines apply to all of the projects we proof.
+
+{{ _table_of_contents(contents) }}
+
+
+{{ _h('what-is-our-goal') }}
+
+
+<p>We want to create machine-readable texts that we can display on Ambuda and
+share with others.
+
+<p>We should create these texts at the highest quality we are capable of. We
+should establish credibility by making clear where these texts come from (which
+books, editions, editors, publishers, &hellip;), how they were created, and who
+was involved.
+
+
+{{ _h('the-golden-rule') }}
+
+<p><strong>Don't change what the page says.</strong> We follow the conventions
+of the printed book as closely as we can.
+
+<ul>
+<li>
+<p>
+<strong>Follow the book's spelling conventions.</strong> If the book says {{
+'kAryyate'|d }} or {{ 'saGgacchati'|d }}, then we write {{ 'kAryyate'|d }} (not
+{{ 'kAryate'|d }}) and {{ 'saGgacchati'|d }} (not {{ 'saMgacchati'|d }}). A
+similar idea applies for text in Roman print; if the book says <i>çru</i>, then
+we should write <i>çru</i> and not <i>śru</i>.
+
+
+<li>
+<p>
+<strong>Follow the book's script conventions.</strong> If the book uses
+Devanagari, we should use Devanagari, not Roman script. or some other convention.
+
+
+<li>
+<p>
+<strong>Follow the book's word-splitting conventions.</strong> Different books
+have different conventions for splitting long blocks of Devanagari text, or for
+adding and removing Sanskrit's sound changes ({{ 'sandhi'|d }}). We follow the
+conventions of the book regardless of our personal preference.
+
+
+<li>
+<p>
+<strong>Include everything meaningful on the page.</strong> If the book
+contains spurious verses and footnotes, we should include those as well.
+</ul>
+
+<p>That said, our goal is not to create a pixel-for-pixel perfect copy of the
+text. (The scanned book already does that.) Instead, we want to capture the
+information and the structure in the original book as accurately as possible.
+For details on what we can include or exclude, see the sections below.
+
+
+{{ _h('characters') }}
+
+{% call components.div_note() %}
+Rules that start with [auto] can be fixed with software. Fixing them is not a
+good use of time.
+{% endcall %}
+
+
+{{ _h2('eol-hyphens') }}
+
+<p>If the printed line ends with a hyphen, keep the hyphen. Our program uses
+these hyphens to stitch together different lines:
+
+{% call _example() -%}
+sa bhagavAnsRSTvedaM jagattasya ca sthitiM cikI-
+rSuH ...
+{%- endcall %}
+
+<p><strong>Exception:</strong> If the hyphen is part of a word that would
+otherwise have a hyphen (e.g. "front-end," "topsy-turvy"), join the words
+together so that our program preserves the hyphen.
+
+
+{{ _h2('eol-dashes') }}
+
+Books often use two kinds of horizontal lines:
+
+<ul>
+<li><p>Hyphens (-) appear at the end of lines and between words in a compound.
+Write these with a single dash (<kbd>-</kbd>).
+
+<li><p>Em dashes (—) separate different phrases, usually for emphasis.  Write
+these with two dashes (<kbd>--</kbd>).
+</ul>
+
+
+{{ _h2('auto-spaces') }}
+
+<p>We don't leave any space between a dash and the words around it:
+
+{{ _compare('arthaH -- eka'|d, 'arthaH--eka'|d) }}
+
+<p>We remove the space to the right of a "(" or "[" character and to the left
+of a ")" or "]" character:
+
+{{ _compare('manuSyaH ( naraH ) iti'|d, 'manuSyaH (naraH) iti'|d) }}
+
+
+{{ _h2('auto-quotes') }}
+
+We use "straight quotes" without any special formatting.
+
+
+{{ _compare('“naraH”'|d, '"naraH"'|d) }}
+
+
+{{ _h2('auto-eol-spaces') }}
+
+We delete spaces at the end of a line:
+
+{{ _compare('naraH'|d + '&nbsp;&nbsp;&nbsp;'|safe, 'naraH'|d) }}
+
+
+{{ _h('paragraphs') }}
+
+{{ _h2('para-breaks') }}
+
+<p>Proofing is easier when we can quickly compare our digitized text to the
+original image. Line breaks and line-breaking make our digitized text look more
+similar to the image, which means we can proofread more quickly. (A special
+program will remove these later.)
+
+
+{{ _h2('para-blank-lines') }}
+
+<p>Separate paragraphs and verses with blank lines.
+
+
+{{ _h2('para-headers') }}
+
+<p>Page headers and page footers (but not footnotes!) are the small text and
+page numbers that appear on every page. They don't have any useful information,
+and you should delete them.
+
+
+{{ _h2('para-footnotes') }}
+
+<p>In the main text, mark the character that indicates the footnote by wrapping
+it in brackets and placing a <kbd>^</kbd> character after the first bracket.
+
+{{ _compare('naraH1'|d, 'naraH[^1]'|d) }}
+
+<p>At the bottom of the page, begin the footnote with the same convention. An
+example:
+
+{% call _example() -%}
+prapede punarudbhedaH zucinAM[^1] kacchaketakaiH |
+upakriyAyAH sadRzaM nArebhe ravisUnunA || 7 ||
+
+[^1] cInAM | zUcInAM |
+{%- endcall %}
+
+
+{{ _h2('para-indenting') }}
+
+<p>You don't need to indent paragraphs. But if the paragraphs are indented, you
+can leave that spacing in. (A special program will remove indents later.)
+
+
+{{ _h('pages') }}
+
+<p>Skip any content that is not part of the original book. This includes
+handwritten notes, stamps, watermarks, dirt, stains, etc.
+
+
+{{ _h('unanswered') }}
+
+<p>These guidelines are a work in progress. If you don't see a clear answer to
+your question here, come discuss it with our team:
+
+<ol>
+  <li>Join our <a href="https://discord.gg/7rGdTyWY7Z">Discord server</a>.</li>
+  <li>Join the <kbd>#proofreading</kbd> channel.</li>
+  <li>Ask your question on the channel.</li>
+</ol>
+
+</div>
+{% endblock %}

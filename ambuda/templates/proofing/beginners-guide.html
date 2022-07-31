@@ -1,6 +1,29 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as components %}
+
+
+{% set contents = {
+  'how-to-find-a-project': 'How to find a project to work on',
+  'how-to-proof': 'How to proof a page',
+  'guidelines': 'Proofing guidelines',
+  'faq': 'Frequently asked questions',
+} %}
+
+{% macro _h(anchor) %}
+<h2 id="{{ anchor }}">{{ contents[anchor] }}</h2>
+{% endmacro %}
+
+{% macro _table_of_contents(contents) %}
+<ul>
+  {% for anchor, title in contents.items() %}
+  <li><a href="#{{ anchor }}">{{ title }}</a></li>
+  {% endfor %}
+</ul>
+{% endmacro %}
+
 
 {% block title %}Beginner's guide to proofing | Ambuda{% endblock %}
+
 
 {% block content %}
 <div class="prose">
@@ -10,8 +33,10 @@
 high-quality Sanskrit text that everyone can use and enjoy. All of our proofing
 projects are based on scans of physical books.
 
+{{ _table_of_contents(contents) }}
 
-<h2>How to find a project to work on</h2>
+
+{{ _h('how-to-find-a-project') }}
 
 {% set index = url_for('proofing.index') %}
 {% set create = url_for('proofing.upload_images') %}
@@ -20,20 +45,20 @@ projects are based on scans of physical books.
 each of its pages:
 
 <ul>
-  <li><p><dfn class="p-0.5 bg-green-200">green</dfn> means that two people have
-      fully proofread the page. We recommend that you check some of our green
-      pages to get a sense of what kinds of results we're aiming for.</li>
+  <li><p><dfn class="p-0.5 bg-gray-200">gray</dfn> means that the page is not
+      relevant to the main text. Gray pages include blank pages, copyright
+      pages, and so on.</li>
+
+  <li><p><dfn class="p-0.5 bg-red-200">red</dfn> means that nobody has
+      fully proofread the page.</li>
 
   <li><p><dfn class="p-0.5 bg-yellow-200">yellow</dfn> means that one person
       has fully proofread the page and that the page is ready for a second
       proofreader to review it.</li>
 
-  <li><p><dfn class="p-0.5 bg-red-200">red</dfn> means that nobody has
-      fully proofread the page.</li>
-
-  <li><p><dfn class="p-0.5 bg-gray-200">gray</dfn> means that the page is not
-      relevant to the main text. Gray pages include blank pages, copyright
-      pages, and so on.</li>
+  <li><p><dfn class="p-0.5 bg-green-200">green</dfn> means that two people have
+      fully proofread the page. We recommend that you check some of our green
+      pages to get a sense of what kinds of results we're aiming for.</li>
 </ul>
 
 <p>If you don't see a book you want to work on, you can <a href="{{ create
@@ -42,7 +67,7 @@ in the public domain and related to Sanskrit in some way. But to avoid wasting
 effort, please also search online to see if your book has already been digitized.
 
 
-<h2>How to proofread a page</h2>
+{{ _h('how-to-proof') }}
 
 <p>Once you find an interesting project, you can start proofing one of its
 pages. We recommend starting with a <span class="p-0.5 bg-red-200
@@ -72,8 +97,16 @@ changes you made. Otherwise, you can leave this blank.
 know what work still needs to be done on the page.
 
 
-<h2>Proofreading guidelines</h2>
+{{ _h('guidelines') }}
+</div>
 
+{% call components.div_note() %}
+{% set url = url_for("proofing.complete_guide") %}
+<p class="prose">For much more detail, see our <a href="{{ url }}">full
+    guidelines</a>.</p>
+{% endcall %}
+
+<div class="prose">
 <p>Our goal is to extract the original text and its basic format as accurately
 as possible. However, our goal is <strong>not</strong> to create a
 pixel-perfect copy of the original image.
@@ -107,7 +140,7 @@ pixel-perfect copy of the original image.
 </ul>
 
 
-<h2>Frequently asked questions</h2>
+{{ _h('faq') }}
 
 <h3>How do I write in Devanagari?</h3>
 

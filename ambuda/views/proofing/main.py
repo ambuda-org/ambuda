@@ -75,6 +75,11 @@ def beginners_guide():
     return render_template("proofing/beginners-guide.html")
 
 
+@bp.route("/complete-guidelines")
+def complete_guide():
+    return render_template("proofing/complete-guidelines.html")
+
+
 @bp.route("/create-new-project")
 @login_required
 def upload_images():

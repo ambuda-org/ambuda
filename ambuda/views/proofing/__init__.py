@@ -1,6 +1,6 @@
+from .main import bp
 from .pages import bp as _pages
 from .projects import bp as _projects
-from .site import bp
 from .tagging import bp as _tagging
 from .talk import bp as _talk
 
