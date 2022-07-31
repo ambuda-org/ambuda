@@ -1,5 +1,6 @@
 {% extends 'proofing/base.html' %}
 {% import "macros/proofing.html" as m %}
+{% import "macros/components.html" as components %}
 
 {% macro button(id, text) %}
 <button type="button" id="{{ id }}" class="p-2 hover:bg-slate-300">{{ text|safe }}</button>
@@ -11,13 +12,7 @@
 <article class="p-4">
   {{ m.page_header(project, cur=cur, prev=prev, next=next) }}
 
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      {% for message in messages %}
-      <p class="bg-green-100 my-4 p-2">{{ message }}</p>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
+  {{ components.flash_messages() }}
 
   {% if conflict %}
   <pre class="p-2 bg-slate-100 my-4">{{ conflict.content }}</pre>
@@ -75,35 +70,6 @@
 {% set image_url = url_for("site.page_image", project_slug=project.slug, page_slug=cur.slug) %}
 <script type="text/javascript">
 const IMAGE_URL = "{{ image_url }}";
-// Image panning
-const viewer = OpenSeadragon({
-    id: "osd-image",
-    tileSources: {
-        type: 'image',
-        url: "{{ image_url }}",
-        buildPyramid: false,
-    },
-
-    // Buttons
-    showRotationControl: true,
-    showFullPageControl: false,
-    zoomInButton: "osd-zoom-in",
-    zoomOutButton: "osd-zoom-out",
-    homeButton: "osd-home",
-    rotateLeftButton: "osd-rotate-left",
-    rotateRightButton: "osd-rotate-right",
-
-    // Animations
-    gestureSettingsMouse: {
-        flickEnabled: true,
-    },
-    animationTime: 0,
-
-    // Zoom level
-    zoomPerClick: 1.2,
-    // Max zoom level
-    maxZoomPixelRatio: 2,
-});
 </script>
-<script defer src="/static/js/proofreading.js?v=2"></script>
+<script defer src="/static/js/proofreading.js?v=3"></script>
 {% endblock %}

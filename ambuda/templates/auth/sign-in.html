@@ -1,30 +1,17 @@
 {% extends 'base-auth-form.html' %}
+{% import "macros/components.html" as components %}
+{% import "macros/forms.html" as mf %}
+
 
 {% block title %}Login | Ambuda{% endblock %}
+
 
 {% block content %}
 <h1 class="text-3xl text-center mb-4">Sign in to Ambuda</h1>
 
-{% if form.errors %}
-<div class="prose p-2 bg-red-100 mb-4">
-  <ul>
-  {% for k, v in form.errors.items() %}
-    <li>{{ v[0] }}</li>
-  {% endfor %}
-  </ul>
-</div>
-{% endif %}
+{{ mf.show_errors_if_any(form.errors) }}
 
-{% with messages = get_flashed_messages() %}
-{% if messages %}
-<div class="prose p-2 bg-red-100 mb-4">
-  {% for message in messages %}
-  <p class="bg-green-100 my-4 p-2">{{ message }}</p>
-  {% endfor %}
-</div>
-{% endif %}
-{% endwith %}
-
+{{ components.flash_messages() }}
 
 <form method="POST" class="bg-slate-100 p-4 rounded">
   {{ form.csrf_token }}

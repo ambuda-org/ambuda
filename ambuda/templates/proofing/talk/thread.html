@@ -1,16 +1,21 @@
 {% extends 'proofing/base.html' %}
+{% import "macros/proofing.html" as m %}
 {% from "macros/forms.html" import field, show_errors_if_any %}
 
 {% block title %}{{ thread.title }} | Ambuda{% endblock %}
 
 {% block content %}
-<header class="prose">
-  <h1>{{ thread.title }}</h1>
-  <p>{{ thread.updated_at|time_ago }}</p>
+{{ m.project_header_nested(project, "Talk:") }}
+{{ m.project_nav(project=project, active='talk') }}
+
+<header class="flex justify-between items-center bg-slate-100 p-4">
+  <h1 class="text-xl font-bold">{{ thread.title }}</h1>
+  <p class="text-slate-500">Started {{ thread.updated_at|time_ago }}</p>
 </header>
 
+<div class="break-words">
 {% for post in thread.posts %}
-<article class="border-t py-2 my-2 pb-4">
+<article class="border-b py-4 mx-4">
   {% set username = post.author.username %}
   <h1 class="text-sm mb-2 text-slate-500 a-hover-underline">
     <a class="font-bold" href="{{ url_for("proofing.user", username=username) }}">{{ username }}</a>
@@ -19,7 +24,10 @@
   {{ post.content|markdown|safe }}
 </article>
 {% endfor %}
+</div>
 
+<div class="mt-8 ml-4">
 <a href="{{ url_for('proofing.talk.create_post', project_slug=project.slug, thread_id=thread.id) }}" class="btn btn-submit">Add a post</a>
+</div>
 
 {% endblock %}

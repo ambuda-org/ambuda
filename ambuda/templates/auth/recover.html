@@ -1,4 +1,5 @@
 {% extends 'base-auth-form.html' %}
+{% import "macros/forms.html" as mf %}
 
 
 {% block title %}Recover | Ambuda{% endblock %}
@@ -6,15 +7,7 @@
 {% block content %}
 <h1 class="text-3xl text-center mb-4">Recover your account</h1>
 
-{% if form.errors %}
-<div class="prose p-2 bg-red-100 mb-4">
-  <ul>
-  {% for k, v in form.errors.items() %}
-    <li>{{ v[0] }}</li>
-  {% endfor %}
-  </ul>
-</div>
-{% endif %}
+{{ mf.show_errors_if_any(form.errors) }}
 
 {% if hashed %}
 <p class="my-4">Your password hash is:</p>

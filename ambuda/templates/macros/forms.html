@@ -6,9 +6,10 @@
 </div>
 {% endmacro %}
 
+{# Show form errors, if any exist. #}
 {% macro show_errors_if_any(errors) %}
 {% if errors %}
-<div class="prose p-2 bg-red-100 mb-4">
+<div class="prose p-2 bg-red-100 text-red-900 rounded my-4">
   <ul>
   {% for k, v in errors.items() %}
     <li>{{ v[0] }}</li>

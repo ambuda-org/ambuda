@@ -61,7 +61,7 @@ def edit(slug):
         form.populate_obj(project_)
         session.commit()
 
-        flash("Saved changes.")
+        flash("Saved changes.", "success")
         return redirect(url_for("proofing.projects.summary", slug=slug))
 
     return render_template(

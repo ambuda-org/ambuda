@@ -62,6 +62,11 @@ def register():
         login_user(user, remember=True)
         return redirect(url_for(POST_AUTH_ROUTE))
     else:
+        # Override the default message ("The response parameter is missing.")
+        # for better UX.
+        if form.recaptcha.errors:
+            form.recaptcha.errors = ["Please click the reCAPTCHA box."]
+
         return render_template("auth/register.html", form=form)
 
 
@@ -77,7 +82,7 @@ def sign_in():
             login_user(user, remember=True)
             return redirect(url_for(POST_AUTH_ROUTE))
         else:
-            flash("Invalid username or password")
+            flash("Invalid username or password.")
     return render_template("auth/sign-in.html", form=form)
 
 

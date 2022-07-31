@@ -202,7 +202,7 @@ def edit_post(project_slug, page_slug):
                 author_id=current_user.id,
             )
             form.version.data = new_version
-            flash("Saved changes.")
+            flash("Saved changes.", "success")
         except EditException:
             # FIXME: in the future, use a proper edit conflict view.
             flash("Edit conflict. Please incorporate the changes below:")

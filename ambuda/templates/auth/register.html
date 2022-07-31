@@ -1,19 +1,14 @@
 {% extends 'base-auth-form.html' %}
+{% import "macros/components.html" as components %}
+{% import "macros/forms.html" as mf %}
+
 
 {% block title %}Register | Ambuda{% endblock %}
 
 {% block content %}
 <h1 class="text-3xl text-center mb-4">Register for Ambuda</h1>
 
-{% if form.errors %}
-<div class="prose p-2 bg-red-100 mb-4">
-  <ul>
-  {% for k, v in form.errors.items() %}
-    <li>{{ v[0] }}</li>
-  {% endfor %}
-  </ul>
-</div>
-{% endif %}
+{{ mf.show_errors_if_any(form.errors) }}
 
 <form method="POST" class="bg-slate-100 p-4 rounded">
   {{ form.csrf_token }}

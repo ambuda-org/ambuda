@@ -1,4 +1,5 @@
 {% extends 'proofing/base.html' %}
+{% import "macros/components.html" as components %}
 {% import "macros/proofing-talk.html" as m_talk %}
 {% import "macros/proofing.html" as m %}
 
@@ -6,13 +7,7 @@
 
 {% block content %}
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    {% for message in messages %}
-    <p class="bg-green-100 my-4 p-2">{{ message }}</p>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
+{{ components.flash_messages() }}
 
 <h1 class="font-bold text-3xl my-4">{{ project.title }}</h1>
 
@@ -35,8 +30,6 @@
 <div class="prose">
   <h2>About</h2>
 </div>
-
-<a class="my-2 underline text-sm block" href="{{ url_for("proofing.projects.edit", slug=project.slug) }}">Edit this project's information</a>
 
 <div class="bg-slate-100 p-4 w-2/3">
 <table class="w-full">

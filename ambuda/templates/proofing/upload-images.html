@@ -1,6 +1,9 @@
 {% extends 'proofing/base.html' %}
+{% import "macros/components.html" as components %}
+
 
 {% block title %}Create new project | Ambuda{% endblock %}
+
 
 {% block content %}
 <div class="prose">
@@ -10,13 +13,7 @@
 PDF uploads soon.</p>
 </div>
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    {% for message in messages %}
-    <p class="bg-red-100">{{ message }}</p>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
+{{ components.flash_messages() }}
 
 <form action="{{ url_for('proofing.upload_images') }}" method="POST" enctype="multipart/form-data">
   <label class="block text-slate-500">Images to upload</label>

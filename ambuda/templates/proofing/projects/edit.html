@@ -1,8 +1,11 @@
 {% extends 'proofing/base.html' %}
+{% import "macros/components.html" as components %}
 {% import "macros/proofing.html" as m %}
 {% from "macros/forms.html" import field %}
 
+
 {% block title %}Edit: {{ project.title }} | Ambuda{% endblock %}
+
 
 {% block content %}
 {{ m.project_header_nested(project, "Edit:") }}
@@ -14,13 +17,7 @@
     search_url }}">search the project</a> or edit its metadata:</p>
 </div>
 
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    {% for message in messages %}
-    <p class="bg-green-100 my-4 p-2">{{ message }}</p>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
+{{ components.flash_messages() }}
 
 <form method="POST" class="bg-slate-100 p-4">
   {{ form.csrf_token }}

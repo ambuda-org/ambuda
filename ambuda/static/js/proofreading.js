@@ -1,4 +1,4 @@
-/* global $, Server */
+/* global $, Server, OpenSeadragon, IMAGE_URL */
 
 // OCR trigger
 $('#run-ocr').addEventListener('click', (e) => {
@@ -48,6 +48,40 @@ $('[type=submit]').addEventListener('click', () => {
   hasUnsavedChanges = false;
 });
 
+/* Initialize our image viewer. */
+function initializeImageViewer(imageURL) {
+  OpenSeadragon({
+    id: 'osd-image',
+    tileSources: {
+      type: 'image',
+      url: imageURL,
+      buildPyramid: false,
+    },
+
+    // Buttons
+    showRotationControl: true,
+    showFullPageControl: false,
+    zoomInButton: 'osd-zoom-in',
+    zoomOutButton: 'osd-zoom-out',
+    homeButton: 'osd-home',
+    rotateLeftButton: 'osd-rotate-left',
+    rotateRightButton: 'osd-rotate-right',
+
+    // Animations
+    gestureSettingsMouse: {
+      flickEnabled: true,
+    },
+    animationTime: 0,
+
+    // The zoom multiplier to use when using the zoom in/out buttons.
+    zoomPerClick: 1.2,
+    // Max zoom level
+    maxZoomPixelRatio: 2,
+  });
+}
+
+// Setup
+initializeImageViewer(IMAGE_URL);
 window.onbeforeunload = () => {
   if (hasUnsavedChanges) {
     return 'You have unsaved changes! If you leave this page, your changes will be lost.';
