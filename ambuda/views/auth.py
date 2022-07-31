@@ -1,10 +1,12 @@
 """Authorization flow.
 
-UX reference: https://www.uxmatters.com/mt/archives/2018/09/signon-signoff-and-registration.php
+UX reference:
+
+https://www.uxmatters.com/mt/archives/2018/09/signon-signoff-and-registration.php
 """
 
 from flask import Blueprint, flash, render_template, redirect, url_for
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_user, logout_user, login_required
 from flask_wtf import FlaskForm, RecaptchaField
 from wtforms import StringField, PasswordField
 from wtforms import validators as val
@@ -45,6 +47,16 @@ class SignInForm(FlaskForm):
 
 class RecoverForm(FlaskForm):
     password = PasswordField("Password", [val.Length(min=8), val.DataRequired()])
+
+
+class ChangePasswordForm(FlaskForm):
+    #: Old password. No validation requirements, in case we change our password
+    #: criteria in the future.
+    old_password = PasswordField("Old password", [val.DataRequired()])
+    #: New password.
+    new_password = PasswordField(
+        "New password", [val.Length(min=8), val.DataRequired()]
+    )
 
 
 @bp.route("/register", methods=["GET", "POST"])
@@ -100,3 +112,24 @@ def recover():
     else:
         hashed = ""
     return render_template("auth/recover.html", form=form, hashed=hashed)
+
+
+@bp.route("/change-password", methods=["GET", "POST"])
+@login_required
+def change_password():
+    form = ChangePasswordForm()
+    if not form.validate_on_submit():
+        return render_template("auth/change-password.html", form=form)
+
+    if current_user.check_password(form.old_password.data):
+        session = q.get_session()
+        current_user.set_password(form.new_password.data)
+        session.add(current_user)
+        session.commit()
+
+        flash("Changed password successfully!", "success")
+        return redirect(url_for("proofing.user", username=current_user.username))
+    else:
+        flash("Old password isn't valid.")
+
+    return render_template("auth/change-password.html", form=form)

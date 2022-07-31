@@ -6,6 +6,16 @@
 </div>
 {% endmacro %}
 
+
+{# Render an authenticated_related form field. #}
+{% macro auth_field(f) %}
+<div class="mb-6">
+  {{ f.label(class_="block text-slate-800 mb-2") }}
+  {{ f(class_="p-2 block w-full") }}
+</div>
+{% endmacro %}
+
+
 {# Show form errors, if any exist. #}
 {% macro show_errors_if_any(errors) %}
 {% if errors %}

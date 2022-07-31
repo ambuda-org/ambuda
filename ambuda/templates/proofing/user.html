@@ -1,13 +1,22 @@
 {% extends 'proofing/base.html' %}
+{% import "macros/components.html" as components %}
 {% import "macros/proofing.html" as m %}
 
 {% block title %}User: {{ user.username }} | Ambuda{% endblock %}
 
 {% block content %}
+
+{{ components.flash_messages() }}
+
 <div class="prose">
 <h1>{{ user.username }}</h1>
-<p class="italic">Joined {{ user.created_at|time_ago }}</p>
 
+{% if current_user.username == user.username %}
+<nav class="text-sm">
+  Settings:
+  <a href="{{ url_for("auth.change_password") }}">Change password</a>
+</nav>
+{% endif %}
 
 <h2>Recent edits</h2>
 </div>
