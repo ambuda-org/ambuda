@@ -10,7 +10,7 @@ TEXT_CATEGORIES = {
         "caurapancashika",
         "bhattikavyam",
         "meghadutam-kale",
-        "mukundamala-1",
+        "mukundamala",
         "raghuvamsham",
         "shatakatrayam",
         "shishupalavadham",
