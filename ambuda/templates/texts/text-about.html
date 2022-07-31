@@ -1,0 +1,30 @@
+{% extends 'base-text.html' %}
+{% import 'macros/library.html' as m %}
+
+{% macro tei_header(data) %}
+<section class="prose text-slate-400">
+<dl>
+  <dt>Title</dt> <dd>{{ data.title }}</dd>
+  <dt>Author</dt> <dd>{{ data.author }}</dd>
+  <dt>Publisher</dt> <dd>{{ data.publisher|safe }}</dd>
+  <dt>Availability</dt> <dd>{{ data.availability|safe }}</dd>
+</dl>
+</section>
+{% endmacro %}
+
+
+{% block title %}{{ text.title | devanagari }} | Ambuda{% endblock %}
+
+{% block content %}
+<h1 class="text-center font-bold text-4xl x-deva">
+  {{ text.title | devanagari }}
+</h1>
+
+{{ m.text_tabs(text=text, active='about') }}
+
+{% if header %}
+  {{ tei_header(header) }}
+{% else %}
+  <p>Sorry, we don't have any data available for this text right now.</p>
+{% endif %}
+{% endblock %}

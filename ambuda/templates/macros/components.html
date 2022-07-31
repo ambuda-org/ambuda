@@ -1,0 +1,15 @@
+{% macro tabs(urls, active) %}
+<nav class="border-b mb-8">
+  <ul class="flex a-hover-underline">
+    {% for name, label, url in urls %}
+    {% if name == active %}
+    <li class="p-4 font-bold p-4 border-b-2 border-black">{{ label }}</li>
+    {% else %}
+    <li class="border-b-2 border-transparent text-slate-700">
+      <a class="block p-4" href="{{ url }}">{{ label }}</a>
+    </li>
+    {% endif %}
+    {% endfor %}
+  </ul>
+</nav>
+{% endmacro %}

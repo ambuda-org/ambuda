@@ -1,0 +1,28 @@
+{% extends 'base-text.html' %}
+{% import 'macros/library.html' as m %}
+
+{% block title %}{{ text.title | devanagari }} | Ambuda{% endblock %}
+
+{% block content %}
+<h1 class="text-center font-bold text-4xl x-deva">
+    {{ text.title | devanagari }}
+</h1>
+
+{{ m.text_tabs(text=text, active='resources') }}
+
+{% set gretil = "https://github.com/ambuda-project/gretil" %}
+{% set dcs = "https://github.com/ambuda-project/dcs" %}
+{% set smith = "https://bombay.indology.info/" %}
+
+<div class="prose">
+  <p>Most of our texts are sourced from a custom snapshot of GRETIL, which you
+  can find <a href="{{ gretil }}">here</a>. Our {{ 'rAmAyaNam'|d }} and {{
+  'mahAbhAratam'|d }} texts are sourced from <a href="{{ smith }}">John Smith's
+  website</a>.</p>
+
+  <p>Parse data comes from a custom snapshot of the Digital Corpus of Sanskrit,
+  which you can find <a href="{{ dcs }}">here</a>.</p>
+</div>
+
+
+{% endblock %}

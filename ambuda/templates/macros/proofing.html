@@ -1,3 +1,5 @@
+{% import 'macros/components.html' as components %}
+
 {% macro project_header_nested(project, label) %}
 <header class="a-hover-underline font-bold text-3xl my-4">
   {% set url = url_for("proofing.projects.summary", slug=project.slug) %}
@@ -7,24 +9,12 @@
 
 {% macro project_nav(project, active) %}
 {% set routes = [
-  ("summary", "proofing.projects.summary", "Summary"),
-  ("talk", "proofing.talk.board", "Talk"),
-  ("edit", "proofing.projects.edit", "Edit"),
-  ("download", "proofing.projects.download", "Download"),
+  ("summary",  "Summary",  url_for("proofing.projects.summary", slug=project.slug)),
+  ("talk",     "Talk",     url_for("proofing.talk.board", slug=project.slug)),
+  ("edit",     "Edit",     url_for("proofing.projects.edit", slug=project.slug)),
+  ("download", "Download", url_for("proofing.projects.download", slug=project.slug)),
 ] %}
-<nav class="border-b mb-8">
-  <ul class="flex a-hover-underline">
-    {% for name, route, label in routes %}
-    {% if name == active %}
-    <li class="p-4 font-bold p-4 border-b-2 border-black">{{ label }}</li>
-    {% else %}
-    <li class="border-b-2 border-transparent text-slate-700">
-      <a class="block p-4" href="{{ url_for(route, slug=project.slug) }}">{{ label }}</a>
-    </li>
-    {% endif %}
-    {% endfor %}
-  </ul>
-</nav>
+{{ components.tabs(routes, active) }}
 {% endmacro %}
 
 {% macro _page_nav_link(project, page, full_text, short_text) %}

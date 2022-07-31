@@ -78,11 +78,33 @@ def text(slug):
     if text is None:
         abort(404)
 
-    header_data = xml.parse_tei_header(text.header)
     section_groups = _section_groups(text.sections)
+    return render_template("texts/text.html", text=text, section_groups=section_groups)
+
+
+@bp.route("/<slug>/about")
+def text_about(slug):
+    """Show a text's metadata."""
+    text = q.text(slug)
+    if text is None:
+        abort(404)
+
+    header_data = xml.parse_tei_header(text.header)
     return render_template(
-        "texts/text.html", text=text, header=header_data, section_groups=section_groups
+        "texts/text-about.html",
+        text=text,
+        header=header_data,
     )
+
+
+@bp.route("/<slug>/resources")
+def text_resources(slug):
+    """Show a text's downloadable resources."""
+    text = q.text(slug)
+    if text is None:
+        abort(404)
+
+    return render_template("texts/text-resources.html", text=text)
 
 
 @bp.route("/<text_slug>/<section_slug>")

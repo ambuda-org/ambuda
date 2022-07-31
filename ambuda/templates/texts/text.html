@@ -1,16 +1,5 @@
 {% extends 'base-text.html' %}
-
-{% macro tei_header(data) %}
-<h2 class="font-bold text-xl my-4">About</h2>
-<section class="prose text-slate-400">
-<dl>
-  <dt>Title</dt> <dd>{{ data.title }}</dd>
-  <dt>Author</dt> <dd>{{ data.author }}</dd>
-  <dt>Publisher</dt> <dd>{{ data.publisher|safe }}</dd>
-  <dt>Availability</dt> <dd>{{ data.availability|safe }}</dd>
-</dl>
-</section>
-{% endmacro %}
+{% import 'macros/library.html' as m %}
 
 {% macro section_grid(sections) %}
 <ul class="grid grid-cols-5 md:grid-cols-10 gap-4 my-8 text-center">
@@ -23,6 +12,7 @@
 </ul>
 {% endmacro %}
 
+
 {% block title %}{{ text.title | devanagari }} | Ambuda{% endblock %}
 
 {% block content %}
@@ -30,7 +20,8 @@
     {{ text.title | devanagari }}
 </h1>
 
-<h2 class="font-bold text-xl my-4">Contents</h2>
+{{ m.text_tabs(text=text, active='contents') }}
+
 {% for prefix, sections in section_groups.items() %}
 {{ section_grid(sections) }}
 {% endfor %}
