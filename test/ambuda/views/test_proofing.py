@@ -3,7 +3,7 @@ def test_index(client):
     assert ">Proofing<" in resp.text
 
 
-def test_index(client):
+def test_beginners_guide(client):
     resp = client.get("/proofing/beginners-guide")
     assert ">Beginner's" in resp.text
 
@@ -20,21 +20,6 @@ def test_create_new_project__unauth(client):
 
 def test_create_new_project__auth(rama_client):
     resp = rama_client.get("/proofing/create-new-project")
-    assert resp.status_code == 200
-
-
-def test_project(client):
-    resp = client.get("/proofing/test-project/")
-    assert resp.status_code == 200
-
-
-def test_download_as_text(client):
-    resp = client.get("/proofing/test-project/download/text")
-    assert resp.status_code == 200
-
-
-def test_download_as_xml(client):
-    resp = client.get("/proofing/test-project/download/xml")
     assert resp.status_code == 200
 
 

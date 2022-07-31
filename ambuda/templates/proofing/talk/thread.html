@@ -6,7 +6,7 @@
 
 {% block content %}
 {{ m.project_header_nested(project, "Talk:") }}
-{{ m.project_nav(project=project, active='talk') }}
+{{ m.project_nav(project=project, active='talk', is_admin=current_user.is_admin) }}
 
 <header class="flex justify-between items-center bg-slate-100 p-4">
   <h1 class="text-xl font-bold">{{ thread.title }}</h1>

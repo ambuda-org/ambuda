@@ -6,7 +6,7 @@
 {% block content %}
 
 {{ m.project_header_nested(project, "Download:") }}
-{{ m.project_nav(project=project, active='download') }}
+{{ m.project_nav(project=project, active='download', is_admin=current_user.is_admin) }}
 
 <div class="prose">
   <p>You can use these links to download the latest version of the transcribed

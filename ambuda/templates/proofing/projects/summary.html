@@ -10,8 +10,7 @@
 {{ components.flash_messages() }}
 
 <h1 class="font-bold text-3xl my-4">{{ project.title }}</h1>
-
-{{ m.project_nav(project=project, active='summary') }}
+{{ m.project_nav(project=project, active='summary', is_admin=current_user.is_admin) }}
 
 <div class="prose">
   <h2>Pages</h2>

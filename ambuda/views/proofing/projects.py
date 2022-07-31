@@ -8,6 +8,7 @@ from wtforms import StringField
 from wtforms.validators import DataRequired
 
 from ambuda import queries as q, database as db
+from ambuda.utils.auth import admin_required
 from ambuda.utils import proofing_utils
 
 
@@ -27,6 +28,10 @@ class SearchForm(FlaskForm):
         csrf = False
 
     query = StringField("Query", validators=[DataRequired()])
+
+
+class DeleteProjectForm(FlaskForm):
+    slug = StringField("Slug", validators=[DataRequired()])
 
 
 @bp.route("/<slug>/")
@@ -166,4 +171,30 @@ def search(slug):
         form=form,
         query=query,
         results=results,
+    )
+
+
+@bp.route("/<slug>/admin", methods=["GET", "POST"])
+@admin_required
+def admin(slug):
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    form = DeleteProjectForm()
+    if form.validate_on_submit():
+        if form.slug.data == slug:
+            session = q.get_session()
+            session.delete(project_)
+            session.commit()
+
+            flash(f"Deleted project {slug}")
+            return redirect(url_for("proofing.index"))
+        else:
+            form.slug.errors.append("Mismatch with project slug.")
+
+    return render_template(
+        "proofing/projects/admin.html",
+        project=project_,
+        form=form,
     )

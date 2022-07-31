@@ -1,0 +1,40 @@
+{% extends 'proofing/base.html' %}
+{% import "macros/components.html" as components %}
+{% import "macros/forms.html" as mf %}
+{% import "macros/proofing.html" as m %}
+
+{% block title %}Admin: {{ project.title }} | Ambuda{% endblock %}
+
+{% block content %}
+{{ m.project_header_nested(project, "Admin:") }}
+{{ m.project_nav(project=project, active='admin', is_admin=current_user.is_admin) }}
+
+<div class="prose">
+
+
+<h2>Danger zone</h2>
+
+{{ mf.show_errors_if_any(form.errors) }}
+<form method="POST" class="border border-red-500 rounded p-4 my-4">
+  {{ form.csrf_token }}
+  <p><strong>Delete project</strong></p>
+
+  <p>Deleting this project will delete all of its:</p>
+
+  <ul>
+    <li>pages</li>
+    <li>revisions</li>
+    <li>discussion threads</li>
+  </ul>
+
+  <p>This action <strong>cannot</strong> be undone.</p>
+
+  <p>To confirm this decision, enter <kbd>{{ project.slug }}</kbd> in the field below.</p>
+
+  {{ form.slug(class_="p-2 block w-full my-4 border") }}
+
+  <input class="btn bg-red-800 text-white" type="submit" value="Permanently delete this project and its data">
+</form>
+
+</div>
+{% endblock %}

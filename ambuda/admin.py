@@ -43,15 +43,10 @@ class DictionaryView(BaseView):
     column_list = form_columns = ["slug", "title"]
 
 
-class ProjectView(BaseView):
-    column_list = form_columns = ["slug", "title"]
-
-
 def create_admin_manager(app):
     session = q.get_session_class()
     admin = Admin(app, name="Ambuda", index_view=AmbudaIndexView())
     admin.add_view(DictionaryView(db.Dictionary, session))
-    admin.add_view(ProjectView(db.Project, session))
     admin.add_view(TextBlockView(db.TextBlock, session))
     admin.add_view(TextView(db.Text, session))
     admin.add_view(UserView(db.User, session))

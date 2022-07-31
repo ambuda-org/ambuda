@@ -56,9 +56,15 @@ def initialize_test_db():
     session.add(dictionary_entry)
 
     # Auth
-    user = db.User(username="ramacandra", email="rama@ayodhya.com")
-    user.set_password("maithili")
-    session.add(user)
+    rama = db.User(username="ramacandra", email="rama@ayodhya.com")
+    rama.set_password("maithili")
+    session.add(rama)
+    session.flush()
+
+    # Admin
+    admin = db.User(username="akprasad", email="arun@ambuda.org")
+    admin.set_password("secred password")
+    session.add(admin)
     session.flush()
 
     # Proofreading
@@ -101,4 +107,11 @@ def client(flask_app):
 def rama_client(flask_app):
     session = get_session()
     user = session.query(db.User).filter_by(username="ramacandra").first()
+    return flask_app.test_client(user=user)
+
+
+@pytest.fixture()
+def admin_client(flask_app):
+    session = get_session()
+    user = session.query(db.User).filter_by(username="akprasad").first()
     return flask_app.test_client(user=user)

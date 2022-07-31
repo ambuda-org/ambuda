@@ -35,11 +35,16 @@ def _initialize_sentry():
     )
 
 
-def _initialize_db(app):
+def _initialize_db(app, config_name: str):
     @app.teardown_appcontext
     def shutdown_session(exception=None):
         """Reset session state to prevent caching and memory leaks."""
         queries.get_session_class().remove()
+
+    if config_name == "development":
+        # The hook below hides database errors. So, don't install the hook if
+        # we're on the development environment.
+        return
 
     @app.errorhandler(exc.SQLAlchemyError)
     def handle_db_exceptions(error):
@@ -59,7 +64,7 @@ def create_app(config_name: str):
     app.config.from_object(config.config[config_name])
 
     # Database
-    _initialize_db(app)
+    _initialize_db(app, config_name)
 
     # Extensions
     login_manager = auth_manager.create_login_manager()

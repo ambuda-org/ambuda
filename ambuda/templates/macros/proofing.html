@@ -7,15 +7,22 @@
 </header>
 {% endmacro %}
 
-{% macro project_nav(project, active) %}
+
+{# Project-level tabs. #}
+{% macro project_nav(project, active, is_admin = false) %}
 {% set routes = [
   ("summary",  "Summary",  url_for("proofing.projects.summary", slug=project.slug)),
   ("talk",     "Talk",     url_for("proofing.talk.board", slug=project.slug)),
   ("edit",     "Edit",     url_for("proofing.projects.edit", slug=project.slug)),
   ("download", "Download", url_for("proofing.projects.download", slug=project.slug)),
 ] %}
+{% if is_admin %}{% set routes = routes + [
+  ("admin",    "Admin",    url_for("proofing.projects.admin", slug=project.slug)),
+] %}{% endif %}
+
 {{ components.tabs(routes, active) }}
 {% endmacro %}
+
 
 {% macro _page_nav_link(project, page, full_text, short_text) %}
 {% set url = url_for('proofing.pages.edit', project_slug=project.slug, page_slug=page.slug) %}
