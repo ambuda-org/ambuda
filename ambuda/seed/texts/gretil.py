@@ -25,6 +25,8 @@ class Spec:
 REPO = "https://github.com/ambuda-project/gretil.git"
 PROJECT_DIR = Path(__file__).resolve().parents[3]
 DATA_DIR = PROJECT_DIR / "data" / "ambuda-gretil"
+#: Slug to use for texts that have only one section.
+SINGLE_SECTION_SLUG = "all"
 
 ALLOW = [
     Spec("kumarasambhavam", "kumArasambhavam", "sa_kAlidAsa-kumArasaMbhava.xml"),
@@ -40,8 +42,8 @@ ALLOW = [
     Spec(
         "saundaranandam", "saundaranandam", "sa_azvaghoSa-saundarAnanda-edmatsunami.xml"
     ),
-    # Spec("agnipurana", "agnipurANam", "sa_agnipurANa.xml"),
-    # Spec("bhagavatapurana", "zrImadbhAgavatapurANam", "sa_bhAgavatapurANa.xml"),
+    Spec("caurapancashika", "caurapaJcAzikA", "sa_bilhaNa-caurapaJcAzikA.xml"),
+    Spec("hamsadutam", "haMsadUtam", "sa_rUpagosvAmin-haMsadUta.xml"),
 ]
 
 
@@ -111,12 +113,14 @@ def to_slp1(xml: ET.Element):
             el.tail = t(el.tail, sanscript.IAST, sanscript.DEVANAGARI)
 
 
-def delete_unused_elems(xml: ET.Element):
+def delete_unused_elements(xml: ET.Element):
     """Remove unused elements in-place."""
     for L in xml.iter("l"):
         for el in L:
+            # Delete tag, keep text
             if el.tag in {"seg", "hi"}:
                 el.tag = None
+            # Delete tag and text.
             if el.tag in {"note"}:
                 el.tag = None
                 el.clear()
@@ -126,34 +130,49 @@ def delete_unused_elems(xml: ET.Element):
         L.text = text
 
 
+def _make_section(xml: ET.Element, section_slug: str) -> Section:
+    section = Section(slug=section_slug, blocks=[])
+    n = 1
+    for child in xml:
+        # Skip these elements entirely.
+        if child.tag in {"note", "del"}:
+            continue
+
+        assert child.tag in {"lg", "head", "p", "trailer", "milestone", "pb"}, child.tag
+        if child.tag == "head":
+            block_slug = "head"
+        else:
+            block_slug = str(n)
+            n += 1
+
+        blob = ET.tostring(child, encoding="utf-8").decode("utf-8")
+        if section_slug == SINGLE_SECTION_SLUG:
+            slug = block_slug
+        else:
+            slug = f"{section_slug}.{block_slug}"
+        block = Block(slug=slug, blob=blob)
+        section.blocks.append(block)
+
+    return section
+
+
 def parse_sections(xml: ET.Element) -> list[Section]:
     body = xml.find("./text/body")
-    delete_unused_elems(xml)
+    delete_unused_elements(xml)
     to_slp1(body)
 
     sections = []
-    for i, div in enumerate(body.findall("./div")):
-        section_slug = str(i + 1)
-        section = Section(slug=section_slug, blocks=[])
-
-        n = 1
-        for child in div:
-            if child.tag in {"note", "del"}:
-                continue
-
-            assert child.tag in {"lg", "head", "p", "trailer"}, child.tag
-            if child.tag == "head":
-                block_slug = "head"
-            else:
-                block_slug = str(n)
-                n += 1
-
-            blob = ET.tostring(child, encoding="utf-8").decode("utf-8")
-            slug = f"{section_slug}.{block_slug}"
-            block = Block(slug=slug, blob=blob)
-            section.blocks.append(block)
-
-        sections.append(section)
+    divs = body.findall("./div")
+    if divs:
+        # Text has one or more sections.
+        for i, div in enumerate(body.findall("./div")):
+            section_slug = str(i + 1)
+            section = _make_section(div, section_slug)
+            sections.append(section)
+    else:
+        # Text has exactly one section.
+        section = _make_section(body, SINGLE_SECTION_SLUG)
+        sections = [section]
     return sections
 
 

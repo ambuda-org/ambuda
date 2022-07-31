@@ -219,13 +219,20 @@ tei_header_xml = {
 
 # Defined against the TEI spec
 tei_xml = {
+    # Header information
     "head": elem("h1"),
+    # A text section
     "div": elem("section"),
+    # A segment of text (e.g. a pāda).
     "seg": elem("span"),
     "hi": text(),
     "note": None,
     "orig": elem("span"),
+    # A verse (line group)
     "lg": to_verse,
+    # A line break
+    "lb": elem("br"),
+    # A line
     "l": elem("s-l"),
     "section": elem("section"),
 }

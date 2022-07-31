@@ -424,7 +424,6 @@ const HamburgerButton = (() => {
   return { init };
 })();
 
-
 (() => {
   FontSizeMenu.init();
   ScriptMenu.init();

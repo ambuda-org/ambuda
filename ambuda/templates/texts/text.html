@@ -22,9 +22,16 @@
 
 {{ m.text_tabs(text=text, active='contents') }}
 
-{% for prefix, sections in section_groups.items() %}
-{{ section_grid(sections) }}
-{% endfor %}
+{% if text.sections|length == 1 %}
+{% set url = url_for("texts.section", text_slug=text.slug, section_slug='all') %}
+<p>
+  <a class="btn btn-submit p-4" href="{{ url }}">Show full text</a>
+</p>
+{% else %}
+  {% for prefix, sections in section_groups.items() %}
+  {{ section_grid(sections) }}
+  {% endfor %}
+{% endif %}
 
 {% if header %}{{ tei_header(header) }}{% endif %}
 {% endblock %}

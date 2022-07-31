@@ -109,7 +109,7 @@ def text_resources(slug):
 
 @bp.route("/<text_slug>/<section_slug>")
 def section(text_slug, section_slug):
-    """Show a specific section."""
+    """Show a specific section of a text."""
     text = q.text(text_slug)
     if text is None:
         abort(404)
@@ -118,6 +118,11 @@ def section(text_slug, section_slug):
         prev, cur, next = _prev_cur_next(text.sections, section_slug)
     except ValueError:
         abort(404)
+
+    # Single-section text should have only the slug 'all'.
+    if not prev and not next:
+        if section_slug != "all":
+            abort(404)
 
     # Fetch with content blocks
     cur = q.text_section(text.id, section_slug)

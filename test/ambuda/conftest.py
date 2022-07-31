@@ -30,6 +30,8 @@ def initialize_test_db():
 
     section = db.TextSection(text_id=text.id, slug="1", title="adhyAyaH 1")
     session.add(section)
+    section2 = db.TextSection(text_id=text.id, slug="2", title="adhyAyaH 2")
+    session.add(section2)
     session.flush()
 
     block = db.TextBlock(

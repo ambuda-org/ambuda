@@ -32,7 +32,7 @@ def test_section__text_missing(client):
 
 
 def test_section__section_missing(client):
-    resp = client.get("/texts/pariksha/2")
+    resp = client.get("/texts/pariksha/3")
     assert resp.status_code == 404
 
 
