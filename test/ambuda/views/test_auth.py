@@ -4,7 +4,7 @@ from flask_login import current_user
 def test_register__unauth(client):
     resp = client.get("/register")
     assert resp.status_code == 200
-    assert ">Register for Ambuda<" in resp.text
+    assert ">Create an Ambuda account<" in resp.text
 
 
 def test_register__unauth_post__ok(client):

@@ -6,11 +6,10 @@
 {% block title %}Register | Ambuda{% endblock %}
 
 {% block content %}
-<h1 class="text-3xl text-center mb-4">Register for Ambuda</h1>
-
 {{ mf.show_errors_if_any(form.errors) }}
 
-<form method="POST" class="bg-slate-100 p-4 rounded">
+<form method="POST" class="bg-white rounded p-8">
+  <h1 class="text-2xl font-bold text-center mb-8">Create an Ambuda account</h1>
   {{ form.csrf_token }}
   {{ form.username.label(class_="block text-slate-600") }}
   {{ form.username(class_="w-full p-2 mt-2 mb-4 border rounded") }}

@@ -4,25 +4,26 @@
 
 {% block title %}Recover | Ambuda{% endblock %}
 
-{% block content %}
-<h1 class="text-3xl text-center mb-4">Recover your account</h1>
 
+{% set discord = "https://discord.gg/7rGdTyWY7Z" %}
+{% block content %}
 {{ mf.show_errors_if_any(form.errors) }}
 
 {% if hashed %}
-<p class="my-4">Your password hash is:</p>
+<div class="prose">
+<p>Your password hash is:</p>
 
-<p class="max-w-xl break-words">{{ hashed }}</p>
+<p class="font-mono break-words">{{ hashed }}</p>
 
-<p>Send this to <kbd>akprasad</kbd> on the Ambuda Discord server by private
-message.</p>
-
+<p>Send this hash to <kbd>akprasad</kbd> on the <a href="{{ discord }}">
+Ambuda Discord server</a> by private message.</p>
 {% else %}
-<p class="my-4">Enter your new password here:</p>
 
-<form method="POST" class="bg-slate-100 p-4 rounded">
+<form method="POST" class="bg-white rounded p-8">
+  <h1 class="text-2xl font-bold text-center mb-8">Recover your Ambuda account</h1>
+
   {{ form.csrf_token }}
-  {{ form.password.label(class_="block text-slate-600") }}
+  <p class="my-4">Enter your new password here:</p>
   {{ form.password(class_="w-full p-2 mt-2 mb-4 border rounded") }}
 
   <input type="submit" class="btn btn-submit w-full" value="Sign in">

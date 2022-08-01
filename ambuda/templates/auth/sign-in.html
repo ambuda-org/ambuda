@@ -3,24 +3,28 @@
 {% import "macros/forms.html" as mf %}
 
 
-{% block title %}Login | Ambuda{% endblock %}
+{% block title %}Sign in | Ambuda{% endblock %}
 
 
+{% set forgot = url_for('auth.recover') %}
 {% block content %}
-<h1 class="text-3xl text-center mb-4">Sign in to Ambuda</h1>
 
 {{ mf.show_errors_if_any(form.errors) }}
-
 {{ components.flash_messages() }}
 
-<form method="POST" class="bg-slate-100 p-4 rounded">
+<form method="POST" class="bg-white rounded p-8">
+  <h1 class="text-2xl font-bold text-center mb-8">Sign in to Ambuda</h1>
+
   {{ form.csrf_token }}
   {{ form.username.label(class_="block text-slate-600") }}
   {{ form.username(class_="w-full p-2 mt-2 mb-4 border rounded") }}
+  <div class="flex justify-between items-center">
   {{ form.password.label(class_="block text-slate-600") }}
+  <a class="hover:underline font-bold text-sm text-slate-500" href="{{ forgot }}">Forgot password?</a>
+  </div>
   {{ form.password(class_="w-full p-2 mt-2 mb-4 border rounded") }}
 
-  <input type="submit" class="btn btn-submit w-full" value="Sign in">
+  <input type="submit" class="btn text-white bg-brand w-full" value="Sign in">
 </form>
 
 <p class="text-center text-md mt-4 a-hover-underline text-slate-600">
