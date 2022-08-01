@@ -2,11 +2,13 @@
 
 {% block title %}Support | Ambuda{% endblock %}
 
+{% set paypal = "https://www.paypal.com/donate/?hosted_button_id=932UCTBER9RHA" %}
 {% set contact = url_for("about.contact") %}
 {% set mission = url_for("about.mission") %}
 {% set values = url_for("about.values") %}
 
 {% set contents = {
+  'donate': 'Donate to Ambuda',
   'sharing': 'Use and share Ambuda',
   'transcription': 'Transcribe and proofread texts',
   'tagging': 'Tag and annotate sentences',
@@ -39,6 +41,21 @@ is too late. <strong>We can do so only with your help.</strong>
 </ul>
 
 
+{{ _h('donate') }}
+</div>
+
+<p>Ambuda is a free project run for the public benefit. Please help pay for our
+hosting costs with a small donation:</p>
+
+<div class="text-center my-4 py-8 bg-slate-100">
+  <a href="{{ paypal }}" class="btn bg-black text-white p-4">Donate to Ambuda</a>
+</div>
+
+<p>More money means more security for the project and a greater ability for us
+to try ambitious new projects.</p>
+
+
+<div class="prose">
 {{ _h('sharing') }}
 
 <p>If you're short on time, using Ambuda and sharing it with others is the
