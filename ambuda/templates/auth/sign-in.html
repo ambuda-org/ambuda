@@ -6,7 +6,7 @@
 {% block title %}Sign in | Ambuda{% endblock %}
 
 
-{% set forgot = url_for('auth.recover') %}
+{% set forgot = url_for('auth.reset_password') %}
 {% block content %}
 
 {{ mf.show_errors_if_any(form.errors) }}

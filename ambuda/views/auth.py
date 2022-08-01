@@ -8,8 +8,7 @@ https://www.uxmatters.com/mt/archives/2018/09/signon-signoff-and-registration.ph
 from flask import Blueprint, flash, render_template, redirect, url_for
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_wtf import FlaskForm, RecaptchaField
-from werkzeug.security import generate_password_hash
-from wtforms import StringField, PasswordField
+from wtforms import StringField, PasswordField, EmailField
 from wtforms import validators as val
 
 import ambuda.queries as q
@@ -46,8 +45,9 @@ class SignInForm(FlaskForm):
     password = PasswordField("Password", [val.Length(min=8), val.DataRequired()])
 
 
-class RecoverForm(FlaskForm):
-    password = PasswordField("Password", [val.Length(min=8), val.DataRequired()])
+class RecoverPasswordForm(FlaskForm):
+    email = EmailField("Email", [val.DataRequired()])
+    recaptcha = RecaptchaField()
 
 
 class ChangePasswordForm(FlaskForm):
@@ -105,9 +105,25 @@ def sign_out():
     return redirect(url_for(POST_AUTH_ROUTE))
 
 
-@bp.route("/recover", methods=["GET", "POST"])
-def recover():
-    form = RecoverForm()
+@bp.route("/reset-password", methods=["GET", "POST"])
+def reset_password():
+    form = RecoverPasswordForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        session = q.get_session()
+        user = session.query(db.User).filter_by(email=email).first()
+        if user:
+            return "Sent!"
+        else:
+            flash(
+                "Sorry, the email address you provided is not associated with any of our acounts."
+            )
+
+    # Override the default message ("The response parameter is missing.")
+    # for better UX.
+    if form.recaptcha.errors:
+        form.recaptcha.errors = ["Please click the reCAPTCHA box."]
+
     return render_template("auth/recover.html", form=form)
 
 
