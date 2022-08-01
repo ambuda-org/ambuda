@@ -10,6 +10,15 @@
 
 {% block main %}
 <article class="p-4">
+  {% if not current_user.is_authenticated %}
+  {% call components.p_warning() %}
+  {% set url = url_for('auth.register') %}
+  Since you are not logged in, some functions (such as the OCR button) have
+  been disabled. To use all website features, please <a class="underline"
+  href="{{ url }}">create an account</a>.
+  {% endcall %}
+  {% endif %}
+
   {{ m.page_header(project, cur=cur, prev=prev, next=next) }}
 
   {{ components.flash_messages() }}

@@ -144,7 +144,6 @@ def _revision_diff(old: str, new: str) -> str:
 
 
 @bp.route("/<project_slug>/<page_slug>/")
-@login_required
 def edit(project_slug, page_slug):
     project_ = q.project(project_slug)
     if not project_:

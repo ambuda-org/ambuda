@@ -25,7 +25,8 @@ def test_create_new_project__auth(rama_client):
 
 def test_edit_page__unauth(client):
     resp = client.get("/proofing/test-project/1/")
-    assert resp.status_code == 302
+    assert resp.status_code == 200
+    assert "not logged in" in resp.text
 
 
 def test_edit_page(rama_client):
