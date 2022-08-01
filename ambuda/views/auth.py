@@ -108,11 +108,7 @@ def sign_out():
 @bp.route("/recover", methods=["GET", "POST"])
 def recover():
     form = RecoverForm()
-    if form.validate_on_submit():
-        hashed = generate_password_hash(form.password.data)
-    else:
-        hashed = ""
-    return render_template("auth/recover.html", form=form, hashed=hashed)
+    return render_template("auth/recover.html", form=form)
 
 
 @bp.route("/change-password", methods=["GET", "POST"])
