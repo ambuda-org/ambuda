@@ -179,6 +179,11 @@ def thread(*, id: int) -> Optional[db.Thread]:
     return session.query(db.Thread).filter_by(id=id).first()
 
 
+def post(*, id: int) -> Optional[db.Post]:
+    session = get_session()
+    return session.query(db.Post).filter_by(id=id).first()
+
+
 def create_thread(*, board_id: int, user_id: int, title: str, content: str):
     session = get_session()
 

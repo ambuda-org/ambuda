@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="prose">
-  <h1>{{ thread.title }} &mdash; create post</h1>
+  <h1>{{ thread.title }} &mdash; edit post</h1>
 </div>
 
 {{ show_errors_if_any(form.errors) }}
@@ -13,7 +13,7 @@
 <form method="POST" class="p-4 bg-zinc-100">
   {{ form.csrf_token }}
   {{ field(form.content) }}
-  <input type="submit" class="btn btn-submit" value="Create post">
+  <input type="submit" class="btn btn-submit" value="Save edits">
 </form>
 
 {% endblock %}

@@ -2,7 +2,36 @@
 {% import "macros/proofing.html" as m %}
 {% from "macros/forms.html" import field, show_errors_if_any %}
 
+
+{# Show a single post. #}
+{% macro post(post, current_user) %}
+<article class="border-b py-4 mx-4">
+  {% set username = post.author.username %}
+  <div class="text-sm mb-2 text-slate-500 a-hover-underline flex justify-between">
+    <div>
+      <a class="font-bold" href="{{ url_for("proofing.user", username=username) }}">{{ username }}</a>
+      &#xb7; {{ post.created_at|time_ago }}
+      {% if (post.updated_at - post.created_at).seconds > 600 %}
+      <span class="italic">(edited {{ post.updated_at|time_ago }})</span>
+      {% endif %}
+    </div>
+    <div>
+      {% if current_user.username == username %}
+      {% set url = url_for('proofing.talk.edit_post', project_slug=project.slug,
+          thread_id=thread.id, post_id=post.id)  %}
+      <a class="text-slate-400" href="{{ url }}">edit</a>
+      {% endif %}
+    </div>
+  </div>
+  <div class="prose">
+  {{ post.content|markdown|safe }}
+  </div>
+</article>
+{% endmacro %}
+
+
 {% block title %}{{ thread.title }} | Ambuda{% endblock %}
+
 
 {% block content %}
 {{ m.project_header_nested(project, "Talk:") }}
@@ -14,15 +43,8 @@
 </header>
 
 <div class="break-words">
-{% for post in thread.posts %}
-<article class="border-b py-4 mx-4">
-  {% set username = post.author.username %}
-  <h1 class="text-sm mb-2 text-slate-500 a-hover-underline">
-    <a class="font-bold" href="{{ url_for("proofing.user", username=username) }}">{{ username }}</a>
-    {{ post.updated_at|time_ago }}
-  </h1>
-  {{ post.content|markdown|safe }}
-</article>
+{% for p in thread.posts %}
+  {{ post(p, current_user) }}
 {% endfor %}
 </div>
 

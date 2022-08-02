@@ -20,6 +20,15 @@ def string():
     return Column(String, nullable=False, default="")
 
 
+def same_as(column_name):
+    """Utility for setting one column's default value to another column."""
+
+    def default_function(context):
+        return context.current_parameters.get(column_name)
+
+    return default_function
+
+
 class Board(Base):
 
     """A list of threads."""
@@ -53,7 +62,7 @@ class Thread(Base):
     #: Timestamp at which this thread was created.
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     #: Timestamp at which this thread was updated.
-    updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=same_as("created_at"), nullable=False)
 
     #: The author of this thread.
     author = relationship("User", backref="threads")
@@ -79,10 +88,15 @@ class Post(Base):
     #: Timestamp at which this post was created.
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     #: Timestamp at which this post was updated (e.g. during an edit).
-    updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=same_as("created_at"), nullable=False)
 
     #: The post content.
     content = Column(_Text, nullable=False)
 
     #: The author of this post.
     author = relationship("User", backref="posts")
+
+    def update_content(self, new_content: str):
+        """Update the post's content and its timestamp."""
+        self.content = new_content
+        self.updated_at = datetime.utcnow()

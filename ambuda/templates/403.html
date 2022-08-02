@@ -1,0 +1,12 @@
+{% extends 'base-text.html' %}
+
+{% block title %}Forbidden (403) | Ambuda{% endblock %}
+
+{% block content %}
+{% set contact_url = url_for('about.contact') %}
+<div class="prose">
+<h1>Forbidden (403)</h1>
+
+<p>Sorry, you don't have the access permissions needed to use this page.</p>
+</div>
+{% endblock %}

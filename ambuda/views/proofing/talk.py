@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import render_template, url_for, Blueprint
 from flask_login import login_required, current_user
 from flask_wtf import FlaskForm
@@ -21,6 +23,12 @@ class CreateThreadForm(FlaskForm):
 
 
 class CreatePostForm(FlaskForm):
+    content = StringField(
+        "Message", widget=TextArea(), validators=[DataRequired(), Length(max=10000)]
+    )
+
+
+class EditPostForm(FlaskForm):
     content = StringField(
         "Message", widget=TextArea(), validators=[DataRequired(), Length(max=10000)]
     )
@@ -72,7 +80,7 @@ def thread(project_slug, thread_id):
     return render_template("proofing/talk/thread.html", project=project_, thread=thread)
 
 
-@bp.route("/<project_slug>/talk/<thread_id>create", methods=["GET", "POST"])
+@bp.route("/<project_slug>/talk/<thread_id>/create", methods=["GET", "POST"])
 @login_required
 def create_post(project_slug, thread_id):
     project_ = q.project(project_slug)
@@ -101,4 +109,44 @@ def create_post(project_slug, thread_id):
 
     return render_template(
         "proofing/talk/create-post.html", project=project_, thread=thread_, form=form
+    )
+
+
+@bp.route("/<project_slug>/talk/<thread_id>/<post_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_post(project_slug, thread_id, post_id):
+    project_ = q.project(project_slug)
+    if project_ is None:
+        abort(404)
+
+    thread_ = q.thread(id=thread_id)
+    if thread_ is None or thread_.board_id != project_.board_id:
+        abort(404)
+
+    post_ = q.post(id=post_id)
+    if post_ is None or post_.thread_id != thread_.id:
+        abort(404)
+
+    if post_.author_id != current_user.id:
+        abort(403)
+
+    form = EditPostForm()
+    if form.validate_on_submit():
+        session = q.get_session()
+        post_.update_content(form.content.data)
+        session.add(post_)
+        session.commit()
+        return redirect(
+            url_for(
+                "proofing.talk.thread", project_slug=project_slug, thread_id=thread_id
+            )
+        )
+
+    form.content.data = post_.content
+    return render_template(
+        "proofing/talk/edit-post.html",
+        project=project_,
+        thread=thread_,
+        post=post_,
+        form=form,
     )
