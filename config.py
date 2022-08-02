@@ -84,13 +84,27 @@ class BaseConfig:
     # Services
     # --------
 
+    #: URL for mail server.
+    MAIL_SERVER = _env("MAIL_SERVER")
+    #: Port for mail server.
+    MAIL_PORT = _env("MAIL_PORT")
+    #: If ``True``, use TLS for email encryption.
+    MAIL_USE_TLS = True
+    #: Username for mail server.
+    MAIL_USERNAME = _env("MAIL_USERNAME")
+    #: Password for mail server.
+    MAIL_PASSWORD = _env("MAIL_PASSWORD")
+    #: Default sender for site emails.
+    MAIL_DEFAULT_SENDER = _env("MAIL_DEFAULT_SENDER")
+
+
     #: ReCAPTCHA public key.
     RECAPTCHA_PUBLIC_KEY = _env("RECAPTCHA_PUBLIC_KEY")
 
     #: ReCAPTCHA private key.
     RECAPTCHA_PRIVATE_KEY = _env("RECAPTCHA_PRIVATE_KEY")
 
-    #: Sentry data source name (DSN)
+    #: Sentry data source name (DSN).
     #: We use Sentry to get notifications about server errors.
     SENTRY_DSN = _env("SENTRY_DSN")
 
@@ -123,13 +137,6 @@ class UnitTestConfig(BaseConfig):
 
     RECAPTCHA_PUBLIC_KEY = "re-public"
     RECAPTCHA_PRIVATE_KEY = "re-private"
-
-
-class DevelopmentConfig(BaseConfig):
-    """For local development."""
-
-    AMBUDA_ENVIRONMENT = DEVELOPMENT
-    DEBUG = True
 
 
 class ProductionConfig(BaseConfig):

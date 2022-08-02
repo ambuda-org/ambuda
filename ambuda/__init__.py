@@ -20,6 +20,7 @@ from ambuda import admin as admin_manager
 from ambuda import database
 from ambuda import filters
 from ambuda import queries
+from ambuda.mail import mailer
 from ambuda.views.about import bp as about
 from ambuda.views.auth import bp as auth
 from ambuda.views.api import bp as api
@@ -91,6 +92,7 @@ def create_app(config_env: str):
     # Extensions
     login_manager = auth_manager.create_login_manager()
     login_manager.init_app(app)
+    mailer.init_app(app)
 
     with app.app_context():
         admin = admin_manager.create_admin_manager(app)
