@@ -1,5 +1,6 @@
 {% extends 'base-text.html' %}
 
+
 {% macro text_list(key, title) %}
 <h2 class="font-bold text-2xl py-2 mt-8 mb-4 border-b">{{ title|devanagari }}</h2>
 
@@ -14,7 +15,14 @@
 </ul> 
 {% endmacro %}
 
+
 {% block title %}Texts | Ambuda{% endblock %}
+
+
+{% block meta_description -%}Our breakthrough library features word-by-word
+analysis and integrated dictionary support for a variety of Sanskrit works.
+{%- endblock %}
+
 
 {% block content %}
 <div class="prose">
