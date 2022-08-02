@@ -1,11 +1,12 @@
-from .main import bp
-from .pages import bp as _pages
-from .projects import bp as _projects
-from .tagging import bp as _tagging
-from .talk import bp as _talk
+from . import main, pages, projects, tagging, talk, users
 
 
-bp.register_blueprint(_pages)
-bp.register_blueprint(_projects)
-bp.register_blueprint(_tagging, url_prefix="/tagging")
-bp.register_blueprint(_talk)
+__all__ = ["bp"]
+
+
+bp = main.bp
+bp.register_blueprint(projects.bp)
+bp.register_blueprint(pages.bp)
+bp.register_blueprint(tagging.bp, url_prefix="/tagging")
+bp.register_blueprint(talk.bp)
+bp.register_blueprint(users.bp, url_prefix="/users")

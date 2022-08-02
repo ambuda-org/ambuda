@@ -8,24 +8,10 @@
 
 {{ components.flash_messages() }}
 
-<div class="prose">
-<h1>{{ user.username }}</h1>
+<h1 class="font-bold text-3xl my-4">{{ user.username }}</h1>
+{{ m.user_tabs(user=user, active='about', is_admin=current_user.is_admin) }}
 
-{% if current_user.username == user.username %}
-<nav class="text-sm">
-  Settings:
-  <a href="{{ url_for("auth.change_password") }}">Change password</a>
-</nav>
-{% endif %}
-
-<h2>Recent edits</h2>
-</div>
-
-{% if user_revisions %}
-{{ m.revision_list(user_revisions|reverse) }}
-{% else %}
-<p>This user has not made any edits.</p>
-{% endif %}
+<p>This user joined {{ user.created_at|time_ago }}.</p>
 
 {% endblock %}
 

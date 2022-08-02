@@ -1,18 +1,18 @@
 {% extends 'proofing/base.html' %}
+{% import "macros/proofing.html" as m %}
 {% from "macros/forms.html" import field, show_errors_if_any %}
 
 {% block title %}Create thread on {{ project.title }} | Ambuda{% endblock %}
 
 {% block content %}
-<div class="prose">
-  <h1>{{ thread.title }} &mdash; create post</h1>
-</div>
+{% set url = url_for('proofing.talk.thread', project_slug=project.slug, thread_id=thread.id) %}
+{{ m.nested_header('Create post', thread.title, url) }}
 
 {{ show_errors_if_any(form.errors) }}
 
-<form method="POST" class="p-4 bg-zinc-100">
+<form method="POST">
   {{ form.csrf_token }}
-  {{ field(form.content) }}
+  {{ form.content(class_="border block p-2 my-4 w-full", placeholder='What do you want to say?') }}
   <input type="submit" class="btn btn-submit" value="Create post">
 </form>
 

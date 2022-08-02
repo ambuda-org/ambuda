@@ -8,7 +8,7 @@
 
 
 {% block content %}
-{{ m.project_header_nested(project, "Edit:") }}
+{{ m.project_header_nested('Edit', project) }}
 {{ m.project_nav(project=project, active='edit', is_admin=current_user.is_admin) }}
 {% set search_url = url_for("proofing.projects.search", slug=project.slug)  %}
 

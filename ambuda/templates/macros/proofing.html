@@ -1,9 +1,13 @@
 {% import 'macros/components.html' as components %}
 
-{% macro project_header_nested(project, label) %}
+{% macro project_header_nested(label, project) %}
+{% set url = url_for("proofing.projects.summary", slug=project.slug) %}
+{{ nested_header(label, project.title, url) }}
+{% endmacro %}
+
+{% macro nested_header(label, title, url) %}
 <header class="a-hover-underline font-bold text-3xl my-4">
-  {% set url = url_for("proofing.projects.summary", slug=project.slug) %}
-  <h1>{{ label}} <a class="text-slate-400" href="{{ url }}">{{ project.title }}</a></h1>
+  <h1>{{ label }}: <a class="text-slate-400" href="{{ url }}">{{ title }}</a></h1>
 </header>
 {% endmacro %}
 
@@ -18,6 +22,20 @@
 ] %}
 {% if is_admin %}{% set routes = routes + [
   ("admin",    "Admin",    url_for("proofing.projects.admin", slug=project.slug)),
+] %}{% endif %}
+
+{{ components.tabs(routes, active) }}
+{% endmacro %}
+
+
+{# User-level tabs. #}
+{% macro user_tabs(user, active, is_admin = false) %}
+{% set routes = [
+  ("about", "About", url_for("proofing.users.user", username=user.username)),
+  ("edits", "Edits", url_for("proofing.users.user_edits", username=user.username)),
+] %}
+{% if is_admin %}{% set routes = routes + [
+  ("admin", "Admin", url_for("proofing.users.admin", username=user.username)),
 ] %}{% endif %}
 
 {{ components.tabs(routes, active) }}
@@ -65,7 +83,7 @@
         project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
     {% set page_url = url_for('proofing.pages.edit',
         project_slug=r.project.slug, page_slug=r.page.slug) %}
-    {% set author_url = url_for('proofing.user',
+    {% set author_url = url_for('proofing.users.user',
         username=r.author.username) %}
     {% set page_title = r.project.title + "/" + r.page.slug %}
     {% set author = r.author.username %}
@@ -90,7 +108,7 @@
         project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
     {% set page_url = url_for('proofing.pages.edit',
         project_slug=r.project.slug, page_slug=r.page.slug) %}
-    {% set author_url = url_for('proofing.user',
+    {% set author_url = url_for('proofing.users.user',
         username=r.author.username) %}
     {% set page_title = r.project.title + "/" + r.page.slug %}
     {% set author = r.author.username %}
