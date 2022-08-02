@@ -32,6 +32,7 @@ Flask==2.1.2
 Flask-Admin==1.6.0
 Flask-Bcrypt==1.0.1
 Flask-Login==0.6.1
+Flask-Mail==0.9.1
 Flask-WTF==1.0.1
 fonttools==4.33.3
 gevent==21.12.0
