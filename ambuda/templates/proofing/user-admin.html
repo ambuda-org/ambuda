@@ -1,0 +1,15 @@
+{% extends 'proofing/base.html' %}
+{% import "macros/components.html" as components %}
+{% import "macros/proofing.html" as m %}
+
+{% block title %}User: {{ user.username }} | Ambuda{% endblock %}
+
+{% block content %}
+{% set url = url_for('proofing.users.user', username=user.username) %}
+{{ m.nested_header('Admin', user.username, url) }}
+{{ m.user_tabs(user=user, active='admin', is_admin=current_user.is_admin) }}
+
+<p>Coming soon. For now, use the standard admin view.</p>
+
+{% endblock %}
+
