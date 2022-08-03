@@ -1,3 +1,17 @@
+{# Show form errors, if any exist. #}
+{% macro show_errors_if_any(errors) %}
+{% if errors %}
+<div class="prose p-2 bg-red-100 text-red-900 rounded my-4">
+  <ul>
+  {% for k, v in errors.items() %}
+    <li>{{ v[0] }}</li>
+  {% endfor %}
+  </ul>
+</div>
+{% endif %}
+{% endmacro %}
+
+
 {# Render a form field. #}
 {% macro field(f) %}
 <div class="my-2">
@@ -16,15 +30,14 @@
 {% endmacro %}
 
 
-{# Show form errors, if any exist. #}
-{% macro show_errors_if_any(errors) %}
-{% if errors %}
-<div class="prose p-2 bg-red-100 text-red-900 rounded my-4">
-  <ul>
-  {% for k, v in errors.items() %}
-    <li>{{ v[0] }}</li>
-  {% endfor %}
-  </ul>
+{# Render a markdown text box. #}
+{% macro markdown_field(field) %}
+<div>
+{{ field(class_="border block p-2 w-full min-h-[200px] rounded",
+  placeholder='What do you want to say?') }}
+  <p class="text-sm text-slate-500 mt-2 mb-4">
+    You can format your post with Markdown.
+    <a class="underline" href="https://commonmark.org/help/">Click here to learn more.</a>
+  </p>
 </div>
-{% endif %}
 {% endmacro %}
