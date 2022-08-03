@@ -1,3 +1,6 @@
+{% if current_user -%}
+{% include 'include/header-login.html' %}
+{%- else %}
 {# https://css-tricks.com/snippets/svg/svg-hamburger-menu/ #}
 {% macro hamburger() %}
 <svg viewBox="0 0 100 80" width="20" height="20">
@@ -22,3 +25,4 @@
     <li><a class="block p-4 py-2" href="{{ url_for('about.index') }}">About</a></li>
   </ul>
 </nav>
+{% endif %}
