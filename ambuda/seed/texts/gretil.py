@@ -29,6 +29,7 @@ DATA_DIR = PROJECT_DIR / "data" / "ambuda-gretil"
 SINGLE_SECTION_SLUG = "all"
 
 ALLOW = [
+    Spec("amarushatakam", "amaruzakatam", "sa_amaru-amaruzataka.xml"),
     Spec("kumarasambhavam", "kumArasambhavam", "sa_kAlidAsa-kumArasaMbhava.xml"),
     Spec("raghuvamsham", "raghuvaMzam", "sa_kAlidAsa-raghuvaMza.xml"),
     Spec("kiratarjuniyam", "kirAtArjunIyam", "sa_bhAravi-kirAtArjunIya.xml"),

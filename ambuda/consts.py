@@ -4,6 +4,7 @@ TEXT_CATEGORIES = {
         "mahabharatam",
     ],
     "kavya": [
+        "amarushatakam",
         "kiratarjuniyam",
         "kumarasambhavam",
         "kokilasandesha",
