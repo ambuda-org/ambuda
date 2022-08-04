@@ -70,6 +70,8 @@ def add_revision(
     # Details: https://gist.github.com/shreevatsa/237bd6592771caadecc68c9515403bc3
     # FIXME: rather than do this on the application side, do an `exists` query
     # FIXME: instead? Not sure if this is a clear win, but worth thinking about.
+
+    # FIXME: Check for `proofreading` user permission before allowing changes
     session = q.get_session()
     status_ids = {s.name: s.id for s in q.page_statuses()}
     new_version = version + 1
