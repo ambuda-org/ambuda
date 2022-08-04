@@ -1,28 +1,95 @@
 from xml.etree import ElementTree as ET
 
-from ambuda.xml import elem, transform, paren_rule
+import ambuda.xml as x
+
+
+def test_delete():
+    xml = ET.fromstring('<div><paren class="foo">test</paren>after</div>')
+    paren = xml[0]
+    x._delete(paren)
+    assert paren.tag is None
+    assert paren.attrib == {}
+    assert paren.text is None
+    assert paren.tail is None
 
 
 def test_paren__text_only():
     xml = ET.fromstring("<paren>test</paren>")
-    paren_rule(xml)
+    x.paren_rule(xml)
     output = ET.tostring(xml).decode("utf-8")
     assert output == '<span class="paren">(test)</span>'
 
 
 def test_paren__text_and_child():
     xml = ET.fromstring("<paren>test <b>foo</b></paren>")
-    paren_rule(xml)
+    x.paren_rule(xml)
     output = ET.tostring(xml).decode("utf-8")
     assert output == '<span class="paren">(test <b>foo</b>)</span>'
+
+
+def test_to_verse():
+    xml = ET.fromstring('<lg xml:id="Test">verse</lg>')
+    x.to_verse(xml)
+    assert xml.tag == "s-lg"
+    assert xml.attrib == {"id": "Test"}
 
 
 def test_transform():
     blob = "<div>This is a <span>test</span> of our xml code.</div>"
     transforms = {
-        "div": elem("p"),
-        "span": elem("strong"),
+        "div": x.elem("p"),
+        "span": x.elem("strong"),
     }
     xml = ET.fromstring(blob)
-    output = transform(xml, transforms)
+    output = x.transform(xml, transforms)
     assert output == "<p>This is a <strong>test</strong> of our xml code.</p>"
+
+
+def test_parse_tei_header():
+    header = """
+    <teiHeader xml:lang="en">
+      <fileDesc>
+        <titleStmt>
+          <title type="main">TITLE</title>
+          <title type="sub">A machine-readable edition</title>
+          <author>AUTHOR</author>
+        </titleStmt>
+        <publicationStmt>
+          <publisher>Ambuda</publisher>
+          <!-- "free" or "restricted" depending on the license-->
+          <availability status="AVAILABILITY">
+            <license>
+              TODO
+            </license>
+          </availability>
+          <date>{current_year}</date>
+        </publicationStmt>
+        <sourceDesc>
+          <bibl>
+            <title>BIBL_TITLE</title>
+            <author>BIBL_AUTHOR</author>
+            <editor>BIBL_EDITOR</editor>
+            <publisher>BIBL_PUBLISHER</publisher>
+            <pubPlace>BIBL_PUB_PLACE</pubPlace>
+            <date>BIBL_PUB_YEAR</date>
+          </bibl>
+        </sourceDesc>
+      </fileDesc>
+      <encodingDesc>
+        <projectDesc>
+          <p>Produced through the distributed proofreading interface on Ambuda.</p>
+        </projectDesc>
+      </encodingDesc>
+      <revisionDesc>
+        TODO
+      </revisionDesc>
+    </teiHeader>
+    """
+    parsed = x.parse_tei_header(header)
+    assert parsed["title"] == "TITLE"
+    assert parsed["author"] == "AUTHOR"
+    assert parsed["publisher"] == "Ambuda"
+
+
+def test_parse_tei_header__missing():
+    assert x.parse_tei_header(None) == {}
