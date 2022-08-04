@@ -32,8 +32,12 @@ class User(UserMixin, Base):
     #: Timestamp at which this user record was created.
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
+    #: The user's self-description.
+    description = Column(Text_, nullable=False, default="")
+
     #: All roles available for this user.
     roles = relationship("Role", secondary="user_roles")
+    #: The user's profile.
     profile = relationship("Profile", cascade="delete")
 
     def set_password(self, raw_password: str):
@@ -54,17 +58,6 @@ class User(UserMixin, Base):
     @property
     def is_proofreader(self) -> bool:
         return self.has_role(SiteRole.P1) or self.has_role(SiteRole.P2)
-
-
-class Profile(Base):
-
-    """A user's profile: description, social media, etc."""
-
-    __tablename__ == "user_profile"
-
-    id = pk()
-    user_id = foreign_key("users.id")
-    description = Column(Text_, nullable=False, default="")
 
 
 class Role(Base):
