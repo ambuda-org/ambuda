@@ -16,54 +16,23 @@ def cli():
 
 
 @cli.command()
-def list_dicts():
-    """List dictionaries in the database."""
-    with Session(engine) as session:
-        dicts = session.query(db.Dictionary).all()
-    for d in dicts:
-        print(d.slug)
-
-
-@cli.command()
-@click.argument("slug")
-def delete_dict(slug: str):
-    """Delete the given dictionary."""
-    with Session(engine) as session:
-        d = session.query(db.Dictionary).where(db.Dictionary.slug == slug).first()
-        if d:
-            session.delete(d)
-            session.commit()
-
-
-@cli.command()
-def list_texts():
-    """List texts in the database."""
-    with Session(engine) as session:
-        texts = session.query(db.Text).all()
-    for t in texts:
-        print(t.slug)
-
-
-@cli.command()
-@click.argument("slug")
-def delete_text(slug: str):
-    """Delete the given text."""
-    with Session(engine) as session:
-        text = session.query(db.Text).where(db.Text.slug == slug).first()
-        if text:
-            session.delete(text)
-            session.commit()
-
-
-@cli.command()
 @click.argument("username")
-def delete_user(username: str):
-    """Delete the given user."""
+@click.argument("role")
+def add_role(username: str, role: str):
+    """Add the given role to the given user."""
     with Session(engine) as session:
         u = session.query(db.User).where(db.User.username == username).first()
-        if u:
-            session.delete(u)
-            session.commit()
+        if u is None:
+            raise click.ClickException(f"User {username} does not exist.")
+        r = session.query(db.Role).where(db.Role.name == role).first()
+        if r is None:
+            raise click.ClickException(f"Role {role} is not defined.")
+        if r in u.roles:
+            raise click.ClickException(f"User {username} already has role {role}.")
+
+        u.roles.append(r)
+        session.add(u)
+        session.commit()
 
 
 if __name__ == "__main__":

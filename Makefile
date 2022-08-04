@@ -14,6 +14,8 @@ install:
 
 # Seed the database with just enough data for the devserver to be interesting.
 db_seed_basic:
+	python -m ambuda.seed.lookup.role
+	python -m ambuda.seed.lookup.page_status
 	python -m ambuda.seed.texts.gretil
 	python -m ambuda.seed.dcs
 	python -m ambuda.seed.dictionaries.monier
@@ -22,6 +24,8 @@ db_seed_basic:
 # Seed the database will all of the text, parse, and dictionary data we serve
 # in production.
 db_seed_all:
+	python -m ambuda.seed.lookup.role
+	python -m ambuda.seed.lookup.page_status
 	python -m ambuda.seed.texts.gretil
 	python -m ambuda.seed.texts.ramayana
 	python -m ambuda.seed.texts.mahabharata
