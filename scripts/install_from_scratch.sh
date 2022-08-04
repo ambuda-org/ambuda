@@ -5,6 +5,10 @@ set -e
 
 echo "Beginning clean install of Ambuda."
 
+
+# JavaScript dependencies
+# =======================
+
 # Clean up any existing state so that we can do a clean install.
 rm -Rf env/ node_modules/
 
@@ -13,6 +17,10 @@ npm install
 
 # Build initial Tailwind CSS
 npx tailwindcss -i ./ambuda/static/css/style.css -o ambuda/static/gen/style.css --minify
+
+
+# Python dependencies
+# ===================
 
 # Install Python dependencies.
 python3 -m venv env
@@ -31,25 +39,42 @@ SQLALCHEMY_DATABASE_URI="sqlite:///database.db"
 GOOGLE_APPLICATION_CREDENTIALS = "<insert your credentials here>"
 EOF
 
-# Initialize the database.
+
+# Database setup
+# ==============
+
+# Create tables
 python -m scripts.initialize_db
+
+# Create Alembic's migrations table.
+alembic ensure_version
+
+# Set the most recent revision as the current one.
+alembic stamp head
+
 
 cat << "EOF"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You have successfully installed Ambuda! To start the development server, run:
+You have successfully installed Ambuda! To start the development server, run
+the following commands:
 
-1. source env/bin/activate
-2. make devserver
+    # This command works on Bash. You might need to change this command for
+    # other shells.
+    source env/bin/activate
 
-To add data to the database, try the commands below:
+    # Run the devserver.
+    make devserver
 
-1. Run `python -m ambuda.seed.texts.gretil` to add texts from GRETIL.
-2. Run `python -m ambuda.seed.dcs` to add parse data.
-3. Run `python -m ambuda.seed.dictionaries.monier` to add the Monier-Williams
-   dictionary. Other dictionaries are in `ambuda/seed/dictionaries`.
+To add data to the database, try either of the commands below:
+
+    # A smaller install with some missing data
+    make db_seed_basic
+
+    # A full install that's larger and slower
+    make db_seed_all
 
 For help, join our Discord: https://discord.gg/7rGdTyWY7Z
 

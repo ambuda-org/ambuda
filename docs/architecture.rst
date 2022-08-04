@@ -2,26 +2,7 @@ Architecture
 ============
 
 .. note::
-   If you just want to get started, see the :doc:`/installation` guide.
-
-
-Principles
-----------
-
-Ambuda's tech stack follows a few basic principles:
-
-1. Our readers care about our content and features, not our tech stack. So, our
-   tech work supports our features, and we don't build features just to justify
-   our technical decisions.
-
-2. The hidden enemy of any tech project is complexity. Unless there is a *very*
-   good reason to embrace it, we should keep complexity low in all parts of the
-   project.
-
-3. Our core team is an ever-changing group of volunteers with various
-   backgrounds and skills. When in doubt, we should prefer simple, well-known
-   and well-documented technologies that have been repeatedly tested in
-   production systems.
+   If you just want to get started, see the :doc:`/quickstart` guide.
 
 
 Data formats
@@ -103,6 +84,7 @@ professional without needing a complex build step or careful class management.
 
 
 .. _Tailwind: https://tailwindcss.com
+
 
 JavaScript
 ----------

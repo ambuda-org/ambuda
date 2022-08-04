@@ -6,22 +6,53 @@
 Ambuda Documentation
 ====================
 
-This is the technical documentation for Ambuda, located at https://ambuda.org.
-We wrote this guide for anyone who wants to run Ambuda locally or contribute
-back to the project.
+This is the technical documentation for Ambuda, a breakthrough Sanskrit library
+hosted at https://ambuda.org. We wrote this guide for anyone who wants to run
+Ambuda locally or contribute to Ambuda's technical work.
 
-If you have any questions or comments, please join us on our `Discord`_ channel.
+This doc is owned by our community, and it is a constant work in progress. If
+you have any questions or comments about the material here, please ask us on
+our `Discord`_ server.
 
 .. _Discord: https://discord.gg/7rGdTyWY7Z
+
+
+Our technical philosophy
+------------------------
 
 .. toctree::
    :maxdepth: 2
 
-   mission-and-principles
-   installation
+   values-and-principles
+
+
+Building the devserver
+-----------------------
+
+.. toctree::
+   :maxdepth: 2
+
    quickstart
+   installation
+
+
+A map of the codebase
+---------------------
+
+.. toctree::
+   :maxdepth: 2
+
    architecture
    project-layout
+
+
+Special topics
+--------------
+
+.. toctree::
+   :maxdepth: 2
+
+   managing-the-database
    tei-xml
 
 

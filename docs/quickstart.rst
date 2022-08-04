@@ -7,9 +7,11 @@ All of Ambuda's major commands are in `Makefile`.
 Running the development server
 ------------------------------
 
-After you've followed the :doc:`/installation` guide, you can bring up the
-Ambuda server with::
+After you've cloned the repo, you can bring up a minimal setup by running the
+following::
 
+    make install
+    make db_seed_basic
     make devserver
 
 Then go to `localhost:5000` to see the local application.
@@ -45,23 +47,14 @@ And to check test coverage, run::
 Database migrations
 -------------------
 
-Migrations are in the `migrations/` directory.
-
-Check the current migration setup and status::
-
-    alembic current
-
-Autogenerate a revision::
-
-    alembic revision --autogenerate -m "Add my cool column"
-
-Upgrade to the latest revision::
+Database migrations are complex. If you're pulling an upstream change that
+contains a database schema change, run this command to upgrade your local
+database:
 
     alembic upgrade head
 
-For more information, see the `Alembic tutorial`_.
-
-.. _Alembic tutorial: https://alembic.sqlalchemy.org/en/latest/tutorial.html
+See :doc:`managing-the-database` to learn more about how to work with the test
+database and safely make schema changes.
 
 
 Documentation
@@ -69,7 +62,6 @@ Documentation
 
 Finally, you can generate these docs with::
 
-    cd docs/
-    make html
+    make docs
 
 Then you can view the output by opening `_build/index.html`.
