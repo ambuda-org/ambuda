@@ -25,10 +25,15 @@ def roman(s: str) -> str:
     return sanscript.transliterate(s, sanscript.HK, sanscript.IAST)
 
 
-def time_ago(dt: datetime) -> str:
-    """Print a datetime relative to right now."""
-    rd = relativedelta(datetime.utcnow(), dt)
-    for name in ["months", "days", "hours", "minutes", "seconds"]:
+def time_ago(dt: datetime, now=None) -> str:
+    """Print a datetime relative to right now.
+
+    :param dt: the datetime to check
+    :param now: the "now" datetime. If not set, use `utcnow()`.
+    """
+    now = now or datetime.utcnow()
+    rd = relativedelta(now, dt)
+    for name in ["years", "months", "days", "hours", "minutes", "seconds"]:
         n = getattr(rd, name)
         if n:
             if n == 1:
