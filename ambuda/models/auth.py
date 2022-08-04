@@ -7,6 +7,7 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
+    Text as Text_,
 )
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -33,6 +34,7 @@ class User(UserMixin, Base):
 
     #: All roles available for this user.
     roles = relationship("Role", secondary="user_roles")
+    profile = relationship("Profile", cascade="delete")
 
     def set_password(self, raw_password: str):
         """Hash and save the given password."""
@@ -54,9 +56,23 @@ class User(UserMixin, Base):
         return self.has_role(SiteRole.P1) or self.has_role(SiteRole.P2)
 
 
+class Profile(Base):
+
+    """A user's profile: description, social media, etc."""
+
+    __tablename__ == "user_profile"
+
+    id = pk()
+    user_id = foreign_key("users.id")
+    description = Column(Text_, nullable=False, default="")
+
+
 class Role(Base):
 
-    """A role"""
+    """A role.
+
+    Roles are how we model fine-grained permissions on Ambuda.
+    """
 
     __tablename__ = "roles"
 
