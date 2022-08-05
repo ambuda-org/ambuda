@@ -3,9 +3,7 @@ def test_summary(client):
     assert resp.status_code == 200
 
 
-def test_talk(client):
-    resp = client.get("/proofing/test-project/talk/")
-    assert "Talk:" in resp.text
+# For "Talk:" tests, see test_talk.py.
 
 
 def test_edit__unauth(client):

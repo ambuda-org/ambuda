@@ -2,7 +2,7 @@
 {% import "macros/proofing.html" as m %}
 {% import "macros/forms.html" as mf %}
 
-{% block title %}Create thread on {{ project.title }} | Ambuda{% endblock %}
+{% block title %}Create post on {{ project.title }} | Ambuda{% endblock %}
 
 {% block content %}
 {% set url = url_for('proofing.talk.thread', project_slug=project.slug, thread_id=thread.id) %}

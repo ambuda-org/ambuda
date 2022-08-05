@@ -88,6 +88,12 @@ def initialize_test_db():
     session.add(board)
     session.flush()
 
+    thread = db.Thread(title="Some thread", author_id=admin.id)
+    post = db.Post(content="This is my post.", author_id=admin.id)
+    post.board = board
+    post.thread = thread
+    board.threads = [thread]
+
     project = db.Project(slug="test-project", title="Test Project", board_id=board.id)
     session.add(project)
     session.flush()

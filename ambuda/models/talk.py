@@ -43,6 +43,10 @@ class Board(Base):
     threads = relationship(
         "Thread", order_by=lambda: Thread.created_at.desc(), backref="board"
     )
+    #: Posts, newest first.
+    posts = relationship(
+        "Post", order_by=lambda: Post.created_at.desc(), backref="board"
+    )
 
 
 class Thread(Base):

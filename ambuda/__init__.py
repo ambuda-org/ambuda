@@ -41,16 +41,15 @@ def _initialize_db(app, config_name: str):
         """Reset session state to prevent caching and memory leaks."""
         queries.get_session_class().remove()
 
-    if config_name == "development":
-        # The hook below hides database errors. So, don't install the hook if
-        # we're on the development environment.
-        return
+    if config_name == "production":
+        # The hook below hides database errors. So, install the hook only if
+        # we're in production.
 
-    @app.errorhandler(exc.SQLAlchemyError)
-    def handle_db_exceptions(error):
-        """Rollback errors so that the db can handle future requests."""
-        session = queries.get_session()
-        session.rollback()
+        @app.errorhandler(exc.SQLAlchemyError)
+        def handle_db_exceptions(error):
+            """Rollback errors so that the db can handle future requests."""
+            session = queries.get_session()
+            session.rollback()
 
 
 def create_app(config_name: str):

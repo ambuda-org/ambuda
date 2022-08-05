@@ -17,8 +17,32 @@ def test_version__missing(client):
 def test_entry(client):
     resp = client.get("/tools/dictionaries/test-dict/agni")
     assert resp.status_code == 200
+    assert "fire" in resp.text
 
 
-def test_entry__version_missing(client):
+def test_entry__bad_version(client):
     resp = client.get("/tools/dictionaries/unknown/agni")
     assert resp.status_code == 404
+
+
+def test_entry__bad_key(client):
+    resp = client.get("/tools/dictionaries/test-dict/unknown")
+    assert resp.status_code == 200
+    assert "No results found" in resp.text
+
+
+def test_entry_htmx(client):
+    resp = client.get("/api/dictionaries/test-dict/agni")
+    assert resp.status_code == 200
+    assert "fire" in resp.text
+
+
+def test_entry_htmx__bad_version(client):
+    resp = client.get("/api/dictionaries/unknown/agni")
+    assert resp.status_code == 404
+
+
+def test_entry_htmx__bad_key(client):
+    resp = client.get("/api/dictionaries/test-dict/unknown")
+    assert resp.status_code == 200
+    assert "No results found" in resp.text
