@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import click
+import getpass
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from ambuda import database as db
@@ -13,6 +15,31 @@ engine = create_db()
 @click.group()
 def cli():
     pass
+
+
+@cli.command()
+def create_user():
+    """Add the given role to the given user."""
+    username = input("Username: ")
+    raw_password = getpass.getpass("Password: ")
+    email = input("Email: ")
+
+    with Session(engine) as session:
+        u = (
+            session.query(db.User)
+            .where(or_(db.User.username == username, db.User.email == email))
+            .first()
+        )
+        if u is not None:
+            if u.username == username:
+                raise click.ClickException(f"User {username} already exists.")
+            else:
+                raise click.ClickException(f"Email {email} already exists.")
+
+        user = db.User(username=username, email=email)
+        user.set_password(raw_password)
+        session.add(user)
+        session.commit()
 
 
 @cli.command()

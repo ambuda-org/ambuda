@@ -67,6 +67,7 @@ def initialize_test_db():
     session.add(admin)
     session.flush()
 
+    # Roles
     proofreader_role = db.Role(name=db.SiteRole.P1.value)
     admin_role = db.Role(name=db.SiteRole.ADMIN.value)
     session.add(proofreader_role)

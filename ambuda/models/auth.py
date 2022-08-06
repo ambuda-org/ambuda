@@ -65,6 +65,9 @@ class Role(Base):
     #: When this role was defined.
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
+    def __repr__(self):
+        return f"<Role({self.id}, {self.name})>"
+
 
 class UserRoles(Base):
 

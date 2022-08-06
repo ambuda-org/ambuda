@@ -2,14 +2,29 @@
 {% import "macros/components.html" as components %}
 {% import "macros/proofing.html" as m %}
 
+
 {% block title %}User: {{ user.username }} | Ambuda{% endblock %}
+
 
 {% block content %}
 {% set url = url_for('proofing.users.user', username=user.username) %}
+
+{{ components.flash_messages() }}
 {{ m.nested_header('Admin', user.username, url) }}
 {{ m.user_tabs(user=user, active='admin', is_admin=current_user.is_admin) }}
 
-<p>Coming soon. For now, use the standard admin view.</p>
+<p class="my-4">Set user permissions:</p>
+
+<form method="POST" class="p-4 bg-slate-100">
+  {{ form.csrf_token }}
+  {% for field in form if field.name.startswith("id_") %}
+  <div class="mb-4">
+    {{ field }}
+    {{ field.label }}
+  </div>
+  {% endfor %}
+  <input type="submit" class="btn btn-submit" value="Save changes">
+</form>
 
 {% endblock %}
 
