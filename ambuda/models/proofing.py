@@ -6,7 +6,7 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
-    Text as _Text,
+    Text as Text_,
 )
 from sqlalchemy.orm import relationship
 
@@ -16,6 +16,10 @@ from ambuda.models.base import Base, pk, foreign_key
 def string():
     """Create a non-nullable string column that defaults to the empty string."""
     return Column(String, nullable=False, default="")
+
+
+def text():
+    return Column(Text_, nullable=False, default="")
 
 
 class Project(Base):
@@ -39,6 +43,11 @@ class Project(Base):
     publisher = string()
     #: The document's publication year.
     publication_year = string()
+
+    #: Markdown for this project (to entice contributors, etc.)
+    description = text()
+    #: Defines page numbers (e.g. "x", "vii", ...)
+    page_numbers = text()
 
     #: Discussion board for this project.
     board_id = foreign_key("discussion_boards.id")
@@ -126,9 +135,9 @@ class Revision(Base):
     #: Timestamp at which this revision was created.
     created = Column(DateTime, default=datetime.utcnow, nullable=False)
     #: An optional editor summary for this revision.
-    summary = Column(_Text, nullable=False, default="")
+    summary = Column(Text_, nullable=False, default="")
     #: The actual content of this revision.
-    content = Column(_Text, nullable=False)
+    content = Column(Text_, nullable=False)
 
     #: An ordered list of revisions for this page (newest first).
     author = relationship("User", backref="revisions")
