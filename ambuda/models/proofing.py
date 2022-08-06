@@ -74,17 +74,16 @@ class Page(Base):
     project_id = foreign_key("proof_projects.id")
     #: Human-readable ID, which we display in the URL.
     slug = Column(String, index=True, nullable=False)
-    #: Page status
-    status_id = Column(
-        Integer, ForeignKey("proof_page_statuses.id"), index=True, nullable=False
-    )
     #: (internal-only) A comes before B iff A.order < B.order.
     order = Column(Integer, nullable=False)
     #: (internal-only) used only so that we can implement optimistic locking
     #: for edit conflicts. See the `add_revision` function for details.
     version = Column(Integer, default=0, nullable=False)
 
-    #: The status of this page.
+    #: Page status
+    status_id = Column(
+        Integer, ForeignKey("proof_page_statuses.id"), index=True, nullable=False
+    )
     status = relationship("PageStatus", backref="pages")
 
     #: An ordered list of revisions for this page (oldest first).

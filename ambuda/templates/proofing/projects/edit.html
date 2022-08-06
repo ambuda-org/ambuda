@@ -1,7 +1,7 @@
 {% extends 'proofing/base.html' %}
 {% import "macros/components.html" as components %}
+{% import "macros/forms.html" as mf %}
 {% import "macros/proofing.html" as m %}
-{% from "macros/forms.html" import field, markdown_field %}
 
 
 {% block title %}Edit: {{ project.title }} | Ambuda{% endblock %}
@@ -18,15 +18,17 @@
 </div>
 
 {{ components.flash_messages() }}
+{{ mf.show_errors_if_any(form.errors) }}
 
 <form method="POST" class="bg-slate-100 p-4">
   {{ form.csrf_token }}
-  {{ markdown_field(form.description) }}
-  {{ field(form.title) }}
-  {{ field(form.author) }}
-  {{ field(form.editor) }}
-  {{ field(form.publisher) }}
-  {{ field(form.publication_year) }}
+  {{ mf.markdown_field(form.description) }}
+  {{ mf.field(form.page_numbers) }}
+  {{ mf.field(form.title) }}
+  {{ mf.field(form.author) }}
+  {{ mf.field(form.editor) }}
+  {{ mf.field(form.publisher) }}
+  {{ mf.field(form.publication_year) }}
 
   <input class="btn btn-submit" type="submit" value="Save changes">
 </form>

@@ -5,15 +5,23 @@ from markupsafe import escape, Markup
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 from wtforms import StringField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, ValidationError
 from wtforms.widgets import TextArea
 
 from ambuda import queries as q, database as db
 from ambuda.utils.auth import admin_required
+from ambuda.utils import project_utils
 from ambuda.utils import proofing_utils
 
 
 bp = Blueprint("projects", __name__)
+
+
+def _is_valid_page_number_spec(form, field):
+    try:
+        parse = project_utils.parse_page_number_spec(field.data)
+    except Exception:
+        raise ValidationError("The page number spec isn't valid.")
 
 
 class EditMetadataForm(FlaskForm):
@@ -22,6 +30,14 @@ class EditMetadataForm(FlaskForm):
         widget=TextArea(),
         render_kw={
             "placeholder": "What is this book about? Why is this project exciting?",
+        },
+    )
+    page_numbers = StringField(
+        "Page numbers (optional)",
+        widget=TextArea(),
+        validators=[_is_valid_page_number_spec],
+        render_kw={
+            "placeholder": "Coming soon.",
         },
     )
     title = StringField("Title", validators=[DataRequired()])
@@ -64,6 +80,7 @@ class DeleteProjectForm(FlaskForm):
 
 @bp.route("/<slug>/")
 def summary(slug):
+    """Show basic information about the project."""
     project_ = q.project(slug)
     if project_ is None:
         abort(404)
@@ -73,12 +90,16 @@ def summary(slug):
         session.query(db.Revision)
         .filter_by(project_id=project_.id)
         .order_by(db.Revision.created.desc())
-        .limit(5)
+        .limit(10)
         .all()
     )
+
+    page_rules = project_utils.parse_page_number_spec(project_.page_numbers)
+    page_titles = project_utils.apply_rules(len(project_.pages), page_rules)
     return render_template(
         "proofing/projects/summary.html",
         project=project_,
+        pages=zip(page_titles, project_.pages),
         recent_revisions=recent_revisions,
     )
 
@@ -86,9 +107,12 @@ def summary(slug):
 @bp.route("/<slug>/edit", methods=["GET", "POST"])
 @login_required
 def edit(slug):
+    """Edit the project's metadata."""
     project_ = q.project(slug)
-    form = EditMetadataForm(obj=project_)
+    if project_ is None:
+        abort(404)
 
+    form = EditMetadataForm(obj=project_)
     if form.validate_on_submit():
         session = q.get_session()
         form.populate_obj(project_)
@@ -106,6 +130,7 @@ def edit(slug):
 
 @bp.route("/<slug>/download/")
 def download(slug):
+    """Download the project in various output formats."""
     project_ = q.project(slug)
     if project_ is None:
         abort(404)
@@ -115,6 +140,7 @@ def download(slug):
 
 @bp.route("/<slug>/download/text")
 def download_as_text(slug):
+    """Download the project as plain text."""
     project_ = q.project(slug)
     if project_ is None:
         abort(404)
@@ -131,6 +157,11 @@ def download_as_text(slug):
 
 @bp.route("/<slug>/download/xml")
 def download_as_xml(slug):
+    """Download the project as TEI XML.
+
+    This XML will likely have various errors, but it is correct enough that it
+    still saves a lot of manual work.
+    """
     project_ = q.project(slug)
     if project_ is None:
         abort(404)
@@ -156,6 +187,10 @@ def download_as_xml(slug):
 @bp.route("/<slug>/search")
 @login_required
 def search(slug):
+    """Search across all of the project's pages.
+
+    This is useful for finding typos that repeat across the project.
+    """
     project_ = q.project(slug)
     if project_ is None:
         abort(404)
@@ -205,6 +240,13 @@ def search(slug):
 @bp.route("/<slug>/admin", methods=["GET", "POST"])
 @admin_required
 def admin(slug):
+    """View admin controls for the project.
+
+    We restrict these operations to admins because they are destructive in the
+    wrong hands. Current list of admin operations:
+
+    - delete project
+    """
     project_ = q.project(slug)
     if project_ is None:
         abort(404)
