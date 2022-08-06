@@ -36,6 +36,7 @@ class EditPostForm(FlaskForm):
 
 @bp.route("/<slug>/talk/")
 def board(slug):
+    """Show all threads for some board."""
     project_ = q.project(slug)
     if project_ is None:
         abort(404)
@@ -69,6 +70,7 @@ def create_thread(slug):
 
 @bp.route("/<project_slug>/talk/<thread_id>")
 def thread(project_slug, thread_id):
+    """Show all posts for some thread."""
     project_ = q.project(project_slug)
     if project_ is None:
         abort(404)
@@ -83,6 +85,7 @@ def thread(project_slug, thread_id):
 @bp.route("/<project_slug>/talk/<thread_id>/create", methods=["GET", "POST"])
 @login_required
 def create_post(project_slug, thread_id):
+    """Create a post on an existing thread."""
     project_ = q.project(project_slug)
     if project_ is None:
         abort(404)
@@ -115,6 +118,7 @@ def create_post(project_slug, thread_id):
 @bp.route("/<project_slug>/talk/<thread_id>/<post_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit_post(project_slug, thread_id, post_id):
+    """Edit an existing post."""
     project_ = q.project(project_slug)
     if project_ is None:
         abort(404)

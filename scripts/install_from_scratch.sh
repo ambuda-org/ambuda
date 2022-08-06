@@ -32,11 +32,15 @@ pip install -r requirements.txt
 make test
 
 # Install environment variables.
-cat << EOF > .env
+cat << "EOF" > .env
+# To see what these environment variables mean and how we use them in the
+# application, see `config.py`.
+
 FLASK_ENV=development
+# FLASK_UPLOAD_FOLDER="<absolute path to where you want to store uploads.>"
 SQLALCHEMY_DATABASE_URI="sqlite:///database.db"
 
-GOOGLE_APPLICATION_CREDENTIALS = "<insert your credentials here>"
+GOOGLE_APPLICATION_CREDENTIALS="<Google API credentials>"
 EOF
 
 

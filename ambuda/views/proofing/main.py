@@ -37,7 +37,7 @@ def _is_allowed_image_file(filename: str) -> bool:
 
 @bp.route("/")
 def index():
-    """List all available proofreading projects."""
+    """List all available proofing projects."""
     projects = q.projects()
 
     all_counts = {}
@@ -72,11 +72,13 @@ def index():
 
 @bp.route("/beginners-guide")
 def beginners_guide():
+    """Display our minimal proofing guidelines."""
     return render_template("proofing/beginners-guide.html")
 
 
 @bp.route("/complete-guide")
 def complete_guide():
+    """Display our complete proofing guidelines."""
     return render_template("proofing/complete-guidelines.html")
 
 
@@ -201,6 +203,7 @@ def upload_pdf_post():
 
 @bp.route("/recent-changes")
 def recent_changes():
+    """Show recent changes across all projects."""
     session = q.get_session()
     recent_revisions = (
         session.query(db.Revision).order_by(db.Revision.created.desc()).limit(100).all()
