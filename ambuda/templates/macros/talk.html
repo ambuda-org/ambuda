@@ -1,0 +1,9 @@
+{% macro post(field) %}
+<div>
+  {{ field(class_="border block p-2 w-full min-h-[200px] rounded") }}
+  <p class="text-sm text-slate-500 mt-2 mb-4">
+    You can format this post with Markdown.
+    <a class="underline" href="https://commonmark.org/help/">Click here to learn more.</a>
+  </p>
+</div>
+{% endmacro %}

@@ -1,7 +1,7 @@
 {% extends 'proofing/base.html' %}
 {% import "macros/components.html" as components %}
 {% import "macros/proofing.html" as m %}
-{% from "macros/forms.html" import field %}
+{% from "macros/forms.html" import field, markdown_field %}
 
 
 {% block title %}Edit: {{ project.title }} | Ambuda{% endblock %}
@@ -21,6 +21,7 @@
 
 <form method="POST" class="bg-slate-100 p-4">
   {{ form.csrf_token }}
+  {{ markdown_field(form.description) }}
   {{ field(form.title) }}
   {{ field(form.author) }}
   {{ field(form.editor) }}

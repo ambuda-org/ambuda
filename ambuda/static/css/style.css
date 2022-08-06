@@ -68,6 +68,7 @@
 
   /* Prose context */
   .prose a { @apply text-sky-700 underline hover:text-sky-900; }
+  .prose blockquote { @apply border-l pl-4; }
   .prose dt { @apply font-bold; }
   .prose dd { @apply mb-4; }
   .prose dfn { @apply font-bold not-italic; }

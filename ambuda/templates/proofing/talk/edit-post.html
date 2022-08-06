@@ -1,5 +1,6 @@
 {% extends 'proofing/base.html' %}
 {% import "macros/proofing.html" as m %}
+{% import "macros/talk.html" as m_talk %}
 {% from "macros/forms.html" import field, show_errors_if_any %}
 
 {% block title %}Create thread on {{ project.title }} | Ambuda{% endblock %}
@@ -12,7 +13,7 @@
 
 <form method="POST" class="p-4 bg-zinc-100">
   {{ form.csrf_token }}
-  {{ field(form.content) }}
+  {{ m_talk.post(form.content) }}
   <input type="submit" class="btn btn-submit" value="Save edits">
 </form>
 

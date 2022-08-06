@@ -7,7 +7,11 @@ from indic_transliteration import sanscript
 from markdown_it import MarkdownIt
 
 
-MARKDOWN = MarkdownIt()
+# Markdown parser.
+# Docs: https://markdown-it-py.readthedocs.io/en/latest/using.html
+MARKDOWN = MarkdownIt("js-default", {"typographer": True, "linkify": True}).enable(
+    ["replacements", "smartquotes", "linkify"]
+)
 
 
 def slp_to_devanagari(s: str) -> str:

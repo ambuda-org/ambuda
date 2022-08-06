@@ -12,10 +12,15 @@
 {% endmacro %}
 
 
+{% macro label(L) %}
+{{ L(class_="block text-slate-500 my-2") }}
+{% endmacro %}
+
+
 {# Render a form field. #}
 {% macro field(f) %}
 <div class="my-2">
-  {{ f.label(class_="block text-slate-500 my-2") }}
+  {{ label(f.label) }}
   {{ f(class_="p-2 block w-full my-2") }}
 </div>
 {% endmacro %}
@@ -30,13 +35,16 @@
 {% endmacro %}
 
 
+{% macro _markdown_desc() %}
+{% endmacro %}
+
 {# Render a markdown text box. #}
 {% macro markdown_field(field) %}
 <div>
-{{ field(class_="border block p-2 w-full min-h-[200px] rounded",
-  placeholder='What do you want to say?') }}
+  {{ label(field.label) }}
+  {{ field(class_="border block p-2 w-full min-h-[200px] rounded") }}
   <p class="text-sm text-slate-500 mt-2 mb-4">
-    You can format your post with Markdown.
+    You can format this text with Markdown.
     <a class="underline" href="https://commonmark.org/help/">Click here to learn more.</a>
   </p>
 </div>

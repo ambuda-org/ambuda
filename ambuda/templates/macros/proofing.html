@@ -1,9 +1,11 @@
 {% import 'macros/components.html' as components %}
 
+
 {% macro project_header_nested(label, project) %}
 {% set url = url_for("proofing.projects.summary", slug=project.slug) %}
 {{ nested_header(label, project.title, url) }}
 {% endmacro %}
+
 
 {% macro nested_header(label, title, url) %}
 <header class="a-hover-underline font-bold text-3xl my-4">
@@ -50,6 +52,7 @@
 </a>
 {% endmacro %}
 
+
 {% macro page_header(project, cur, prev, next) %}
 <div class="a-hover-underline flex justify-between items-center my-4">
   <div>
@@ -73,6 +76,7 @@
   </p>
 </div>
 {% endmacro %}
+
 
 {# List the given revisions. Revisions might correspond to multiple pages. #}
 {% macro revision_list(revisions) %}
@@ -99,6 +103,7 @@
 </ul>
 {% endmacro %}
 
+
 {# List the revisions for some page. #}
 {% macro page_revision_list(revisions) %}
 <ul class="a-hover-underline">
@@ -123,6 +128,7 @@
 </ul>
 {% endmacro %}
 
+
 {# CSS for each revision status. #}
 {% macro revision_colors(status) %}
 {% if status == 'reviewed-0' %}
@@ -135,6 +141,7 @@ bg-green-200 text-green-800
 bg-gray-200 text-gray-800
 {% endif %}
 {% endmacro %}
+
 
 {# Displays the page's revision status as a human-readable banner. #}
 {% macro page_status(status) %}

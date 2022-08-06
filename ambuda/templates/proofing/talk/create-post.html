@@ -1,5 +1,6 @@
 {% extends 'proofing/base.html' %}
 {% import "macros/proofing.html" as m %}
+{% import "macros/talk.html" as m_talk %}
 {% import "macros/forms.html" as mf %}
 
 {% block title %}Create post on {{ project.title }} | Ambuda{% endblock %}
@@ -12,7 +13,7 @@
 
 <form method="POST">
   {{ form.csrf_token }}
-  {{ mf.markdown_field(form.content) }}
+  {{ m_talk.post(form.content) }}
   <input type="submit" class="btn btn-submit" value="Create post">
 </form>
 

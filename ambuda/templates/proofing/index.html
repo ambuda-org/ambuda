@@ -56,16 +56,22 @@
 <ul>
 {% for p in projects %}
 <li>
-  <h3 class="mt-4 mb-2 a-hover-underline">
-    <a href="{{ url_for("proofing.projects.summary", slug=p.slug) }}">{{ p.title }}</a>
-    ({{ all_page_counts[p.slug] }} pages)
-  </h3>
+  <div class="mt-4 a-hover-underline flex justify-between items-baseline">
+    <a class="font-bold" href="{{ url_for("proofing.projects.summary", slug=p.slug) }}">{{ p.title }}</a>
+    <span class="text-xs">({{ all_page_counts[p.slug] }} pages)</span>
+  </div>
 
-  <div class="flex border">
+  <div class="flex">
   {% for cls, width in all_counts[p.slug].items() %}
-    <div class="h-2 {{ cls }}" style="width: {{ width * 100 }}%"></div>
+    <div class="h-1 {{ cls }}" style="width: {{ width * 100 }}%"></div>
   {% endfor %}
   </div>
+
+  {% if p.description %}
+  <section class="mt-2 text-slate-600 text-sm">
+    {{ p.description }}
+  </section>
+  {% endif %}
 </li>
 {% endfor %}
 </ul>

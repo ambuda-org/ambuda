@@ -6,6 +6,7 @@ from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 from wtforms import StringField
 from wtforms.validators import DataRequired
+from wtforms.widgets import TextArea
 
 from ambuda import queries as q, database as db
 from ambuda.utils.auth import admin_required
@@ -16,11 +17,38 @@ bp = Blueprint("projects", __name__)
 
 
 class EditMetadataForm(FlaskForm):
+    description = StringField(
+        "Description (optional)",
+        widget=TextArea(),
+        render_kw={
+            "placeholder": "What is this book about? Why is this project exciting?",
+        },
+    )
     title = StringField("Title", validators=[DataRequired()])
-    author = StringField("Author")
-    editor = StringField("Editor")
-    publisher = StringField("Publisher")
-    publication_year = StringField("Publication year")
+    author = StringField(
+        "Author",
+        render_kw={
+            "placeholder": "The author of the original work, e.g. Kalidasa.",
+        },
+    )
+    editor = StringField(
+        "Editor",
+        render_kw={
+            "placeholder": "The person or organization that created this edition of the text.",
+        },
+    )
+    publisher = StringField(
+        "Publisher",
+        render_kw={
+            "placeholder": "The original publisher of this book, e.g. Nirnayasagar.",
+        },
+    )
+    publication_year = StringField(
+        "Publication year",
+        render_kw={
+            "placeholder": "The year in which this specific edition was published.",
+        },
+    )
 
 
 class SearchForm(FlaskForm):

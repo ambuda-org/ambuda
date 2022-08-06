@@ -12,6 +12,15 @@
 <h1 class="font-bold text-3xl my-4">{{ project.title }}</h1>
 {{ m.project_nav(project=project, active='summary', is_admin=current_user.is_admin) }}
 
+{% if project.description %}
+<div class="prose">
+  <h2>Description</h2>
+  <blockquote>
+  {{ project.description|markdown|safe }}
+  </blockquote>
+</div>
+{% endif %}
+
 <div class="prose">
   <h2>Pages</h2>
 </div>
