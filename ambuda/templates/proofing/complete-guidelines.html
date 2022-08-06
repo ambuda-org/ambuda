@@ -3,34 +3,41 @@
 
 
 {% set contents = {
-  'what-is-our-goal': 'What is our goal?',
-  'the-golden-rule': 'The golden rule',
-  'characters': 'Characters',
+  'what-is-our-goal': ('What is our goal?', {}),
+  'the-golden-rule': ('The golden rule', {}),
+  'characters': ('Characters', {
     'eol-hyphens': 'Hyphens at the end of a line',
     'eol-dashes': 'Hyphens and dashes',
     'auto-spaces': '[auto] Spaces around punctuation characters',
     'auto-quotes': '[auto] Quotation marks',
     'auto-eol-spaces': '[auto] Spaces at the end of a line',
-  'paragraphs': 'Paragraphs',
+  }),
+  'paragraphs': ('Paragraphs', {
     'para-breaks': 'Line breaks and line-ending hyphens',
     'para-blank-lines': 'Spaces between paragraphs',
     'para-headers': 'Page headers and page footers',
     'para-footnotes': 'Footnotes',
     'para-indenting': '[auto] Indenting paragraphs',
-  'pages': 'Pages',
-  'unanswered': "If your question isn't answered here",
+  }),
+  'pages': ('Pages', {}),
+  'annotations': ('Annotations', {
+    'errors': 'Errors and corrections',
+    'notes': 'Notes',
+    'uncertain': 'Uncertain text',
+  }),
+  'unanswered': ("If your question isn't answered here", {}),
 } %}
 
+
 {% macro _h(anchor) %}
-<h2 id="{{ anchor }}">{{ contents[anchor] }}</h2>
+<h2 id="{{ anchor }}">{{ contents[anchor][0] }}</h2>
 {% endmacro %}
 
-{% macro _h2(anchor) %}
-<h3 id="{{ anchor }}">{{ contents[anchor] }}</h3>
+{% macro _h2(parent, anchor) %}
+<h3 id="{{ anchor }}">{{ contents[parent][1][anchor] }}</h3>
 {% endmacro %}
 
 {% macro _a(anchor) %}
-<a href="#{{ anchor }}">{{ contents[anchor] }}</a>
 {% endmacro %}
 
 {% macro _compare(wrong, right) %}
@@ -44,30 +51,25 @@
 <pre class="font-mono my-4 pl-4 border-l-4">{{ caller()|d }}</pre>
 {% endmacro %}
 
+{% macro _example_en() %}
+<pre class="font-mono my-4 pl-4 border-l-4">{{ caller() }}</pre>
+{% endmacro %}
+
+
 {% macro _table_of_contents(contents) %}
 <ul>
-  <li>{{ _a('what-is-our-goal') }}</li>
-  <li>{{ _a('the-golden-rule') }}</li>
-  <li>{{ _a('characters') }}
+  {% for slug, (title, children) in contents.items() %}
+  <li>
+    <a href="#{{ slug }}">{{ title }}</a>
+    {% if children %}
     <ul>
-      <li>{{ _a('eol-hyphens') }}</li>
-      <li>{{ _a('eol-dashes') }}</li>
-      <li>{{ _a('auto-spaces') }}</li>
-      <li>{{ _a('auto-quotes') }}</li>
-      <li>{{ _a('auto-eol-spaces') }}</li>
+      {% for c_slug, c_title in children.items() %}
+      <li><a href="#{{ c_slug }}">{{ c_title }}</a></li>
+      {% endfor %}
     </ul>
+    {% endif %}
   </li>
-  <li>{{ _a('paragraphs') }}
-    <ul>
-      <li>{{ _a('para-breaks') }}</li>
-      <li>{{ _a('para-blank-lines') }}</li>
-      <li>{{ _a('para-headers') }}</li>
-      <li>{{ _a('para-footnotes') }}</li>
-      <li>{{ _a('para-indenting') }}</li>
-    </ul>
-  </li>
-  <li>{{ _a('pages') }}</li>
-  <li>{{ _a('unanswered') }}</li>
+  {% endfor %}
 </ul>
 {% endmacro %}
 
@@ -146,7 +148,7 @@ good use of time.
 {% endcall %}
 
 
-{{ _h2('eol-hyphens') }}
+{{ _h2('characters', 'eol-hyphens') }}
 
 <p>If the printed line ends with a hyphen, keep the hyphen. Our program uses
 these hyphens to stitch together different lines:
@@ -161,7 +163,7 @@ otherwise have a hyphen (e.g. "front-end," "topsy-turvy"), join the words
 together so that our program preserves the hyphen.
 
 
-{{ _h2('eol-dashes') }}
+{{ _h2('characters', 'eol-dashes') }}
 
 Books often use two kinds of horizontal lines:
 
@@ -174,7 +176,7 @@ these with two dashes (<kbd>--</kbd>).
 </ul>
 
 
-{{ _h2('auto-spaces') }}
+{{ _h2('characters', 'auto-spaces') }}
 
 <p>We don't leave any space between a dash and the words around it:
 
@@ -186,7 +188,7 @@ of a ")" or "]" character:
 {{ _compare('manuSyaH ( naraH ) iti'|d, 'manuSyaH (naraH) iti'|d) }}
 
 
-{{ _h2('auto-quotes') }}
+{{ _h2('characters', 'auto-quotes') }}
 
 We use "straight quotes" without any special formatting.
 
@@ -194,7 +196,7 @@ We use "straight quotes" without any special formatting.
 {{ _compare('“naraH”'|d, '"naraH"'|d) }}
 
 
-{{ _h2('auto-eol-spaces') }}
+{{ _h2('characters', 'auto-eol-spaces') }}
 
 We delete spaces at the end of a line:
 
@@ -203,7 +205,7 @@ We delete spaces at the end of a line:
 
 {{ _h('paragraphs') }}
 
-{{ _h2('para-breaks') }}
+{{ _h2('paragraphs', 'para-breaks') }}
 
 <p>Proofing is easier when we can quickly compare our digitized text to the
 original image. Line breaks and line-breaking make our digitized text look more
@@ -211,19 +213,19 @@ similar to the image, which means we can proofread more quickly. (A special
 program will remove these later.)
 
 
-{{ _h2('para-blank-lines') }}
+{{ _h2('paragraphs', 'para-blank-lines') }}
 
 <p>Separate paragraphs and verses with blank lines.
 
 
-{{ _h2('para-headers') }}
+{{ _h2('paragraphs', 'para-headers') }}
 
 <p>Page headers and page footers (but not footnotes!) are the small text and
 page numbers that appear on every page. They don't have any useful information,
 and you should delete them.
 
 
-{{ _h2('para-footnotes') }}
+{{ _h2('paragraphs', 'para-footnotes') }}
 
 <p>In the main text, mark the character that indicates the footnote by wrapping
 it in brackets and placing a <kbd>^</kbd> character after the first bracket.
@@ -241,7 +243,7 @@ upakriyAyAH sadRzaM nArebhe ravisUnunA || 7 ||
 {%- endcall %}
 
 
-{{ _h2('para-indenting') }}
+{{ _h2('paragraphs', 'para-indenting') }}
 
 <p>You don't need to indent paragraphs. But if the paragraphs are indented, you
 can leave that spacing in. (A special program will remove indents later.)
@@ -251,6 +253,39 @@ can leave that spacing in. (A special program will remove indents later.)
 
 <p>Skip any content that is not part of the original book. This includes
 handwritten notes, stamps, watermarks, dirt, stains, etc.
+
+
+{{ _h('annotations') }}
+
+{{ _h2('annotations', 'errors') }}
+
+<p>If the text has a typographical error, wrap the error in the
+<kbd>&lt;error&gt;</kbd> tag. If needed, add a fix with the
+<kbd>&lt;fix&gt;</kbd> tag.
+
+{% call _example_en() -%}
+This is an &lt;error&gt;example&lt;/error&gt; &lt;fix&gt;example&lt;/fix&gt;.
+{%- endcall %}
+
+
+{{ _h2('annotations', 'notes') }}
+
+<p>If you need to make a note in the text, use the <kbd>&lt;note&gt;</kbd> tag:
+
+{% call _example_en() -%}
+&lt;note&gt;This is a transpositional error.&lt;/note&gt;.
+{%- endcall %}
+
+{{ _h2('annotations', 'uncertain') }}
+
+<p>If the text is confusing or uncertain, use the <kbd>&lt;flag&gt;</kbd> tag
+so that another proofer can notice and take a look.
+
+{% call _example_en() -%}
+This is a &lt;flag&gt;xople?&lt;/flag&gt;.
+{%- endcall %}
+
+
 
 
 {{ _h('unanswered') }}

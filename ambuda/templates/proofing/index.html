@@ -57,7 +57,7 @@
 {% for p in projects %}
 <li>
   <div class="mt-4 a-hover-underline flex justify-between items-baseline">
-    <a class="font-bold" href="{{ url_for("proofing.projects.summary", slug=p.slug) }}">{{ p.title }}</a>
+    <a href="{{ url_for("proofing.projects.summary", slug=p.slug) }}">{{ p.title }}</a>
     <span class="text-xs">({{ all_page_counts[p.slug] }} pages)</span>
   </div>
 
@@ -69,7 +69,7 @@
 
   {% if p.description %}
   <section class="mt-2 text-slate-600 text-sm">
-    {{ p.description }}
+    {{ p.description|markdown|safe }}
   </section>
   {% endif %}
 </li>
