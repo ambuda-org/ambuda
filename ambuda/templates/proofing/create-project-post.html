@@ -1,5 +1,6 @@
 {% extends 'proofing/base.html' %}
 {% import "macros/components.html" as components %}
+{% import "macros/celery.html" as m_cel %}
 {% import "macros/proofing.html" as m %}
 {% import "macros/talk.html" as m_talk %}
 {% import "macros/forms.html" as mf %}
@@ -14,6 +15,19 @@
 
 <p>Your upload is in progress.</p>
 
-<a href="{{ url_for("proofing.create_project_status", task_id=task_id) }}">Status</a>
+<div id="progress">
+  {% with current=current, total = total %}
+    {% include 'include/task-progress.html' %}
+  {% endwith %}
+</div>
+
+<script type="text/javascript">
+  const taskId = '{{ task_id }}';
+  setInterval(function() {
+    Server.getText(`/proofing/status/${taskId}`, (text) => {
+      $('#progress').innerHTML = text;
+    });
+  }, 1000);
+</script>
 
 {% endblock %}

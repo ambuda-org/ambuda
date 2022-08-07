@@ -8,6 +8,7 @@ from flask import (
     abort,
     current_app,
     flash,
+    jsonify,
     render_template,
     redirect,
     request,
@@ -98,14 +99,13 @@ def complete_guide():
 def create_project():
     form = CreateProjectWithPdfForm()
     if form.validate_on_submit():
-        async_result = pdf.create_project.delay("path.txt")
-
-        # def on_raw_message(body):
-        #     print(body)
-        # print(async_result.get(on_message=on_raw_message, propagate=False))
-
+        task = pdf.create_project.delay("path.txt")
+        info = task.info or {}
         return render_template(
-            "proofing/create-project-post.html", task_id=async_result.id
+            "proofing/create-project-post.html",
+            task_id=task.id,
+            current=info.get("current", 0),
+            total=info.get("total", 100),
         )
 
     return render_template("proofing/create-project.html", form=form)
@@ -113,8 +113,15 @@ def create_project():
 
 @bp.route("/status/<task_id>")
 def create_project_status(task_id):
+    # NOTE: use redis backend to allow multi-process fetch.
     status = pdf.create_project.AsyncResult(task_id)
-    assert False
+    info = status.info or {}
+    print(info)
+    return render_template(
+        "include/task-progress.html",
+        current=info.get("current", 0),
+        total=info.get("total", 100),
+    )
 
 
 # Unused in prod -- needs task queue support (celery/dramatiq)

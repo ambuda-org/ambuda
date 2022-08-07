@@ -1,0 +1,8 @@
+{# kwargs: current, total #}
+{% set current = current or 0 %}
+{% set total = total or 100 %}
+{% set percent = 100 * current / total %}
+<div class="my-4 rounded w-full bg-slate-100 h-4">
+  <div class="rounded bg-green-300 h-4" style="width: {{ percent }}%">&nbsp;</div>
+</div>
+<p>Progress: {{ '{:.0f}'.format(percent) }}%</p>
