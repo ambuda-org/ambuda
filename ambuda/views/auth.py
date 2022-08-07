@@ -8,6 +8,7 @@ https://www.uxmatters.com/mt/archives/2018/09/signon-signoff-and-registration.ph
 from flask import Blueprint, flash, render_template, redirect, url_for
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_wtf import FlaskForm, RecaptchaField
+from werkzeug.security import generate_password_hash
 from wtforms import StringField, PasswordField
 from wtforms import validators as val
 
@@ -108,7 +109,7 @@ def sign_out():
 def recover():
     form = RecoverForm()
     if form.validate_on_submit():
-        hashed = db.User.hash(form.password.data)
+        hashed = generate_password_hash(form.password.data)
     else:
         hashed = ""
     return render_template("auth/recover.html", form=form, hashed=hashed)
