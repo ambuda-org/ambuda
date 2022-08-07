@@ -11,7 +11,7 @@ Data formats
 All of our input data is stored in plain text.
 
 We store text data as XML that conforms to the `TEI`_ standard. TEI is an
-enormously complicated spec, and by :ref:`principle (2) <values-and-principles>`,
+enormously complicated spec, and by :doc:`principle (2)<values-and-principles>`,
 we would normally reject it. But TEI is a consensus format for encoding
 various useful properties of a text, such as:
 
