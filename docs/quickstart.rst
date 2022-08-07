@@ -49,7 +49,7 @@ Database migrations
 
 Database migrations are complex. If you're pulling an upstream change that
 contains a database schema change, run this command to upgrade your local
-database:
+database::
 
     alembic upgrade head
 
