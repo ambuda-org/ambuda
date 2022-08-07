@@ -5,11 +5,22 @@ from slugify import slugify
 from sqlalchemy.orm import Session
 
 from ambuda import database as db
+from ambuda.tasks import app
 from ambuda.queries import get_engine
 
 command_template = (
     "gs -dNOPAUSE -sDEVICE=jpeg -r1260" " -sOutputFile={output_path} {filename} -c quit"
 )
+
+
+@app.task
+def split_pdf(pdf_path: str):
+    path = Path(pdf_path)
+    output_path = str(path.parent / "%d.jpg")
+    command = command_template.format(
+        filename=path, output_path=output_path, num_threads=4
+    )
+    subprocess.run(command, shell=True)
 
 
 def create_pages(project_id: int, pdf_path: Path):
@@ -26,12 +37,7 @@ def create_pages(project_id: int, pdf_path: Path):
     session = Session(get_engine())
 
     # String interpolation is safe as long as pdf_path is safe.
-    print("Splitting PDF pages.")
-    output_path = str(pdf_path.parent / "%d.jpg")
-    command = command_template.format(
-        filename=pdf_path, output_path=output_path, num_threads=4
-    )
-    subprocess.run(command, shell=True)
+    _split_pdf(pdf_path)
 
     # Tasks must be idempotent -- clean up any prior state from an old run.
     assert project_id
