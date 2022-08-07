@@ -40,7 +40,6 @@ db_seed_all:
 
 # Development commands
 # ===============================================
-#
 
 # Run the devserver.
 devserver:
@@ -51,6 +50,11 @@ devserver:
 # changes.
 tailwind_watcher:
 	npx tailwindcss -i ./ambuda/static/css/style.css -o ./ambuda/static/gen/style.css --watch
+
+
+# Run Celery for background tasks.
+celery:
+	celery -A ambuda.tasks worker --loglevel=INFO
 
 
 # Lint our JavaScript code.
