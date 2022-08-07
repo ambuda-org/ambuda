@@ -25,12 +25,11 @@
     </div>
   </header>
 
-  {% if has_parse %}
-  <p lang="en" class="text-center text-xs text-zinc-400 mt-2 mb-4">Click on words to see what they mean.</p>
-  {% else %}
+  {% if has_no_parse %}
   <p lang="en" class="text-center text-xs text-zinc-400 mt-2 mb-4">This text
-  does not support clickable word meanings.<br>To test this feature, try the
-  Ramayana or the Mahabharata.</p>
+  does not support clickable word meanings.</p>
+  {% else %}
+  <p lang="en" class="text-center text-xs text-zinc-400 mt-2 mb-4">Click on words to see what they mean.</p>
   {% endif %}
   {{ content | safe }}
 </div>
