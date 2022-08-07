@@ -3,8 +3,8 @@ from celery import Celery
 # amqp = RabbitMQ message broker
 app = Celery(
     "ambuda-tasks",
-    backend="rpc://",
-    broker="pyamqp://guest@localhost//",
+    backend="redis://localhost:6379/0",
+    broker="redis://localhost:6379/0",
     include=["ambuda.tasks.pdf"],
 )
 app.conf.update(task_serializer="json")

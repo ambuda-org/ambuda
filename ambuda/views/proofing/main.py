@@ -114,13 +114,18 @@ def create_project():
 @bp.route("/status/<task_id>")
 def create_project_status(task_id):
     # NOTE: use redis backend to allow multi-process fetch.
-    status = pdf.create_project.AsyncResult(task_id)
-    info = status.info or {}
-    print(info)
+    r = pdf.create_project.AsyncResult(task_id)
+    if r.status == "SUCCESS":
+        current = 100
+        total = 100
+    else:
+        info = r.info or {}
+        current = info.get("current", 0)
+        total = info.get("current", 100)
     return render_template(
         "include/task-progress.html",
-        current=info.get("current", 0),
-        total=info.get("total", 100),
+        current=current,
+        total=total,
     )
 
 
