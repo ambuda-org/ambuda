@@ -5,7 +5,9 @@ import getpass
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
+import ambuda
 from ambuda import database as db
+from ambuda import queries as q
 from ambuda.seed.utils.itihasa_utils import create_db
 
 
@@ -59,6 +61,27 @@ def add_role(username: str, role: str):
 
         u.roles.append(r)
         session.add(u)
+        session.commit()
+
+
+@cli.command()
+def create_test_project():
+    """Create a test proofing project."""
+    current_app = ambuda.create_app("development")
+    with current_app.app_context():
+        q.create_project(title="Test project", slug="test-project")
+        project = q.project("test-project")
+
+    with Session(engine) as session:
+        default_status = session.query(db.PageStatus).filter_by(name="reviewed-0").one()
+        for i in range(1, 101):
+            page = db.Page(
+                project_id=project.id,
+                slug=str(i),
+                order=i,
+                status_id=default_status.id,
+            )
+            session.add(page)
         session.commit()
 
 

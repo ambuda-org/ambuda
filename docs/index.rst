@@ -26,14 +26,15 @@ Our technical philosophy
    values-and-principles
 
 
-Building the devserver
------------------------
+Running the development server
+------------------------------
 
 .. toctree::
    :maxdepth: 2
 
    quickstart
    installation
+   using-ambuda-in-development
 
 
 A map of the codebase
