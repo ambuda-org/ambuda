@@ -1,4 +1,5 @@
 import subprocess
+import time
 from pathlib import Path
 
 from slugify import slugify
@@ -60,3 +61,17 @@ def create_pages(project_id: int, pdf_path: Path):
         )
     session.commit()
     print("Committed.")
+
+
+@app.task(bind=True)
+def create_project(self, local_pdf_path: str):
+    path = Path(local_pdf_path)
+    print(f"Received task on path {path}")
+
+    output_path = str(path.parent / "%d.jpg")
+    for i in range(100):
+        time.sleep(2)
+        print(i)
+        self.update_state(state="PROGRESS", meta={"current": i, "total": 100})
+    self.update_state(state="SUCCESS")
+    return "Done."

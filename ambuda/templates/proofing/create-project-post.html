@@ -1,0 +1,19 @@
+{% extends 'proofing/base.html' %}
+{% import "macros/components.html" as components %}
+{% import "macros/proofing.html" as m %}
+{% import "macros/talk.html" as m_talk %}
+{% import "macros/forms.html" as mf %}
+
+
+{% block title %}Create a new project | Ambuda{% endblock %}
+
+
+{% block content %}
+<div class="prose">
+<h1>Create new project</h1>
+
+<p>Your upload is in progress.</p>
+
+<a href="{{ url_for("proofing.create_project_status", task_id=task_id) }}">Status</a>
+
+{% endblock %}

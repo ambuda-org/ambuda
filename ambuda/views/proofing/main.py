@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from celery.result import AsyncResult
 from flask import (
     Blueprint,
     abort,
@@ -13,8 +14,11 @@ from flask import (
     url_for,
 )
 from flask_login import login_required
+from flask_wtf import FlaskForm
 from slugify import slugify
 from werkzeug.utils import secure_filename
+from wtforms import StringField, FileField
+from wtforms.validators import DataRequired
 
 import ambuda.queries as q
 from ambuda import database as db
@@ -33,6 +37,13 @@ def _is_allowed_document_file(filename: str) -> bool:
 def _is_allowed_image_file(filename: str) -> bool:
     """True iff we accept this type of image upload."""
     return Path(filename).suffix == ".jpg"
+
+
+class CreateProjectWithPdfForm(FlaskForm):
+    file = FileField("PDF file", validators=[DataRequired()])
+    title = StringField(
+        "Title of the book (you can change this later)", validators=[DataRequired()]
+    )
 
 
 @bp.route("/")
@@ -82,75 +93,28 @@ def complete_guide():
     return render_template("proofing/complete-guidelines.html")
 
 
-@bp.route("/create-new-project")
+@bp.route("/create-project", methods=["GET", "POST"])
 @login_required
-def upload_images():
-    return render_template("proofing/upload-images.html")
+def create_project():
+    form = CreateProjectWithPdfForm()
+    if form.validate_on_submit():
+        async_result = pdf.create_project.delay("path.txt")
 
+        # def on_raw_message(body):
+        #     print(body)
+        # print(async_result.get(on_message=on_raw_message, propagate=False))
 
-@bp.route("/create-new-project", methods=["POST"])
-@login_required
-def upload_images_post():
-    if "file" not in request.files:
-        # Request has no file data
-        flash("Sorry, there's a server error.")
-        return redirect(request.url)
-
-    title = request.form.get("title", None)
-    if not title:
-        # Missing title.
-        flash("Please submit a title.")
-        return redirect(request.url)
-
-    # Check that we have a valid slug.
-    # `secure_filename` might be redundant given what `slugify` already does,
-    # but let's call it anyway so that we're not coupled to the internals of
-    # `slugify` here.
-    slug = slugify(title)
-    slug = secure_filename(slug)
-    if not slug:
-        # Slug is empty -- bad title.
-        flash("Please submit a valid title.")
-        return redirect(request.url)
-
-    # Before writing to the DB, validate the form data.
-    all_files = request.files.getlist("file")
-    for i, file in enumerate(all_files):
-        if file.filename == "":
-            flash("Please submit valid files.")
-            return redirect(request.url)
-
-        if not file or not _is_allowed_image_file(file.filename):
-            flash("Please submit .jpg files only.")
-            return redirect(request.url)
-
-    q.create_project(title=title, slug=slug)
-    # FIXME: Need to fetch again, otherwise DetachedInstanceError?
-    # https://sqlalche.me/e/14/bhk3
-    project_ = q.project(slug)
-
-    image_dir = _get_image_filesystem_path(project_.slug, "1").parent
-    image_dir.mkdir(exist_ok=True, parents=True)
-
-    session = q.get_session()
-
-    default_status = session.query(db.PageStatus).filter_by(name="reviewed-0").one()
-    for i, file in enumerate(all_files):
-        n = i + 1
-        image_path = _get_image_filesystem_path(project_.slug, str(n))
-        file.save(image_path)
-
-        session.add(
-            db.Page(
-                project_id=project_.id,
-                slug=str(n),
-                order=n,
-                status_id=default_status.id,
-            )
+        return render_template(
+            "proofing/create-project-post.html", task_id=async_result.id
         )
 
-    session.commit()
-    return redirect(url_for("proofing.index"))
+    return render_template("proofing/create-project.html", form=form)
+
+
+@bp.route("/status/<task_id>")
+def create_project_status(task_id):
+    status = pdf.create_project.AsyncResult(task_id)
+    assert False
 
 
 # Unused in prod -- needs task queue support (celery/dramatiq)
