@@ -57,15 +57,15 @@ NS = {
 }
 
 
-def fetch_latest_data():
+def fetch_latest_data(repo: str, data_dir: str):
     """Fetch the latest data from our GitHub repo."""
-    if not DATA_DIR.exists():
-        subprocess.run(f"mkdir -p {DATA_DIR}", shell=True)
-        subprocess.run(f"git clone --branch=main {REPO} {DATA_DIR}", shell=True)
+    if not data_dir.exists():
+        subprocess.run(f"mkdir -p {data_dir}", shell=True)
+        subprocess.run(f"git clone --branch=main {repo} {data_dir}", shell=True)
 
-    subprocess.call("git fetch origin", shell=True, cwd=DATA_DIR)
-    subprocess.call("git checkout main", shell=True, cwd=DATA_DIR)
-    subprocess.call("git reset --hard origin/main", shell=True, cwd=DATA_DIR)
+    subprocess.call("git fetch origin", shell=True, cwd=data_dir)
+    subprocess.call("git checkout main", shell=True, cwd=data_dir)
+    subprocess.call("git reset --hard origin/main", shell=True, cwd=data_dir)
 
 
 @dataclass
@@ -191,9 +191,9 @@ def parse_tei_document(xml: ET.Element) -> Document:
     return Document(header=header_blob, sections=sections)
 
 
-def add_document(engine, spec: Spec):
+def add_document(engine, data_dir: str, spec: Spec):
     log(f"Writing text: {spec.slug}")
-    document_path = DATA_DIR / "1_sanskr" / "tei" / spec.filename
+    document_path = data_dir / spec.filename
 
     delete_existing_text(engine, spec.slug)
     with Session(engine) as session:
@@ -227,13 +227,13 @@ def add_document(engine, spec: Spec):
 
 def run():
     log("Downloading the latest data ...")
-    fetch_latest_data()
+    fetch_latest_data(REPO, DATA_DIR)
 
     log("Initializing database ...")
     engine = create_db()
 
     for spec in ALLOW:
-        add_document(engine, spec)
+        add_document(engine, DATA_DIR / "1_sanskr" / "tei", spec)
     log("Done.")
 
 
