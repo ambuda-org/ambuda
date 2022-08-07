@@ -1,7 +1,7 @@
 """Parse Sanskrit texts from GRETIL.
 
 The GRETIL TEI format has some systematic inconsistencies. Instead of using it,
-just process teh plain text.
+just process the plain text.
 """
 import subprocess
 from dataclasses import dataclass
