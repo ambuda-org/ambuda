@@ -60,8 +60,11 @@ eslint:
 
 # Lint our Python and JavaScript code.
 lint: eslint
-	black . --diff
+	black .
 
+# Lint our Python and JavaScript code. Fail on any issues.
+lint: eslint
+	black . --diff
 
 # Run all Python unit tests.
 test:
