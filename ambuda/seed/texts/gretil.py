@@ -23,6 +23,7 @@ class Spec:
 
 
 REPO = "https://github.com/ambuda-project/gretil.git"
+BRANCH = "main"
 PROJECT_DIR = Path(__file__).resolve().parents[3]
 DATA_DIR = PROJECT_DIR / "data" / "ambuda-gretil"
 #: Slug to use for texts that have only one section.
@@ -57,15 +58,15 @@ NS = {
 }
 
 
-def fetch_latest_data(repo: str, data_dir: str):
+def fetch_latest_data(repo: str, branch: str, data_dir: str):
     """Fetch the latest data from our GitHub repo."""
     if not data_dir.exists():
         subprocess.run(f"mkdir -p {data_dir}", shell=True)
-        subprocess.run(f"git clone --branch=main {repo} {data_dir}", shell=True)
+        subprocess.run(f"git clone --branch={branch} {repo} {data_dir}", shell=True)
 
     subprocess.call("git fetch origin", shell=True, cwd=data_dir)
-    subprocess.call("git checkout main", shell=True, cwd=data_dir)
-    subprocess.call("git reset --hard origin/main", shell=True, cwd=data_dir)
+    subprocess.call(f"git checkout {branch}", shell=True, cwd=data_dir)
+    subprocess.call(f"git reset --hard origin/{branch}", shell=True, cwd=data_dir)
 
 
 @dataclass
@@ -123,7 +124,7 @@ def delete_unused_elements(xml: ET.Element):
             if el.tag in {"seg", "hi"}:
                 el.tag = None
             # Delete tag and text.
-            if el.tag in {"note"}:
+            if el.tag in {"note", "label"}:
                 el.tag = None
                 el.clear()
         text = "".join(L.itertext())
@@ -140,7 +141,7 @@ def _make_section(xml: ET.Element, section_slug: str) -> Section:
         if child.tag in {"note", "del"}:
             continue
 
-        assert child.tag in {"lg", "head", "p", "trailer", "milestone", "pb"}, child.tag
+        assert child.tag in {"lg", "head", "p", "trailer", "milestone", "pb", "div", "list"}, child.tag
         if child.tag == "head":
             block_slug = "head"
         else:
@@ -227,7 +228,7 @@ def add_document(engine, data_dir: str, spec: Spec):
 
 def run():
     log("Downloading the latest data ...")
-    fetch_latest_data(REPO, DATA_DIR)
+    fetch_latest_data(REPO, BRANCH, DATA_DIR)
 
     log("Initializing database ...")
     engine = create_db()
