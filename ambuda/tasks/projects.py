@@ -14,12 +14,11 @@ command_template = (
 )
 
 
-@app.task
-def split_pdf(pdf_path: str):
-    path = Path(pdf_path)
-    output_path = str(path.parent / "%d.jpg")
+def _split_pdf_into_pages(pdf_path: Path, output_dir: Path):
+    output_path = output_dir / "%d.jpg"
     command = command_template.format(
-        filename=path, output_path=output_path, num_threads=4
+        filename=pdf_path,
+        output_path=output_path,
     )
     subprocess.run(command, shell=True)
 
@@ -36,9 +35,6 @@ def create_pages(project_id: int, pdf_path: Path):
     :param pdf_path: path to the PDF file on disc.
     """
     session = Session(get_engine())
-
-    # String interpolation is safe as long as pdf_path is safe.
-    _split_pdf(pdf_path)
 
     # Tasks must be idempotent -- clean up any prior state from an old run.
     assert project_id
@@ -64,14 +60,9 @@ def create_pages(project_id: int, pdf_path: Path):
 
 
 @app.task(bind=True)
-def create_project(self, local_pdf_path: str):
-    path = Path(local_pdf_path)
-    print(f"Received task on path {path}")
-
-    output_path = str(path.parent / "%d.jpg")
-    for i in range(100):
-        time.sleep(0.2)
-        print(i)
-        self.update_state(state="PROGRESS", meta={"current": i, "total": 100})
-    self.update_state(state="SUCCESS")
-    return "Done."
+def create_project(self, title: str, pdf_path: str, output_dir: str, database_uri: str):
+    print(f"Received task {title} on path {pdf_path}")
+    _split_pdf_into_pages(Path(pdf_path), Path(output_dir))
+    # self.update_state(state="PROGRESS", meta={"current": i, "total": 100})
+    # self.update_state(state="SUCCESS")
+    # _create_project(title, output_dir, database_uri)

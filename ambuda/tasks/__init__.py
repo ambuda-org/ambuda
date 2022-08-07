@@ -5,6 +5,6 @@ app = Celery(
     "ambuda-tasks",
     backend="redis://localhost:6379/0",
     broker="redis://localhost:6379/0",
-    include=["ambuda.tasks.pdf"],
+    include=["ambuda.tasks.projects"],
 )
 app.conf.update(task_serializer="json")

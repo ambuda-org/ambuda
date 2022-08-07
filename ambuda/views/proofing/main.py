@@ -1,5 +1,6 @@
 """Views for basic site pages."""
 
+from datetime import datetime
 from pathlib import Path
 
 from celery.result import AsyncResult
@@ -23,7 +24,7 @@ from wtforms.validators import DataRequired
 
 import ambuda.queries as q
 from ambuda import database as db
-from ambuda.tasks import pdf
+from ambuda.tasks import projects as project_tasks
 from ambuda.views.proofing.utils import _get_image_filesystem_path
 
 
@@ -99,13 +100,25 @@ def complete_guide():
 def create_project():
     form = CreateProjectWithPdfForm()
     if form.validate_on_submit():
-        task = pdf.create_project.delay("path.txt")
-        info = task.info or {}
+        slug = slugify(form.title.data)
+        timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        # Timestamp PDF paths to prevent collisions.
+        pdf_path = (
+            Path(current_app.config["UPLOAD_FOLDER"])
+            / "pdf"
+            / f"{slug}-{timestamp}.pdf"
+        )
+        # FIXME: move this
+        pdf_path.parent.mkdir(parents=True, exist_ok=True)
+        form.file.data.save(pdf_path)
+        task = project_tasks.create_project.delay(
+            title=form.title.data,
+            pdf_path=str(pdf_path),
+            output_dir=str(pdf_path.parent),
+            database_uri="",
+        )
         return render_template(
-            "proofing/create-project-post.html",
-            task_id=task.id,
-            current=info.get("current", 0),
-            total=info.get("total", 100),
+            "proofing/create-project-post.html", current=0, total=100
         )
 
     return render_template("proofing/create-project.html", form=form)
@@ -114,7 +127,8 @@ def create_project():
 @bp.route("/status/<task_id>")
 def create_project_status(task_id):
     # NOTE: use redis backend to allow multi-process fetch.
-    r = pdf.create_project.AsyncResult(task_id)
+    r = project_tasks.create_project.AsyncResult(task_id)
+
     if r.status == "SUCCESS":
         current = 100
         total = 100
