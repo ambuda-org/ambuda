@@ -19,6 +19,6 @@ TEXT_CATEGORIES = {
         "hamsadutam",
     ],
     "anye": [
-        "bodhicaryavatara"
+        "bodhicaryavatara",
     ],
 }
