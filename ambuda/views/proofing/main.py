@@ -133,12 +133,12 @@ def create_project():
 @bp.route("/status/<task_id>")
 def create_project_status(task_id):
     """AJAX summary of the task."""
-    # NOTE: use redis backend to allow multi-process fetch.
     r = project_tasks.create_project.AsyncResult(task_id)
 
     info = r.info or {}
     current = info.get("current", 100)
     total = info.get("total", 100)
+    slug = info.get("slug", None)
     percent = 100 * current / total
 
     return render_template(
@@ -146,6 +146,7 @@ def create_project_status(task_id):
         current=current,
         total=total,
         percent=percent,
+        slug=slug,
     )
 
 

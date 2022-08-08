@@ -6,11 +6,18 @@
 
 {# kwargs: current, total, percent #}
 {% if total == 0 %}
+  {{ progress_bar(0) }}
   <p>Beginning upload &hellip;</p>
 {% elif current < total %}
   {{ progress_bar(percent) }}
   <p>Processed {{ current }} of {{ total }} total pages.</p>
 {% else %}
   {{ progress_bar(100) }}
-  <p>Upload complete.</p>
+  {% if slug %}
+  <p>Upload complete. <a href="{{ url_for('proofing.projects.summary',
+      slug=slug) }}">Click here</a> to view your new project.</p>
+  {% else %}
+  <p>Upload complete. Your project will be available on the <a href="{{
+      url_for('proofing.index') }}">main page</a> shortly.</p>
+  {% endif %}
 {% endif %}

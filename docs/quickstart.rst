@@ -16,6 +16,12 @@ following::
 
 Then go to `localhost:5000` to see the local application.
 
+Some parts of Ambuda, such as PDF parsing, need to run tasks in the background.
+To add support for these in your local setup, run the following::
+
+    ./scripts/install_osx_dependencies.sh
+    make celery
+
 If you also plan to make CSS changes, run the following command in a
 separate terminal window::
 
@@ -49,7 +55,7 @@ Database migrations
 
 Database migrations are complex. If you're pulling an upstream change that
 contains a database schema change, run this command to upgrade your local
-database:
+database::
 
     alembic upgrade head
 

@@ -13,10 +13,10 @@
 <div class="prose">
 <h1>Create new project</h1>
 
-<p>Your upload is in progress.</p>
+<p>We have received your data successfully. (This page updates every 5 seconds.)</p>
 
 <div id="progress">
-  {% with current=current, total=total, percent=percent %}
+  {% with current=current, total=total, percent=percent, slug=slug %}
     {% include 'include/task-progress.html' %}
   {% endwith %}
 </div>
@@ -27,7 +27,7 @@
     Server.getText(`/proofing/status/${taskId}`, (text) => {
       $('#progress').innerHTML = text;
     });
-  }, 1000);
+  }, 5000);
 </script>
 
 {% endblock %}
