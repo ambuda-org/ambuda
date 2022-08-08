@@ -2,25 +2,44 @@ import subprocess
 import time
 from pathlib import Path
 
+import fitz
 from slugify import slugify
 from sqlalchemy.orm import Session
 
 from ambuda import database as db
-from ambuda.tasks import app
 from ambuda.queries import get_engine
-
-command_template = (
-    "gs -dNOPAUSE -sDEVICE=jpeg -r1260" " -sOutputFile={output_path} {filename} -c quit"
-)
+from ambuda.tasks import app
 
 
-def _split_pdf_into_pages(pdf_path: Path, output_dir: Path):
-    output_path = output_dir / "%d.jpg"
-    command = command_template.format(
-        filename=pdf_path,
-        output_path=output_path,
-    )
-    subprocess.run(command, shell=True)
+class TaskStatus:
+    """Helper class to track progress on the current task."""
+
+    def __init__(self, task):
+        self.task = task
+
+    def update(self, current: int, total: int):
+        """Update a progress bar for this task."""
+        state = "PROGRESS" if current < total else "SUCCESS"
+        self.task.update_state(state=state, meta={"current": current, "total": total})
+
+
+def _split_pdf_into_pages(
+    pdf_path: Path, output_dir: Path, task_status: TaskStatus
+) -> int:
+    """Split the given PDF into N JPEG images, one image per page.
+
+    :param pdf_path:
+    :param output_dir: the directory to which we'll write these images.
+    """
+    doc = fitz.open(pdf_path)
+    task_status.update(0, doc.page_count)
+    for page in doc:
+        n = page.number + 1
+        pix = page.get_pixmap(dpi=200)
+        output_path = output_dir / f"{n}.jpg"
+        pix.pil_save(output_path, optimize=True)
+        task_status.update(n, doc.page_count)
+    return doc.page_count
 
 
 def create_pages(project_id: int, pdf_path: Path):
@@ -62,7 +81,9 @@ def create_pages(project_id: int, pdf_path: Path):
 @app.task(bind=True)
 def create_project(self, title: str, pdf_path: str, output_dir: str, database_uri: str):
     print(f"Received task {title} on path {pdf_path}")
-    _split_pdf_into_pages(Path(pdf_path), Path(output_dir))
-    # self.update_state(state="PROGRESS", meta={"current": i, "total": 100})
-    # self.update_state(state="SUCCESS")
-    # _create_project(title, output_dir, database_uri)
+    pdf_path = Path(pdf_path)
+    output_dir = Path(output_dir)
+    task_status = TaskStatus(self)
+
+    num_pages = _split_pdf_into_pages(Path(pdf_path), Path(output_dir), task_status)
+    # _add_project_to_database(title, output_dir, database_uri)

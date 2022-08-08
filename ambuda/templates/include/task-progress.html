@@ -1,8 +1,16 @@
-{# kwargs: current, total #}
-{% set current = current or 0 %}
-{% set total = total or 100 %}
-{% set percent = 100 * current / total %}
+{% macro progress_bar(percent) %}
 <div class="my-4 rounded w-full bg-slate-100 h-4">
   <div class="rounded bg-green-300 h-4" style="width: {{ percent }}%">&nbsp;</div>
 </div>
-<p>Progress: {{ '{:.0f}'.format(percent) }}%</p>
+{% endmacro %}
+
+{# kwargs: current, total, percent #}
+{% if total == 0 %}
+  <p>Beginning upload &hellip;</p>
+{% elif current < total %}
+  {{ progress_bar(percent) }}
+  <p>Processed {{ current }} of {{ total }} total pages.</p>
+{% else %}
+  {{ progress_bar(100) }}
+  <p>Upload complete.</p>
+{% endif %}

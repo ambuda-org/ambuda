@@ -16,7 +16,7 @@
 <p>Your upload is in progress.</p>
 
 <div id="progress">
-  {% with current=current, total = total %}
+  {% with current=current, total=total, percent=percent %}
     {% include 'include/task-progress.html' %}
   {% endwith %}
 </div>

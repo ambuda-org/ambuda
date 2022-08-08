@@ -100,25 +100,31 @@ def complete_guide():
 def create_project():
     form = CreateProjectWithPdfForm()
     if form.validate_on_submit():
+        # TODO: timestamp slug?
         slug = slugify(form.title.data)
-        timestamp = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        # Timestamp PDF paths to prevent collisions.
-        pdf_path = (
-            Path(current_app.config["UPLOAD_FOLDER"])
-            / "pdf"
-            / f"{slug}-{timestamp}.pdf"
-        )
-        # FIXME: move this
-        pdf_path.parent.mkdir(parents=True, exist_ok=True)
+        project_dir = Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / slug
+
+        pdf_dir = project_dir / "pdf"
+        page_image_dir = project_dir / "pages"
+
+        pdf_dir.mkdir(parents=True, exist_ok=True)
+        page_image_dir.mkdir(parents=True, exist_ok=True)
+
+        pdf_path = pdf_dir / f"source.pdf"
         form.file.data.save(pdf_path)
+
         task = project_tasks.create_project.delay(
             title=form.title.data,
             pdf_path=str(pdf_path),
-            output_dir=str(pdf_path.parent),
+            output_dir=str(page_image_dir),
             database_uri="",
         )
         return render_template(
-            "proofing/create-project-post.html", current=0, total=100
+            "proofing/create-project-post.html",
+            current=0,
+            total=0,
+            percent=0,
+            task_id=task.id,
         )
 
     return render_template("proofing/create-project.html", form=form)
@@ -126,69 +132,22 @@ def create_project():
 
 @bp.route("/status/<task_id>")
 def create_project_status(task_id):
+    """AJAX summary of the task."""
     # NOTE: use redis backend to allow multi-process fetch.
     r = project_tasks.create_project.AsyncResult(task_id)
 
-    if r.status == "SUCCESS":
-        current = 100
-        total = 100
-    else:
-        info = r.info or {}
-        current = info.get("current", 0)
-        total = info.get("current", 100)
+    info = r.info or {}
+    print(info)
+    current = info.get("current", 100)
+    total = info.get("total", 100)
+    percent = 100 * current / total
+
     return render_template(
         "include/task-progress.html",
         current=current,
         total=total,
+        percent=percent,
     )
-
-
-# Unused in prod -- needs task queue support (celery/dramatiq)
-@login_required
-def upload_pdf_post():
-    if "file" not in request.files:
-        # Request has no file data
-        flash("Sorry, there's a server error.")
-        return redirect(request.url)
-
-    file = request.files["file"]
-    if file.filename == "":
-        # Empty file submitted.
-        flash("Please submit a file.")
-        return redirect(request.url)
-
-    title = request.form.get("title", None)
-    if not title:
-        # Missing title.
-        flash("Please submit a title.")
-        return redirect(request.url)
-
-    # Check that we have a valid slug.
-    # `secure_filename` might be redundant given what `slugify` already does,
-    # but let's call it anyway so that we're not coupled to the internals of
-    # `slugify` here.
-    slug = slugify(title)
-    slug = secure_filename(slug)
-    if not slug:
-        # Slug is empty -- bad title.
-        flash("Please submit a valid title.")
-        return redirect(request.url)
-
-    if file and _is_allowed_image_file(file.filename):
-        pdf_path = Path(current_app.config["UPLOAD_FOLDER"]) / slug / "original.pdf"
-        pdf_path.parent.mkdir(exist_ok=True, parents=True)
-        file.save(pdf_path)
-
-        q.create_project(title=title, slug=slug)
-        # FIXME: Need to fetch again, otherwise DetachedInstanceError?
-        # https://sqlalche.me/e/14/bhk3
-        project_ = q.project(slug)
-
-        pdf.create_pages.send(project_.id, pdf_path)
-        return redirect(url_for("proofing.index"))
-
-    flash("Please submit a PDF file.")
-    return redirect(request.url)
 
 
 @bp.route("/recent-changes")
