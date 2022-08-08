@@ -13,12 +13,13 @@
 <div class="prose">
 <h1>Create new project</h1>
 
-<p>We have received your data successfully. (This page updates every 5 seconds.)</p>
+<p class="text-sm">(This page updates every 5 seconds.)</p>
 
 <div id="progress">
-  {% with current=current, total=total, percent=percent, slug=slug %}
+  {% with current=current, total=total, percent=percent, slug=slug, status=status %}
     {% include 'include/task-progress.html' %}
   {% endwith %}
+</div>
 </div>
 
 <script type="text/javascript">

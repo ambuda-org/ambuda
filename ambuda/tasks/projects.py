@@ -62,30 +62,31 @@ def _split_pdf_into_pages(
     return doc.page_count
 
 
-def _add_project_to_database(title: str, num_pages: int):
+def _add_project_to_database(
+    title: str, slug: str, num_pages: int, task_status: TaskStatus
+):
     """Create a project on the database.
 
     :param title: the project title
     :param num_pages: the number of pages in the project
-    :return: the project slug
     """
-    session = q.get_session()
-    slug = slugify(title)
-
-    # Tasks must be idempotent -- clean up any prior state from an old run.
-    print(f"Deleting old state (slug = {slug}) ...")
-    session.query(db.Project).filter_by(slug=slug).delete()
-    session.commit()
 
     print(f"Creating project (slug = {slug}) ...")
-    q.create_project(title=title, slug=slug)
+    session = q.get_session()
+    board = db.Board(title=f"{slug} discussion board")
+    session.add(board)
+    session.flush()
+
+    project = db.Project(slug=slug, title=title)
+    project.board_id = board.id
+    session.add(project)
+    session.flush()
 
     print(f"Fetching project and status (slug = {slug}) ...")
-    project = q.project(slug)
     unreviewed = session.query(db.PageStatus).filter_by(name="reviewed-0").one()
 
     for n in range(1, num_pages + 1):
-        print(f"Creating page {slug} / {n}")
+        print(f"Creating page {slug}: {n}")
         session.add(
             db.Page(
                 project_id=project.id,
@@ -95,7 +96,6 @@ def _add_project_to_database(title: str, num_pages: int):
             )
         )
     session.commit()
-    return slug
 
 
 @app.task(bind=True)
@@ -109,15 +109,28 @@ def create_project(
     :param output_dir: local path where page images will be stored.
     :param app_environment: the app environment, e.g. `"development"`.
     """
-    print(f"Received task {title} on path {pdf_path}.")
+    print(f'Received upload task "{title}" for path {pdf_path}.')
+
+    # Tasks must be idempotent. Exit if the project already exists.
+    app = create_config_only_app(app_environment)
+    with app.app_context():
+        session = q.get_session()
+        slug = slugify(title)
+        project = session.query(db.Project).filter_by(slug=slug).first()
+
+    if project:
+        raise ValueError(
+            f'Project "{title}" already exists. Please choose a different title.'
+        )
+
     pdf_path = Path(pdf_path)
     pages_dir = Path(output_dir)
     task_status = TaskStatus(self)
 
     num_pages = _split_pdf_into_pages(Path(pdf_path), Path(pages_dir), task_status)
-    app = create_config_only_app(app_environment)
     with app.app_context():
-        slug = _add_project_to_database(title, num_pages)
+        _add_project_to_database(
+            title=title, slug=slug, num_pages=num_pages, task_status=task_status
+        )
 
     task_status.success(num_pages, slug)
-    return slug

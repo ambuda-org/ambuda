@@ -121,6 +121,7 @@ def create_project():
         )
         return render_template(
             "proofing/create-project-post.html",
+            stauts=task.status,
             current=0,
             total=0,
             percent=0,
@@ -136,13 +137,19 @@ def create_project_status(task_id):
     r = project_tasks.create_project.AsyncResult(task_id)
 
     info = r.info or {}
-    current = info.get("current", 100)
-    total = info.get("total", 100)
-    slug = info.get("slug", None)
-    percent = 100 * current / total
+    if isinstance(info, Exception):
+        current = total = percent = 0
+        slug = None
+        status = r.status
+    else:
+        current = info.get("current", 100)
+        total = info.get("total", 100)
+        slug = info.get("slug", None)
+        percent = 100 * current / total
 
     return render_template(
         "include/task-progress.html",
+        status=r.status,
         current=current,
         total=total,
         percent=percent,

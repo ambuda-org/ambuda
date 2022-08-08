@@ -1,3 +1,5 @@
+{% import 'macros/components.html' as components %}
+
 {% macro progress_bar(percent) %}
 <div class="my-4 rounded w-full bg-slate-100 h-4">
   <div class="rounded bg-green-300 h-4" style="width: {{ percent }}%">&nbsp;</div>
@@ -5,19 +7,28 @@
 {% endmacro %}
 
 {# kwargs: current, total, percent #}
-{% if total == 0 %}
+{% if status == 'FAILURE' %}
+{% call components.div_warning() %}
+<p class="!mb-0">We weren't able to upload your project. Usually, this occurs
+if a project with the same name already exists. If you believe this is an
+error, please <a href="{{ url_for('about.contact') }}">let us know</a> and
+we'll fix the error as soon as we can.
+{% endcall %}
+
+{% elif not total %}
   {{ progress_bar(0) }}
   <p>Beginning upload &hellip;</p>
 {% elif current < total %}
   {{ progress_bar(percent) }}
-  <p>Processed {{ current }} of {{ total }} total pages.</p>
 {% else %}
   {{ progress_bar(100) }}
-  {% if slug %}
-  <p>Upload complete. <a href="{{ url_for('proofing.projects.summary',
+  {% if current < total %}
+    <p>Processed {{ current }} of {{ total }} total pages.</p>
+  {% elif slug %}
+    <p>Upload complete. <a href="{{ url_for('proofing.projects.summary',
       slug=slug) }}">Click here</a> to view your new project.</p>
   {% else %}
-  <p>Upload complete. Your project will be available on the <a href="{{
+    <p>Upload complete. Your project will be available on the <a href="{{
       url_for('proofing.index') }}">main page</a> shortly.</p>
   {% endif %}
 {% endif %}

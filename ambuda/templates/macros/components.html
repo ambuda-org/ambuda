@@ -6,9 +6,19 @@
 {% endmacro %}
 
 
+{# Small warning box, e.g. for form errors. #}
+{% macro div_warning() %}
+<div class="p-2 md:p-4 bg-red-100 border border-red-200 text-red-900 rounded my-4">
+  {{ caller() }}
+</div>
+{% endmacro %}
+
+
+
+
 {# Large notes box, e.g. for form info messages. #}
 {% macro div_note() %}
-<div class="p-2 md:p-4 bg-yellow-100 border border-yellow-300 my-4">
+<div class="p-2 md:p-4 bg-yellow-100 border border-yellow-300 rounded my-4">
   {{ caller() }}
 </div>
 {% endmacro %}
