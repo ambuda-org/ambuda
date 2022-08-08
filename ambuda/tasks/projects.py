@@ -7,8 +7,9 @@ from slugify import slugify
 from sqlalchemy.orm import Session
 
 from ambuda import database as db
-from ambuda.queries import get_engine
+from ambuda import queries as q
 from ambuda.tasks import app
+from config import create_config_only_app
 
 
 class TaskStatus:
@@ -18,7 +19,11 @@ class TaskStatus:
         self.task = task
 
     def update(self, current: int, total: int):
-        """Update a progress bar for this task."""
+        """Update a progress bar for this task.
+
+        :param current: progress numerator
+        :param total: progress denominator
+        """
         state = "PROGRESS" if current < total else "SUCCESS"
         self.task.update_state(state=state, meta={"current": current, "total": total})
 
@@ -28,7 +33,7 @@ def _split_pdf_into_pages(
 ) -> int:
     """Split the given PDF into N JPEG images, one image per page.
 
-    :param pdf_path:
+    :param pdf_path: filesystem path to the PDF we should process.
     :param output_dir: the directory to which we'll write these images.
     """
     doc = fitz.open(pdf_path)
@@ -42,48 +47,46 @@ def _split_pdf_into_pages(
     return doc.page_count
 
 
-def create_pages(project_id: int, pdf_path: Path):
-    """Split an uploaded PDF into individual pages.
-
-    We need the PDF only so that we can create image pages.
-
-    NOTE: this is a background task. Arguments must be JSON-serializable.
-    TODO(arun): use celery/dramatiq for task scheduling
-
-    :param project_id: db ID for the parent project
-    :param pdf_path: path to the PDF file on disc.
-    """
-    session = Session(get_engine())
+def _add_project_to_database(title: str, pages_dir: Path, num_pages: int):
+    session = q.get_session()
+    slug = slugify(title)
 
     # Tasks must be idempotent -- clean up any prior state from an old run.
-    assert project_id
-    session.query(db.Page).filter_by(project_id=project_id).delete()
+    print(f"Deleting old state ...")
+    session.query(db.Project).filter_by(slug=slug).delete()
     session.commit()
 
-    print("Committing ...")
-    for path in sorted(pdf_path.parent.iterdir()):
-        if path.suffix != ".jpg":
-            continue
+    print(f"Creating project (slug = {slug})...")
+    q.create_project(title=title, slug=slug)
 
-        order = int(path.stem)
+    print(f"Fetching project and status ...")
+    project = q.project(slug)
+    unreviewed = session.query(db.PageStatus).filter_by(name="reviewed-0").one()
+
+    for n in range(1, num_pages + 1):
+        print(f"Creating page {n}")
         session.add(
             db.Page(
-                project_id=project_id,
-                slug=str(order),
-                order=order,
-                image_path=str(path),
+                project_id=project.id,
+                slug=str(n),
+                order=n,
+                status_id=unreviewed.id,
             )
         )
     session.commit()
-    print("Committed.")
+    print("Done.")
 
 
 @app.task(bind=True)
-def create_project(self, title: str, pdf_path: str, output_dir: str, database_uri: str):
+def create_project(
+    self, title: str, pdf_path: str, output_dir: str, app_environment: str
+):
     print(f"Received task {title} on path {pdf_path}")
     pdf_path = Path(pdf_path)
-    output_dir = Path(output_dir)
+    pages_dir = Path(output_dir)
     task_status = TaskStatus(self)
 
-    num_pages = _split_pdf_into_pages(Path(pdf_path), Path(output_dir), task_status)
-    # _add_project_to_database(title, output_dir, database_uri)
+    num_pages = _split_pdf_into_pages(Path(pdf_path), Path(pages_dir), task_status)
+    app = create_config_only_app(app_environment)
+    with app.app_context():
+        _add_project_to_database(title, pages_dir, num_pages)

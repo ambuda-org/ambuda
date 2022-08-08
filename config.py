@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
+from flask import Flask
 
 
 load_dotenv()
@@ -24,6 +25,7 @@ def _env(key: str, default=None) -> str:
 class UnitTestConfig:
     """For unit tests."""
 
+    AMBUDA_ENVIRONMENT = "testing"
     TESTING = True
     SECRET_KEY = "insecure unit test secret"
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
@@ -37,6 +39,7 @@ class UnitTestConfig:
 class DevelopmentConfig:
     """For local development."""
 
+    AMBUDA_ENVIRONMENT = "development"
     DEBUG = True
     SECRET_KEY = "insecure local secret"
     SQLALCHEMY_DATABASE_URI = _env("SQLALCHEMY_DATABASE_URI")
@@ -50,6 +53,7 @@ class DevelopmentConfig:
 class ProductionConfig:
     """For production."""
 
+    AMBUDA_ENVIRONMENT = "production"
     SECRET_KEY = _env("SECRET_KEY")
     SQLALCHEMY_DATABASE_URI = _env("SQLALCHEMY_DATABASE_URI")
 
@@ -74,3 +78,15 @@ config = {
     "production": ProductionConfig,
     "default": DevelopmentConfig,
 }
+
+
+def create_config_only_app(config_name: str):
+    """Create the application with just its config options set.
+
+    We use this function in Celery to get access to the app context while
+    avoiding any other setup work related to the application.
+    """
+    load_dotenv(".env")
+    app = Flask(__name__)
+    app.config.from_object(config[config_name])
+    return app

@@ -43,7 +43,7 @@ def _initialize_sentry():
     )
 
 
-def _initialize_db(app, config_name: str):
+def _initialize_db_session(app, config_name: str):
     """Ensure that our SQLAlchemy session behaves well.
 
     The Flask-SQLAlchemy manages all of this boilerplate for us automatically,
@@ -98,7 +98,7 @@ def create_app(config_name: str):
     _validate_config(app.config)
 
     # Database
-    _initialize_db(app, config_name)
+    _initialize_db_session(app, config_name)
 
     # Extensions
     login_manager = auth_manager.create_login_manager()

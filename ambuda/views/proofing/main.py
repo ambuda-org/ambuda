@@ -117,7 +117,7 @@ def create_project():
             title=form.title.data,
             pdf_path=str(pdf_path),
             output_dir=str(page_image_dir),
-            database_uri="",
+            app_environment=current_app.config["AMBUDA_ENVIRONMENT"],
         )
         return render_template(
             "proofing/create-project-post.html",
@@ -137,7 +137,6 @@ def create_project_status(task_id):
     r = project_tasks.create_project.AsyncResult(task_id)
 
     info = r.info or {}
-    print(info)
     current = info.get("current", 100)
     total = info.get("total", 100)
     percent = 100 * current / total
