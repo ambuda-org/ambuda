@@ -47,6 +47,35 @@ setup, see steps 1 and 2 in this `tutorial`_. Copied for reference::
 Celery
 ------
 
-For setup, see this `tutorial`_.
+For setup, see this `tutorial`_. Copied for reference::
+
+    # Step 1: define Celery service
+    # -----------------------------
+    #
+    # You can copy this config as-is:
+    # https://docs.celeryq.dev/en/stable/userguide/daemonizing.html#service-file-celery-service
+    sudo nano /etc/systemd/system/celery.service
+
+    # Register the new service
+    sudo systemctl daemon-reload
+
+    # Auto-start Celery if the server restarts.
+    sudo systemctl enable celery.service
+
+    # Step 2: Configure the Celery service
+    # ------------------------------------
+    #
+    # You should adapt this config based on your environment:
+    # https://docs.celeryq.dev/en/stable/userguide/daemonizing.html#generic-systemd-celery-example
+    sudo nano /etc/conf.d/celery
+
+    # Step 3: Run Celery
+    # ------------------
+
+    # You might need to change permissions on these directories:
+    sudo chown -R $USER:root /var/run/celery
+    sudo chown -R $USER:root /var/log/celery
+
+- `/etc/conf.d/celery` (Environment config)
 
 .. _tutorial: https://docs.celeryq.dev/en/stable/userguide/daemonizing.html
