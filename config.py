@@ -61,24 +61,25 @@ class BaseConfig:
     #: Internal secret key for encrypting sensitive data.
     SECRET_KEY = _env("SECRET_KEY")
 
-    #: Location of the Ambuda database.
+    #: URI for the Ambuda database. This URI (also called a URL in some docs)
+    #: has the following basic format:
+    #:
+    #:     dialect+driver://username:password@host:port/database
+    #:
+    #: For more information, see:
+    #:
+    #: https://docs.sqlalchemy.org/en/14/core/engines.html#database-urls
     SQLALCHEMY_DATABASE_URI = _env("SQLALCHEMY_DATABASE_URI")
 
     #: Where to store user uploads (PDFs, images, etc.).
     UPLOAD_FOLDER = _env("FLASK_UPLOAD_FOLDER")
-
-    # Extensions
-    # ----------
-
-    #: If True, enable cross-site request forgery (CSRF) protection.
-    WTF_CSRF_ENABLED = True
 
     # Services
     # --------
 
     #: Sentry data source name (DSN)
     #: We use Sentry to get notifications about server errors.
-    SENTRY_DSN = None
+    SENTRY_DSN = _env("SENTRY_DSN")
 
     #: ReCAPTCHA public key.
     RECAPTCHA_PUBLIC_KEY = _env("RECAPTCHA_PUBLIC_KEY")
@@ -108,6 +109,9 @@ class UnitTestConfig(BaseConfig):
     SECRET_KEY = "insecure unit test secret"
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     UPLOAD_FOLDER = _make_path(Path(__file__).parent / "data" / "file-uploads")
+
+    #: Disable CSRF protection for unit tests, since the Flask test runner
+    #: doesn't have good support for it.
     WTF_CSRF_ENABLED = False
 
     RECAPTCHA_PUBLIC_KEY = "re-public"
