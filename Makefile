@@ -52,7 +52,7 @@ tailwind_watcher:
 	npx tailwindcss -i ./ambuda/static/css/style.css -o ./ambuda/static/gen/style.css --watch
 
 
-# Run Celery for background tasks.
+# Run a local Celery instance for background tasks.
 celery:
 	celery -A ambuda.tasks worker --loglevel=INFO
 

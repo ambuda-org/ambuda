@@ -9,7 +9,7 @@ for our application code to process. Some examples of long-running tasks include
 - sending an email through a third-party mail server.
 - running a regular batch job to convert published texts into PDFs.
 
-To handle these kinds of background tasks, we use the `Celery`_, a Python task
+To handle these kinds of background tasks, we use `Celery`_, a Python task
 scheduler that runs in a separate process from our main application code.
 
 .. _Celery: https://docs.celeryq.dev/en/stable/
@@ -39,7 +39,7 @@ The basic mechanics of Celery are as follows:
 
 2. When we need to create a long-running request, our application sends a
    non-blocking request to Celery. We send this message through a *message
-   broker* such as Redis.
+   broker* uch as Redis.
 
 3. Celery receives the request and assigns it to one of its workers.
 
@@ -49,6 +49,25 @@ The basic mechanics of Celery are as follows:
 5. Our application can make asynchronous requests to Celery to check on the
    task status. For example, one common pattern is to have a JavaScript
    function that pings the server every N seconds for an update.
+
+
+Our setup
+---------
+
+We use Redis for both our broker and our backend.
+
+We use Redis as our backend because RabbitMQ can't reliably return backend
+results to multiple processes, which makes it a non-starter for production
+given that we run multiple gunicorn processes. Source:
+
+    RabbitMQ can store results via rpc:// backend. This backend creates
+    separate temporary queue for each client.
+
+To simplify our setup, we also use Redis for our broker. It's one less thing to
+install, and it's reasonable for now given our low task volume.
+
+The RabbitMQ broker + Redis backend setup is common, and we should look into it
+later if Redis doesn't scale.
 
 
 Gotchas

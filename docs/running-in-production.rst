@@ -47,7 +47,7 @@ setup, see steps 1 and 2 in this `tutorial`_. Copied for reference::
 Celery
 ------
 
-For setup, see this `tutorial`_. Copied for reference::
+For setup, see this `guide`_. Copied for reference::
 
     # Step 0: Define the Celery user and group
     # ----------------------------------------
@@ -95,4 +95,4 @@ For setup, see this `tutorial`_. Copied for reference::
 
 - `/etc/conf.d/celery` (Environment config)
 
-.. _tutorial: https://docs.celeryq.dev/en/stable/userguide/daemonizing.html
+.. _guide: https://docs.celeryq.dev/en/stable/userguide/daemonizing.html

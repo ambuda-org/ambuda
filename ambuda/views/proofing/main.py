@@ -9,7 +9,6 @@ from flask import (
     abort,
     current_app,
     flash,
-    jsonify,
     render_template,
     redirect,
     request,
