@@ -76,11 +76,19 @@ class BaseConfig:
     # Services
     # --------
 
+    #: Sentry data source name (DSN)
+    #: We use Sentry to get notifications about server errors.
+    SENTRY_DSN = None
+
     #: ReCAPTCHA public key.
     RECAPTCHA_PUBLIC_KEY = _env("RECAPTCHA_PUBLIC_KEY")
 
     #: ReCAPTCHA private key.
     RECAPTCHA_PRIVATE_KEY = _env("RECAPTCHA_PRIVATE_KEY")
+
+    # We need GOOGLE_APPLICATION_CREDENTIALS for the Google Vision API,
+    # but these credentials are fetched by the Google API implicitly,
+    # so we don't need to define it on the Config object here.
 
     # Test-only
     # ---------
@@ -155,6 +163,11 @@ def _validate_config(config: BaseConfig):
         assert config.WTF_CSRF_ENABLED
         assert not config.DEBUG
         assert not config.TESTING
+
+        # Google credentials must be set and exist.
+        google_creds = _env("GOOGLE_APPLICATION_CREDENTIALS")
+        assert google_creds
+        assert Path(google_creds).exists()
 
 
 def load_config_object(name: str):

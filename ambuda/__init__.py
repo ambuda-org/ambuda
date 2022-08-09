@@ -31,13 +31,8 @@ from ambuda.views.reader.texts import bp as texts
 from ambuda.views.site import bp as site
 
 
-def _initialize_sentry():
+def _initialize_sentry(sentry_dsn: str):
     """Initialize basic monitoring through the third-party Sentry service."""
-    sentry_dsn = os.environ.get("SENTRY_DSN")
-    if sentry_dsn is None:
-        print("Sentry is misconfigured -- skipping setup.")
-        return
-
     sentry_sdk.init(
         dsn=sentry_dsn, integrations=[FlaskIntegration()], traces_sample_rate=0
     )
@@ -75,16 +70,20 @@ def create_app(config_env: str):
     # We store all env variables in a `.env` file so that it's easier to manage
     # different configurations.
     load_dotenv(".env")
+    config_spec = config.load_config_object(config_env)
 
     # Initialize Sentry monitoring only in production so that our Sentry page
     # contains only production warnings (as opposed to dev warnings).
+    #
+    # "Configuration should happen as early as possible in your application's
+    # lifecycle." -- Sentry docs
     if config_env == config.PRODUCTION:
-        _initialize_sentry()
+        _initialize_sentry(config_spec.SENTRY_DSN)
 
     app = Flask(__name__)
 
     # Config
-    app.config.from_object(config.load_config_object(config_env))
+    app.config.from_object(config_spec)
 
     # Database
     _initialize_db_session(app, config_env)
