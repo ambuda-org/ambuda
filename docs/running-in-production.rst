@@ -49,10 +49,27 @@ Celery
 
 For setup, see this `tutorial`_. Copied for reference::
 
-    # Step 1: define Celery service
-    # -----------------------------
-    #
-    # You can copy this config as-is:
+    # Step 0: Define the Celery user and group
+    # ----------------------------------------
+    # The Celery docs do this, so I have as well.
+    # You can skip this step if you want to use another user/group combo.
+
+    # Create the 'celery' user.
+    sudo adduser celery
+
+    # Create the 'celery' group.
+    sudo groupadd celery
+
+    # Disable shell access for 'celery'.
+    sudo usermod -s /sbin/nologin celery
+
+    # Add 'celery' to the 'celery' group.
+    sudo usermod -a -G celery celery
+
+    # Step 1: Define the Celery service
+    # ---------------------------------
+
+    # You can copy this config almost as-is:
     # https://docs.celeryq.dev/en/stable/userguide/daemonizing.html#service-file-celery-service
     sudo nano /etc/systemd/system/celery.service
 
