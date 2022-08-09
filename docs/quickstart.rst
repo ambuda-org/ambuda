@@ -28,7 +28,9 @@ separate terminal window::
     make tailwind_watcher
 
 Roughly, Tailwind generates a new CSS file whenever it detects certain changes
-to Ambuda's HTML files. For more details, see the Tailwind docs.
+to Ambuda's HTML files. For more details, see the `Tailwind docs`_.
+
+.. _Tailwind docs: https://tailwindcss.com/docs/
 
 
 Linting and testing
