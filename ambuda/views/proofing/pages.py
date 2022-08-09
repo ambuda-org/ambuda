@@ -221,11 +221,12 @@ def edit_post(project_slug, page_slug):
     )
 
 
-@site.route("/static/uploads/<project_slug>/<page_slug>.jpg")
+@site.route("/static/uploads/<project_slug>/pages/<page_slug>.jpg")
 def page_image(project_slug, page_slug):
     # In production, serve this directly via nginx.
     assert current_app.debug
     image_path = _get_image_filesystem_path(project_slug, page_slug)
+    print(image_path)
     return send_file(image_path)
 
 

@@ -110,6 +110,10 @@ def create_project():
         page_image_dir.mkdir(parents=True, exist_ok=True)
 
         pdf_path = pdf_dir / f"source.pdf"
+        filename = form.file.raw_data[0].filename
+        if not _is_allowed_document_file(filename):
+            flash("Please upload a PDF.")
+            return render_template("proofing/create-project.html", form=form)
         form.file.data.save(pdf_path)
 
         task = project_tasks.create_project.delay(

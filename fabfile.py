@@ -85,7 +85,8 @@ def deploy_to_commit(_, pointer: str):
         env_path = str(APP_DIRECTORY / ".env")
         c.put("production/prod-env", env_path)
 
-    restart(_)
+    restart_application(_)
+    restart_celery(_)
 
 
 @task
@@ -110,9 +111,15 @@ def upgrade_db(_):
 
 
 @task
-def restart(_):
+def restart_application(_):
     """Restart the production gunicorn instance."""
     r.run("systemctl restart ambuda")
+
+
+@task
+def restart_celery(_):
+    """Restart the production celery instance."""
+    r.run("systemctl restart celery")
 
 
 @task
