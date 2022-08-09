@@ -1,14 +1,8 @@
 from celery import Celery
 
-# We use Redis for the broker because RabbitMQ can't reliably return backend
-# results to multiple processes, which makes it a non-starter for production
-# given that we run multiple gunicorn processes. Source:
-#
-# > RabbitMQ can store results via rpc:// backend. This backend creates
-# > separate temporary queue for each client.
-#
-# Evidently the RabbitMQ broker + Redis backend setup is common, and we should
-# look into it eventually, but for now, we can use Redis for both.
+
+# For context on why we use Redis for both the backend and the broker, see the
+# `Background tasks with Celery` doc.
 app = Celery(
     "ambuda-tasks",
     backend="redis://localhost:6379/0",
