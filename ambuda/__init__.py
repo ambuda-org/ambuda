@@ -58,7 +58,7 @@ def _initialize_db_session(app, config_name: str):
         """Reset session state to prevent caching and memory leaks."""
         queries.get_session_class().remove()
 
-    if config_name == "production":
+    if config_name == config.PRODUCTION:
         # The hook below hides database errors. So, install the hook only if
         # we're in production.
 
@@ -69,36 +69,25 @@ def _initialize_db_session(app, config_name: str):
             session.rollback()
 
 
-def _validate_config(config):
-    """Raise an exception if the config is invalid in some way.
+def create_app(config_env: str):
+    """Initialize the Ambuda application."""
 
-    We raise an exception so that we can fail fast and avoid running with a
-    buggy config that could potentially corrupt the database.
-    """
-    if not config["UPLOAD_FOLDER"]:
-        raise ValueError("UPLOAD_FOLDER must be defined. See `.env` for details.")
-    if not Path(config["UPLOAD_FOLDER"]).is_absolute():
-        raise ValueError("UPLOAD_FOLDER must be an absolute path.")
-
-
-def create_app(config_name: str):
     # We store all env variables in a `.env` file so that it's easier to manage
     # different configurations.
     load_dotenv(".env")
 
     # Initialize Sentry monitoring only in production so that our Sentry page
     # contains only production warnings (as opposed to dev warnings).
-    if config_name == "production":
+    if config_env == config.PRODUCTION:
         _initialize_sentry()
 
     app = Flask(__name__)
 
     # Config
-    app.config.from_object(config.config[config_name])
-    _validate_config(app.config)
+    app.config.from_object(config.load_config_object(config_env))
 
     # Database
-    _initialize_db_session(app, config_name)
+    _initialize_db_session(app, config_env)
 
     # Extensions
     login_manager = auth_manager.create_login_manager()
