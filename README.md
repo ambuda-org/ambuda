@@ -1,4 +1,4 @@
-![Unit Tests](https://github.com/ambuda-project/ambuda/actions/workflows/basic-tests.yml/badge.svg)
+![Unit Tests](https://github.com/ambuda-org/ambuda/actions/workflows/basic-tests.yml/badge.svg)
 
 Ambuda
 ======
