@@ -66,6 +66,9 @@ eslint:
 lint: eslint
 	black .
 
+# Lint our Python and JavaScript code. Fail on any issues.
+lint-check: eslint
+	black . --diff
 
 # Run all Python unit tests.
 test:

@@ -17,6 +17,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Python3
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9.x'
+          cache: 'pip'
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: make install
+      
+      - name: Lint
+        run: source env/bin/activate && make lint-check
+  
   run-tests:
     runs-on: ubuntu-22.04
     steps:
@@ -27,6 +50,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.9.x'
+          cache: 'pip'
 
       - name: Install dependencies
         run: python3 -m pip install -r requirements.txt
