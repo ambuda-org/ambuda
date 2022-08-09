@@ -38,7 +38,7 @@ jobs:
         run: make install
       
       - name: Lint
-        run: make lint-check
+        run: source env/bin/activate && make lint-check
   
   run-tests:
     runs-on: ubuntu-22.04
