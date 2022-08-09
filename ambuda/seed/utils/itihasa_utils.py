@@ -151,10 +151,15 @@ def get_verse_xml(verse, xml_id) -> str:
 
 
 def write_kandas(
-    engine, kandas: list[Kanda], text_slug: str, text_title: str, xml_id_prefix: str
+    engine,
+    kandas: list[Kanda],
+    text_slug: str,
+    text_title: str,
+    text_header: str,
+    xml_id_prefix: str,
 ):
     with Session(engine) as session:
-        text = db.Text(slug=text_slug, title=text_title)
+        text = db.Text(slug=text_slug, title=text_title, header=text_header)
         session.add(text)
         session.flush()
 

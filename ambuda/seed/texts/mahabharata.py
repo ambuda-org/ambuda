@@ -8,6 +8,25 @@ import ambuda.seed.utils.itihasa_utils as iti
 
 BASE_URL = "https://bombay.indology.info/mahabharata/text/UD/MBh{n}.txt"
 
+TEI_HEADER = """<teiHeader xml:lang="en">
+  <fileDesc>
+    <titleStmt>
+        <title>Mahābhārata</title>
+        <author>Vyāsa</author>
+    </titleStmt>
+
+    <publicationStmt>
+        <publisher>bombay.indology.info</publisher>
+        <availability>
+        <p>The electronic text of the Mahabharata is Copyright (C) The Bhandarkar
+        Oriental Research Institute (BORI), Pune and is sourced from <a href="http://bombay.indology.info/mahabharata/statement.html">John Smith's website.</a></p>
+
+        </availability>
+    </publicationStmt>
+  </fileDesc>
+</teiHeader>
+"""
+
 
 def iter_lines(raw: str):
     for line in raw.splitlines():
@@ -66,6 +85,7 @@ def run():
         kandas,
         text_slug=text_slug,
         text_title="mahAbhAratam",
+        text_header=TEI_HEADER,
         xml_id_prefix="MBh",
     )
 
