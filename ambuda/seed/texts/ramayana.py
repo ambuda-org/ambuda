@@ -17,7 +17,7 @@ TEI_HEADER = """<teiHeader xml:lang="en">
     <publicationStmt>
         <publisher>bombay.indology.info</publisher>
         <availability>
-        <p>The electronic text of the Rāmāyaṇa is sourced from <a href="http://bombay.indology.info/mahabharata/statement.html">John Smith's website.</a></p>
+        <p>The electronic text of the Rāmāyaṇa is sourced from <ref target="http://bombay.indology.info/mahabharata/statement.html">John Smith's website.</ref></p>
 
         </availability>
     </publicationStmt>
@@ -83,7 +83,7 @@ def run():
         kandas,
         text_slug=text_slug,
         text_title="rAmAyaNam",
-        text_header=TEI_HEADER,
+        tei_header=TEI_HEADER,
         xml_id_prefix="R",
     )
 

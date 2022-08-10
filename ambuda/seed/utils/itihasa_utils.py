@@ -155,11 +155,11 @@ def write_kandas(
     kandas: list[Kanda],
     text_slug: str,
     text_title: str,
-    text_header: str,
+    tei_header: str,
     xml_id_prefix: str,
 ):
     with Session(engine) as session:
-        text = db.Text(slug=text_slug, title=text_title, header=text_header)
+        text = db.Text(slug=text_slug, title=text_title, header=tei_header)
         session.add(text)
         session.flush()
 
