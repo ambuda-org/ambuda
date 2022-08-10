@@ -13,6 +13,8 @@ from google.cloud import vision
 from google.protobuf.json_format import MessageToDict
 from google.cloud.vision_v1 import AnnotateImageResponse
 
+import logging
+
 
 def post_process(text: str) -> str:
     """Post process OCR text."""
@@ -39,7 +41,7 @@ def prepare_image(file_path):
 def full_text_annotation(file_path):
     """Detects document features in the file located in Google Cloud
     Storage."""
-    print("Starting full text annotation: {}".format(file_path))
+    logging.debug("Starting full text annotation: {}".format(file_path))
 
     client = vision.ImageAnnotatorClient()
     image = prepare_image(file_path)
