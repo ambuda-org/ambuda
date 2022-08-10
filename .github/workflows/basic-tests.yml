@@ -36,7 +36,9 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: python3 -m pip install -r requirements.txt
+        run: |
+          python3 -m pip install -r requirements.txt
+          npm install
       
       - name: Lint
         run: make lint-check
