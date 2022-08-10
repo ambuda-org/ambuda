@@ -17,7 +17,7 @@ TEI_HEADER = """<teiHeader xml:lang="en">
     <publicationStmt>
         <publisher>bombay.indology.info</publisher>
         <availability>
-        <p>The electronic text of the Rāmāyaṇa is sourced from <ref target="http://bombay.indology.info/mahabharata/statement.html">John Smith's website.</ref></p>
+        <p>The electronic text of the Rāmāyaṇa is sourced from <ref target="https://bombay.indology.info/ramayana/statement.html">John Smith's website</ref> and was originally published by the Oriental Institute, Baroda.</p>
 
         </availability>
     </publicationStmt>

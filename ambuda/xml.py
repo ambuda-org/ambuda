@@ -25,7 +25,7 @@ or pre-build common requests.
 """
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Callable, Optional, Union
 from xml.etree import ElementTree as ET
 
 from indic_transliteration import sanscript
@@ -38,8 +38,10 @@ class Rule:
 
     #: The tag to apply to this element.
     tag: str
-    #: Attributes to apply to this element.
-    attrib: dict
+    #: Attributes to apply to this element. Can be specified
+    #: as a dict, or as a function that inputs the existing
+    #: element's attributes and outputs a dict of new attributes.
+    attrib: Union[dict, Callable]
     #: Text to insert before this element's `text` field.
     text_before: str
     #: Text to insert after this element's `tail` field.
@@ -47,7 +49,7 @@ class Rule:
 
     def __call__(self, el: ET.Element):
         el.tag = self.tag
-        el.attrib = self.attrib
+        el.attrib = self.attrib(el.attrib) if callable(self.attrib) else self.attrib
         if self.text_before:
             el.text = self.text_before + (el.text or "")
         if self.text_after:
@@ -214,6 +216,7 @@ tei_header_xml = {
     "publisher": None,
     "bibl": elem("p"),
     "licence": elem("p"),
+    "ref": elem("a", lambda x: dict(href=x.get("target"))),
 }
 
 
