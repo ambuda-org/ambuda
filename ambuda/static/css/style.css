@@ -63,7 +63,7 @@
     vertical-align: top;
   }
   .side-by-side #text--content {
-    @apply md:max-w-4xl;
+    @apply md:max-w-3xl;
   }
   .shown-side-by-side {
     display: none;
