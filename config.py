@@ -74,18 +74,25 @@ class BaseConfig:
     #: Where to store user uploads (PDFs, images, etc.).
     UPLOAD_FOLDER = _env("FLASK_UPLOAD_FOLDER")
 
+    # Extensions
+    # ----------
+
+    #: If True, enable cross-site request forgery (CSRF) protection.
+    #: This must be True in production.
+    WTF_CSRF_ENABLED = True
+
     # Services
     # --------
-
-    #: Sentry data source name (DSN)
-    #: We use Sentry to get notifications about server errors.
-    SENTRY_DSN = _env("SENTRY_DSN")
 
     #: ReCAPTCHA public key.
     RECAPTCHA_PUBLIC_KEY = _env("RECAPTCHA_PUBLIC_KEY")
 
     #: ReCAPTCHA private key.
     RECAPTCHA_PRIVATE_KEY = _env("RECAPTCHA_PRIVATE_KEY")
+
+    #: Sentry data source name (DSN)
+    #: We use Sentry to get notifications about server errors.
+    SENTRY_DSN = _env("SENTRY_DSN")
 
     # We need GOOGLE_APPLICATION_CREDENTIALS for the Google Vision API,
     # but these credentials are fetched by the Google API implicitly,
