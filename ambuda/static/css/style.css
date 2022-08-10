@@ -67,11 +67,11 @@
   }
 
   /* Side by side view */
-  .block-left {
+  .block-original {
     @apply cursor-auto;
     display: none;
   }
-  .side-by-side .block-left, .side-by-side .block-right {
+  .side-by-side .block-original, .side-by-side .block-parsed-right {
     @apply md:w-6/12;
     display: inline-block;
     vertical-align: top;

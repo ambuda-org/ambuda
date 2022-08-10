@@ -234,14 +234,14 @@ const ParseLayer = (() => {
     const textSlug = URL.getTextSlug();
 
     const $block = $(`#${blockID.replaceAll('.', '\\.')}`);
-    if ($block.classList.contains("block-left")) {
+    if ($block.classList.contains("block-original")) {
       // Text has already been parsed and is already showing side-by-side.
       return;
     }
 
-    if ($block.nextSibling.classList.contains("block-right")) {
+    if ($block.nextSibling.classList.contains("block-parsed-right")) {
       // Text has already been parsed, we just need to make the parsed text visible.
-      $block.classList.add("block-left");
+      $block.classList.add("block-original");
       const parsedNode = $block.nextSibling;
       parsedNode.style.display = "inline-block";
       return;
@@ -256,12 +256,12 @@ const ParseLayer = (() => {
       Sidebar.show();
       return;
     }
-    $block.classList.add("block-left");
+    $block.classList.add("block-original");
     const node = document.createElement("div");
     node.innerHTML = transliterateSanskritBlob(resp, Preferences.contentScript);
     const parsedNode = node.firstChild;
     $block.after(parsedNode);
-    parsedNode.classList.add("block-right");
+    parsedNode.classList.add("block-parsed-right");
 
     const link = document.createElement("a");
     link.className = "text-sm text-zinc-400 hover:underline js--source";
@@ -367,10 +367,10 @@ const TextContent = (() => {
         if ($undoParse) {
           e.preventDefault();
           // Hide the right (parsed) block.
-          const parsedNode = $undoParse.closest(".block-right");
+          const parsedNode = $undoParse.closest(".block-parsed-right");
           parsedNode.style.display = "none";
           const $block = parsedNode.previousSibling;
-          $block.classList.remove("block-left");
+          $block.classList.remove("block-original");
           return;
         }
 
