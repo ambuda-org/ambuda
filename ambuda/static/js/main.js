@@ -248,26 +248,27 @@ const ParseLayer = (() => {
     }
     // Fetch parsed data.
     const url = URL.parseData(textSlug, blockSlug);
-    let resp;
-    try {
-      resp = await new Promise((resolve, reject) => Server.getText(url, resolve, reject));
-    } catch (e) {
-      $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
-      Sidebar.show();
-      return;
-    }
-    $block.classList.add("block-original");
-    const node = document.createElement("div");
-    node.innerHTML = transliterateSanskritBlob(resp, Preferences.contentScript);
-    const parsedNode = node.firstChild;
-    $block.after(parsedNode);
-    parsedNode.classList.add("block-parsed-right");
-
-    const link = document.createElement("a");
-    link.className = "text-sm text-zinc-400 hover:underline js--source";
-    link.href = "#";
-    link.innerHTML = `<span class='shown-side-by-side'>Hide</span><span class='hidden-side-by-side'>Show original</span>`;
-    parsedNode.appendChild(link);
+    Server.getText(
+      url,
+      (resp) => {
+        $block.classList.add("block-original");
+        const node = document.createElement("div");
+        node.innerHTML = transliterateSanskritBlob(resp, Preferences.contentScript);
+        const parsedNode = node.firstChild;
+        $block.after(parsedNode);
+        parsedNode.classList.add("block-parsed-right");
+    
+        const link = document.createElement("a");
+        link.className = "text-sm text-zinc-400 hover:underline js--source";
+        link.href = "#";
+        link.innerHTML = `<span class='shown-side-by-side'>Hide</span><span class='hidden-side-by-side'>Show original</span>`;
+        parsedNode.appendChild(link);
+      },
+      () => {
+        $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
+        Sidebar.show();
+      },
+    );
   }
 
   function init() {
@@ -443,17 +444,17 @@ const FontSizeMenu = (() => {
 })();
 
 const ParseOptionsMenu = (() => {
-  function switchParseOptions(newParseOptions) {
-    Preferences.contentParseOptions = newParseOptions;
-    updateClassParseOptions();
-  }
-
   function updateClassParseOptions() {
     if (Preferences.contentParseOptions === "side-by-side") {
       document.body.classList.add("side-by-side");
     } else {
       document.body.classList.remove("side-by-side");
     }
+  }
+
+  function switchParseOptions(newParseOptions) {
+    Preferences.contentParseOptions = newParseOptions;
+    updateClassParseOptions();
   }
 
   function init() {
