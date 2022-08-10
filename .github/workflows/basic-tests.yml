@@ -28,6 +28,7 @@ jobs:
         with:
           python-version: '3.9.x'
           cache: 'pip'
+          cache-dependency-path: requirements.txt
 
       - uses: actions/setup-node@v3
         with:
@@ -35,10 +36,12 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: make install
+        run: |
+          python3 -m pip install -r requirements.txt
+          npm install
       
       - name: Lint
-        run: source env/bin/activate && make lint-check
+        run: make lint-check
   
   run-tests:
     runs-on: ubuntu-22.04

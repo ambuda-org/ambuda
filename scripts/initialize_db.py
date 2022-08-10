@@ -18,7 +18,7 @@ load_dotenv()
 
 
 def run():
-    conf = config.config["development"]
+    conf = config.load_config_object("development")
     engine = create_engine(conf.SQLALCHEMY_DATABASE_URI)
     db.Base.metadata.create_all(engine)
 
