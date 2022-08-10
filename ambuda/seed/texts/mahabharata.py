@@ -18,7 +18,7 @@ TEI_HEADER = """<teiHeader xml:lang="en">
     <publicationStmt>
         <publisher>bombay.indology.info</publisher>
         <availability>
-        <p>The electronic text of the Mahābhārata is Copyright (C) The Bhandarkar
+        <p>The electronic text of the Mahābhārata is Copyright &copy; The Bhandarkar
         Oriental Research Institute (BORI), Pune and is sourced from <ref target="http://bombay.indology.info/mahabharata/statement.html">John Smith's website.</ref></p>
 
         </availability>
