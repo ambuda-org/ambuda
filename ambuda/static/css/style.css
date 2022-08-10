@@ -53,6 +53,20 @@
     @apply block x-deva leading-normal mb-4;
     @apply cursor-pointer;
   }
+  /* TEI <l>, i.e. a line of Sanskrit verse. */
+  s-l {
+    @apply block;
+  }
+  /* Represents a parsed word. */
+  s-w {
+    @apply text-green-600;
+    @apply cursor-pointer;
+  }
+  s-w:hover {
+    @apply underline;
+  }
+
+  /* Side by side view */
   .block-left {
     @apply cursor-auto;
     display: none;
@@ -73,18 +87,6 @@
   }
   .side-by-side .shown-side-by-side {
     display: unset;
-  }
-  /* TEI <l>, i.e. a line of Sanskrit verse. */
-  s-l {
-    @apply block;
-  }
-  /* Represents a parsed word. */
-  s-w {
-    @apply text-green-600;
-    @apply cursor-pointer;
-  }
-  s-w:hover {
-    @apply underline;
   }
 
   /* Prose context */
