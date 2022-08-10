@@ -60,3 +60,6 @@ jobs:
 
       - name: Run Tests
         run: make test
+      
+      - name: Run import
+        run: make install && source env/bin/activate && make db_seed_all
