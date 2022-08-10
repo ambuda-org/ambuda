@@ -53,6 +53,27 @@
     @apply block x-deva leading-normal mb-4;
     @apply cursor-pointer;
   }
+  .block-left {
+    @apply cursor-auto;
+    display: none;
+  }
+  .side-by-side .block-left, .side-by-side .block-right {
+    @apply md:w-6/12;
+    display: inline-block;
+    vertical-align: top;
+  }
+  .side-by-side #text--content {
+    @apply md:max-w-4xl;
+  }
+  .shown-side-by-side {
+    display: none;
+  }
+  .side-by-side .hidden-side-by-side {
+    display: none;
+  }
+  .side-by-side .shown-side-by-side {
+    display: unset;
+  }
   /* TEI <l>, i.e. a line of Sanskrit verse. */
   s-l {
     @apply block;

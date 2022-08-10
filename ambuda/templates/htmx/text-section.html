@@ -56,6 +56,14 @@
       {% include 'include/script-options.html' %}
     </select>
   </div>
+  {% if not has_no_parse %}
+  <div class="hidden md:inline text-sm border-r px-4">
+    <span class="hidden md:inline">Parsed View:</span>
+    <select id="switch-parse-options" class="p-1">
+      {% include 'include/parse-options.html' %}
+    </select>
+  </div>
+  {% endif %}
   {{ paginate_link(text, prev, '&laquo;') }}
   {{ paginate_link(text, next, '&raquo;') }}
 </div>

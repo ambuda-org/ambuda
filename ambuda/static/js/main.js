@@ -71,6 +71,18 @@ const Preferences = {
       localStorage.setItem('user-font-size', value);
     }
   },
+  get contentParseOptions() {
+    const ls = localStorage.getItem('user-parse-options');
+    if (!ls || ls === 'undefined') {
+      return 'in-place';
+    }
+    return ls;
+  },
+  set contentParseOptions(value) {
+    if (value) {
+      localStorage.setItem('user-parse-options', value);
+    }
+  },
 };
 
 // Utilities
@@ -216,23 +228,46 @@ const ParseLayer = (() => {
     return blockID.split('.').slice(1).join('.');
   }
 
-  function showParsedBlock(blockID) {
+  async function showParsedBlock(blockID) {
     const blockSlug = getBlockSlug(blockID);
     const $container = $('#parse--response');
     const textSlug = URL.getTextSlug();
 
     const $block = $(`#${blockID.replaceAll('.', '\\.')}`);
+    if ($block.classList.contains("block-left")) {
+      // Text has already been parsed and is already showing side-by-side.
+      return;
+    }
+
+    if ($block.nextSibling.classList.contains("block-right")) {
+      // Text has already been parsed, we just need to make the parsed text visible.
+      $block.classList.add("block-left");
+      const parsedNode = $block.nextSibling;
+      parsedNode.style.display = "inline-block";
+      return;
+    }
+    // Fetch parsed data.
     const url = URL.parseData(textSlug, blockSlug);
-    Server.getText(
-      url,
-      (resp) => {
-        $block.outerHTML = transliterateSanskritBlob(resp, Preferences.contentScript);
-      },
-      () => {
-        $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
-        Sidebar.show();
-      },
-    );
+    let resp;
+    try {
+      resp = await new Promise((resolve, reject) => Server.getText(url, resolve, reject));
+    } catch (e) {
+      $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
+      Sidebar.show();
+      return;
+    }
+    $block.classList.add("block-left");
+    const node = document.createElement("div");
+    node.innerHTML = transliterateSanskritBlob(resp, Preferences.contentScript);
+    const parsedNode = node.firstChild;
+    $block.after(parsedNode);
+    parsedNode.classList.add("block-right");
+
+    const link = document.createElement("a");
+    link.className = "text-sm text-zinc-400 hover:underline js--source";
+    link.href = "#";
+    link.innerHTML = `<span class='shown-side-by-side'>Hide</span><span class='hidden-side-by-side'>Show original</span>`;
+    parsedNode.appendChild(link);
   }
 
   function init() {
@@ -331,14 +366,11 @@ const TextContent = (() => {
         const $undoParse = e.target.closest('.js--source');
         if ($undoParse) {
           e.preventDefault();
-          Server.getText(
-            $undoParse.href,
-            (resp) => {
-              const transResp = transliterateSanskritBlob(resp, Preferences.contentScript);
-              $undoParse.closest('s-lg').outerHTML = transResp;
-            },
-            () => {},
-          );
+          // Hide the right (parsed) block.
+          const parsedNode = $undoParse.closest(".block-right");
+          parsedNode.style.display = "none";
+          const $block = parsedNode.previousSibling;
+          $block.classList.remove("block-left");
           return;
         }
 
@@ -410,6 +442,34 @@ const FontSizeMenu = (() => {
   return { init };
 })();
 
+const ParseOptionsMenu = (() => {
+  function switchParseOptions(newParseOptions) {
+    Preferences.contentParseOptions = newParseOptions;
+    updateClassParseOptions();
+  }
+
+  function updateClassParseOptions() {
+    if (Preferences.contentParseOptions === "side-by-side") {
+      document.body.classList.add("side-by-side");
+    } else {
+      document.body.classList.remove("side-by-side");
+    }
+  }
+
+  function init() {
+    const $parseOptionsMenu = $('#switch-parse-options');
+    if ($parseOptionsMenu) {
+      $parseOptionsMenu.value = Preferences.contentParseOptions;
+      updateClassParseOptions();
+      $parseOptionsMenu.addEventListener('change', (e) => {
+        switchParseOptions(e.target.value);
+      });
+    }
+  }
+
+  return { init };
+})();
+
 const HamburgerButton = (() => {
   function init() {
     const $ham = $('#hamburger');
@@ -427,6 +487,7 @@ const HamburgerButton = (() => {
 (() => {
   FontSizeMenu.init();
   ScriptMenu.init();
+  ParseOptionsMenu.init();
   Dictionary.init();
   ParseLayer.init();
   TextContent.init();
