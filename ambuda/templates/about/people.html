@@ -1,6 +1,18 @@
 {% extends 'base-text.html' %}
 
+
+{% macro bio(name, resp, desc) %}
+<section>
+  <h1 class="mb-2 mt-8"><span class="font-bold">{{ name }}</span> &mdash; {{ resp|safe }}</h1>
+  <div class="prose">
+  {{ caller() }}
+  </div>
+</section>
+{% endmacro %}
+
+
 {% block title %}People | Ambuda{% endblock %}
+
 
 {% block content %}
 <div class="prose">
@@ -8,13 +20,32 @@
 
 <p>Ambuda is run by volunteers who are passionate about making Sanskrit
 accessible to all.</p>
-
-<p><b>Arun Prasad</b> (Founder) &mdash; Arun is the creator of
-<a href="https://learnsanskrit.org">learnsanskrit.org</a> and the Sanskrit
-short story project <a href="https://en.amarahasa.com">Amarahasa</a>. He has an
-MS in Computer Science and a minor in Classics, both from Stanford University.
-Arun is a former Google Research engineer and works professionally in climate
-fintech.</p>
-
 </div>
+
+{% call bio("Arun Prasad", "Founder and Project Lead") %}
+<p>Arun is the creator of <a href="https://learnsanskrit.org">learnsanskrit.org</a>
+and the Sanskrit short story project <a href="https://en.amarahasa.com">Amarahasa</a>.
+Broadly, his work explores how software and digital tools can make Sanskrit
+literature radically accessible. Arun has an MS in Computer Science and a minor
+in Classics with a focus on Homeric Greek, both from Stanford University.
+By profession, he is a former Google Research engineer that works in climate
+fintech.</p>
+{% endcall %}
+
+
+{% set schmidt = "https://schmidtsciencefellows.org/fellow/suhas-mahesh/" %}
+{% set rhodes = "https://www.rhodeshouse.ox.ac.uk/scholars/rhodes-scholars-class-of-2016/suhas-mahesh/" %}
+{% call bio("Suhas Mahesh", "Text Curation and Sourcing") %}
+<p>Suhas Mahesh is a <a href="{{ schmidt }}">Schmidt Science Fellow</a> at the
+University of Toronto, where his research explores building bespoke materials
+for a low-carbon future. Suhas has a PhD in physics from the University of
+Oxford, where he was a <a href="{{ rhodes }}">Rhodes scholar</a>. Suhas is a
+expert on Sanskrit and Prakrit literature, and his current projects include an
+anthology of Sanskrit and Prakrit love poetry in translation (HarperCollins
+2023), and a translation of the <cite>Nilakantha-vijaya-champu</cite>, an
+ornate retelling of the myth of the churning of the ocean (Murty Classical
+Library of India).</p>
+{% endcall %}
+
+
 {% endblock %}
