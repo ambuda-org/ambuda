@@ -141,11 +141,11 @@ class ProductionConfig(BaseConfig):
     # ----------------------
 
     #: Which directory to use on the production machine.
-    APP_DIRECTORY = _env("SERVER_APP_DIRECTORY")
+    SERVER_APP_DIRECTORY = _env("SERVER_APP_DIRECTORY")
     #: Server username.
-    APP_SERVER_USER = _env("SERVER_USER")
+    SERVER_USER = _env("SERVER_USER")
     #: Server host.
-    APP_SERVER_HOST = _env("SERVER_HOST")
+    SERVER_HOST = _env("SERVER_HOST")
 
 
 def _validate_config(config: BaseConfig):
