@@ -1,6 +1,5 @@
 """Background tasks for proofing projects."""
 
-import subprocess
 from pathlib import Path
 
 import fitz

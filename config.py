@@ -141,11 +141,11 @@ class ProductionConfig(BaseConfig):
     # ----------------------
 
     #: Which directory to use on the production machine.
-    APP_DIRECTORY = _env("APP_DIRECTORY")
+    APP_DIRECTORY = _env("SERVER_APP_DIRECTORY")
     #: Server username.
-    APP_SERVER_USER = _env("APP_SERVER_USER")
+    APP_SERVER_USER = _env("SERVER_USER")
     #: Server host.
-    APP_SERVER_HOST = _env("APP_SERVER_HOST")
+    APP_SERVER_HOST = _env("SERVER_HOST")
 
 
 def _validate_config(config: BaseConfig):
@@ -168,7 +168,7 @@ def _validate_config(config: BaseConfig):
         for key in dir(config):
             if key.isupper():
                 value = getattr(config, key)
-                assert value, key
+                assert value is not None, f"Config param {key} must not be `None`"
 
         # App must not be in debug/test mode.
         assert config.WTF_CSRF_ENABLED
