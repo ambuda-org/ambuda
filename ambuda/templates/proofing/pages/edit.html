@@ -70,6 +70,10 @@
       {{ form.status.label(class_="text-slate-600 mb-2 block") }}
       {{ form.status(class_="block rounded bg-white w-full mb-4 p-2") }}
 
+      {% set cc0 = "https://creativecommons.org/publicdomain/zero/1.0/" %}
+      <p class="my-4 text-sm">By saving your changes, you agree to release your
+      contribution under the <a class="underline" href="{{ cc0 }}">CC0 (public
+      domain) license</a>.</p>
       <input class="btn btn-submit" type="submit" value="Publish changes">
     </div>
   </form>

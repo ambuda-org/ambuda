@@ -81,9 +81,15 @@ def deploy_to_commit(_, pointer: str):
 
         upgrade_db(_)
 
+        # Verify that unit tests pass on prod.
+        c.run("make test")
+
         # Copy production config settings.
         env_path = str(APP_DIRECTORY / ".env")
         c.put("production/prod-env", env_path)
+
+        # Verify that the production setup is well-formed.
+        c.run("python -m scripts.check_prod_setup")
 
     restart_application(_)
     restart_celery(_)

@@ -1,6 +1,5 @@
 """Background tasks for proofing projects."""
 
-import subprocess
 from pathlib import Path
 
 import fitz
@@ -63,7 +62,9 @@ def _split_pdf_into_pages(
 
 
 def _add_project_to_database(
-    title: str, slug: str, num_pages: int, task_status: TaskStatus
+    title: str,
+    slug: str,
+    num_pages: int,
 ):
     """Create a project on the database.
 
@@ -130,7 +131,9 @@ def create_project(
     num_pages = _split_pdf_into_pages(Path(pdf_path), Path(pages_dir), task_status)
     with app.app_context():
         _add_project_to_database(
-            title=title, slug=slug, num_pages=num_pages, task_status=task_status
+            title=title,
+            slug=slug,
+            num_pages=num_pages,
         )
 
     task_status.success(num_pages, slug)

@@ -34,10 +34,10 @@ make test
 # Install environment variables.
 cat << "EOF" > .env
 # To see what these environment variables mean and how we use them in the
-# application, see `config.py`.
+# application, see \`config.py\`.
 
 FLASK_ENV=development
-# FLASK_UPLOAD_FOLDER="<absolute path to where you want to store uploads.>"
+FLASK_UPLOAD_FOLDER="$(pwd)/data/file-uploads"
 SQLALCHEMY_DATABASE_URI="sqlite:///database.db"
 
 GOOGLE_APPLICATION_CREDENTIALS="<Google API credentials>"
