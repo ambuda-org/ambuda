@@ -239,7 +239,7 @@ const ParseLayer = (() => {
       return;
     }
 
-    if ($block.nextSibling.classList.contains('block-parsed-right')) {
+    if ($block.nextSibling.classList.contains('block-parsed')) {
       // Text has already been parsed, we just need to make the parsed text visible.
       $block.classList.add('block-original');
       const parsedNode = $block.nextSibling;
@@ -256,7 +256,7 @@ const ParseLayer = (() => {
         node.innerHTML = transliterateSanskritBlob(resp, Preferences.contentScript);
         const parsedNode = node.firstChild;
         $block.after(parsedNode);
-        parsedNode.classList.add('block-parsed-right');
+        parsedNode.classList.add('block-parsed');
 
         const link = document.createElement('a');
         link.className = 'text-sm text-zinc-400 hover:underline js--source';
@@ -368,7 +368,7 @@ const TextContent = (() => {
         if ($undoParse) {
           e.preventDefault();
           // Hide the right (parsed) block.
-          const parsedNode = $undoParse.closest('.block-parsed-right');
+          const parsedNode = $undoParse.closest('.block-parsed');
           parsedNode.style.display = 'none';
           const $block = parsedNode.previousSibling;
           $block.classList.remove('block-original');

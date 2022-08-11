@@ -68,10 +68,9 @@
 
   /* Side by side view */
   .block-original {
-    @apply cursor-auto;
-    display: none;
+    @apply cursor-auto hidden;
   }
-  .side-by-side .block-original, .side-by-side .block-parsed-right {
+  .side-by-side .block-original, .side-by-side .block-parsed {
     @apply md:w-6/12;
     display: inline-block;
     vertical-align: top;
