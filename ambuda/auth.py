@@ -11,6 +11,8 @@ from ambuda.queries import get_session
 
 
 class AmbudaAnonymousUser(AnonymousUserMixin):
+    """An anonymous user with limited permissions."""
+
     @property
     def is_admin(self):
         return False
@@ -26,8 +28,13 @@ def _load_user(user_id: int) -> Optional[User]:
 
 
 def _unauthorized():
+    """Defines how to handle unauth requests to routes that expect auth."""
+
+    # An example of an auth API is our Google OCR endpoint.
     if request.blueprint == "api":
         abort(HTTPStatus.UNAUTHORIZED)
+
+    # For regular pages, just prompt sign-in.
     return redirect(url_for("auth.sign_in"))
 
 

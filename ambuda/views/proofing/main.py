@@ -35,11 +35,6 @@ def _is_allowed_document_file(filename: str) -> bool:
     return Path(filename).suffix == ".pdf"
 
 
-def _is_allowed_image_file(filename: str) -> bool:
-    """True iff we accept this type of image upload."""
-    return Path(filename).suffix == ".jpg"
-
-
 class CreateProjectWithPdfForm(FlaskForm):
     file = FileField("PDF file", validators=[DataRequired()])
     title = StringField(

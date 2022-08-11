@@ -66,7 +66,7 @@ class Role(Base):
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     def __repr__(self):
-        return f"<Role({self.id}, {self.name})>"
+        return f"<Role({self.id}, {self.name!r})>"
 
 
 class UserRoles(Base):
