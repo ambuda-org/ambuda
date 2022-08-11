@@ -5,7 +5,6 @@
 # Setup commands
 # ===============================================
 
-
 # Install the repository from scratch.
 # This command does NOT install data dependencies.
 install:
@@ -21,7 +20,7 @@ db_seed_basic:
 	python -m ambuda.seed.dictionaries.monier
 
 
-# Seed the database will all of the text, parse, and dictionary data we serve
+# Seed the database with all of the text, parse, and dictionary data we serve
 # in production.
 db_seed_all:
 	python -m ambuda.seed.lookup.role
@@ -73,7 +72,6 @@ lint-check: eslint
 # Run all Python unit tests.
 test:
 	pytest .
-
 
 # Run all Python unit tests with a coverage report.
 # After the command completes, open "htmlcov/index.html".

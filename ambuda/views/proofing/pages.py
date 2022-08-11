@@ -66,6 +66,7 @@ def _prev_cur_next(pages: list[db.Page], slug: str) -> tuple[db.Page, db.Page, d
 def add_revision(
     page: db.Page, summary: str, content: str, status: str, version: int, author_id: int
 ) -> int:
+    """Add a new revision for a page."""
     # If this doesn't update any rows, there's an edit conflict.
     # Details: https://gist.github.com/shreevatsa/237bd6592771caadecc68c9515403bc3
     # FIXME: rather than do this on the application side, do an `exists` query
@@ -260,7 +261,7 @@ def revision(project_slug, page_slug, revision_id):
     prev_revision = None
     cur_revision = None
     for r in cur.revisions:
-        if r.id == int(revision_id):
+        if str(r.id) == revision_id:
             cur_revision = r
             break
         else:
