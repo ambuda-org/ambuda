@@ -4,17 +4,18 @@ Quickstart
 All of Ambuda's major commands are in `Makefile`.
 
 
-Running the development server
-------------------------------
+Fresh setup
+-----------
 
-After you've cloned the repo, you can bring up a minimal setup by running the
-following::
+After you've cloned the repo, you can can set up the server with the following::
 
     make install
-    make db-seed-basic
-    make devserver
+    make db_seed_basic
 
-Then go to `localhost:5000` to see the local application.
+.. collapse:: Debug info
+
+    In case `make db_seed_basic` fails with an error (due some change in the database structure) and you already have a local `database.db` - try deleting it. Also see "Database migrations" below.
+
 
 Some parts of Ambuda, such as PDF parsing, need to run tasks in the background.
 To add support for these in your local setup, run the following::
@@ -27,6 +28,26 @@ to Ambuda's HTML files. For more details, see the `Tailwind docs`_.
 
 .. _Tailwind docs: https://tailwindcss.com/docs/
 
+Updating the local setup
+------------------------
+If you don't want to run a fresh setup after pulling upstream changes, you can do the following::
+
+    bash
+    source env/bin/activate
+    pip install -r requirements.txt
+
+
+Also see "Database migrations" section below.
+
+
+Running the development server
+------------------------------
+Run::
+
+    make devserver
+
+
+Then go to `localhost:5000` to see the local application.
 
 Linting and testing
 -------------------
