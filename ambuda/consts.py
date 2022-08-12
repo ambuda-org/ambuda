@@ -18,7 +18,7 @@ TEXT_CATEGORIES = {
         "saundaranandam",
         "hamsadutam",
     ],
-    "upanishad": ["shivopanishad"],
+    "upanishad": ["shivopanishat"],
     "anye": [
         "bodhicaryavatara",
     ],
