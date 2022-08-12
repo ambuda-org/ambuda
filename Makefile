@@ -40,9 +40,9 @@ db_seed_all:
 # Development commands
 # ===============================================
 
-# Run the devserver.
+# Run the devserver, and live reload our CSS.
 devserver:
-	flask run
+	npx concurrently "flask run" "make tailwind_watcher"
 
 
 # Run Tailwind to build our CSS, and rebuild our CSS every time a relevant file
