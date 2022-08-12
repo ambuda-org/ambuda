@@ -14,6 +14,15 @@ following::
     make db_seed_basic
     make devserver
 
+.. collapse:: Debug info
+
+    In case some python requirement is missing during the above, install it as follows:: 
+    
+        bash
+        source env/bin/activate
+        pip install PACKAGE_NAME
+
+
 Then go to `localhost:5000` to see the local application.
 
 Some parts of Ambuda, such as PDF parsing, need to run tasks in the background.
