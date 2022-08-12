@@ -9,7 +9,7 @@ BRANCH = "master"
 PROJECT_DIR = Path(__file__).resolve().parents[3]
 DATA_DIR = PROJECT_DIR / "data" / "ambuda-sarit"
 
-ALLOW = [Spec("skandapurana", "skandapurANa", "skandapurana.xml")]
+ALLOW = [Spec("skandapuranam", "skandapurANam", "skandapurana.xml")]
 
 
 def run():

@@ -18,7 +18,7 @@ TEXT_CATEGORIES = {
         "saundaranandam",
         "hamsadutam",
     ],
-    "purana": ["skandapurana"],
+    "purana": ["skandapuranam"],
     "anye": [
         "bodhicaryavatara",
     ],
