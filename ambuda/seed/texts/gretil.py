@@ -124,7 +124,7 @@ def delete_unused_elements(xml: ET.Element):
             if el.tag in {"seg", "hi"}:
                 el.tag = None
             # Delete tag and text.
-            if el.tag in {"note", "label"}:
+            if el.tag in {"note"}:
                 el.tag = None
                 el.clear()
         text = "".join(L.itertext())
@@ -141,7 +141,7 @@ def _make_section(xml: ET.Element, section_slug: str) -> Section:
         if child.tag in {"note", "del"}:
             continue
 
-        assert child.tag in {"lg", "head", "p", "trailer", "milestone", "pb", "div", "list"}, child.tag
+        assert child.tag in {"lg", "head", "p", "trailer", "milestone", "pb"}, child.tag
         if child.tag == "head":
             block_slug = "head"
         else:

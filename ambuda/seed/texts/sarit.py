@@ -9,9 +9,8 @@ BRANCH = "master"
 PROJECT_DIR = Path(__file__).resolve().parents[3]
 DATA_DIR = PROJECT_DIR / "data" / "ambuda-sarit"
 
-ALLOW = [
+ALLOW = [Spec("skandapurana", "skandapurANa", "skandapurana.xml")]
 
-]
 
 def run():
     log("Downloading the latest data ...")

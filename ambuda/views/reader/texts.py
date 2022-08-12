@@ -18,6 +18,7 @@ HAS_NO_PARSE = {
     "bhattikavyam",
     "shatakatrayam",
     "shishupalavadham",
+    "skandapurana"
 }
 
 
@@ -105,6 +106,7 @@ def text_resources(slug):
 @bp.route("/<text_slug>/<section_slug>")
 def section(text_slug, section_slug):
     """Show a specific section of a text."""
+
     text = q.text(text_slug)
     if text is None:
         abort(404)
