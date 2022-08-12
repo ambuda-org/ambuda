@@ -32,7 +32,7 @@ pip install -r requirements.txt
 make test
 
 # Install environment variables.
-cat << "EOF" > .env
+cat << EOF > .env
 # To see what these environment variables mean and how we use them in the
 # application, see \`config.py\`.
 
