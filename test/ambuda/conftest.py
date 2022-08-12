@@ -105,6 +105,16 @@ def initialize_test_db():
 
     page = db.Page(project_id=project.id, slug="1", order=1, status_id=page_status.id)
     session.add(page)
+    session.flush()
+
+    revision = db.Revision(
+        project_id=project.id,
+        page_id=page.id,
+        author_id=admin.id,
+        status_id=page_status.id,
+        content="Foo",
+    )
+    session.add(revision)
 
     session.commit()
 

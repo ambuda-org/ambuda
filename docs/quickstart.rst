@@ -16,13 +16,16 @@ following::
 
 Then go to `localhost:5000` to see the local application.
 
-If you also plan to make CSS changes, run the following command in a
-separate terminal window::
+Some parts of Ambuda, such as PDF parsing, need to run tasks in the background.
+To add support for these in your local setup, run the following::
 
-    make tailwind_watcher
+    ./scripts/install_osx_dependencies.sh
+    make celery
 
 Roughly, Tailwind generates a new CSS file whenever it detects certain changes
-to Ambuda's HTML files. For more details, see the Tailwind docs.
+to Ambuda's HTML files. For more details, see the `Tailwind docs`_.
+
+.. _Tailwind docs: https://tailwindcss.com/docs/
 
 
 Linting and testing
@@ -49,7 +52,7 @@ Database migrations
 
 Database migrations are complex. If you're pulling an upstream change that
 contains a database schema change, run this command to upgrade your local
-database:
+database::
 
     alembic upgrade head
 

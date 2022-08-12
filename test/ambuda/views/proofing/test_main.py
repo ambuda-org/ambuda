@@ -1,6 +1,25 @@
+import pytest
+
+
+from ambuda.views.proofing import main
+
+
+@pytest.mark.parametrize(
+    "path,expected",
+    [
+        ("book.pdf", True),
+        ("book.djvu", False),
+        ("book.epub", False),
+    ],
+)
+def test_is_allowed_document_file(path, expected):
+    assert main._is_allowed_document_file(path) == expected
+
+
 def test_index(client):
     resp = client.get("/proofing/")
     assert resp.status_code == 200
+    assert ">Proofing<" in resp.text
 
 
 def test_beginners_guide(client):
@@ -18,11 +37,11 @@ def test_recent_changes(client):
     assert ">Recent changes<" in resp.text
 
 
-def test_upload_images__unauth(client):
-    resp = client.get("/proofing/create-new-project")
+def test_create_project__unauth(client):
+    resp = client.get("/proofing/create-project")
     assert resp.status_code == 302
 
 
-def test_upload_images__auth(rama_client):
-    resp = rama_client.get("/proofing/create-new-project")
+def test_create_project__auth(rama_client):
+    resp = rama_client.get("/proofing/create-project")
     assert resp.status_code == 200

@@ -186,7 +186,7 @@ def write_kandas(
 
 def create_db():
     flask_env = os.environ["FLASK_ENV"]
-    conf = config.config[flask_env]
+    conf = config.load_config_object(flask_env)
     engine = create_engine(conf.SQLALCHEMY_DATABASE_URI)
 
     db.Base.metadata.create_all(engine)

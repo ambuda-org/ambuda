@@ -5,7 +5,6 @@
 # Setup commands
 # ===============================================
 
-
 # Install the repository from scratch.
 # This command does NOT install data dependencies.
 install:
@@ -21,7 +20,7 @@ db_seed_basic:
 	python -m ambuda.seed.dictionaries.monier
 
 
-# Seed the database will all of the text, parse, and dictionary data we serve
+# Seed the database with all of the text, parse, and dictionary data we serve
 # in production.
 db_seed_all:
 	python -m ambuda.seed.lookup.role
@@ -41,17 +40,21 @@ db_seed_all:
 
 # Development commands
 # ===============================================
-#
 
-# Run the devserver.
+# Run the devserver, and live reload our CSS.
 devserver:
-	flask run
+	npx concurrently "flask run" "make tailwind_watcher"
 
 
 # Run Tailwind to build our CSS, and rebuild our CSS every time a relevant file
 # changes.
 tailwind_watcher:
 	npx tailwindcss -i ./ambuda/static/css/style.css -o ./ambuda/static/gen/style.css --watch
+
+
+# Run a local Celery instance for background tasks.
+celery:
+	celery -A ambuda.tasks worker --loglevel=INFO
 
 
 # Lint our JavaScript code.
@@ -63,11 +66,13 @@ eslint:
 lint: eslint
 	black .
 
+# Lint our Python and JavaScript code. Fail on any issues.
+lint-check: eslint
+	black . --diff
 
 # Run all Python unit tests.
 test:
 	pytest .
-
 
 # Run all Python unit tests with a coverage report.
 # After the command completes, open "htmlcov/index.html".

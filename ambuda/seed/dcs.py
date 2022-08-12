@@ -7,7 +7,7 @@ import ambuda.database as db
 from ambuda.seed.utils.itihasa_utils import create_db
 
 
-REPO = "https://github.com/ambuda-project/dcs.git"
+REPO = "https://github.com/ambuda-org/dcs.git"
 PROJECT_DIR = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_DIR / "data" / "ambuda-dcs"
 

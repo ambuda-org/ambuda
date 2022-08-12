@@ -36,3 +36,8 @@ def test_user__set_and_check_role(client):
     assert not user.is_admin
 
     _cleanup(session, user)
+
+
+def test_role__repr(client):
+    role = db.Role(name="foo")
+    assert repr(role) == "<Role(None, 'foo')>"

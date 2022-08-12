@@ -1,0 +1,34 @@
+{% extends 'proofing/base.html' %}
+{% import "macros/components.html" as components %}
+{% import "macros/celery.html" as m_cel %}
+{% import "macros/proofing.html" as m %}
+{% import "macros/talk.html" as m_talk %}
+{% import "macros/forms.html" as mf %}
+
+
+{% block title %}Create a new project | Ambuda{% endblock %}
+
+
+{% block content %}
+<div class="prose">
+<h1>Create new project</h1>
+
+<p class="text-sm">(This page updates every 5 seconds.)</p>
+
+<div id="progress">
+  {% with current=current, total=total, percent=percent, slug=slug, status=status %}
+    {% include 'include/task-progress.html' %}
+  {% endwith %}
+</div>
+</div>
+
+<script type="text/javascript">
+  const taskId = '{{ task_id }}';
+  setInterval(function() {
+    Server.getText(`/proofing/status/${taskId}`, (text) => {
+      $('#progress').innerHTML = text;
+    });
+  }, 5000);
+</script>
+
+{% endblock %}

@@ -1,7 +1,7 @@
 """Parse Sanskrit texts from GRETIL.
 
 The GRETIL TEI format has some systematic inconsistencies. Instead of using it,
-just process teh plain text.
+just process the plain text.
 """
 import subprocess
 from dataclasses import dataclass
@@ -22,7 +22,7 @@ class Spec:
     filename: str
 
 
-REPO = "https://github.com/ambuda-project/gretil.git"
+REPO = "https://github.com/ambuda-org/gretil.git"
 BRANCH = "main"
 PROJECT_DIR = Path(__file__).resolve().parents[3]
 DATA_DIR = PROJECT_DIR / "data" / "ambuda-gretil"

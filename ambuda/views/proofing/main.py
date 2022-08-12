@@ -1,7 +1,9 @@
 """Views for basic site pages."""
 
+from datetime import datetime
 from pathlib import Path
 
+from celery.result import AsyncResult
 from flask import (
     Blueprint,
     abort,
@@ -13,12 +15,15 @@ from flask import (
     url_for,
 )
 from flask_login import login_required
+from flask_wtf import FlaskForm
 from slugify import slugify
 from werkzeug.utils import secure_filename
+from wtforms import StringField, FileField
+from wtforms.validators import DataRequired
 
 import ambuda.queries as q
 from ambuda import database as db
-from ambuda.tasks import pdf
+from ambuda.tasks import projects as project_tasks
 from ambuda.views.proofing.utils import _get_image_filesystem_path
 
 
@@ -30,9 +35,11 @@ def _is_allowed_document_file(filename: str) -> bool:
     return Path(filename).suffix == ".pdf"
 
 
-def _is_allowed_image_file(filename: str) -> bool:
-    """True iff we accept this type of image upload."""
-    return Path(filename).suffix == ".jpg"
+class CreateProjectWithPdfForm(FlaskForm):
+    file = FileField("PDF file", validators=[DataRequired()])
+    title = StringField(
+        "Title of the book (you can change this later)", validators=[DataRequired()]
+    )
 
 
 @bp.route("/")
@@ -82,123 +89,70 @@ def complete_guide():
     return render_template("proofing/complete-guidelines.html")
 
 
-@bp.route("/create-new-project")
+@bp.route("/create-project", methods=["GET", "POST"])
 @login_required
-def upload_images():
-    return render_template("proofing/upload-images.html")
+def create_project():
+    form = CreateProjectWithPdfForm()
+    if form.validate_on_submit():
+        # TODO: timestamp slug?
+        slug = slugify(form.title.data)
+        project_dir = Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / slug
 
+        pdf_dir = project_dir / "pdf"
+        page_image_dir = project_dir / "pages"
 
-@bp.route("/create-new-project", methods=["POST"])
-@login_required
-def upload_images_post():
-    if "file" not in request.files:
-        # Request has no file data
-        flash("Sorry, there's a server error.")
-        return redirect(request.url)
+        pdf_dir.mkdir(parents=True, exist_ok=True)
+        page_image_dir.mkdir(parents=True, exist_ok=True)
 
-    title = request.form.get("title", None)
-    if not title:
-        # Missing title.
-        flash("Please submit a title.")
-        return redirect(request.url)
+        pdf_path = pdf_dir / f"source.pdf"
+        filename = form.file.raw_data[0].filename
+        if not _is_allowed_document_file(filename):
+            flash("Please upload a PDF.")
+            return render_template("proofing/create-project.html", form=form)
+        form.file.data.save(pdf_path)
 
-    # Check that we have a valid slug.
-    # `secure_filename` might be redundant given what `slugify` already does,
-    # but let's call it anyway so that we're not coupled to the internals of
-    # `slugify` here.
-    slug = slugify(title)
-    slug = secure_filename(slug)
-    if not slug:
-        # Slug is empty -- bad title.
-        flash("Please submit a valid title.")
-        return redirect(request.url)
-
-    # Before writing to the DB, validate the form data.
-    all_files = request.files.getlist("file")
-    for i, file in enumerate(all_files):
-        if file.filename == "":
-            flash("Please submit valid files.")
-            return redirect(request.url)
-
-        if not file or not _is_allowed_image_file(file.filename):
-            flash("Please submit .jpg files only.")
-            return redirect(request.url)
-
-    q.create_project(title=title, slug=slug)
-    # FIXME: Need to fetch again, otherwise DetachedInstanceError?
-    # https://sqlalche.me/e/14/bhk3
-    project_ = q.project(slug)
-
-    image_dir = _get_image_filesystem_path(project_.slug, "1").parent
-    image_dir.mkdir(exist_ok=True, parents=True)
-
-    session = q.get_session()
-
-    default_status = session.query(db.PageStatus).filter_by(name="reviewed-0").one()
-    for i, file in enumerate(all_files):
-        n = i + 1
-        image_path = _get_image_filesystem_path(project_.slug, str(n))
-        file.save(image_path)
-
-        session.add(
-            db.Page(
-                project_id=project_.id,
-                slug=str(n),
-                order=n,
-                status_id=default_status.id,
-            )
+        task = project_tasks.create_project.delay(
+            title=form.title.data,
+            pdf_path=str(pdf_path),
+            output_dir=str(page_image_dir),
+            app_environment=current_app.config["AMBUDA_ENVIRONMENT"],
+        )
+        return render_template(
+            "proofing/create-project-post.html",
+            stauts=task.status,
+            current=0,
+            total=0,
+            percent=0,
+            task_id=task.id,
         )
 
-    session.commit()
-    return redirect(url_for("proofing.index"))
+    return render_template("proofing/create-project.html", form=form)
 
 
-# Unused in prod -- needs task queue support (celery/dramatiq)
-@login_required
-def upload_pdf_post():
-    if "file" not in request.files:
-        # Request has no file data
-        flash("Sorry, there's a server error.")
-        return redirect(request.url)
+@bp.route("/status/<task_id>")
+def create_project_status(task_id):
+    """AJAX summary of the task."""
+    r = project_tasks.create_project.AsyncResult(task_id)
 
-    file = request.files["file"]
-    if file.filename == "":
-        # Empty file submitted.
-        flash("Please submit a file.")
-        return redirect(request.url)
+    info = r.info or {}
+    if isinstance(info, Exception):
+        current = total = percent = 0
+        slug = None
+        status = r.status
+    else:
+        current = info.get("current", 100)
+        total = info.get("total", 100)
+        slug = info.get("slug", None)
+        percent = 100 * current / total
 
-    title = request.form.get("title", None)
-    if not title:
-        # Missing title.
-        flash("Please submit a title.")
-        return redirect(request.url)
-
-    # Check that we have a valid slug.
-    # `secure_filename` might be redundant given what `slugify` already does,
-    # but let's call it anyway so that we're not coupled to the internals of
-    # `slugify` here.
-    slug = slugify(title)
-    slug = secure_filename(slug)
-    if not slug:
-        # Slug is empty -- bad title.
-        flash("Please submit a valid title.")
-        return redirect(request.url)
-
-    if file and _is_allowed_image_file(file.filename):
-        pdf_path = Path(current_app.config["UPLOAD_FOLDER"]) / slug / "original.pdf"
-        pdf_path.parent.mkdir(exist_ok=True, parents=True)
-        file.save(pdf_path)
-
-        q.create_project(title=title, slug=slug)
-        # FIXME: Need to fetch again, otherwise DetachedInstanceError?
-        # https://sqlalche.me/e/14/bhk3
-        project_ = q.project(slug)
-
-        pdf.create_pages.send(project_.id, pdf_path)
-        return redirect(url_for("proofing.index"))
-
-    flash("Please submit a PDF file.")
-    return redirect(request.url)
+    return render_template(
+        "include/task-progress.html",
+        status=r.status,
+        current=current,
+        total=total,
+        percent=percent,
+        slug=slug,
+    )
 
 
 @bp.route("/recent-changes")

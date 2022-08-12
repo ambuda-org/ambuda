@@ -51,18 +51,18 @@ and resolve any TODOs. -->
 """.strip()
 
 
-def iter_raw_text_lines(blobs: list[str]) -> Iterator[str]:
-    """Iterate over all text blobs as a single stream."""
+def _iter_raw_text_lines(blobs: list[str]) -> Iterator[str]:
+    """Iterate over text blobs as a stream of lines."""
     for blob in blobs:
         blob = blob.strip()
         for line in blob.splitlines():
             yield line.strip()
 
 
-def iter_blocks(lines: Iterator[str]) -> Iterator[str]:
-    """Convert a stream of lines to a stream of blocks."""
+def iter_blocks(blobs: Iterator[str]) -> Iterator[str]:
+    """Iterate over text blobs as a stream of blocks."""
     buf = []
-    for line in lines:
+    for line in _iter_raw_text_lines(blobs):
         if line:
             buf.append(line)
         elif buf:
@@ -125,8 +125,7 @@ def create_xml_block(lines: list[str]) -> str:
 
 def to_plain_text(blobs: list[str]) -> str:
     """Publish a project as plain text."""
-    lines = iter_raw_text_lines(blobs)
-    blocks = iter_blocks(lines)
+    blocks = iter_blocks(blobs)
     return "\n\n".join(create_plain_text_block(b) for b in blocks)
 
 
@@ -150,8 +149,7 @@ def to_tei_xml(project_meta: dict[str, str], blobs: list[str]) -> str:
 
         # <pb> element makes it difficult to work with a stream of blobs,
         # so just process one blob at a time and stitch them together after.
-        lines = iter_raw_text_lines([blob])
-        blocks = iter_blocks(lines)
+        blocks = iter_blocks([blob])
         buf.append("\n\n".join(create_xml_block(b) for b in blocks))
 
     buf.append("</body></text></TEI>")

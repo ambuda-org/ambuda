@@ -27,7 +27,7 @@ Code dependencies
 
 Start by downloading Ambuda's project code from GitHub::
 
-    $ git clone git@github.com:ambuda-project/ambuda.git
+    $ git clone git@github.com:ambuda-org/ambuda.git
 
 You can install all dependencies with a simple `make` call::
 
