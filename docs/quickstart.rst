@@ -32,6 +32,8 @@ Updating the local setup
 ------------------------
 If you don't want to run a fresh setup after pulling upstream changes, you can do the following::
 
+    bash
+    source env/bin/activate
     pip install -r requirements.txt
 
 
