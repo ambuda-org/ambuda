@@ -6,7 +6,10 @@ def test_add_project_to_database(flask_app):
     with flask_app.app_context():
         assert not q.project("cool")
         projects._add_project_to_database(
-            title="Cool project", slug="cool", num_pages=100
+            title="Cool project",
+            slug="cool",
+            num_pages=100,
+            creator_id=1,
         )
         project = q.project("cool")
         assert project
