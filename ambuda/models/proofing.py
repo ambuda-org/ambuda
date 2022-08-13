@@ -10,7 +10,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 
-from ambuda.models.base import Base, pk, foreign_key
+from ambuda.models.base import Base, pk, foreign_key, same_as
 
 
 def string():
@@ -49,9 +49,18 @@ class Project(Base):
     #: Defines page numbers (e.g. "x", "vii", ...)
     page_numbers = text()
 
+    #: Timestamp at which this project was created.
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    #: Timestamp at which this project was last updated.
+    updated_at = Column(DateTime, default=same_as("created_at"), nullable=False)
+
     #: Discussion board for this project.
     board_id = foreign_key("discussion_boards.id")
+    #: Creator of this project.
+    #: FIXME: make non-nullable once we manually migrate the production setup.
+    creator_id = Column(Integer, ForeignKey("users.id"), index=True)
 
+    creator = relationship("User")
     board = relationship("Board", cascade="delete")
 
     #: An ordered list of pages belonging to this project.
@@ -132,6 +141,7 @@ class Revision(Base):
         Integer, ForeignKey("proof_page_statuses.id"), index=True, nullable=False
     )
     #: Timestamp at which this revision was created.
+    #: FIXME: rename to `created_at` for consistency with other models.
     created = Column(DateTime, default=datetime.utcnow, nullable=False)
     #: An optional editor summary for this revision.
     summary = Column(Text_, nullable=False, default="")

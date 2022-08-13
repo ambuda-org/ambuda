@@ -160,14 +160,14 @@ def project(slug: str) -> Optional[db.Project]:
     return session.query(db.Project).filter(db.Project.slug == slug).first()
 
 
-def create_project(*, title: str, slug: str):
+def create_project(*, title: str, slug: str, creator_id: int):
     session = get_session()
 
     board = db.Board(title=f"{slug} discussion board")
     session.add(board)
     session.flush()
 
-    project = db.Project(slug=slug, title=title)
+    project = db.Project(slug=slug, title=title, creator_id=creator_id)
     project.board_id = board.id
 
     session.add(project)

@@ -12,21 +12,12 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 
-from ambuda.models.base import Base, pk, foreign_key
+from ambuda.models.base import Base, pk, foreign_key, same_as
 
 
 def string():
     """Create a non-nullable string column that defaults to the empty string."""
     return Column(String, nullable=False, default="")
-
-
-def same_as(column_name):
-    """Utility for setting one column's default value to another column."""
-
-    def default_function(context):
-        return context.current_parameters.get(column_name)
-
-    return default_function
 
 
 class Board(Base):
