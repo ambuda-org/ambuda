@@ -81,7 +81,7 @@ def edit_block(text_slug, block_slug):
     if block_parse is None:
         abort(404)
 
-    mula = xml.transform_tei(block.xml)
+    mula = xml.transform_text_block(block.xml).html
     tokens = cheda.extract_tokens(block_parse.data)
 
     form = EditBlockForm()

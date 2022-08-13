@@ -27,11 +27,11 @@ def test_paren__text_and_child():
     assert output == '<span class="paren">(test <b>foo</b>)</span>'
 
 
-def test_to_verse():
-    xml = ET.fromstring('<lg xml:id="Test">verse</lg>')
-    x.to_verse(xml)
-    assert xml.tag == "s-lg"
-    assert xml.attrib == {"id": "Test"}
+def test_transform_text_block():
+    blob = '<lg xml:id="Test">verse</lg>'
+    block = x.transform_text_block(blob)
+    assert block.id == "Test"
+    assert block.html == "<s-lg>verse</s-lg>"
 
 
 def test_transform():
