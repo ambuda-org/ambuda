@@ -14,7 +14,7 @@ from flask import (
     request,
     url_for,
 )
-from flask_login import login_required
+from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from slugify import slugify
 from werkzeug.utils import secure_filename
@@ -116,6 +116,7 @@ def create_project():
             pdf_path=str(pdf_path),
             output_dir=str(page_image_dir),
             app_environment=current_app.config["AMBUDA_ENVIRONMENT"],
+            creator_id=current_user.id,
         )
         return render_template(
             "proofing/create-project-post.html",

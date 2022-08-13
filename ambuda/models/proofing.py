@@ -60,6 +60,7 @@ class Project(Base):
     #: FIXME: make non-nullable once we manually migrate the production setup.
     creator_id = Column(Integer, ForeignKey("users.id"), index=True)
 
+    creator = relationship("User")
     board = relationship("Board", cascade="delete")
 
     #: An ordered list of pages belonging to this project.

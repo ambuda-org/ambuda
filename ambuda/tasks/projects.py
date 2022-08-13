@@ -61,11 +61,7 @@ def _split_pdf_into_pages(
     return doc.page_count
 
 
-def _add_project_to_database(
-    title: str,
-    slug: str,
-    num_pages: int,
-):
+def _add_project_to_database(title: str, slug: str, num_pages: int, creator_id: int):
     """Create a project on the database.
 
     :param title: the project title
@@ -78,7 +74,7 @@ def _add_project_to_database(
     session.add(board)
     session.flush()
 
-    project = db.Project(slug=slug, title=title)
+    project = db.Project(slug=slug, title=title, creator_id=creator_id)
     project.board_id = board.id
     session.add(project)
     session.flush()
@@ -101,7 +97,12 @@ def _add_project_to_database(
 
 @app.task(bind=True)
 def create_project(
-    self, title: str, pdf_path: str, output_dir: str, app_environment: str
+    self,
+    title: str,
+    pdf_path: str,
+    output_dir: str,
+    app_environment: str,
+    creator_id: int,
 ):
     """Split the given PDF into pages and register the project on the database.
 
@@ -134,6 +135,7 @@ def create_project(
             title=title,
             slug=slug,
             num_pages=num_pages,
+            creator_id=creator_id,
         )
 
     task_status.success(num_pages, slug)
