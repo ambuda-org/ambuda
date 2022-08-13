@@ -16,11 +16,7 @@ following::
 
 .. collapse:: Debug info
 
-    In case some python requirement is missing during the above, install it as follows:: 
-    
-        bash
-        source env/bin/activate
-        pip install PACKAGE_NAME
+    In case `make db_seed_basic` fails with an error (due some change in the database structure) and you already have a local `database.db` - try deleting it. Also see "Database migrations" below.
 
 
 Then go to `localhost:5000` to see the local application.
