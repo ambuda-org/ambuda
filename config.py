@@ -97,7 +97,6 @@ class BaseConfig:
     #: Default sender for site emails.
     MAIL_DEFAULT_SENDER = _env("MAIL_DEFAULT_SENDER")
 
-
     #: ReCAPTCHA public key.
     RECAPTCHA_PUBLIC_KEY = _env("RECAPTCHA_PUBLIC_KEY")
 
@@ -137,6 +136,13 @@ class UnitTestConfig(BaseConfig):
 
     RECAPTCHA_PUBLIC_KEY = "re-public"
     RECAPTCHA_PRIVATE_KEY = "re-private"
+
+
+class DevelopmentConfig(BaseConfig):
+    """For local development."""
+
+    AMBUDA_ENVIRONMENT = DEVELOPMENT
+    DEBUG = True
 
 
 class ProductionConfig(BaseConfig):
