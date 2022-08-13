@@ -13,6 +13,7 @@ from wtforms import validators as val
 
 import ambuda.queries as q
 from ambuda import database as db
+from ambuda import mail
 
 
 bp = Blueprint("auth", __name__)
@@ -113,7 +114,8 @@ def reset_password():
         session = q.get_session()
         user = session.query(db.User).filter_by(email=email).first()
         if user:
-            return "Sent!"
+            mail.send_reset_password_email(username=user.username, email=user.email)
+            return render_template("auth/reset-password-post.html", email=user.email)
         else:
             flash(
                 "Sorry, the email address you provided is not associated with any of our acounts."
@@ -124,7 +126,7 @@ def reset_password():
     if form.recaptcha.errors:
         form.recaptcha.errors = ["Please click the reCAPTCHA box."]
 
-    return render_template("auth/recover.html", form=form)
+    return render_template("auth/reset-password.html", form=form)
 
 
 @bp.route("/change-password", methods=["GET", "POST"])
