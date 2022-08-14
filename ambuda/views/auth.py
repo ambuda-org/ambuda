@@ -3,17 +3,21 @@
 UX reference:
 
 https://www.uxmatters.com/mt/archives/2018/09/signon-signoff-and-registration.php
+
+Security reference:
+
+- https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
+- https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html
 """
 
 import secrets
 from datetime import datetime, timedelta
 from typing import Optional
 
-from dateutil.relativedelta import relativedelta
 from flask import Blueprint, flash, render_template, redirect, url_for
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import HiddenField, StringField, PasswordField, EmailField
+from wtforms import StringField, PasswordField, EmailField
 from wtforms import validators as val
 
 import ambuda.queries as q
@@ -173,7 +177,7 @@ def get_reset_password_token():
         user = session.query(db.User).filter_by(email=email).first()
         if user:
             raw_token = _create_reset_token(user.id)
-            mail.send_reset_password_email(
+            mail.send_reset_password_link(
                 username=user.username, email=user.email, raw_token=raw_token
             )
             return render_template("auth/reset-password-post.html", email=user.email)
@@ -210,15 +214,21 @@ def reset_password_from_token(username, raw_token):
         has_password_match = form.password.data == form.confirm_password.data
         if has_password_match:
             user.set_password(form.password.data)
-            login_user(user, remember=True)
             token.is_active = False
 
             session = q.get_session()
             session.add(user)
             session.add(token)
             session.commit()
+
+            # Expire any existing sessions.
+            logout_user()
             flash("Successfully reset password!", "success")
-            return redirect(url_for("proofing.index"))
+            mail.send_confirm_reset_password(
+                username=user.username,
+                email=user.email,
+            )
+            return redirect(url_for("auth.sign_in"))
 
         if not has_password_match:
             form.password.errors.append("Passwords must match.")
