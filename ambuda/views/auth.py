@@ -5,7 +5,7 @@ UX reference:
 https://www.uxmatters.com/mt/archives/2018/09/signon-signoff-and-registration.php
 """
 
-import uuid
+import secrets
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -24,13 +24,13 @@ from ambuda import mail
 bp = Blueprint("auth", __name__)
 
 
-MAX_TOKEN_LIFESPAN_IN_HOURS = 3
+MAX_TOKEN_LIFESPAN_IN_HOURS = 24
 # FIXME: redirect to site.index once user accounts are more useful.
 POST_AUTH_ROUTE = "proofing.index"
 
 
 def _create_reset_token(user_id) -> str:
-    raw_token = str(uuid.uuid4())
+    raw_token = secrets.token_urlsafe()
 
     session = q.get_session()
     record = db.PasswordResetToken(user_id=user_id, is_active=True)

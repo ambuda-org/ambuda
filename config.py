@@ -77,12 +77,7 @@ class BaseConfig:
     # Extensions
     # ----------
 
-    #: If True, enable cross-site request forgery (CSRF) protection.
-    #: This must be True in production.
-    WTF_CSRF_ENABLED = True
-
-    # Services
-    # --------
+    # Flask-Mail
 
     #: URL for mail server.
     MAIL_SERVER = _env("MAIL_SERVER")
@@ -96,6 +91,15 @@ class BaseConfig:
     MAIL_PASSWORD = _env("MAIL_PASSWORD")
     #: Default sender for site emails.
     MAIL_DEFAULT_SENDER = _env("MAIL_DEFAULT_SENDER")
+
+    # Flask-WTF
+
+    #: If True, enable cross-site request forgery (CSRF) protection.
+    #: This must be True in production.
+    WTF_CSRF_ENABLED = True
+
+    # Services
+    # --------
 
     #: ReCAPTCHA public key.
     RECAPTCHA_PUBLIC_KEY = _env("RECAPTCHA_PUBLIC_KEY")
