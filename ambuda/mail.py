@@ -13,5 +13,5 @@ def send_reset_password_email(username: str, email: str, raw_token: str):
     link = url_for(
         "auth.reset_password_from_token", username=username, raw_token=raw_token
     )
-    msg.body = render_template("email/reset-password.txt", email=email, link=link)
+    msg.body = render_template("email/reset-password.txt", username=username, link=link)
     mailer.send(msg)

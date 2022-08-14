@@ -116,7 +116,6 @@ class ChangePasswordForm(FlaskForm):
 class ResetPasswordFromTokenForm(FlaskForm):
     password = PasswordField("Password", [val.DataRequired()])
     confirm_password = PasswordField("Confirm password", [val.DataRequired()])
-    raw_token = HiddenField("Raw token", [val.DataRequired()])
 
 
 @bp.route("/register", methods=["GET", "POST"])
@@ -209,8 +208,7 @@ def reset_password_from_token(username, raw_token):
     form = ResetPasswordFromTokenForm()
     if form.validate_on_submit():
         has_password_match = form.password.data == form.confirm_password.data
-        has_token_match = form.raw_token.data == raw_token
-        if has_password_match and has_token_match:
+        if has_password_match:
             user.set_password(form.password.data)
             login_user(user, remember=True)
             token.is_active = False
@@ -225,11 +223,6 @@ def reset_password_from_token(username, raw_token):
         if not has_password_match:
             form.password.errors.append("Passwords must match.")
 
-        if not has_token_match:
-            flash(msg_invalid)
-            return redirect(url_for("auth.get_reset_password_token"))
-
-    form.raw_token.data = raw_token
     return render_template(
         "auth/reset-password-from-token.html", username=user.username, form=form
     )
