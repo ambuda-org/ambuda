@@ -9,9 +9,7 @@
     <link rel="stylesheet" type="text/css" href="/static/gen/style.css?v=9">
     <link rel="icon" href="data:,">
     <title>{% block title %}{% endblock %}</title>
-    <script async defer data-domain="ambuda.org" src="https://plausible.io/js/plausible.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@indic-transliteration/sanscript@1.2.7/sanscript.min.js"></script>
-    <script defer src="/static/js/main.js?v=4"></script>
+    {% block scripts %}{% endblock %}
   </head>
   {% block body %}{% endblock %}
 </html>

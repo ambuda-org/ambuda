@@ -36,7 +36,6 @@ def test_is_valid_reset_token():
     assert not auth._is_valid_reset_token(
         None, "secret", now=datetime(2022, 1, 15, 13, 0, 0)
     )
-
     # Inactive
     assert not auth._is_valid_reset_token(
         inactive_row, "secret", now=datetime(2022, 1, 15, 13, 0, 0)
