@@ -1,4 +1,46 @@
+from datetime import datetime
+
 from flask_login import current_user
+
+from ambuda import database as db
+from ambuda.views import auth
+
+
+def test_is_valid_reset_token():
+    row = db.PasswordResetToken(
+        user_id=1,
+        is_active=True,
+        created_at=datetime(2022, 1, 15, 12, 0, 0),
+    )
+    inactive_row = db.PasswordResetToken(
+        user_id=1,
+        is_active=False,
+        created_at=datetime(2022, 1, 15, 12, 0, 0),
+    )
+    row.set_token("secret")
+    inactive_row.set_token("secret")
+
+    # OK
+    assert auth._is_valid_reset_token(
+        row, "secret", now=datetime(2022, 1, 15, 13, 0, 0)
+    )
+    # Too old
+    assert not auth._is_valid_reset_token(
+        row, "secret", now=datetime(2022, 1, 18, 12, 0, 0)
+    )
+    # Bad token
+    assert not auth._is_valid_reset_token(
+        row, "secret2", now=datetime(2022, 1, 15, 13, 0, 0)
+    )
+    # Missing row
+    assert not auth._is_valid_reset_token(
+        None, "secret", now=datetime(2022, 1, 15, 13, 0, 0)
+    )
+
+    # Inactive
+    assert not auth._is_valid_reset_token(
+        inactive_row, "secret", now=datetime(2022, 1, 15, 13, 0, 0)
+    )
 
 
 def test_register__unauth(client):

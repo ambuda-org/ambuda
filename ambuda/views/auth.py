@@ -6,7 +6,7 @@ https://www.uxmatters.com/mt/archives/2018/09/signon-signoff-and-registration.ph
 """
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 from dateutil.relativedelta import relativedelta
@@ -64,8 +64,8 @@ def _is_valid_reset_token(row: db.PasswordResetToken, raw_token: str, now=None):
         return False
 
     # Token too old
-    rd = relativedelta(now, row.created_at)
-    if rd.hours > MAX_TOKEN_LIFESPAN_IN_HOURS:
+    max_age = timedelta(hours=MAX_TOKEN_LIFESPAN_IN_HOURS)
+    if row.created_at + max_age <= now:
         return False
 
     # Token mismatch

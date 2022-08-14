@@ -19,7 +19,7 @@ def test_thread__bad_project(client):
 
 
 def test_thread__bad_thread(client):
-    resp = client.get("/proofing/bad-project/talk/unknown")
+    resp = client.get("/proofing/test-project/talk/unknown")
     assert resp.status_code == 404
 
 
