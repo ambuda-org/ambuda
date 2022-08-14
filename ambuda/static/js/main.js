@@ -352,10 +352,10 @@ const TextContent = (() => {
           // return;
         }
 
-        const $lg = e.target.closest('s-lg');
-        if ($lg) {
+        const $block = e.target.closest('s-block');
+        if ($block) {
           e.preventDefault();
-          ParseLayer.showParsedBlock($lg.id);
+          ParseLayer.showParsedBlock($block.id);
         }
       });
 
