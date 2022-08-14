@@ -215,6 +215,7 @@ def reset_password_from_token(username, raw_token):
         if has_password_match:
             user.set_password(form.password.data)
             token.is_active = False
+            token.used_at = datetime.now()
 
             session = q.get_session()
             session.add(user)

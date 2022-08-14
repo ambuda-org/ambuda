@@ -25,6 +25,7 @@ def upgrade() -> None:
         sa.Column("token_hash", sa.String(), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False, default=True),
         sa.Column("created_at", sa.DateTime(), nullable=False),
+        sa.Column("used_at", sa.DateTime()),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["users.id"],

@@ -98,10 +98,12 @@ class PasswordResetToken(Base):
     #: - Hash so that accounts aren't compromised if the database leaks.
     token_hash = Column(String, nullable=False, unique=True)
     #: Whether the link is still active or not. (Once used, we should
-    #: deactivate / delete this link.)
+    #: deactivate / delete this token.)
     is_active = Column(Boolean, default=True, nullable=False)
-    #: Timestamp at which this link was created.
+    #: Timestamp at which this token was created.
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    #: Timestamp at which this token was used.
+    used_at = Column(DateTime, nullable=True)
 
     def set_token(self, raw_token: str):
         """Hash and save the given token."""
