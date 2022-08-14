@@ -3,7 +3,14 @@ from datetime import datetime
 from flask_login import current_user
 
 from ambuda import database as db
+from ambuda import queries as q
 from ambuda.views import auth
+
+
+def _cleanup(session, *objects):
+    for object in objects:
+        session.delete(object)
+    session.commit()
 
 
 def test_is_valid_reset_token():
@@ -43,9 +50,9 @@ def test_is_valid_reset_token():
 
 
 def test_register__unauth(client):
-    resp = client.get("/register")
-    assert resp.status_code == 200
-    assert ">Create an Ambuda account<" in resp.text
+    r = client.get("/register")
+    assert r.status_code == 200
+    assert ">Create an Ambuda account<" in r.text
 
 
 def test_register__unauth_post__ok(client):
@@ -55,68 +62,100 @@ def test_register__unauth_post__ok(client):
         "email": "krishna@mbh.org",
     }
     with client:
-        resp = client.post("/register", data=data)
-        assert resp.status_code == 302
+        r = client.post("/register", data=data)
+        assert r.status_code == 302
         assert current_user.username == "krishna"
 
 
 def test_register__auth(rama_client):
-    resp = rama_client.get("/register")
-    assert resp.status_code == 302
+    r = rama_client.get("/register")
+    assert r.status_code == 302
 
 
 def test_sign_in__unauth(client):
-    resp = client.get("/sign-in")
-    assert ">Sign in to Ambuda<" in resp.text
+    r = client.get("/sign-in")
+    assert ">Sign in to Ambuda<" in r.text
 
 
 def test_sign_in__unauth_post__ok(client):
-    resp = client.post(
+    r = client.post(
         "/sign-in",
         data={
             "username": "ramacandra",
             "password": "maithili",
         },
     )
-    assert resp.status_code == 302
+    assert r.status_code == 302
 
 
 def test_sign_in__unauth_post__bad_username(client):
-    resp = client.post(
+    r = client.post(
         "/sign-in",
         data={
             "username": "ravana",
             "password": "maithili",
         },
     )
-    assert "Invalid username or password" in resp.text
+    assert "Invalid username or password" in r.text
 
 
 def test_sign_in__unauth_post__bad_password(client):
-    resp = client.post(
+    r = client.post(
         "/sign-in",
         data={
             "username": "ramacandra",
             "password": "dasharatha",
         },
     )
-    assert "Invalid username or password" in resp.text
+    assert "Invalid username or password" in r.text
 
 
 def test_sign_in__auth(rama_client):
-    resp = rama_client.get("/sign-in")
-    assert resp.status_code == 302
+    r = rama_client.get("/sign-in")
+    assert r.status_code == 302
 
 
 def test_sign_out__unauth(client):
     with client:
-        resp = client.get("/sign-out")
-        assert resp.status_code == 302
+        r = client.get("/sign-out")
+        assert r.status_code == 302
         assert current_user.is_anonymous
 
 
 def test_sign_out__auth(rama_client):
     with rama_client:
-        resp = rama_client.get("/sign-out")
-        assert resp.status_code == 302
+        r = rama_client.get("/sign-out")
+        assert r.status_code == 302
         assert current_user.is_anonymous
+
+
+def test_get_reset_password_token__get(client):
+    r = client.get("/reset-password")
+    assert "Reset your password" in r.text
+
+
+def test_reset_password_from_token(client):
+    with client:
+        user = q.user("akprasad")
+
+    user_id = user.id
+    raw_token = auth._create_reset_token(user_id)
+
+    r = client.get(f"/reset-password/akprasad/bad-token")
+    assert r.status_code == 302
+
+    r = client.get(f"/reset-password/bad-user/{raw_token}")
+    assert r.status_code == 302
+
+    r = client.get(f"/reset-password/akprasad/{raw_token}")
+    assert "Change password for" in r.text
+
+
+def test_change_password(rama_client):
+    r = rama_client.get("/change-password")
+    assert ">Change" in r.text
+
+
+def test_change_password__unauth(client):
+    r = client.get("/change-password")
+    assert r.status_code == 302

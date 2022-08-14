@@ -63,7 +63,7 @@ def initialize_test_db():
 
     # Admin
     admin = db.User(username="akprasad", email="arun@ambuda.org")
-    admin.set_password("secred password")
+    admin.set_password("secret password")
     session.add(admin)
     session.flush()
 
