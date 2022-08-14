@@ -26,12 +26,27 @@
 {% endmacro %}
 
 
+{# Render a markdown text box. #}
+{% macro markdown_field(field) %}
+<div>
+  {{ label(field.label) }}
+  {{ field(class_="border block p-2 w-full min-h-[200px] rounded") }}
+  <p class="text-sm text-slate-500 mt-2 mb-4">
+    You can format this text with Markdown.
+    <a class="underline" href="https://commonmark.org/help/">Click here to learn more.</a>
+  </p>
+</div>
+{% endmacro %}
+
+
+{# Label for an auth field. #}
 {% macro auth_label(field) %}
 {{ field.label(class_="block text-slate-600") }}
 {% endmacro %}
 
 
-{% macro auth_text(field) %}
+{# Main input for an auth field. #}
+{% macro auth_input(field) %}
 {{ field(class_="w-full p-2 mt-2 border rounded") }}
 {% endmacro %}
 
@@ -45,6 +60,8 @@
 {% macro auth_field(field) %}
 <div class="mb-4">
   {{ auth_label(field) }}
-  {{ auth_text(field) }}
+  {{ auth_input(field) }}
 </div>
 {% endmacro %}
+
+
