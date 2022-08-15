@@ -34,9 +34,9 @@ def create_user():
         )
         if u is not None:
             if u.username == username:
-                raise click.ClickException(f"User {username} already exists.")
+                raise click.ClickException(f'User "{username}" already exists.')
             else:
-                raise click.ClickException(f"Email {email} already exists.")
+                raise click.ClickException(f'Email "{email}" already exists.')
 
         user = db.User(username=username, email=email)
         user.set_password(raw_password)
@@ -52,27 +52,38 @@ def add_role(username: str, role: str):
     with Session(engine) as session:
         u = session.query(db.User).where(db.User.username == username).first()
         if u is None:
-            raise click.ClickException(f"User {username} does not exist.")
+            raise click.ClickException(f'User "{username}" does not exist.')
         r = session.query(db.Role).where(db.Role.name == role).first()
         if r is None:
-            raise click.ClickException(f"Role {role} is not defined.")
+            raise click.ClickException(f'Role "{role}" does not exist.')
         if r in u.roles:
-            raise click.ClickException(f"User {username} already has role {role}.")
+            raise click.ClickException(f'User "{username}" already has role "{role}".')
 
         u.roles.append(r)
         session.add(u)
         session.commit()
+    print(f'Added role "{role}" to user "{user}".')
 
 
 @cli.command()
 def create_test_project():
-    """Create a test proofing project."""
+    """Create a test proofing project with 100 pages."""
     current_app = ambuda.create_app("development")
     with current_app.app_context():
-        q.create_project(title="Test project", slug="test-project")
+        session = q.get_session()
+        arbitrary_user = session.query(db.User).first()
+        if not arbitrary_user:
+            raise click.ClickException(
+                "Every project must have a user that created it. "
+                "But, no users were found in the database.\n"
+                "Please create a user first with `create-user`."
+            )
+
+        q.create_project(
+            title="Test project", slug="test-project", creator_id=arbitrary_user.id
+        )
         project = q.project("test-project")
 
-    with Session(engine) as session:
         default_status = session.query(db.PageStatus).filter_by(name="reviewed-0").one()
         for i in range(1, 101):
             page = db.Page(
@@ -83,6 +94,7 @@ def create_test_project():
             )
             session.add(page)
         session.commit()
+    print(f'Created project "test-project".')
 
 
 if __name__ == "__main__":

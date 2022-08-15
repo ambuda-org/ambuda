@@ -22,11 +22,6 @@ To add support for these in your local setup, run the following::
     ./scripts/install_osx_dependencies.sh
     make celery
 
-If you also plan to make CSS changes, run the following command in a
-separate terminal window::
-
-    make tailwind_watcher
-
 Roughly, Tailwind generates a new CSS file whenever it detects certain changes
 to Ambuda's HTML files. For more details, see the `Tailwind docs`_.
 

@@ -227,7 +227,6 @@ def page_image(project_slug, page_slug):
     # In production, serve this directly via nginx.
     assert current_app.debug
     image_path = _get_image_filesystem_path(project_slug, page_slug)
-    print(image_path)
     return send_file(image_path)
 
 

@@ -79,20 +79,31 @@ def deploy_to_commit(_, pointer: str):
             )
         )
 
-        upgrade_db(_)
-
         # Verify that unit tests pass on prod.
-        c.run("make test")
+        with c.prefix("source env/bin/activate"):
+            c.run("make test")
 
         # Copy production config settings.
         env_path = str(APP_DIRECTORY / ".env")
         c.put("production/prod-env", env_path)
 
         # Verify that the production setup is well-formed.
-        c.run("python -m scripts.check_prod_setup")
+        with c.prefix("source env/bin/activate"):
+            c.run("python -m scripts.check_prod_setup")
 
+        # Upgrade the database last -- If we upgrade and a downstream check
+        # fails, we'll affect the production application.
+        # FIXME: but, what if we upgrade then app restart fails? Should we stop
+        # the prod server first? Surely there's a saner way to manage this.
+        upgrade_db(_)
+
+    print("Restarting application ...")
     restart_application(_)
+
+    print("Restarting Celery task runner ...")
     restart_celery(_)
+
+    print("Complete.")
 
 
 @task

@@ -212,7 +212,6 @@ def search(slug):
         latest = page_.revisions[-1]
         for line in latest.content.splitlines():
             if query in line:
-                print(escape(line))
                 matches.append(
                     {
                         "text": escape(line).replace(
@@ -220,7 +219,6 @@ def search(slug):
                         ),
                     }
                 )
-                print(matches[-1])
         if matches:
             results.append(
                 {

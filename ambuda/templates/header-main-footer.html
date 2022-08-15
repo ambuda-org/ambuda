@@ -1,5 +1,14 @@
 {% extends 'base.html' %}
 
+
+{# Include site scripts, including analytics scripts that track the current URL. #}
+{% block scripts %}
+    <script async defer data-domain="ambuda.org" src="https://plausible.io/js/plausible.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@indic-transliteration/sanscript@1.2.7/sanscript.min.js"></script>
+    <script defer src="/static/js/main.js?v=4"></script>
+{% endblock %}
+
+
 {% block body %}
 <body class="flex flex-col">
 {% block header %}
@@ -9,6 +18,7 @@
 <div class="flex-1">
 {% block main %}{% endblock %}
 </div>
+
 
 {% block footer %}
 {% include "include/footer.html" %}

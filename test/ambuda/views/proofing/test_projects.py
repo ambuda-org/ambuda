@@ -3,6 +3,11 @@ def test_summary(client):
     assert resp.status_code == 200
 
 
+def test_summary__bad_project(client):
+    resp = client.get("/proofing/unknown/")
+    assert resp.status_code == 404
+
+
 # For "Talk:" tests, see test_talk.py.
 
 
@@ -16,9 +21,19 @@ def test_edit__auth(rama_client):
     assert "Edit:" in resp.text
 
 
+def test_edit__auth__bad_project(rama_client):
+    resp = rama_client.get("/proofing/unknown/edit")
+    assert resp.status_code == 404
+
+
 def test_download(client):
     resp = client.get("/proofing/test-project/download/")
     assert resp.status_code == 200
+
+
+def test_download__bad_project(client):
+    resp = client.get("/proofing/unknown/download/")
+    assert resp.status_code == 404
 
 
 def test_download_as_text(client):
@@ -26,9 +41,29 @@ def test_download_as_text(client):
     assert resp.status_code == 200
 
 
+def test_download_as_text__bad_project(client):
+    resp = client.get("/proofing/unknown/download/text")
+    assert resp.status_code == 404
+
+
 def test_download_as_xml(client):
     resp = client.get("/proofing/test-project/download/xml")
     assert resp.status_code == 200
+
+
+def test_download_as_xml__bad_project(client):
+    resp = client.get("/proofing/unknown/download/xml")
+    assert resp.status_code == 404
+
+
+def test_search(rama_client):
+    resp = rama_client.get("/proofing/test-project/search")
+    assert "Search:" in resp.text
+
+
+def test_search__bad_project(rama_client):
+    resp = rama_client.get("/proofing/unknown/search")
+    assert resp.status_code == 404
 
 
 def test_admin__unauth(client):
@@ -36,12 +71,17 @@ def test_admin__unauth(client):
     assert resp.status_code == 302
 
 
-def test_admin__auth_no_admin(rama_client):
+def test_admin__no_admin(rama_client):
     resp = rama_client.get("/proofing/test-project/admin")
     assert resp.status_code == 302
 
 
-def test_admin__auth_is_admin(admin_client):
+def test_admin__has_admin(admin_client):
     resp = admin_client.get("/proofing/test-project/admin")
     assert resp.status_code == 200
     assert "Admin:" in resp.text
+
+
+def test_admin__has_admin__bad_project(admin_client):
+    resp = admin_client.get("/proofing/unknown/admin")
+    assert resp.status_code == 404
