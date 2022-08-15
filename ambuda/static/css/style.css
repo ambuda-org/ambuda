@@ -66,26 +66,44 @@
     @apply underline;
   }
 
-  /* Side by side view */
-  .block-original {
-    @apply cursor-auto hidden;
+  s-block {
+    display: flex;
+    flex-wrap: wrap;
   }
-  .side-by-side .block-original, .side-by-side .block-parsed {
-    @apply md:w-6/12;
-    display: inline-block;
-    vertical-align: top;
+  s-block > div {
+    @apply hidden;
+  }
+  s-block > div.mula {
+    @apply block;
+  }
+
+  /* In place view */
+  .in-place s-block.show-parsed > div.mula {
+    @apply hidden;
+  }
+  .in-place s-block.show-parsed > div.parsed {
+    @apply block;
+  }
+
+  /* Side by side view */
+  .side-by-side s-block.show-parsed > div {
+    @apply block flex-1 min-w-max; /* At smaller widths, verses will wrap */
+  }
+  .side-by-side s-block.show-parsed > div.mula > s-lg {
+    @apply cursor-auto;
   }
   .side-by-side #text--content {
     @apply md:max-w-3xl;
   }
+
   .shown-side-by-side {
-    display: none;
+    @apply hidden;
   }
   .side-by-side .hidden-side-by-side {
-    display: none;
+    @apply hidden;
   }
   .side-by-side .shown-side-by-side {
-    display: unset;
+    @apply hidden;
   }
 
   /* Prose context */

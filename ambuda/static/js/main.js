@@ -228,43 +228,40 @@ const ParseLayer = (() => {
     return blockID.split('.').slice(1).join('.');
   }
 
-  async function showParsedBlock(blockID) {
+  function showParsedBlock(blockID) {
     const blockSlug = getBlockSlug(blockID);
     const $container = $('#parse--response');
     const textSlug = URL.getTextSlug();
 
     const $block = $(`#${blockID.replaceAll('.', '\\.')}`);
-    if ($block.classList.contains('block-original')) {
-      // Text has already been parsed and is already showing side-by-side.
-      return;
-    }
 
-    if ($block.nextSibling.classList.contains('block-parsed')) {
-      // Text has already been parsed, we just need to make the parsed text visible.
-      $block.classList.add('block-original');
-      const parsedNode = $block.nextSibling;
-      parsedNode.style.display = 'inline-block';
+    if ($block.classList.contains('has-parsed')) {
+      // Text has already been parsed. Show it if necessary.
+      $block.classList.add('show-parsed');
       return;
     }
+    $block.classList.add('has-parsed');
+
     // Fetch parsed data.
     const url = URL.parseData(textSlug, blockSlug);
     Server.getText(
       url,
       (resp) => {
-        $block.classList.add('block-original');
-        const node = document.createElement('div');
-        node.innerHTML = transliterateSanskritBlob(resp, Preferences.contentScript);
-        const parsedNode = node.firstChild;
-        $block.after(parsedNode);
-        parsedNode.classList.add('block-parsed');
+        const parsedNode = document.createElement('div');
+        parsedNode.classList.add('parsed');
+        parsedNode.innerHTML = transliterateSanskritBlob(resp, Preferences.contentScript);
+        $block.appendChild(parsedNode);
 
         const link = document.createElement('a');
         link.className = 'text-sm text-zinc-400 hover:underline js--source';
         link.href = '#';
         link.innerHTML = '<span class=\'shown-side-by-side\'>Hide</span><span class=\'hidden-side-by-side\'>Show original</span>';
-        parsedNode.appendChild(link);
+        parsedNode.firstChild.appendChild(link);
+
+        $block.classList.add('show-parsed');
       },
       () => {
+        $block.classList.remove('has-parsed');
         $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
         Sidebar.show();
       },
@@ -368,10 +365,8 @@ const TextContent = (() => {
         if ($undoParse) {
           e.preventDefault();
           // Hide the right (parsed) block.
-          const parsedNode = $undoParse.closest('.block-parsed');
-          parsedNode.style.display = 'none';
-          const $block = parsedNode.previousSibling;
-          $block.classList.remove('block-original');
+          const parsedNode = $undoParse.closest('s-block');
+          parsedNode.classList.remove('show-parsed');
           return;
         }
 
@@ -447,8 +442,10 @@ const ParseOptionsMenu = (() => {
   function updateClassParseOptions() {
     if (Preferences.contentParseOptions === 'side-by-side') {
       document.body.classList.add('side-by-side');
+      document.body.classList.remove('in-place');
     } else {
       document.body.classList.remove('side-by-side');
+      document.body.classList.add('in-place');
     }
   }
 
