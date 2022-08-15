@@ -87,7 +87,7 @@ def expand_skd_keys(key: str) -> list[str]:
         keys.append(key[:-2] + "i")
     else:
         prefix, last = key[:-1], key[-1]
-        if last in "kKgG":
+        if last in "kKgGh":
             keys.append(prefix + "k")
         elif last in "cCjJS":
             # vAc -> vAk
