@@ -71,6 +71,18 @@ const Preferences = {
       localStorage.setItem('user-font-size', value);
     }
   },
+  get contentParseOptions() {
+    const ls = localStorage.getItem('user-parse-options');
+    if (!ls || ls === 'undefined') {
+      return 'in-place';
+    }
+    return ls;
+  },
+  set contentParseOptions(value) {
+    if (value) {
+      localStorage.setItem('user-parse-options', value);
+    }
+  },
 };
 
 // Utilities
@@ -222,13 +234,34 @@ const ParseLayer = (() => {
     const textSlug = URL.getTextSlug();
 
     const $block = $(`#${blockID.replaceAll('.', '\\.')}`);
+
+    if ($block.classList.contains('has-parsed')) {
+      // Text has already been parsed. Show it if necessary.
+      $block.classList.add('show-parsed');
+      return;
+    }
+    $block.classList.add('has-parsed');
+
+    // Fetch parsed data.
     const url = URL.parseData(textSlug, blockSlug);
     Server.getText(
       url,
       (resp) => {
-        $block.outerHTML = transliterateSanskritBlob(resp, Preferences.contentScript);
+        const parsedNode = document.createElement('div');
+        parsedNode.classList.add('parsed');
+        parsedNode.innerHTML = transliterateSanskritBlob(resp, Preferences.contentScript);
+        $block.appendChild(parsedNode);
+
+        const link = document.createElement('a');
+        link.className = 'text-sm text-zinc-400 hover:underline js--source';
+        link.href = '#';
+        link.innerHTML = '<span class=\'shown-side-by-side\'>Hide</span><span class=\'hidden-side-by-side\'>Show original</span>';
+        parsedNode.firstChild.appendChild(link);
+
+        $block.classList.add('show-parsed');
       },
       () => {
+        $block.classList.remove('has-parsed');
         $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
         Sidebar.show();
       },
@@ -331,14 +364,9 @@ const TextContent = (() => {
         const $undoParse = e.target.closest('.js--source');
         if ($undoParse) {
           e.preventDefault();
-          Server.getText(
-            $undoParse.href,
-            (resp) => {
-              const transResp = transliterateSanskritBlob(resp, Preferences.contentScript);
-              $undoParse.closest('s-lg').outerHTML = transResp;
-            },
-            () => {},
-          );
+          // Hide the right (parsed) block.
+          const parsedNode = $undoParse.closest('s-block');
+          parsedNode.classList.remove('show-parsed');
           return;
         }
 
@@ -410,6 +438,36 @@ const FontSizeMenu = (() => {
   return { init };
 })();
 
+const ParseOptionsMenu = (() => {
+  function updateClassParseOptions() {
+    if (Preferences.contentParseOptions === 'side-by-side') {
+      document.body.classList.add('side-by-side');
+      document.body.classList.remove('in-place');
+    } else {
+      document.body.classList.remove('side-by-side');
+      document.body.classList.add('in-place');
+    }
+  }
+
+  function switchParseOptions(newParseOptions) {
+    Preferences.contentParseOptions = newParseOptions;
+    updateClassParseOptions();
+  }
+
+  function init() {
+    const $parseOptionsMenu = $('#switch-parse-options');
+    if ($parseOptionsMenu) {
+      $parseOptionsMenu.value = Preferences.contentParseOptions;
+      updateClassParseOptions();
+      $parseOptionsMenu.addEventListener('change', (e) => {
+        switchParseOptions(e.target.value);
+      });
+    }
+  }
+
+  return { init };
+})();
+
 const HamburgerButton = (() => {
   function init() {
     const $ham = $('#hamburger');
@@ -427,6 +485,7 @@ const HamburgerButton = (() => {
 (() => {
   FontSizeMenu.init();
   ScriptMenu.init();
+  ParseOptionsMenu.init();
   Dictionary.init();
   ParseLayer.init();
   TextContent.init();

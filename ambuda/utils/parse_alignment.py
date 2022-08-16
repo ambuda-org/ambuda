@@ -140,14 +140,6 @@ def create_backup_parse(tokens: list[Token]) -> str:
     return div
 
 
-def insert_link(xml, href):
-    a = ET.Element("a")
-    a.attrib["class"] = "text-sm text-zinc-400 hover:underline js--source"
-    a.attrib["href"] = href
-    a.text = "Show original"
-    xml.append(a)
-
-
 def align_text_with_parse(
     xml_blob: str, tokens: list[Token], text_slug, block_slug
 ) -> ET.Element:
@@ -183,6 +175,4 @@ def align_text_with_parse(
             el[:] += chunk_elems
 
     transliterate_text_to(xml, sanscript.SLP1, sanscript.DEVANAGARI)
-    source_url = url_for("api.block_htmx", text_slug=text_slug, block_slug=block_slug)
-    insert_link(xml, source_url)
     return transform(xml, tei_xml)
