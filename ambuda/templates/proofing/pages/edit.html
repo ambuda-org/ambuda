@@ -129,7 +129,7 @@
         </div>
         <textarea id="content" name="content" required=""
           class="grow p-2 md:p-4 w-full resize-none"
-          :style="`font-size: ${textRatio}rem`"></textarea>
+          :style="`font-size: ${textRatio}rem`">{{ form.content.data or "" }}</textarea>
       </div>
 
       {# Raw image. #}
