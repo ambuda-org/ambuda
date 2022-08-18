@@ -18,56 +18,56 @@ class Token:
 
 
 POS = {
-    "n": "noun",
-    "a": "adjective",
-    "v": "verb",
-    "i": "indeclinable",
-    "va": "participle",
-    "vi": "verbal indeclinable",
+    "n": {"en": "noun", "sa": "subanta"},
+    "a": {"en": "adjective", "sa": "viśeṣaṇa"},
+    "v": {"en": "verb", "sa": "tiṅanta"},
+    "i": {"en": "indeclinable", "sa": "avyaya"},
+    "va": {"en": "participle", "sa": "participle"},
+    "vi": {"en": "verbal indeclinable", "sa": "avyaya"},
 }
 GENDERS = {
-    "m": "masculine",
-    "f": "feminine",
-    "n": "neuter",
-    "": "",
+    "m": {"en": "masculine", "sa": "puṃliṅga"},
+    "f": {"en": "feminine", "sa": "strīliṅga"},
+    "n": {"en": "neuter", "sa": "napuṃsakaliṅga"},
+    "": {"en": "", "sa": ""},
 }
 CASES = {
-    "1": "nominative",
-    "2": "accusative",
-    "3": "instrumental",
-    "4": "dative",
-    "5": "ablative",
-    "6": "genitive",
-    "7": "locative",
-    "8": "vocative",
-    "c": "compounded",
+    "1": {"en": "nominative", "sa": "prathamā vibhakti"},
+    "2": {"en": "accusative", "sa": "dvitīyā vibhakti"},
+    "3": {"en": "instrumental", "sa": "tṛtīyā vibhakti"},
+    "4": {"en": "dative", "sa": "caturthī vibhakti"},
+    "5": {"en": "ablative", "sa": "pañcamī vibhakti"},
+    "6": {"en": "genitive", "sa": "ṣaṣṭhī vibhakti"},
+    "7": {"en": "locative", "sa": "saptamī vibhakti"},
+    "8": {"en": "vocative", "sa": "saṃbodhana vibhakti"},
+    "c": {"en": "compounded", "sa": "samāsa"},
 }
 PERSONS = {
-    "3": "third-person",
-    "2": "second-person",
-    "1": "first-person",
+    "3": {"en": "third-person", "sa": "prathama puruṣa"},
+    "2": {"en": "second-person", "sa": "madhyama puruṣa"},
+    "1": {"en": "first-person", "sa": "uttama puruṣa"},
 }
 NUMBERS = {
-    "s": "singular",
-    "d": "dual",
-    "p": "plural",
-    "": "",
+    "s": {"en": "singular", "sa": "ekavacana"},
+    "d": {"en": "dual", "sa": "dvivacana"},
+    "p": {"en": "plural", "sa": "bahuvacana"},
+    "": {"en": "", "sa": ""},
 }
 LAKARAS = {
-    "lat": "present",
-    "lit": "perfect",
-    "lut": "periphrastic future",
-    "lrt": "simple future",
-    "lot": "imperative",
-    "lan": "imperfect",
-    "vidhilin": "optative",
-    "lun": "aorist",
-    "lun_unaug": "aorist (unaugmented)",
-    "lrn": "conditional",
+    "lat": {"en": "present", "sa": "laṭ"},
+    "lit": {"en": "perfect", "sa": "liṭ"},
+    "lut": {"en": "periphrastic future", "sa": "luṭ"},
+    "lrt": {"en": "simple future", "sa": "lṛt"},
+    "lot": {"en": "imperative", "sa": "loṭ"},
+    "lan": {"en": "imperfect", "sa": "laṅ"},
+    "vidhilin": {"en": "optative", "sa": "vidhiliṅ"},
+    "lun": {"en": "aorist", "sa": "luṅ"},
+    "lun_unaug": {"en": "aorist (unaugmented)", "sa": "luṅ"},
+    "lrn": {"en": "conditional", "sa": "lṛṅ"},
 }
 
 
-def readable_parse(parse: str) -> str:
+def readable_parse(parse: str, lang: str = "sa") -> str:
     """Make the parse readable to English readers."""
     fields = {}
     for field in parse.split(","):
@@ -80,9 +80,9 @@ def readable_parse(parse: str) -> str:
     if pos in ("n", "a", "va"):
         try:
             gender, case_, number = fields["g"], fields["c"], fields["n"]
-            gender = GENDERS[gender]
-            case_ = CASES[case_]
-            number = NUMBERS[number]
+            gender = GENDERS[gender][lang]
+            case_ = CASES[case_][lang]
+            number = NUMBERS[number][lang]
             sub_parse = f"{gender} {case_} {number}"
         except KeyError:
             assert "comp" in fields
@@ -90,14 +90,14 @@ def readable_parse(parse: str) -> str:
 
     elif pos == "v":
         person, number, lakara = fields["p"], fields["n"], fields["l"]
-        person = PERSONS[person]
-        number = NUMBERS[number]
-        lakara = LAKARAS[lakara]
+        person = PERSONS[person][lang]
+        number = NUMBERS[number][lang]
+        lakara = LAKARAS[lakara][lang]
         sub_parse = f"{person} {number} {lakara}"
     elif pos in ("i", "vi"):
         pass
 
-    part_of_speech = POS[pos]
+    part_of_speech = POS[pos][lang]
     if sub_parse:
         return f"{part_of_speech}, {sub_parse}"
     else:
