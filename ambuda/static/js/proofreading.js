@@ -1,11 +1,9 @@
 /* global Alpine, $, OpenSeadragon, IMAGE_URL */
 /* Transcription and proofreading interface. */
 
-
 const CONFIG_KEY = 'proofing-editor';
 const LAYOUT_SIDE_BY_SIDE = 'flex flex-col-reverse md:flex-row h-[90vh]';
 const LAYOUT_TOP_AND_BOTTOM = 'flex flex-col-reverse h-[90vh]';
-
 
 /* Initialize our image viewer. */
 function initializeImageViewer(imageURL) {
@@ -40,7 +38,6 @@ function initializeImageViewer(imageURL) {
 }
 
 const imageViewer = initializeImageViewer(IMAGE_URL);
-
 
 const Editor = () => ({
   isRunningOCR: false,
@@ -172,7 +169,6 @@ const Editor = () => ({
 window.addEventListener('alpine:init', () => {
   Alpine.data('editor', Editor);
 });
-
 
 // Warn the user if leaving the page after changing the text box.
 let hasUnsavedChanges = false;
