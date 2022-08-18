@@ -148,9 +148,9 @@ const Sidebar = {
     const niceForm = Sanscript.t(form, 'slp1', Preferences.contentScript);
     const niceLemma = Sanscript.t(lemma, 'slp1', Preferences.contentScript);
     const html = `
-    <header lang="sa">
-      <h1 class="text-xl">${niceForm}</h1>
-      <p class="mb-8">${niceLemma} ${parse}</p>
+    <header>
+      <h1 class="text-xl" lang="sa">${niceForm}</h1>
+      <p class="mb-8"><span lang="sa">${niceLemma}</span> ${parse}</p>
     </header>`;
     $('#parse--response').innerHTML = html;
   },
