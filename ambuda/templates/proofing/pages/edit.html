@@ -82,7 +82,7 @@
 
 {% block main %}
 {# Load proofreading.js before Alpine. #}
-<script defer src="/static/js/proofreading.js?v=4"></script>
+<script defer src="/static/js/proofreading.js?v=5"></script>
 <script src="https://unpkg.com/alpinejs@3.10.3/dist/cdn.min.js" defer></script>
 
 <article class="p-4">
@@ -129,15 +129,15 @@
         </div>
         <textarea id="content" name="content" required=""
           class="grow p-2 md:p-4 w-full resize-none"
-          :style="`font-size: ${textRatio}rem`">{{ form.content.data or "" }}</textarea>
+          :style="`font-size: ${textZoom}rem`">{{ form.content.data or "" }}</textarea>
       </div>
 
       {# Raw image. #}
       <div class="flex flex-col flex-1 border bg-slate-100">
         <div class="bg-slate-200">
-          {{ osd_button("osd-zoom-in", "&#x1f50d;<sup>+</sup>") }}
-          {{ osd_button("osd-home", "&#x1f50d;&#x00b0;") }}
-          {{ osd_button("osd-zoom-out", "&#x1f50d;<sup>-</sup>") }}
+          {{ alpine_button("&#x1f50d;<sup>+</sup>", "increaseImageZoom") }}
+          {{ alpine_button("&#x1f50d;&#x00b0;", "resetImageZoom") }}
+          {{ alpine_button("&#x1f50d;<sup>-</sup>", "decreaseImageZoom") }}
           {{ osd_button("osd-rotate-left", "&#x27f2;") }}
           {{ osd_button("osd-rotate-right", "&#x27f3;") }}
         </div>
