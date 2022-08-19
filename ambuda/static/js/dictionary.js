@@ -1,3 +1,5 @@
+/* global $, Server, transliterateHTMLString, transliterateElement, Alpine */
+
 const DICTIONARY_CONFIG_KEY = 'dictionary';
 const DictionaryAlpine = () => ({
   script: 'devanagari',
@@ -27,7 +29,6 @@ const DictionaryAlpine = () => ({
       source: this.source,
     };
     localStorage.setItem(DICTIONARY_CONFIG_KEY, JSON.stringify(settings));
-    console.log(settings);
   },
 
   setSource(value) {
@@ -62,9 +63,8 @@ const DictionaryAlpine = () => ({
 
   transliterate(oldScript, newScript) {
     transliterateElement($('#dict--response'), oldScript, newScript);
-  }
+  },
 });
-
 
 window.addEventListener('alpine:init', () => {
   Alpine.data('dictionary', DictionaryAlpine);
