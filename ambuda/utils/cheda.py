@@ -18,12 +18,12 @@ class Token:
 
 
 POS = {
-    "n": {"en": "noun", "sa": "subanta"},
-    "a": {"en": "adjective", "sa": "viśeṣaṇa"},
-    "v": {"en": "verb", "sa": "tiṅanta"},
-    "i": {"en": "indeclinable", "sa": "avyaya"},
-    "va": {"en": "participle", "sa": "participle"},
-    "vi": {"en": "verbal indeclinable", "sa": "avyaya"},
+    "n": {"en": "noun", "sa": "subantam"},
+    "a": {"en": "adjective", "sa": "visheShaNam"},
+    "v": {"en": "verb", "sa": "ti~Nantam"},
+    "i": {"en": "indeclinable", "sa": "avyayam"},
+    "va": {"en": "participle", "sa": "kRRidantam"},
+    "vi": {"en": "verbal indeclinable", "sa": "avyayam"},
 }
 GENDERS = {
     "m": {"en": "masculine", "sa": "puṃliṅga"},
@@ -32,38 +32,38 @@ GENDERS = {
     "": {"en": "", "sa": ""},
 }
 CASES = {
-    "1": {"en": "nominative", "sa": "prathamā vibhakti"},
-    "2": {"en": "accusative", "sa": "dvitīyā vibhakti"},
-    "3": {"en": "instrumental", "sa": "tṛtīyā vibhakti"},
-    "4": {"en": "dative", "sa": "caturthī vibhakti"},
-    "5": {"en": "ablative", "sa": "pañcamī vibhakti"},
-    "6": {"en": "genitive", "sa": "ṣaṣṭhī vibhakti"},
-    "7": {"en": "locative", "sa": "saptamī vibhakti"},
-    "8": {"en": "vocative", "sa": "saṃbodhana vibhakti"},
-    "c": {"en": "compounded", "sa": "samāsa"},
+    "1": {"en": "nominative", "sa": "prathamA"},
+    "2": {"en": "accusative", "sa": "dvitIyA"},
+    "3": {"en": "instrumental", "sa": "tRRitIyA"},
+    "4": {"en": "dative", "sa": "caturthI"},
+    "5": {"en": "ablative", "sa": "pa~nchamI"},
+    "6": {"en": "genitive", "sa": "ShaShThI"},
+    "7": {"en": "locative", "sa": "saptamI"},
+    "8": {"en": "vocative", "sa": "sambodhanam"},
+    "c": {"en": "compounded", "sa": "samAsa"},
 }
 PERSONS = {
-    "3": {"en": "third-person", "sa": "prathama puruṣa"},
-    "2": {"en": "second-person", "sa": "madhyama puruṣa"},
-    "1": {"en": "first-person", "sa": "uttama puruṣa"},
+    "3": {"en": "third-person", "sa": "prathama"},
+    "2": {"en": "second-person", "sa": "madhyama"},
+    "1": {"en": "first-person", "sa": "uttama"},
 }
 NUMBERS = {
-    "s": {"en": "singular", "sa": "ekavacana"},
-    "d": {"en": "dual", "sa": "dvivacana"},
-    "p": {"en": "plural", "sa": "bahuvacana"},
+    "s": {"en": "singular", "sa": "ekavacanam"},
+    "d": {"en": "dual", "sa": "dvivacanam"},
+    "p": {"en": "plural", "sa": "bahuvacanam"},
     "": {"en": "", "sa": ""},
 }
 LAKARAS = {
-    "lat": {"en": "present", "sa": "laṭ"},
-    "lit": {"en": "perfect", "sa": "liṭ"},
-    "lut": {"en": "periphrastic future", "sa": "luṭ"},
-    "lrt": {"en": "simple future", "sa": "lṛt"},
-    "lot": {"en": "imperative", "sa": "loṭ"},
-    "lan": {"en": "imperfect", "sa": "laṅ"},
-    "vidhilin": {"en": "optative", "sa": "vidhiliṅ"},
-    "lun": {"en": "aorist", "sa": "luṅ"},
-    "lun_unaug": {"en": "aorist (unaugmented)", "sa": "luṅ"},
-    "lrn": {"en": "conditional", "sa": "lṛṅ"},
+    "lat": {"en": "present", "sa": "laT (vartamAna)"},
+    "lit": {"en": "perfect", "sa": "liT (parokShabhUta)"},
+    "lut": {"en": "periphrastic future", "sa": "luT (anadyatana)"},
+    "lrt": {"en": "simple future", "sa": "lRRit (bhaviShyan)"},
+    "lot": {"en": "imperative", "sa": "loT (Aj~nA)"},
+    "lan": {"en": "imperfect", "sa": "la~N (anadyatanabhUta)"},
+    "vidhilin": {"en": "optative", "sa": "vidhili~N"},
+    "lun": {"en": "aorist", "sa": "lu~N (bhUta)"},
+    "lun_unaug": {"en": "aorist (unaugmented)", "sa": "lu~N (bhUta)"},
+    "lrn": {"en": "conditional", "sa": "lRRi~N (saMketa)"},
 }
 
 
