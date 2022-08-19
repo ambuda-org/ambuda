@@ -1,25 +1,52 @@
 {% extends 'base-text.html' %}
 {% import 'macros/dictionaries.html' as m %}
 
+
 {% block title %}Dictionaries | Ambuda{% endblock %}
+
 
 {% block meta_description -%}
 Our fast and simple dictionary toor supports six popular dictionaries in three
 different languages.
 {%- endblock %}
 
+
 {% block content %}
+<script defer src="/static/js/main.js?v=4"></script>
+<script defer src="/static/js/dictionary.js?v=1"></script>
+<script src="https://unpkg.com/alpinejs@3.10.3/dist/cdn.min.js" defer></script>
+
 <h1 class="text-xl font-bold my-4">Dictionary lookup</h1>
 
-<form id="dict--form" class="mb-4">
+<form
+    id="dict--form"
+    class="mb-4"
+    x-data="dictionary"
+    x-init="init"
+    @submit.prevent="searchDictionary">
   <div class="flex mb-2">
-    <input name="q" type="text" placeholder="राम, ರಾಮ, rāma, rAma, ..." class="p-2 flex-1 bg-zinc-100 rounded-tl rounded-bl">
+    <input
+        name="q"
+        type="text"
+        placeholder="राम, ರಾಮ, rāma, rAma, ..."
+        class="p-2 flex-1 bg-zinc-100 rounded-tl rounded-bl"
+        x-model="query"
+    >
+    </input>
     <input type="submit" value="Search" class="bg-zinc-800 text-white p-2 rounded-tr rounded-br"></input>
   </div>
-  <select id="dict--version" name="version" class="text-sm bg-zinc-100 text-zinc-400 hover:text-zinc-800 p-1">
+  <select
+      id="dict--version"
+      name="version"
+      class="text-sm bg-zinc-100
+      text-zinc-400 hover:text-zinc-800 p-1"
+      @change="setSource($event.target.value)">
     {% include "include/dict-options.html" %}
   </select>
-  <select id="dict--script" class="text-sm bg-zinc-100 text-zinc-400 hover:text-zinc-800 p-1">
+  <select
+      id="dict--script"
+      class="text-sm bg-zinc-100 text-zinc-400 hover:text-zinc-800 p-1"
+      @change="setScript($event.target.value)">
     {% include 'include/script-options.html' %}
   </select>
 </form>
@@ -33,18 +60,5 @@ different languages.
   {% include 'include/dictionary-help.html' %}
 {% endif %}
 </div>
-
-<script type="text/javascript">
-document.addEventListener('DOMContentLoaded', function() {
-  const $dictScript = $('#dict--script');
-  $dictScript.addEventListener('change', (e) => {
-    const oldScript = Preferences.contentScript;
-    Preferences.contentScript = e.target.value;
-    transliterateElement($('#dict--response'), oldScript, e.target.value);
-  });
-  transliterateElement($('#dict--response'), 'devanagari', Preferences.contentScript);
-  $dictScript.value = Preferences.contentScript;
-});
-</script>
 
 {% endblock %}

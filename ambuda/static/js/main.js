@@ -282,7 +282,7 @@ const HamburgerButton = (() => {
 })();
 
 (() => {
-  Dictionary.init();
+  // Dictionary.init();
   ParseLayer.init();
 
   HamburgerButton.init();
