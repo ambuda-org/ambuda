@@ -138,33 +138,6 @@ def section(text_slug, section_slug):
     )
 
 
-@api.route("/texts/<text_slug>/<section_slug>")
-def section_htmx(text_slug, section_slug):
-    text = q.text(text_slug)
-    if text is None:
-        abort(404)
-
-    try:
-        prev, cur, next = _prev_cur_next(text.sections, section_slug)
-    except ValueError:
-        abort(404)
-
-    # Fetch with content blocks
-    cur = q.text_section(text.id, section_slug)
-
-    with q.get_session() as sess:
-        html_blocks = [xml.transform_text_block(b.xml) for b in cur.blocks]
-
-    return render_template(
-        "htmx/text-section.html",
-        text=text,
-        prev=prev,
-        section=cur,
-        next=next,
-        html_blocks=html_blocks,
-    )
-
-
 @api.route("/texts/<text_slug>/blocks/<block_slug>")
 def block_htmx(text_slug, block_slug):
     text = q.text(text_slug)
