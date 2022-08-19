@@ -1,5 +1,103 @@
+{# Reading environment for Sanskrit texts
+
+Each major component of the page is in its own macro. We split up the markup
+like this for readability.
+
+For the corresponding JavaScript bindings and logic, see `reader.js`.
+#}
+
+
 {% extends 'header-main-footer.html' %}
 {% import 'macros/dictionaries.html' as m_dict %}
+
+
+{# Section header and help dialog. #}
+{% macro header() %}
+{% set url = url_for('texts.text', slug=text.slug) %}
+<header class="my-8">
+  <div class="text-center pb-4 font-bold border-b">
+    {% if prev or next %}
+      <h1 class="text-2xl md:text-4xl">{{ section.title | devanagari }}</h1>
+      <a class="block text-sm hover:text-green-600" href="{{ url }}">
+        {{ text.title | devanagari }}
+      </a>
+    {% else %}
+      <h1 class="text-2xl md:text-4xl">{{ text.title | devanagari }}</h1>
+    {% endif %}
+  </div>
+
+  {% if has_no_parse %}
+  <p lang="en" class="text-center text-xs text-zinc-400 mt-2 mb-4">This text
+  does not support clickable word meanings.</p>
+  {% else %}
+  <p lang="en" class="text-center text-xs text-zinc-400 mt-2 mb-4">Click on
+  words to see what they mean.</p>
+  {% endif %}
+</header>
+{% endmacro %}
+
+
+{# Prev/next navigation links in the page footer. #}
+{% macro _footer_nav_link(text, section, display_text) %}
+{% set base = "rounded text-2xl h-12 w-12 leading-[3rem] text-center" %}
+{% if section %}
+  {% set url = url_for('texts.section', text_slug=text.slug, section_slug=section.slug) %}
+  <a class="js--paginate {{ base }} hover:bg-zinc-100" href="{{ url }}"> {{ display_text | safe }}</a>
+{% else %}
+<span class="{{ base }} text-zinc-300">{{ display_text | safe }}</span>
+{% endif %}
+{% endmacro %}
+
+
+{# Reader settings. In the future, these will be either on a separate page
+or in their own modal window. #}
+{% macro settings() %}
+  <div class="hidden md:inline text-sm border-r px-4">
+    <span>Font Size:</span>
+    <select class="p-1" @change="setFontSize($event.target.value)">
+      <option value="md:text-base">Tiny</option>
+      <option value="md:text-lg">Small</option>
+      <option value="md:text-xl" selected>Medium</option>
+      <option value="md:text-2xl">Large</option>
+      <option value="md:text-3xl">X-Large</option>
+    </select>
+  </div>
+  <div class="text-sm border-r px-4">
+    <span class="hidden md:inline">Script:</span>
+    <select id="switch-sa" class="p-1" @change="setScript($event.target.value)">
+      {% include 'include/script-options.html' %}
+    </select>
+  </div>
+  {% if not has_no_parse %}
+  <div class="hidden md:inline text-sm border-r px-4">
+    <span>Parsed View:</span>
+    <select id="switch-parse-options" class="p-1" @change="setParseLayout($event.target.value)">
+      <option value="in-place" selected>In place</option>
+      <option value="side-by-side">Side by side</option>
+    </select>
+  </div>
+  {% endif %}
+{% endmacro %}
+
+
+{# Footer, including settings and nav links. #}
+{% macro footer() %}
+{# z-50 so that the footer renders on top of the sidebar. #}
+<footer class="flex items-center justify-between fixed bg-white left-0 right-0 bottom-0 h-12 border-t z-50">
+  <div class="text-sm pl-4">
+    <a class="hover:underline" href="{{ url_for('texts.text', slug=text.slug) }}">
+      {{ text.title | devanagari }}
+    </a>
+    {{ section.title | devanagari }}
+  </div>
+  <div class="flex items-center">
+    {{ settings() }}
+    {{ _footer_nav_link(text, prev, '&laquo;') }}
+    {{ _footer_nav_link(text, next, '&raquo;') }}
+  </div>
+</footer>
+{% endmacro %}
+
 
 {# Sidebar with dictionary information, etc.
 
@@ -28,7 +126,7 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 
       <form id="dict--form" class="mb-4">
         <div class="flex mb-2 hidden lg:block">
-          <input name="q" type="text" placeholder="राम, ರಾಮ, ma, rAma, ..." class="p-2 flex-1 bg-zinc-100 rounded-tl rounded-bl">
+          <input name="q" type="text" placeholder="राम, ರಾಮ, ma, rAma, ..." class="p-2 flex-1 bg-zinc-100 rounded-tl rounded-bl"></input>
           <input type="submit" value="Search" class="bg-zinc-800 text-white p-2 rounded-tr rounded-br"></input>
         </div>
         <select id="dict--version" name="version" class="text-sm bg-white lg:bg-zinc-100 text-zinc-400 hover:text-zinc-800 p-1">
@@ -43,6 +141,7 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 </div>
 {% endmacro %}
 
+
 {# Title and section. For single-section texts, show just the title. #}
 {% if prev or next %}
 {% set page_title = text.title|devanagari + " " + section.title|devanagari%}
@@ -51,12 +150,25 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 {% endif %}
 {% block title %}{{ page_title }} | Ambuda{% endblock %}
 
+
 {% block main %}
-<article class="flex justify-around">
-  <div id="text--content" class="md:text-xl mx-4 md:max-w-lg pb-16 bg-white lg:flex-1">
-    {% with text=text, section=section, prev=prev, next=next %}
-      {% include 'htmx/text-section.html' %}
-    {% endwith %}
+<script defer src="/static/js/reader.js?v=4"></script>
+<script src="https://unpkg.com/alpinejs@3.10.3/dist/cdn.min.js" defer></script>
+
+{# FIXME: unify <article> and these three <div>s into fewer elements. #}
+<article lang="sa" class="flex justify-around mb-32" x-data="reader" @click="onClick">
+  <div id="text--content" class="md:text-xl mx-4 md:max-w-lg pb-16 lg:flex-1">
+  <div :class="fontSize">
+  <div :class="parseLayout">
+    {{ header() }}
+    {% for block_ in html_blocks %}
+    <s-block id="{{ block_.id }}">
+      <div class="mula">{{ block_.html|safe }}</div>
+    </s-block>
+    {% endfor %}
+    {{ footer() }}
+  </div>
+  </div>
   </div>
   {{ sidebar() }}
 </article>

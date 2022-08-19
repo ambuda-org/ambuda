@@ -1,13 +1,16 @@
 /* global Sanscript */
-/* Main code for the reading environment.
- * TODO: when able, separate this into modules and add a JS build system. */
+
+/* NOTE: This code is deprecated, and we're in the process of splitting it up
+ * into separate files:
+ *
+ * - `reader.js` defines the reading environment.
+ * - `proofreading.js` defines the proofing environment.
+ */
 
 const URL = {
-  ajaxTextContent: (path) => `/api${path}`,
   ajaxDictionaryQuery: (version, query) => `/api/dictionaries/${version}/${query}`,
   dictionaryQuery: (version, query) => `/tools/dictionaries/${version}/${query}`,
   parseData: (textSlug, blockSlug) => `/api/parses/${textSlug}/${blockSlug}`,
-  googleOCR: (projectSlug, pageSlug) => `/api/ocr/${projectSlug}/${pageSlug}`,
 
   // TODO: where to put this?
   getTextSlug: () => {
@@ -36,6 +39,7 @@ const Server = {
 };
 
 const Preferences = {
+  // FIXME: remove this once everything has been migrated to `reader.js`.
   get contentScript() {
     const ls = localStorage.getItem('user-script');
     if (!ls || ls === 'undefined') {
@@ -48,6 +52,7 @@ const Preferences = {
       localStorage.setItem('user-script', value);
     }
   },
+
   get dictVersion() {
     const val = localStorage.getItem('dict-version');
     if (!val || val === 'undefined') {
@@ -58,30 +63,6 @@ const Preferences = {
   },
   set dictVersion(value) {
     localStorage.setItem('dict-version', value);
-  },
-  get contentFontSize() {
-    const ls = localStorage.getItem('user-font-size');
-    if (!ls || ls === 'undefined') {
-      return 'md:text-xl';
-    }
-    return ls;
-  },
-  set contentFontSize(value) {
-    if (value) {
-      localStorage.setItem('user-font-size', value);
-    }
-  },
-  get contentParseOptions() {
-    const ls = localStorage.getItem('user-parse-options');
-    if (!ls || ls === 'undefined') {
-      return 'in-place';
-    }
-    return ls;
-  },
-  set contentParseOptions(value) {
-    if (value) {
-      localStorage.setItem('user-parse-options', value);
-    }
   },
 };
 
@@ -286,188 +267,6 @@ const ParseLayer = (() => {
   return { init, showParsedBlock, getBlockSlug };
 })();
 
-const TextContent = (() => {
-  function changeFontSize(from, to) {
-    const $textContent = $('#text--content');
-    if ($textContent) {
-      $textContent.classList.replace(from, to);
-    }
-  }
-
-  function transliterate(from, to) {
-    const $textContent = $('#text--content');
-    if ($textContent) {
-      transliterateElement($textContent, from, to);
-    }
-  }
-
-  function pushState(url, resp) {
-    // Size limit here is 16 MiB per MDN.
-    // Keep in sync with the popstate() call below.
-    window.history.pushState({ textContent: resp }, '', url);
-  }
-
-  function popState(state) {
-    const $textContent = $('#text--content');
-    $textContent.innerHTML = transliterateHTMLString(
-      state.textContent,
-      Preferences.contentScript,
-    );
-  }
-
-  // eslint-disable-next-line no-unused-vars
-  function ajaxChangeSection(url) {
-    const $textContent = $('#text--content');
-    const ajaxURL = URL.ajaxTextContent(url);
-    Server.getText(
-      ajaxURL,
-      (resp) => {
-        // Push state with the un-transliterated content,
-        // to keep the state clean.
-        pushState(url, resp);
-        $textContent.innerHTML = transliterateHTMLString(resp, Preferences.contentScript);
-      },
-      () => {
-        const text = "<p>Sorry, we couldn't load this page.</p>";
-        $textContent.innerHTML = text;
-        pushState(url, text);
-      },
-    );
-  }
-
-  function onClickWord($word) {
-    const lemma = $word.getAttribute('lemma');
-    const form = $word.textContent;
-    const parse = $word.getAttribute('parse');
-
-    const version = Preferences.dictVersion;
-    const query = Sanscript.t(lemma, 'slp1', Preferences.contentScript);
-
-    Dictionary.fetch(version, query, () => {
-      Sidebar.setCurrentWord(form, lemma, parse);
-      Sidebar.show();
-    });
-  }
-
-  function init() {
-    const $textContent = $('#text--content');
-    if ($textContent) {
-      $textContent.addEventListener('click', (e) => {
-        const $word = e.target.closest('s-w');
-
-        if ($word) {
-          e.preventDefault();
-          onClickWord($word);
-          return;
-        }
-
-        const $undoParse = e.target.closest('.js--source');
-        if ($undoParse) {
-          e.preventDefault();
-          // Hide the right (parsed) block.
-          const parsedNode = $undoParse.closest('s-block');
-          parsedNode.classList.remove('show-parsed');
-          return;
-        }
-
-        const $paginate = e.target.closest('.js--paginate');
-        if ($paginate) {
-          // Disable for now -- includes too much extra state.
-          // e.preventDefault();
-          // use getAttribute to avoid the hostname.
-          // const url = $paginate.getAttribute('href');
-          // ajaxChangeSection(url);
-          // return;
-        }
-
-        const $block = e.target.closest('s-block');
-        if ($block) {
-          e.preventDefault();
-          ParseLayer.showParsedBlock($block.id);
-        }
-      });
-
-      // This ensures that the browser back button works correctly.
-      window.addEventListener('popstate', (event) => {
-        popState(event.state);
-      });
-    }
-  }
-
-  return { init, transliterate, changeFontSize };
-})();
-
-const ScriptMenu = (() => {
-  function switchScript(newScript) {
-    const oldScript = Preferences.contentScript;
-    Preferences.contentScript = newScript;
-    TextContent.transliterate(oldScript, newScript);
-    Sidebar.transliterate(oldScript, newScript);
-  }
-
-  function init() {
-    const $scriptMenu = $('#switch-sa');
-    if ($scriptMenu) {
-      $scriptMenu.value = Preferences.contentScript;
-      $scriptMenu.addEventListener('change', (e) => {
-        switchScript(e.target.value);
-      });
-    }
-  }
-
-  return { init };
-})();
-
-const FontSizeMenu = (() => {
-  function switchFontSize(newFontSize) {
-    const oldFontSize = Preferences.contentFontSize;
-    Preferences.contentFontSize = newFontSize;
-    TextContent.changeFontSize(oldFontSize, newFontSize);
-  }
-
-  function init() {
-    const $fontSizeMenu = $('#switch-font-size');
-    if ($fontSizeMenu) {
-      $fontSizeMenu.value = Preferences.contentFontSize;
-      $fontSizeMenu.addEventListener('change', (e) => {
-        switchFontSize(e.target.value);
-      });
-    }
-  }
-
-  return { init };
-})();
-
-const ParseOptionsMenu = (() => {
-  function updateClassParseOptions() {
-    if (Preferences.contentParseOptions === 'side-by-side') {
-      document.body.classList.add('side-by-side');
-      document.body.classList.remove('in-place');
-    } else {
-      document.body.classList.remove('side-by-side');
-      document.body.classList.add('in-place');
-    }
-  }
-
-  function switchParseOptions(newParseOptions) {
-    Preferences.contentParseOptions = newParseOptions;
-    updateClassParseOptions();
-  }
-
-  function init() {
-    const $parseOptionsMenu = $('#switch-parse-options');
-    if ($parseOptionsMenu) {
-      $parseOptionsMenu.value = Preferences.contentParseOptions;
-      updateClassParseOptions();
-      $parseOptionsMenu.addEventListener('change', (e) => {
-        switchParseOptions(e.target.value);
-      });
-    }
-  }
-
-  return { init };
-})();
-
 const HamburgerButton = (() => {
   function init() {
     const $ham = $('#hamburger');
@@ -483,15 +282,8 @@ const HamburgerButton = (() => {
 })();
 
 (() => {
-  FontSizeMenu.init();
-  ScriptMenu.init();
-  ParseOptionsMenu.init();
   Dictionary.init();
   ParseLayer.init();
-  TextContent.init();
-  HamburgerButton.init();
 
-  TextContent.changeFontSize('md:text-xl', Preferences.contentFontSize);
-  TextContent.transliterate('devanagari', Preferences.contentScript);
-  Sidebar.transliterate('devanagari', Preferences.contentScript);
+  HamburgerButton.init();
 })();
