@@ -1,0 +1,30 @@
+{% extends 'base-text.html' %}
+
+{% block title %}Privacy Policy | Ambuda{% endblock %}
+
+
+{% block content %}
+{% set contact_url = url_for('about.contact') %}
+<div class="prose">
+<h1>Privacy Policy</h1>
+
+<p>We are committed to protect your privacy. This document explains what data we collect about our users and how we share and retain it.</p>
+
+<h2>Data we collect and how we use it</h2>
+
+<ul>
+    <li>We receive <strong>web access logs</strong> for all visitors to our site, which includes such information as your IP address and which URLs you visit. We store this data temporarily and use it for technical improvement purposes.</li>
+    <li><strong>Proofing content</strong> that you provide (file uploads, transcriptions, etc.) may be published and available publicly on Ambuda.</li>
+    <li>If you create an account for proofing, we store <strong>user registration information</strong> (such as username and email). We use this information to allow you to log in and access the system. We use cookies to track sessions for logged-in users.</li>
+    <li>We use Plausible for <strong>privacy-friendly analytics</strong>. This data includes your URL, browser, and operating system, but is collected in a privacy-friendly and deidentifiable way. Data is stored as per <a href="https://plausible.io/data-policy">Plausible's Data Policy</a>.</li>
+    <li>We use <strong>reCAPTCHA</strong> to prevent abuse during password resets or account creation. Data is processed as per the <a href="https://policies.google.com/privacy">Google Privacy Policy</a>.</li>
+    <li>We <strong>send emails</strong> for password reset or account confirmation using SendGrid, with which we share your email address. This data is processed as per the <a href="https://www.twilio.com/legal/privacy">Twilio Privacy Notice</a>.</li>
+    <li><strong>Submissions to the <a href="{{ contact_url }}">contact form</a></strong> are routed to Formspree and processed as per the <a href="https://formspree.io/legal/privacy-policy/">Formspree Privacy Policy</a>. We use your submissions to get feedback to help improve Ambuda.</li>
+</ul>
+
+<h2>Data use and retention</h2>
+
+Other than the specific cases mentioned above, and publicly shared proofing contributions, we do not share your data with any third parties. We may also retain and share your data as needed in order to comply with our legal obligations. If you would like us to delete any of your data, please <a href="{{ contact_url }}">contact us</a>.
+
+</div>
+{% endblock %}
