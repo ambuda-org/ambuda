@@ -1,4 +1,4 @@
-import { $ } from './core';
+import { $ } from './core.ts';
 
 export default (() => {
   function init() {

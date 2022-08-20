@@ -2,7 +2,7 @@
 
 import {
   transliterateElement, transliterateHTMLString, transliterateSanskritBlob, $, Server,
-} from './core';
+} from './core.ts';
 import Routes from './routes';
 
 /* Legacy code
@@ -196,11 +196,6 @@ const ParseLayer = (() => {
   return { init, showParsedBlock, getBlockSlug };
 })();
 
-(() => {
-  Dictionary.init();
-  ParseLayer.init();
-})();
-
 /* Alpine code
  * ===========
  * Future PRs will merge the legacy code above into the application below.
@@ -224,6 +219,10 @@ export default () => ({
   init() {
     this.loadSettings();
     switchScript('devanagari', this.script);
+
+    // Load legacy content.
+    Dictionary.init();
+    ParseLayer.init();
   },
   loadSettings() {
     const settingsStr = localStorage.getItem(READER_CONFIG_KEY);

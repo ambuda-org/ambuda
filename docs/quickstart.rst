@@ -11,7 +11,7 @@ After you've cloned the repo, you can bring up a minimal setup by running the
 following::
 
     make install
-    make db_seed_basic
+    make db-seed-basic
     make devserver
 
 Then go to `localhost:5000` to see the local application.

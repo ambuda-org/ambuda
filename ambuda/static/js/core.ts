@@ -34,14 +34,14 @@ function forEachTextNode(elem, callback) {
   }
 }
 
-function transliterateElement($el, from, to) {
+function transliterateElement($el, from: string, to: string) {
   $el.querySelectorAll('[lang=sa]').forEach((elem) => {
     forEachTextNode(elem, (s) => Sanscript.t(s, from, to));
   });
 }
 
 // Transliterate mixed Sanskrit content.
-function transliterateSanskritBlob(blob, outputScript) {
+function transliterateSanskritBlob(blob: string, outputScript: string) {
   const $div = document.createElement('div');
   $div.innerHTML = blob;
   $div.querySelectorAll('*').forEach((elem) => {
@@ -51,7 +51,7 @@ function transliterateSanskritBlob(blob, outputScript) {
 }
 
 // Transliterate mixed English/Sanskrit content.
-function transliterateHTMLString(s, outputScript) {
+function transliterateHTMLString(s: string, outputScript: string) {
   const $div = document.createElement('div');
   $div.innerHTML = s;
   transliterateElement($div, 'devanagari', outputScript);
