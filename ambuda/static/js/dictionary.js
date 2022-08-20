@@ -1,4 +1,4 @@
-/* global $, Server, transliterateHTMLString, transliterateElement, Alpine */
+/* global $, Server, transliterateHTMLString, transliterateElement, Alpine, Routes */
 
 const DICTIONARY_CONFIG_KEY = 'dictionary';
 const DictionaryAlpine = () => ({
@@ -47,13 +47,13 @@ const DictionaryAlpine = () => ({
       return;
     }
 
-    const url = URL.ajaxDictionaryQuery(this.source, this.query);
+    const url = Routes.ajaxDictionaryQuery(this.source, this.query);
     const $container = $('#dict--response');
     Server.getText(
       url,
       (resp) => {
         $container.innerHTML = transliterateHTMLString(resp, this.script);
-        window.history.replaceState({}, '', URL.dictionaryQuery(this.source, this.query));
+        window.history.replaceState({}, '', Routes.dictionaryQuery(this.source, this.query));
       },
       () => {
         $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';

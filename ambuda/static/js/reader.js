@@ -1,5 +1,5 @@
 /* global transliterateElement, Sidebar, Preferences, Alpine, ParseLayer,
-   Sanscript, Dictionary, $ */
+   Sanscript, $, Dictionary */
 
 function switchScript(oldScript, newScript) {
   const $textContent = $('#text--content');

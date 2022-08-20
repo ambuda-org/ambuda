@@ -7,7 +7,7 @@
  * - `proofreading.js` defines the proofing environment.
  */
 
-const URL = {
+const Routes = {
   ajaxDictionaryQuery: (version, query) => `/api/dictionaries/${version}/${query}`,
   dictionaryQuery: (version, query) => `/tools/dictionaries/${version}/${query}`,
   parseData: (textSlug, blockSlug) => `/api/parses/${textSlug}/${blockSlug}`,
@@ -149,7 +149,7 @@ const Dictionary = (() => {
   function fetch(version, query, callback) {
     $('#dict--form input[name=q]').value = query;
 
-    const url = URL.ajaxDictionaryQuery(version, query);
+    const url = Routes.ajaxDictionaryQuery(version, query);
     const $container = $('#dict--response');
     Server.getText(
       url,
@@ -178,7 +178,7 @@ const Dictionary = (() => {
     fetch(version, query, () => {
       // FIXME: remove "startsWith" hack and move this to Dictionaries page.
       if (window.location.pathname.startsWith('/tools/dict')) {
-        window.history.replaceState({}, '', URL.dictionaryQuery(version, query));
+        window.history.replaceState({}, '', Routes.dictionaryQuery(version, query));
       }
     });
   }
@@ -212,7 +212,7 @@ const ParseLayer = (() => {
   function showParsedBlock(blockID) {
     const blockSlug = getBlockSlug(blockID);
     const $container = $('#parse--response');
-    const textSlug = URL.getTextSlug();
+    const textSlug = Routes.getTextSlug();
 
     const $block = $(`#${blockID.replaceAll('.', '\\.')}`);
 
@@ -224,7 +224,7 @@ const ParseLayer = (() => {
     $block.classList.add('has-parsed');
 
     // Fetch parsed data.
-    const url = URL.parseData(textSlug, blockSlug);
+    const url = Routes.parseData(textSlug, blockSlug);
     Server.getText(
       url,
       (resp) => {
