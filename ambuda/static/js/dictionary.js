@@ -1,7 +1,13 @@
-/* global $, Server, transliterateHTMLString, transliterateElement, Alpine, Routes */
+/* global Alpine */
+
+import {
+  transliterateElement, transliterateHTMLString, $, Server,
+} from './core';
+import Routes from './routes';
 
 const DICTIONARY_CONFIG_KEY = 'dictionary';
-const DictionaryAlpine = () => ({
+
+export default () => ({
   script: 'devanagari',
   source: 'mw',
   query: '',
@@ -64,8 +70,4 @@ const DictionaryAlpine = () => ({
   transliterate(oldScript, newScript) {
     transliterateElement($('#dict--response'), oldScript, newScript);
   },
-});
-
-window.addEventListener('alpine:init', () => {
-  Alpine.data('dictionary', DictionaryAlpine);
 });

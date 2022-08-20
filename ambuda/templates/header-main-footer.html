@@ -5,6 +5,9 @@
 {% block scripts %}
     <script async defer data-domain="ambuda.org" src="https://plausible.io/js/plausible.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@indic-transliteration/sanscript@1.2.7/sanscript.min.js"></script>
+    {# Load scripts before Alpine so that our init hooks are properly set up. #}
+    <script defer src="/static/gen/main.js"></script>
+    <script src="https://unpkg.com/alpinejs@3.10.3/dist/cdn.min.js" defer></script>
 {% endblock %}
 
 

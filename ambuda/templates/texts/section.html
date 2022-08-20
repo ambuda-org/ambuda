@@ -121,7 +121,7 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
     lg:z-0">
   <div>
     <div>
-      <button class="block text-2xl p-2" onclick="Sidebar.hide()">&times;</button>
+      <button class="block text-2xl p-2" @click="hideSidebar">&times;</button>
       <div id="parse--response" class="text-sm"></div>
 
       <form id="dict--form" class="mb-4" @submit.prevent="searchDictionary">
@@ -155,10 +155,6 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 
 
 {% block main %}
-<script defer src="/static/js/main.js?v=5"></script>
-<script defer src="/static/js/reader.js?v=4"></script>
-<script src="https://unpkg.com/alpinejs@3.10.3/dist/cdn.min.js" defer></script>
-
 {# FIXME: unify <article> and these three <div>s into fewer elements. #}
 <article lang="sa" class="flex justify-around mb-32" x-data="reader" @click="onClick">
   <div id="text--content" class="md:text-xl mx-4 md:max-w-lg pb-16 lg:flex-1">

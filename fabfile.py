@@ -79,6 +79,9 @@ def deploy_to_commit(_, pointer: str):
             )
         )
 
+        # Build production JS with Esbuild
+        c.run("npm run build-js-prod")
+
         # Verify that unit tests pass on prod.
         with c.prefix("source env/bin/activate"):
             c.run("make test")
