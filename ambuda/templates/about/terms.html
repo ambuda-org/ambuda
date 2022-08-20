@@ -1,0 +1,25 @@
+{% extends 'base-text.html' %}
+
+{% block title %}Contact | Ambuda{% endblock %}
+
+
+{% block content %}
+{% set contact_url = 'https://learnsanskrit.org/contact' %}
+<div class="prose">
+<h1>Terms of Use</h1>
+
+<p>Ambuda's mission is to make the Sanskrit tradition radically accessible by creating a complete archive of traditional Sanskrit literature, and allowing others to collaborate on proofing these texts.</p>
+
+<p>You are free to read and share texts on Ambuda, as well as contribute to adding and transcribing texts through proofing, under the following conditions:</p>
+
+<ul>
+    <li>You are legally responsible for any content you contribute to Ambuda.</li>
+    <li>Be kind and respectful to others; do not harass, abuse, or violate the privacy of others.</li>
+    <li>Do not violate the law, including appropriate copyright laws.</li>
+    <li>Do not engage in activity that can harm our technical infrastructure or disrupt the ability of other users to use Ambuda.</li>
+</ul>
+
+<p>If you have any questions about these terms, please <a href="{{ contact_url }}">contact us</a>.</p>
+
+</div>
+{% endblock %}
