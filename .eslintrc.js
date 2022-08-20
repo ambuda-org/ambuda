@@ -10,6 +10,8 @@ module.exports = {
     ecmaVersion: 'latest',
   },
   rules: {
-    "no-console": ['error', { allow: ['error'] }]
+    "no-console": ['error', { allow: ['error'] }],
+    // Temporarily disabled while we set up JS modules.
+    "no-unused-vars": "off"
   },
 };
