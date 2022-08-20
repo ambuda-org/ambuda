@@ -12,17 +12,12 @@ different languages.
 
 
 {% block content %}
-<script defer src="/static/js/main.js?v=5"></script>
-<script defer src="/static/js/dictionary.js?v=1"></script>
-<script src="https://unpkg.com/alpinejs@3.10.3/dist/cdn.min.js" defer></script>
-
 <h1 class="text-xl font-bold my-4">Dictionary lookup</h1>
 
 <form
     id="dict--form"
     class="mb-4"
     x-data="dictionary"
-    x-init="init"
     @submit.prevent="searchDictionary">
   <div class="flex mb-2">
     <input

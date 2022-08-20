@@ -1,5 +1,9 @@
-/* global transliterateElement, transliterateHTMLString, transliterateSanskritBlob,
- Alpine, Sanscript, $, Routes, Server */
+/* global Alpine, Sanscript */
+
+import {
+  transliterateElement, transliterateHTMLString, transliterateSanskritBlob, $, Server,
+} from './core';
+import Routes from './routes';
 
 /* Legacy code
  * ===========
@@ -212,7 +216,7 @@ function switchScript(oldScript, newScript) {
 }
 
 const READER_CONFIG_KEY = 'reader';
-const Reader = () => ({
+export default () => ({
   fontSize: 'md:text-xl',
   script: 'devanagari',
   parseLayout: 'in-place',
@@ -293,8 +297,9 @@ const Reader = () => ({
       Sidebar.show();
     });
   },
-});
 
-window.addEventListener('alpine:init', () => {
-  Alpine.data('reader', Reader);
+  // legacy bindings
+  hideSidebar() {
+    Sidebar.hide();
+  },
 });

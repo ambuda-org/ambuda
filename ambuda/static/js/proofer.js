@@ -1,6 +1,8 @@
 /* global Alpine, $, OpenSeadragon, IMAGE_URL */
 /* Transcription and proofreading interface. */
 
+import { $ } from './core';
+
 const CONFIG_KEY = 'proofing-editor';
 const LAYOUT_SIDE_BY_SIDE = 'flex flex-col-reverse md:flex-row h-[90vh]';
 const LAYOUT_TOP_AND_BOTTOM = 'flex flex-col-reverse h-[90vh]';
@@ -37,21 +39,35 @@ function initializeImageViewer(imageURL) {
   });
 }
 
-const imageViewer = initializeImageViewer(IMAGE_URL);
-
-const Editor = () => ({
+export default () => ({
+  // Settings
   isRunningOCR: false,
   textZoom: 1,
   imageZoom: null,
   layout: 'side-by-side',
 
+  // Internal-only
+  hasUnsavedChanges: false,
+  imageViewer: null,
+
   init() {
     this.loadSettings();
+
     // Set `imageZoom` only after the viewer is fully initialized.
-    imageViewer.addHandler('open', () => {
-      this.imageZoom = this.imageZoom || imageViewer.viewport.getHomeZoom();
-      imageViewer.viewport.zoomTo(this.imageZoom);
+    this.imageViewer = initializeImageViewer(IMAGE_URL);
+    this.imageViewer.addHandler('open', () => {
+      this.imageZoom = this.imageZoom || this.imageViewer.viewport.getHomeZoom();
+      this.imageViewer.viewport.zoomTo(this.imageZoom);
     });
+
+    // Warn the user if navigating away with unsaved changes.
+    window.onbeforeunload = () => {
+      if (this.hasUnsavedChanges) {
+        return 'You have unsaved changes! If you leave this page, your changes will be lost.';
+      }
+      // so that eslint doesn't complain
+      return undefined;
+    };
   },
 
   // Settings IO
@@ -104,17 +120,17 @@ const Editor = () => ({
 
   increaseImageZoom() {
     this.imageZoom *= 1.2;
-    imageViewer.viewport.zoomTo(this.imageZoom);
+    this.imageViewer.viewport.zoomTo(this.imageZoom);
     this.saveSettings();
   },
   decreaseImageZoom() {
     this.imageZoom *= 0.8;
-    imageViewer.viewport.zoomTo(this.imageZoom);
+    this.imageViewer.viewport.zoomTo(this.imageZoom);
     this.saveSettings();
   },
   resetImageZoom() {
-    this.imageZoom = imageViewer.viewport.getHomeZoom();
-    imageViewer.viewport.zoomTo(this.imageZoom);
+    this.imageZoom = this.imageViewer.viewport.getHomeZoom();
+    this.imageViewer.viewport.zoomTo(this.imageZoom);
     this.saveSettings();
   },
 
@@ -164,25 +180,3 @@ const Editor = () => ({
     this.markAs('[^', ']');
   },
 });
-
-// Setup
-window.addEventListener('alpine:init', () => {
-  Alpine.data('editor', Editor);
-});
-
-// Warn the user if leaving the page after changing the text box.
-let hasUnsavedChanges = false;
-$('[name=content]').addEventListener('change', () => {
-  hasUnsavedChanges = true;
-});
-$('[type=submit]').addEventListener('click', () => {
-  hasUnsavedChanges = false;
-});
-
-window.onbeforeunload = () => {
-  if (hasUnsavedChanges) {
-    return 'You have unsaved changes! If you leave this page, your changes will be lost.';
-  }
-  // so that eslint doesn't complain
-  return undefined;
-};
