@@ -75,10 +75,10 @@ the following commands:
 To add data to the database, try either of the commands below:
 
     # A smaller install with some missing data
-    make db_seed_basic
+    make db-seed-basic
 
     # A full install that's larger and slower
-    make db_seed_all
+    make db-seed-all
 
 For help, join our Discord: https://discord.gg/7rGdTyWY7Z
 

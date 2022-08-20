@@ -2,7 +2,7 @@
 
 import {
   transliterateElement, transliterateHTMLString, $, Server,
-} from './core';
+} from './core.ts';
 import Routes from './routes';
 
 const DICTIONARY_CONFIG_KEY = 'dictionary';

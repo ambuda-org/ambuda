@@ -159,7 +159,7 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 <article lang="sa" class="flex justify-around mb-32" x-data="reader" @click="onClick">
   <div id="text--content" class="md:text-xl mx-4 md:max-w-lg pb-16 lg:flex-1">
   <div :class="fontSize">
-  <div :class="parseLayout">
+  <div :class="parseLayout" lang="sa">
     {{ header() }}
     {% for block_ in html_blocks %}
     <s-block id="{{ block_.id }}">

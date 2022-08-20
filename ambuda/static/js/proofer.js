@@ -1,7 +1,7 @@
 /* global Alpine, $, OpenSeadragon, IMAGE_URL */
 /* Transcription and proofreading interface. */
 
-import { $ } from './core';
+import { $ } from './core.ts';
 
 const CONFIG_KEY = 'proofing-editor';
 const LAYOUT_SIDE_BY_SIDE = 'flex flex-col-reverse md:flex-row h-[90vh]';
