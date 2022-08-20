@@ -42,3 +42,7 @@ def name():
 @bp.route("/contact")
 def contact():
     return render_template("about/contact.html")
+
+@bp.route("/privacy")
+def privacy():
+    return render_template("about/privacy.html")
