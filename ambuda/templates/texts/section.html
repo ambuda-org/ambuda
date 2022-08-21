@@ -54,7 +54,7 @@ or in their own modal window. #}
 {% macro settings() %}
   <div class="hidden md:inline text-sm border-r px-4">
     <span>Font Size:</span>
-    <select class="p-1" @change="setFontSize($event.target.value)">
+    <select class="p-1" x-model="fontSize" @change="saveSettings">
       <option value="md:text-base">Tiny</option>
       <option value="md:text-lg">Small</option>
       <option value="md:text-xl" selected>Medium</option>
@@ -64,14 +64,14 @@ or in their own modal window. #}
   </div>
   <div class="text-sm border-r px-4">
     <span class="hidden md:inline">Script:</span>
-    <select id="switch-sa" class="p-1" @change="setScript($event.target.value)">
+    <select id="switch-sa" class="p-1" @change="setScript" x-model="uiScript">
       {% include 'include/script-options.html' %}
     </select>
   </div>
   {% if not has_no_parse %}
   <div class="hidden md:inline text-sm border-r px-4">
     <span>Parsed View:</span>
-    <select id="switch-parse-options" class="p-1" @change="setParseLayout($event.target.value)">
+    <select id="switch-parse-options" class="p-1" x-model="parseLayout" @change="saveSettings">
       <option value="in-place" selected>In place</option>
       <option value="side-by-side">Side by side</option>
     </select>
@@ -166,10 +166,11 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
       <div class="mula">{{ block_.html|safe }}</div>
     </s-block>
     {% endfor %}
-    {{ footer() }}
   </div>
   </div>
   </div>
+
+  {{ footer() }}
   {{ sidebar() }}
 </article>
 {% endblock %}
