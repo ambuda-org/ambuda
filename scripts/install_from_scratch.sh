@@ -15,8 +15,8 @@ rm -Rf env/ node_modules/
 # Install Node dependencies.
 npm install
 
-# Build initial Tailwind CSS
-npx tailwindcss -i ./ambuda/static/css/style.css -o ambuda/static/gen/style.css --minify
+# Build initial CSS and JavaScript.
+make css-prod js-prod
 
 
 # Python dependencies
@@ -38,6 +38,7 @@ cat << EOF > .env
 
 FLASK_ENV=development
 FLASK_UPLOAD_FOLDER="$(pwd)/data/file-uploads"
+SECRET_KEY="insecure development secret key"
 SQLALCHEMY_DATABASE_URI="sqlite:///database.db"
 
 GOOGLE_APPLICATION_CREDENTIALS="<Google API credentials>"
