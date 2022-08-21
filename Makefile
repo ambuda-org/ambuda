@@ -37,6 +37,11 @@ db-seed-all:
 	python -m ambuda.seed.dictionaries.vacaspatyam
 
 
+# Delete all application data and dependencies. This cannot be undone.
+destructive-clean:
+	rm -Rf data/ env/ node_modules/ .env database.db
+
+
 # Common development commands
 # ===============================================
 

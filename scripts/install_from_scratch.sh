@@ -3,14 +3,29 @@
 # Exit if any step in this install script fails.
 set -e
 
+if [ -f data ] || [ -f env ] || [ -f node_modules ] || [ -f .env ] || [ -f database.db ]; then
+cat << "EOF"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR ERROR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some of the files in your directory were created during a previous install. Our
+install script does not know how to treat these files.
+
+If you want to permanently delete these old files and install Ambuda from
+scratch, please run the following command:
+
+    make destructive-clean install
+
+EOF
+    exit 1
+fi
+
 echo "Beginning clean install of Ambuda."
 
 
-# JavaScript dependencies
-# =======================
-
-# Clean up any existing state so that we can do a clean install.
-rm -Rf env/ node_modules/
+# Frontend dependencies
+# =====================
 
 # Install Node dependencies.
 npm install
