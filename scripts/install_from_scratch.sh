@@ -72,6 +72,10 @@ EOF
 # Create tables
 python -m scripts.initialize_db
 
+# Add simple lookup tables, since it's easy for a user to miss these later.
+python -m ambuda.seed.lookup.page_status
+python -m ambuda.seed.lookup.role
+
 # Create Alembic's migrations table.
 alembic ensure_version
 
