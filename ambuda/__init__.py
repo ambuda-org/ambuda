@@ -17,6 +17,7 @@ from sqlalchemy import exc
 import config
 from ambuda import auth as auth_manager
 from ambuda import admin as admin_manager
+from ambuda import checks
 from ambuda import database
 from ambuda import filters
 from ambuda import queries
@@ -72,6 +73,10 @@ def create_app(config_env: str):
     # different configurations.
     load_dotenv(".env")
     config_spec = config.load_config_object(config_env)
+
+    # Sanity checks
+    if config_env != config.TESTING:
+        checks.check_app_schema_matches_db_schema(config_spec.SQLALCHEMY_DATABASE_URI)
 
     # Initialize Sentry monitoring only in production so that our Sentry page
     # contains only production warnings (as opposed to dev warnings).
