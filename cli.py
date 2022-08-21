@@ -2,6 +2,7 @@
 
 import click
 import getpass
+from slugify import slugify
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
@@ -62,11 +63,12 @@ def add_role(username: str, role: str):
         u.roles.append(r)
         session.add(u)
         session.commit()
-    print(f'Added role "{role}" to user "{user}".')
+    print(f'Added role "{role}" to user "{username}".')
 
 
 @cli.command()
-def create_test_project():
+@click.argument("title")
+def create_test_project(title):
     """Create a test proofing project with 100 pages."""
     current_app = ambuda.create_app("development")
     with current_app.app_context():
@@ -79,10 +81,9 @@ def create_test_project():
                 "Please create a user first with `create-user`."
             )
 
-        q.create_project(
-            title="Test project", slug="test-project", creator_id=arbitrary_user.id
-        )
-        project = q.project("test-project")
+        slug = slugify(title)
+        q.create_project(title=title, slug=slug, creator_id=arbitrary_user.id)
+        project = q.project(slug)
 
         default_status = session.query(db.PageStatus).filter_by(name="reviewed-0").one()
         for i in range(1, 101):
@@ -94,7 +95,7 @@ def create_test_project():
             )
             session.add(page)
         session.commit()
-    print(f'Created project "test-project".')
+    print(f'Created project "{title}" with slug "{slug}".')
 
 
 if __name__ == "__main__":
