@@ -43,6 +43,9 @@ jobs:
       - name: Lint
         run: make lint-check
   
+      - name: Build docs
+        run: make docs
+
   run-tests:
     runs-on: ubuntu-22.04
     steps:
