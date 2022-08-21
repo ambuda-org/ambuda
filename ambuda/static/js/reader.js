@@ -1,5 +1,20 @@
 /* global Alpine, Sanscript */
 
+/**
+ * Application code for our Sanskrit reading environment.
+ *
+ * The reading environment supports several user preferences, including script,
+ * font size, and layout features for secondary content like parse data.
+ *
+ * As with our other applications, we prefer storing application state in
+ * markup in accordance with HATEOAS. Where this is cumbersome, we instead
+ * store application state within the object we export further below.
+ *
+ * NOTE: our migration to Alpine is in progress, and much of this file includes
+ * legacy code from our older vanilla JS approach. We will migrate this code to
+ * Alpine over time.
+ * */
+
 import {
   transliterateElement, transliterateHTMLString, transliterateSanskritBlob, $, Server,
 } from './core.ts';
@@ -11,7 +26,7 @@ import Routes from './routes';
  */
 
 const Preferences = {
-  // FIXME: remove this once everything has been migrated to `reader.js`.
+  // FIXME(arun): remove this once everything has been migrated to `reader.js`.
   get contentScript() {
     const ls = localStorage.getItem('user-script');
     if (!ls || ls === 'undefined') {
@@ -212,18 +227,31 @@ function switchScript(oldScript, newScript) {
 
 const READER_CONFIG_KEY = 'reader';
 export default () => ({
+  // Text size for body text in the reader.
   fontSize: 'md:text-xl',
+  // Script for Sanskrit text in the reader.
   script: 'devanagari',
+  // How to display parse data to the user.
   parseLayout: 'in-place',
+
+  // (internal-only) Script value as stored on the <select> widget. We store
+  // this separately from `script` since we currently need to know both fields
+  // in order to transliterate.
+  uiScript: null,
 
   init() {
     this.loadSettings();
     switchScript('devanagari', this.script);
 
+    // Sync UI with application state.
+    this.uiScript = this.script;
+
     // Load legacy content.
     Dictionary.init();
     ParseLayer.init();
   },
+
+  // Parse application settings from local storage.
   loadSettings() {
     const settingsStr = localStorage.getItem(READER_CONFIG_KEY);
     if (settingsStr) {
@@ -237,10 +265,12 @@ export default () => ({
         // FIXME: remove this once the migration is complete.
         Preferences.contentScript = settings.script;
       } catch (error) {
-        // console.error(error);
+        console.error(error);
       }
     }
   },
+
+  // Save application settings to local storage.
   saveSettings() {
     const settings = {
       fontSize: this.fontSize,
@@ -249,21 +279,21 @@ export default () => ({
     };
     localStorage.setItem(READER_CONFIG_KEY, JSON.stringify(settings));
   },
+
   setFontSize(value) {
     this.fontSize = value;
     this.saveSettings();
   },
-  setScript(value) {
-    const oldScript = this.script;
-    this.script = value;
+  setScript() {
+    switchScript(this.script, this.uiScript);
+    this.script = this.uiScript;
     this.saveSettings();
+  },
+  setParseLayout() {
+    this.saveSettings();
+  },
 
-    switchScript(oldScript, this.script);
-  },
-  setParseLayout(value) {
-    this.parseLayout = value;
-    this.saveSettings();
-  },
+  // Generic click handler for multiple objects in the reader.
   onClick(e) {
     // word
     const $word = e.target.closest('s-w');
@@ -283,6 +313,8 @@ export default () => ({
       ParseLayer.showParsedBlock($block.id);
     }
   },
+
+  // Show information for a clicked word.
   showWordPanel($word) {
     const lemma = $word.getAttribute('lemma');
     const form = $word.textContent;
