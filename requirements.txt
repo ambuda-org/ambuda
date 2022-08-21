@@ -25,7 +25,7 @@ coverage==6.4.1
 cryptography==37.0.2
 Deprecated==1.2.13
 dnspython==2.2.1
-docutils==0.17.1
+docutils==0.19
 email-validator==1.2.1
 fabric==2.7.0
 Flask==2.1.2
