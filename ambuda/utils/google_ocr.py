@@ -21,7 +21,7 @@ def post_process(text: str) -> str:
         # Danda and double danda
         .replace("||", "॥")
         .replace("|", "।")
-        .replace("।।", "।।")
+        .replace("।।", "॥")
         # Remove curly quotes
         .replace("‘", "'")
         .replace("’", "'")
