@@ -243,7 +243,7 @@ export default () => ({
     this.loadSettings();
     switchScript('devanagari', this.script);
 
-    // Sync UI with application state.
+    // Sync UI with application state. See comments on `uiScript` for details.
     this.uiScript = this.script;
 
     // Load legacy content.
@@ -280,16 +280,9 @@ export default () => ({
     localStorage.setItem(READER_CONFIG_KEY, JSON.stringify(settings));
   },
 
-  setFontSize(value) {
-    this.fontSize = value;
-    this.saveSettings();
-  },
   setScript() {
     switchScript(this.script, this.uiScript);
     this.script = this.uiScript;
-    this.saveSettings();
-  },
-  setParseLayout() {
     this.saveSettings();
   },
 

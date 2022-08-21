@@ -54,7 +54,7 @@ or in their own modal window. #}
 {% macro settings() %}
   <div class="hidden md:inline text-sm border-r px-4">
     <span>Font Size:</span>
-    <select class="p-1" x-model="fontSize" @change="setFontSize">
+    <select class="p-1" x-model="fontSize" @change="saveSettings">
       <option value="md:text-base">Tiny</option>
       <option value="md:text-lg">Small</option>
       <option value="md:text-xl" selected>Medium</option>
@@ -71,7 +71,7 @@ or in their own modal window. #}
   {% if not has_no_parse %}
   <div class="hidden md:inline text-sm border-r px-4">
     <span>Parsed View:</span>
-    <select id="switch-parse-options" class="p-1" x-model="parseLayout" @change="setParseLayout">
+    <select id="switch-parse-options" class="p-1" x-model="parseLayout" @change="saveSettings">
       <option value="in-place" selected>In place</option>
       <option value="side-by-side">Side by side</option>
     </select>
