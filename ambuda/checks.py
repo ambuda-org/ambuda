@@ -14,7 +14,7 @@ from ambuda.models.base import Base
 
 def _warn(text: str = ""):
     """Print a warning message to the terminal."""
-    print(style(text, fg="red"))
+    print(style(text, fg="red"), file=sys.stderr)
 
 
 def _full_column_name(table_name: str, col: str) -> str:
