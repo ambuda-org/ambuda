@@ -72,9 +72,8 @@ EOF
 # Create tables
 python -m scripts.initialize_db
 
-# Add simple lookup tables, since it's easy for a user to miss these later.
-python -m ambuda.seed.lookup.page_status
-python -m ambuda.seed.lookup.role
+# Add some starter data with a few basic seed scripts.
+make db-seed-basic
 
 # Create Alembic's migrations table.
 alembic ensure_version
@@ -90,14 +89,13 @@ SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS
 
 You have successfully installed Ambuda!
 
-To add texts, parse data, and dictionaries to the database, try either of the
-commands below:
+We've added some sample data to start you off. To load all of our texts,
+dictionaries, and parse data into the development environment, you can run:
 
-    # A smaller install with some missing data
-    make db-seed-basic
-
-    # A full install that's larger and slower
     make db-seed-all
+
+(NOTE: the command above will be quite slow, since it must fetch several large
+data files from several different websites.)
 
 To create some sample data for our proofing interface, try the commands below.
 In these commands, arguments in <angle-brackets> must be supplied by you:
