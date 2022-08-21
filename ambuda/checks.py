@@ -120,4 +120,5 @@ def check_app_schema_matches_db_schema(database_uri: str):
             _warn(f"- {error}")
         sys.exit(1)
     else:
-        print("Database check OK")
+        # Style the output to match Flask's styling.
+        print(" * [OK] Ambuda database check has passed.", flush=True)
