@@ -13,7 +13,11 @@ from config import create_config_only_app
 
 
 class TaskStatus:
-    """Helper class to track progress on a task."""
+    """Helper class to track progress on a task.
+
+    - For Celery tasks, use CeleryTaskStatus.
+    - For local usage (unit tests, CLI, ...), use a LocalTaskStatus instead.
+    """
 
     def progress(self, current: int, total: int):
         """Update the task's progress.
