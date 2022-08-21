@@ -1,4 +1,5 @@
 import difflib
+from pathlib import Path
 
 from flask import render_template, flash, current_app, send_file, Blueprint
 from flask_login import login_required, current_user
@@ -13,11 +14,16 @@ from wtforms.widgets import TextArea
 from ambuda import database as db, queries as q
 from ambuda.utils import google_ocr
 from ambuda.views.api import bp as api
-from ambuda.views.proofing.utils import _get_image_filesystem_path
 from ambuda.views.site import bp as site
 
 
 bp = Blueprint("pages", __name__)
+
+
+def _get_image_filesystem_path(project_slug: str, page_slug: str) -> Path:
+    """Get the location of the given image on disk."""
+    image_dir = Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / project_slug
+    return image_dir / "pages" / f"{page_slug}.jpg"
 
 
 class EditException(Exception):

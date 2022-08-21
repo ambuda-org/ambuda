@@ -26,6 +26,11 @@ def test_create_plain_text_block():
     assert pu.create_plain_text_block(lines) == "An example paragraph."
 
 
+def test_create_plain_text_block__verse():
+    lines = ["An", "exam-", "ple", "verse. ॥"]
+    assert pu.create_plain_text_block(lines) == "An\nexam-\nple\nverse. ॥"
+
+
 def test_create_xml_block__paragraph():
     lines = ["An", "exam-", "ple", "paragraph."]
     assert pu.create_xml_block(lines) == "<p>An example paragraph.</p>"
