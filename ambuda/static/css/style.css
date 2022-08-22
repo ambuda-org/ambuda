@@ -35,6 +35,15 @@
     @apply bg-brand text-white hover:bg-slate-200 hover:text-black transition;
   }
 
+  /* Dropdowns (e.g. in proofing editor) */
+  .dropdown-pane {
+    @apply z-50 bg-white border absolute a-hover-underline w-48;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  .dropdown-item {
+    @apply block w-full text-left p-2 hover:bg-slate-100;
+  }
+
   /* Sidebar */
   .h-full-minus-nav {
     /* 4rm is based on the header height+margin in include/header.html. */
@@ -64,6 +73,46 @@
   }
   s-w:hover {
     @apply underline;
+  }
+
+  s-block {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  s-block > div {
+    @apply hidden;
+  }
+  s-block > div.mula {
+    @apply block;
+  }
+
+  /* In place view */
+  .in-place s-block.show-parsed > div.mula {
+    @apply hidden;
+  }
+  .in-place s-block.show-parsed > div.parsed {
+    @apply block;
+  }
+
+  /* Side by side view */
+  .side-by-side s-block.show-parsed > div {
+    @apply block flex-1 min-w-max; /* At smaller widths, verses will wrap */
+  }
+  .side-by-side s-block.show-parsed > div.mula > s-lg {
+    @apply cursor-auto;
+  }
+  .side-by-side #text--content {
+    @apply md:max-w-3xl;
+  }
+
+  .shown-side-by-side {
+    @apply hidden;
+  }
+  .side-by-side .hidden-side-by-side {
+    @apply hidden;
+  }
+  .side-by-side .shown-side-by-side {
+    @apply hidden;
   }
 
   /* Prose context */

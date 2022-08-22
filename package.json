@@ -1,11 +1,15 @@
 {
   "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "@typescript-eslint/parser": "^5.33.1",
+    "esbuild": "^0.15.5",
     "postcss": "^8.4.14",
-    "tailwindcss": "^3.0.24"
+    "tailwindcss": "^3.1.8",
+    "typescript": "^4.7.4"
   },
   "devDependencies": {
     "concurrently": "^7.3.0",
-    "eslint": "^8.17.0",
+    "eslint": "^8.22.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
     "lint": "^1.1.2"

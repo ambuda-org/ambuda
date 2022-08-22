@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
+from pathlib import Path
+
 import click
 import getpass
+from slugify import slugify
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
@@ -9,6 +12,7 @@ import ambuda
 from ambuda import database as db
 from ambuda import queries as q
 from ambuda.seed.utils.itihasa_utils import create_db
+from ambuda.tasks.projects import _create_project_inner, LocalTaskStatus
 
 
 engine = create_db()
@@ -62,12 +66,14 @@ def add_role(username: str, role: str):
         u.roles.append(r)
         session.add(u)
         session.commit()
-    print(f'Added role "{role}" to user "{user}".')
+    print(f'Added role "{role}" to user "{username}".')
 
 
 @cli.command()
-def create_test_project():
-    """Create a test proofing project with 100 pages."""
+@click.argument("title")
+@click.argument("pdf_path")
+def create_project(title, pdf_path):
+    """Create a proofing project from a PDF."""
     current_app = ambuda.create_app("development")
     with current_app.app_context():
         session = q.get_session()
@@ -79,22 +85,19 @@ def create_test_project():
                 "Please create a user first with `create-user`."
             )
 
-        q.create_project(
-            title="Test project", slug="test-project", creator_id=arbitrary_user.id
+        slug = slugify(title)
+        page_image_dir = (
+            Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / slug / "pages"
         )
-        project = q.project("test-project")
-
-        default_status = session.query(db.PageStatus).filter_by(name="reviewed-0").one()
-        for i in range(1, 101):
-            page = db.Page(
-                project_id=project.id,
-                slug=str(i),
-                order=i,
-                status_id=default_status.id,
-            )
-            session.add(page)
-        session.commit()
-    print(f'Created project "test-project".')
+        page_image_dir.mkdir(parents=True, exist_ok=True)
+        _create_project_inner(
+            title=title,
+            pdf_path=pdf_path,
+            output_dir=str(page_image_dir),
+            app_environment=current_app.config["AMBUDA_ENVIRONMENT"],
+            creator_id=arbitrary_user.id,
+            task_status=LocalTaskStatus(),
+        )
 
 
 if __name__ == "__main__":

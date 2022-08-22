@@ -80,11 +80,11 @@ scripts** that fetch the data we need from the Internet.
 Running all of the Ambuda seed scripts can be quite slow. For basic dev tasks,
 we recomemnd running just a basic subset of them::
 
-    make db_seed_basic
+    make db-seed-basic
 
 If you want to install everything and are willing to wait, you can run::
 
-    make db_seed_all
+    make db-seed-all
 
 .. note::
 
