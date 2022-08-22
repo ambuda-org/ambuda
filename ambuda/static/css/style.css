@@ -101,7 +101,7 @@
   .side-by-side s-block.show-parsed > div.mula > s-lg {
     @apply cursor-auto;
   }
-  .side-by-side #text--content {
+  .side-by-side#text--content {
     @apply md:max-w-3xl;
   }
 
