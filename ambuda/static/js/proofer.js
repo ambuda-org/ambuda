@@ -41,12 +41,12 @@ function initializeImageViewer(imageURL) {
 
 export default () => ({
   // Settings
-  isRunningOCR: false,
   textZoom: 1,
   imageZoom: null,
   layout: 'side-by-side',
 
   // Internal-only
+  isRunningOCR: false,
   hasUnsavedChanges: false,
   imageViewer: null,
 

@@ -97,7 +97,10 @@ js-prod:
 	npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --minify
 
 js-test:
-	npx jest test/js
+	npx jest
+
+js-coverage:
+	npx jest --coverage --collectCoverageFrom="./ambuda/src/js/**"
 
 # Lint our JavaScript code.
 # FIXME(arun): typescript lint

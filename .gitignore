@@ -7,7 +7,7 @@ data/
 docs/_build
 gen/
 htmlcov/
-js-coverage/
+js-coverage-report/
 __pycache__
 
 # Python and Node dependencies
