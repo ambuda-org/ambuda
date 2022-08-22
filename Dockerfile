@@ -14,18 +14,4 @@ RUN pip install -r requirements.txt
 COPY ./package* ./
 RUN npm ci
 
-COPY . .
-
-# Database setup
-# ==============
-
-# Create tables
-RUN python -m scripts.initialize_db
-
-# Create Alembic's migrations table.
-RUN alembic ensure_version
-
-# Set the most recent revision as the current one.
-RUN alembic stamp head
-
 CMD ["make", "devserver"]
