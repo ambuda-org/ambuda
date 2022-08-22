@@ -35,6 +35,11 @@ PRODUCTION = "production"
 
 
 def _make_path(path: Path):
+    """Create a path if it doesn't exist already.
+
+    If possible, avoid using this function so that our config code has fewer
+    side effects. Currently, we use this function only to set up unit tests.
+    """
     path.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -42,7 +47,8 @@ def _make_path(path: Path):
 def _env(key: str, default=None) -> Optional[str]:
     """Fetch a value from the local environment.
 
-    :param key: the envvar to fetch
+    :param key: the environment variable to fetch
+    :return: a value, or ``None`` if the variable is undefined.
     """
     return os.environ.get(key, default)
 
