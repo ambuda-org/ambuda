@@ -17,6 +17,7 @@ from sqlalchemy import exc
 import config
 from ambuda import auth as auth_manager
 from ambuda import admin as admin_manager
+from ambuda import checks
 from ambuda import database
 from ambuda import filters
 from ambuda import queries
@@ -73,6 +74,10 @@ def create_app(config_env: str):
     load_dotenv(".env")
     config_spec = config.load_config_object(config_env)
 
+    # Sanity checks
+    if config_env != config.TESTING:
+        checks.check_app_schema_matches_db_schema(config_spec.SQLALCHEMY_DATABASE_URI)
+
     # Initialize Sentry monitoring only in production so that our Sentry page
     # contains only production warnings (as opposed to dev warnings).
     #
@@ -118,5 +123,12 @@ def create_app(config_env: str):
             "time_ago": filters.time_ago,
         }
     )
+
+    @app.after_request
+    def add_security_headers(resp):
+        resp.headers[
+            "Content-Security-Policy"
+        ] = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com https://plausible.io; frame-src https://www.google.com; img-src 'self' data:;"
+        return resp
 
     return app

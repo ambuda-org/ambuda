@@ -3,20 +3,41 @@
 # Exit if any step in this install script fails.
 set -e
 
+if [ -f data ] || [ -f env ] || [ -f node_modules ] || [ -f .env ] || [ -f database.db ]; then
+cat << "EOF"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some of the files in your directory were created during a previous install. To
+ensure that you have a clean install, this script will delete the following
+files and directories, if they exist:
+
+- database.db
+- .env
+- data/
+- env/
+- node_modules/
+
+EOF
+    python3 -c "exit(0) if input('Are you sure you want to continue? (y/n): ') == 'y' else exit(1)"
+
+    echo "Cleaning up old state ..."
+    rm -Rf .env database.db data/ env/ node_modules/
+fi
+
+
 echo "Beginning clean install of Ambuda."
 
 
-# JavaScript dependencies
-# =======================
-
-# Clean up any existing state so that we can do a clean install.
-rm -Rf env/ node_modules/
+# Frontend dependencies
+# =====================
 
 # Install Node dependencies.
 npm install
 
-# Build initial Tailwind CSS
-npx tailwindcss -i ./ambuda/static/css/style.css -o ambuda/static/gen/style.css --minify
+# Build initial CSS and JavaScript.
+make css-prod js-prod
 
 
 # Python dependencies
@@ -38,6 +59,7 @@ cat << EOF > .env
 
 FLASK_ENV=development
 FLASK_UPLOAD_FOLDER="$(pwd)/data/file-uploads"
+SECRET_KEY="insecure development secret key"
 SQLALCHEMY_DATABASE_URI="sqlite:///database.db"
 
 GOOGLE_APPLICATION_CREDENTIALS="<Google API credentials>"
@@ -49,6 +71,9 @@ EOF
 
 # Create tables
 python -m scripts.initialize_db
+
+# Add some starter data with a few basic seed scripts.
+make db-seed-basic
 
 # Create Alembic's migrations table.
 alembic ensure_version
@@ -62,8 +87,24 @@ cat << "EOF"
 SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS SUCCESS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You have successfully installed Ambuda! To start the development server, run
-the following commands:
+You have successfully installed Ambuda!
+
+We've added some sample data to start you off. To load all of our texts,
+dictionaries, and parse data into the development environment, you can run:
+
+    make db-seed-all
+
+(NOTE: the command above will be quite slow, since it must fetch several large
+data files from several different websites.)
+
+To create some sample data for our proofing interface, try the commands below.
+In these commands, arguments in <angle-brackets> must be supplied by you:
+
+    ./cli.py create-user
+    ./cli.py add-role <username> admin
+    ./cli.py create-project <project-title> <path-to-project-pdf>
+
+To start the development server, run the following commands:
 
     # This command works on Bash. You might need to change this command for
     # other shells.
@@ -71,14 +112,6 @@ the following commands:
 
     # Run the devserver.
     make devserver
-
-To add data to the database, try either of the commands below:
-
-    # A smaller install with some missing data
-    make db-seed-basic
-
-    # A full install that's larger and slower
-    make db-seed-all
 
 For help, join our Discord: https://discord.gg/7rGdTyWY7Z
 

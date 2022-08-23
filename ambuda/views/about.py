@@ -43,6 +43,12 @@ def name():
 def contact():
     return render_template("about/contact.html")
 
+
 @bp.route("/privacy")
 def privacy():
     return render_template("about/privacy.html")
+
+
+@bp.route("/terms")
+def terms():
+    return render_template("about/terms.html")
