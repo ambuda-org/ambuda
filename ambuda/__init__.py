@@ -124,4 +124,11 @@ def create_app(config_env: str):
         }
     )
 
+    @app.after_request
+    def add_security_headers(resp):
+        resp.headers[
+            "Content-Security-Policy"
+        ] = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com https://plausible.io; frame-src https://www.google.com; img-src 'self' data:;"
+        return resp
+
     return app
