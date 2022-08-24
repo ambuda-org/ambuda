@@ -98,8 +98,8 @@ js-prod:
 
 # Lint our JavaScript code.
 # FIXME(arun): typescript lint
-js-lint:
-	npx eslint --fix ambuda/static/js/*.js
+js-lint: js-check-types
+	npx eslint --fix ambuda/static/js/* --ext .js,.ts
 
 # Check our JavaScript code for type consistency.
 js-check-types:

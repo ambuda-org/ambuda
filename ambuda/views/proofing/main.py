@@ -1,30 +1,22 @@
 """Views for basic site pages."""
 
-from datetime import datetime
 from pathlib import Path
 
-from celery.result import AsyncResult
 from flask import (
     Blueprint,
-    abort,
     current_app,
     flash,
     render_template,
-    redirect,
-    request,
-    url_for,
 )
 from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from slugify import slugify
-from werkzeug.utils import secure_filename
 from wtforms import StringField, FileField
 from wtforms.validators import DataRequired
 
 import ambuda.queries as q
 from ambuda import database as db
 from ambuda.tasks import projects as project_tasks
-from ambuda.views.proofing.utils import _get_image_filesystem_path
 
 
 bp = Blueprint("proofing", __name__)

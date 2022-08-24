@@ -14,6 +14,22 @@ from google.protobuf.json_format import MessageToDict
 from google.cloud.vision_v1 import AnnotateImageResponse
 
 
+def post_process(text: str) -> str:
+    """Post process OCR text."""
+    return (
+        text
+        # Danda and double danda
+        .replace("||", "॥")
+        .replace("|", "।")
+        .replace("।।", "॥")
+        # Remove curly quotes
+        .replace("‘", "'")
+        .replace("’", "'")
+        .replace("“", '"')
+        .replace("”", '"')
+    )
+
+
 def prepare_image(file_path):
     with io.open(file_path, "rb") as file_path:
         content = file_path.read()
@@ -68,4 +84,4 @@ def full_text_annotation(file_path):
                         # Clean end of region.
                         elif break_type == 5:
                             buf.append("\n\n")
-    return "".join(buf)
+    return post_process("".join(buf))
