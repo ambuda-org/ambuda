@@ -132,7 +132,10 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
           class="bg-zinc-800 text-white p-2 rounded-tr rounded-br"></input>
         </div>
         <select id="dict--version" name="version"
-            class="text-sm bg-white lg:bg-zinc-100 text-zinc-400 hover:text-zinc-800 p-1">
+            class="text-sm bg-white lg:bg-zinc-100 text-zinc-400 hover:text-zinc-800 p-1"
+            x-model="dictVersion"
+            @change="dictSubmitForm(this.script)"
+            >
           {% include "include/dict-options.html" %}
         </select>
       </form>

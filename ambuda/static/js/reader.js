@@ -25,34 +25,6 @@ import Routes from './routes';
  * Future PRs will migrate this code to Alpine.
  */
 
-const Preferences = {
-  // FIXME(arun): remove this once everything has been migrated to `reader.js`.
-  get contentScript() {
-    const ls = localStorage.getItem('user-script');
-    if (!ls || ls === 'undefined') {
-      return 'devanagari';
-    }
-    return ls;
-  },
-  set contentScript(value) {
-    if (value) {
-      localStorage.setItem('user-script', value);
-    }
-  },
-
-  get dictVersion() {
-    const val = localStorage.getItem('dict-version');
-    if (!val || val === 'undefined') {
-      // MW for now because of Apte coverage issues.
-      return 'mw';
-    }
-    return val;
-  },
-  set dictVersion(value) {
-    localStorage.setItem('dict-version', value);
-  },
-};
-
 const Sidebar = {
   toggle() {
     const classes = $('#sidebar').classList;
@@ -69,9 +41,9 @@ const Sidebar = {
       this.toggle();
     }
   },
-  setCurrentWord(form, lemma, parse) {
-    const niceForm = Sanscript.t(form, 'slp1', Preferences.contentScript);
-    const niceLemma = Sanscript.t(lemma, 'slp1', Preferences.contentScript);
+  setCurrentWord(form, lemma, parse, contentScript) {
+    const niceForm = Sanscript.t(form, 'slp1', contentScript);
+    const niceLemma = Sanscript.t(lemma, 'slp1', contentScript);
     const html = `
     <header>
       <h1 class="text-xl" lang="sa">${niceForm}</h1>
@@ -90,7 +62,7 @@ const Sidebar = {
 // Dictionary
 
 const Dictionary = (() => {
-  function fetch(version, query, callback) {
+  function fetch(version, query, contentScript, callback) {
     $('#dict--form input[name=q]').value = query;
 
     const url = Routes.ajaxDictionaryQuery(version, query);
@@ -98,7 +70,7 @@ const Dictionary = (() => {
     Server.getText(
       url,
       (resp) => {
-        $container.innerHTML = transliterateHTMLString(resp, Preferences.contentScript);
+        $container.innerHTML = transliterateHTMLString(resp, contentScript);
         if (callback) {
           callback();
         }
@@ -110,7 +82,7 @@ const Dictionary = (() => {
   }
 
   // Submit the form using the current form state.
-  function submitForm() {
+  function submitForm(contentScript) {
     const $form = $('#dict--form');
     const query = $form.querySelector('input[name=q]').value;
     const version = $form.querySelector('select[name=version]').value;
@@ -119,7 +91,7 @@ const Dictionary = (() => {
       return;
     }
 
-    fetch(version, query, () => {
+    fetch(version, query, contentScript, () => {
       // FIXME: remove "startsWith" hack and move this to Dictionaries page.
       if (window.location.pathname.startsWith('/tools/dict')) {
         window.history.replaceState({}, '', Routes.dictionaryQuery(version, query));
@@ -127,24 +99,17 @@ const Dictionary = (() => {
     });
   }
 
-  function init() {
+  function init(contentScript) {
     const $dictForm = $('#dict--form');
     if ($dictForm) {
       $dictForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        submitForm();
+        submitForm(contentScript);
       });
-
-      const $dictVersion = $('#dict--version');
-      $dictVersion.addEventListener('change', (e) => {
-        Preferences.dictVersion = e.target.value;
-        submitForm();
-      });
-      $dictVersion.value = Preferences.dictVersion;
     }
   }
 
-  return { init, fetch };
+  return { init, fetch, submitForm };
 })();
 
 const ParseLayer = (() => {
@@ -153,7 +118,7 @@ const ParseLayer = (() => {
     return blockID.split('.').slice(1).join('.');
   }
 
-  function showParsedBlock(blockID) {
+  function showParsedBlock(blockID, contentScript) {
     const blockSlug = getBlockSlug(blockID);
     const $container = $('#parse--response');
     const textSlug = Routes.getTextSlug();
@@ -174,7 +139,7 @@ const ParseLayer = (() => {
       (resp) => {
         const parsedNode = document.createElement('div');
         parsedNode.classList.add('parsed');
-        parsedNode.innerHTML = transliterateSanskritBlob(resp, Preferences.contentScript);
+        parsedNode.innerHTML = transliterateSanskritBlob(resp, contentScript);
         $block.appendChild(parsedNode);
 
         const link = document.createElement('a');
@@ -193,22 +158,7 @@ const ParseLayer = (() => {
     );
   }
 
-  function init() {
-    const $container = $('#parse--response');
-    if ($container) {
-      $container.addEventListener('click', (e) => {
-        e.preventDefault();
-        const link = e.target.closest('a');
-
-        const $form = $('#dict--form');
-        const query = link.textContent.trim();
-        const version = $form.querySelector('select[name=version]').value;
-        Dictionary.fetch(version, query);
-      });
-    }
-  }
-
-  return { init, showParsedBlock, getBlockSlug };
+  return { showParsedBlock, getBlockSlug };
 })();
 
 /* Alpine code
@@ -233,6 +183,8 @@ export default () => ({
   script: 'devanagari',
   // How to display parse data to the user.
   parseLayout: 'in-place',
+  // The dictionary version to use.
+  dictVersion: 'mw',
 
   // (internal-only) Script value as stored on the <select> widget. We store
   // this separately from `script` since we currently need to know both fields
@@ -247,8 +199,7 @@ export default () => ({
     this.uiScript = this.script;
 
     // Load legacy content.
-    Dictionary.init();
-    ParseLayer.init();
+    Dictionary.init(this.script);
   },
 
   // Parse application settings from local storage.
@@ -260,10 +211,7 @@ export default () => ({
         this.fontSize = settings.fontSize || this.fontSize;
         this.script = settings.script || this.script;
         this.parseLayout = settings.parseLayout || this.parseLayout;
-
-        // To support legacy code.
-        // FIXME: remove this once the migration is complete.
-        Preferences.contentScript = settings.script;
+        this.dictVersion = settings.dictVersion || this.dictVersion;
       } catch (error) {
         console.error(error);
       }
@@ -276,6 +224,7 @@ export default () => ({
       fontSize: this.fontSize,
       script: this.script,
       parseLayout: this.parseLayout,
+      dictVersion: this.dictVersion,
     };
     localStorage.setItem(READER_CONFIG_KEY, JSON.stringify(settings));
   },
@@ -303,7 +252,7 @@ export default () => ({
     // block
     const $block = e.target.closest('s-block');
     if ($block) {
-      ParseLayer.showParsedBlock($block.id);
+      ParseLayer.showParsedBlock($block.id, this.script);
     }
   },
 
@@ -313,11 +262,9 @@ export default () => ({
     const form = $word.textContent;
     const parse = $word.getAttribute('parse');
 
-    const version = Preferences.dictVersion;
     const query = Sanscript.t(lemma, 'slp1', this.script);
-
-    Dictionary.fetch(version, query, () => {
-      Sidebar.setCurrentWord(form, lemma, parse);
+    Dictionary.fetch(this.dictVersion, query, this.script, () => {
+      Sidebar.setCurrentWord(form, lemma, parse, this.script);
       Sidebar.show();
     });
   },
@@ -326,4 +273,7 @@ export default () => ({
   hideSidebar() {
     Sidebar.hide();
   },
+  dictSubmitForm() {
+    Dictionary.submitForm(this.script);
+  }
 });
