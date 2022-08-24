@@ -111,11 +111,11 @@
           <div>
             <button
                 type="button"
-                class="p-2 hover:bg-slate-300"
+                class="btn bg-sky-700 text-white m-2 hover:bg-sky-900"
                 @click="runOCR"
                 :disabled="isRunningOCR"
-                x-text="isRunningOCR ? '...' : 'OCR'">
-              OCR
+                x-text="isRunningOCR ? 'Running ...' : 'Run OCR'">
+              Run OCR
             </button>
           </div>
           <div>
