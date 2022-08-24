@@ -65,17 +65,7 @@ const Dictionary = (() => {
     });
   }
 
-  function init(contentScript) {
-    const $dictForm = $('#dict--form');
-    if ($dictForm) {
-      $dictForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        submitForm(contentScript);
-      });
-    }
-  }
-
-  return { init, fetch, submitForm };
+  return { fetch, submitForm };
 })();
 
 const ParseLayer = (() => {
@@ -172,9 +162,6 @@ export default () => ({
 
     // Allow sidebar to be shown.
     $('#sidebar').classList.remove('hidden');
-
-    // Load legacy content.
-    Dictionary.init(this.script);
   },
 
   // Parse application settings from local storage.
