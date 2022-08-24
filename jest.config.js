@@ -4,20 +4,25 @@
  */
 
 module.exports = {
+  collectCoverageFrom: [
+    "ambuda/static/js/*.{js,ts}",
+  ],
   // Indicates whether the coverage information should be collected while executing the test
   coverageDirectory: "js-coverage-report",
-  // Use '@' to refer to the root folder that contains all source modules. 
+  coverageThreshold: {
+    global: {
+      statements: 20,
+      branches: 20,
+      functions: 20,
+      lines: 20,
+    }
+  },
+  // Use '@' to refer to the root folder that contains all source modules.
   moduleNameMapper: {
     "^@/(.*)": "<rootDir>/ambuda/static/js/$1",
   },
   roots: [
-  	"<rootDir>/test/js/",
+    "<rootDir>/test/js/",
   ],
   testEnvironment: "jsdom",
-  // Build all test code with esbuild, for consistency with prod.
-  transform: {
-    "\\.[jt]s$": [
-      "<rootDir>/test/TransformerEsbuild.js",
-    ],
-  },
 };

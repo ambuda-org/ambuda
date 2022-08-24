@@ -100,7 +100,7 @@ js-test:
 	npx jest
 
 js-coverage:
-	npx jest --coverage --collectCoverageFrom="./ambuda/src/js/**"
+	npx jest --coverage
 
 # Lint our JavaScript code.
 # FIXME(arun): typescript lint
