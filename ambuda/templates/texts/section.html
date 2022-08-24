@@ -118,10 +118,11 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
     bg-slate-100 text-sm border-t
     md:text-base lg:border-t-0 lg:bg-white
     lg:sticky lg:top-10 lg:max-w-lg lg:h-full-minus-nav lg:mr-8 lg:pl-8 lg:border-l
-    lg:z-0">
+    lg:z-0"
+    x-show="showSidebar">
   <div>
     <div>
-      <button class="block text-2xl p-2" @click="hideSidebar">&times;</button>
+      <button class="block text-2xl p-2" @click="showSidebar = false">&times;</button>
       <div id="parse--response" class="text-sm"></div>
 
       <form id="dict--form" class="mb-4" @submit.prevent="searchDictionary">

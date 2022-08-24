@@ -25,40 +25,6 @@ import Routes from './routes';
  * Future PRs will migrate this code to Alpine.
  */
 
-const Sidebar = {
-  toggle() {
-    const classes = $('#sidebar').classList;
-    classes.toggle('block');
-    classes.toggle('hidden');
-  },
-  show() {
-    if ($('#sidebar').classList.contains('hidden')) {
-      this.toggle();
-    }
-  },
-  hide() {
-    if (!$('#sidebar').classList.contains('hidden')) {
-      this.toggle();
-    }
-  },
-  setCurrentWord(form, lemma, parse, contentScript) {
-    const niceForm = Sanscript.t(form, 'slp1', contentScript);
-    const niceLemma = Sanscript.t(lemma, 'slp1', contentScript);
-    const html = `
-    <header>
-      <h1 class="text-xl" lang="sa">${niceForm}</h1>
-      <p class="mb-8"><span lang="sa">${niceLemma}</span> ${parse}</p>
-    </header>`;
-    $('#parse--response').innerHTML = html;
-  },
-  transliterate(from, to) {
-    const $content = $('#sidebar');
-    if ($content) {
-      transliterateElement($content, from, to);
-    }
-  },
-};
-
 // Dictionary
 
 const Dictionary = (() => {
@@ -118,7 +84,7 @@ const ParseLayer = (() => {
     return blockID.split('.').slice(1).join('.');
   }
 
-  function showParsedBlock(blockID, contentScript) {
+  function showParsedBlock(blockID, contentScript, callback) {
     const blockSlug = getBlockSlug(blockID);
     const $container = $('#parse--response');
     const textSlug = Routes.getTextSlug();
@@ -153,7 +119,7 @@ const ParseLayer = (() => {
       () => {
         $block.classList.remove('has-parsed');
         $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
-        Sidebar.show();
+        callback();
       },
     );
   }
@@ -171,8 +137,10 @@ function switchScript(oldScript, newScript) {
   if ($textContent) {
     transliterateElement($textContent, oldScript, newScript);
   }
-
-  Sidebar.transliterate(oldScript, newScript);
+  const $content = $('#sidebar');
+  if ($content) {
+    transliterateElement($content, oldScript, newScript);
+  }
 }
 
 const READER_CONFIG_KEY = 'reader';
@@ -186,10 +154,14 @@ export default () => ({
   // The dictionary version to use.
   dictVersion: 'mw',
 
-  // (internal-only) Script value as stored on the <select> widget. We store
-  // this separately from `script` since we currently need to know both fields
-  // in order to transliterate.
+  // (internal-only)
+  // Script value as stored on the <select> widget. We store this separately
+  // from `script` since we currently need to know both fields in order to
+  // transliterate.
   uiScript: null,
+  // (internal-only)
+  // If true, show the sidebar.
+  showSidebar: false,
 
   init() {
     this.loadSettings();
@@ -197,6 +169,9 @@ export default () => ({
 
     // Sync UI with application state. See comments on `uiScript` for details.
     this.uiScript = this.script;
+
+    // Allow sidebar to be shown.
+    $('#sidebar').classList.remove('hidden');
 
     // Load legacy content.
     Dictionary.init(this.script);
@@ -252,7 +227,9 @@ export default () => ({
     // block
     const $block = e.target.closest('s-block');
     if ($block) {
-      ParseLayer.showParsedBlock($block.id, this.script);
+      ParseLayer.showParsedBlock($block.id, this.script, () => {
+        this.showSidebar = true;
+      });
     }
   },
 
@@ -261,18 +238,26 @@ export default () => ({
     const lemma = $word.getAttribute('lemma');
     const form = $word.textContent;
     const parse = $word.getAttribute('parse');
-
     const query = Sanscript.t(lemma, 'slp1', this.script);
+
     Dictionary.fetch(this.dictVersion, query, this.script, () => {
-      Sidebar.setCurrentWord(form, lemma, parse, this.script);
-      Sidebar.show();
+      this.setSidebarWord(form, lemma, parse);
+      this.showSidebar = true;
     });
   },
 
-  // legacy bindings
-  hideSidebar() {
-    Sidebar.hide();
+  setSidebarWord(form, lemma, parse) {
+    const niceForm = Sanscript.t(form, 'slp1', this.script);
+    const niceLemma = Sanscript.t(lemma, 'slp1', this.script);
+    const html = `
+    <header>
+      <h1 class="text-xl" lang="sa">${niceForm}</h1>
+      <p class="mb-8"><span lang="sa">${niceLemma}</span> ${parse}</p>
+    </header>`;
+    $('#parse--response').innerHTML = html;
   },
+
+
   dictSubmitForm() {
     Dictionary.submitForm(this.script);
   }
