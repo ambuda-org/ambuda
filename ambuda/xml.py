@@ -25,10 +25,13 @@ or pre-build common requests.
 """
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Callable, NewType, Optional
 from xml.etree import ElementTree as ET
 
 from indic_transliteration import sanscript
+
+
+Attributes = NewType("Attributes", dict[str, str])
 
 
 @dataclass
@@ -38,8 +41,9 @@ class Rule:
 
     #: The tag to apply to this element.
     tag: str
-    #: Attributes to apply to this element.
-    attrib: dict
+    #: Function that transforms the element's existing attributes into our
+    #: desired format.
+    attrib_fn: Callable
     #: Text to insert before this element's `text` field.
     text_before: str
     #: Text to insert after this element's `tail` field.
@@ -47,7 +51,7 @@ class Rule:
 
     def __call__(self, el: ET.Element):
         el.tag = self.tag
-        el.attrib = self.attrib
+        el.attrib = self.attrib_fn(el.attrib)
         if self.text_before:
             el.text = self.text_before + (el.text or "")
         if self.text_after:
@@ -55,6 +59,31 @@ class Rule:
                 el[-1].tail = (el.tail or "") + self.text_after
             else:
                 el.text = (el.text or "") + self.text_after
+
+
+def _overwrite(new_attrib: Attributes) -> Callable:
+    """Remove the element's existing attributes and use `new_attrib` instead."""
+
+    def inner(_: Attributes) -> Attributes:
+        return new_attrib
+
+    return inner
+
+
+def _rename(mapping: dict[str, str]) -> Callable:
+    """Rename the element's existing attributes.
+
+    Attributes not defined in the mapping are removed from the output.
+    """
+
+    def inner(old_attrib: Attributes) -> Attributes:
+        new_attrib = {}
+        for k, v in mapping.items():
+            if k in old_attrib:
+                new_attrib[v] = old_attrib[k]
+        return new_attrib
+
+    return inner
 
 
 @dataclass
@@ -72,12 +101,12 @@ def _delete(xml: ET.Element):
 
 def elem(tag, attrib=None, text_before="", text_after="") -> Rule:
     """Helper to rename an element and change its attributes."""
-    return Rule(tag, attrib or {}, text_before, text_after)
+    return Rule(tag, _overwrite(attrib or {}), text_before, text_after)
 
 
 def text(before="", after="") -> Rule:
     """Replace an element with plain text."""
-    return Rule(None, {}, before, after)
+    return Rule(None, _overwrite({}), before, after)
 
 
 def sanskrit_text(xml: ET.Element):
@@ -94,9 +123,9 @@ def sanskrit_text(xml: ET.Element):
 
 
 #: Wrap in parentheses.
-paren_rule = Rule("span", {"class": "paren"}, "(", ")")
+paren_rule = elem("span", {"class": "paren"}, "(", ")")
 #: Wrap in brackets.
-bracket_rule = Rule("span", {"class": "paren"}, "[", "]")
+bracket_rule = elem("span", {"class": "paren"}, "[", "]")
 
 
 # Tag meanings are documented here:
