@@ -150,7 +150,10 @@ export default () => ({
     // sidebar doesn't display while JS is loading. Alpine's show/hide seems
     // not to work if the element has this class hidden, which is why we don't
     // just use "this.showSidebar = true" here.)
-    $('#sidebar').classList.remove('hidden');
+    const $sidebar = $('#sidebar');
+    if ($sidebar) {
+      $sidebar.classList.remove('hidden');
+    }
   },
 
   // Parse application settings from local storage.
