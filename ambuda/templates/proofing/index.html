@@ -57,7 +57,7 @@
 {% for p in projects %}
 <li>
   <div class="mt-4 a-hover-underline flex justify-between items-baseline">
-    <a href="{{ url_for("proofing.projects.summary", slug=p.slug) }}">{{ p.title }}</a>
+    <a href="{{ url_for("proofing.project.summary", slug=p.slug) }}">{{ p.title }}</a>
     <span class="text-xs">({{ all_page_counts[p.slug] }} pages)</span>
   </div>
 

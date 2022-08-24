@@ -1,4 +1,4 @@
-from . import main, pages, projects, tagging, talk, users
+from . import main, page, project, tagging, talk, users
 
 
 __all__ = ["bp"]

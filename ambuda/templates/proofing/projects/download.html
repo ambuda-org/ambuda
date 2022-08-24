@@ -15,8 +15,8 @@
   you.</p>
 
 <ul class="my-4 pb-4">
-  <li><a href="{{ url_for("proofing.projects.download_as_text", slug=project.slug) }}">Download as plain text</a></li>
-  <li><a href="{{ url_for("proofing.projects.download_as_xml", slug=project.slug) }}">Download as TEI XML</a></li>
+  <li><a href="{{ url_for("proofing.project.download_as_text", slug=project.slug) }}">Download as plain text</a></li>
+  <li><a href="{{ url_for("proofing.project.download_as_xml", slug=project.slug) }}">Download as TEI XML</a></li>
 </ul>
 
 </div>

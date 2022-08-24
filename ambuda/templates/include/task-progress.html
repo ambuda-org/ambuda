@@ -22,7 +22,7 @@
 {% elif status == 'SUCCESS' %}
   {{ progress_bar(100) }}
   {% if slug %}
-    <p>Upload complete. <a href="{{ url_for('proofing.projects.summary',
+    <p>Upload complete. <a href="{{ url_for('proofing.project.summary',
       slug=slug) }}">Click here</a> to view your new project.</p>
   {% else %}
     <p>Upload complete. Your project will be available on the <a href="{{
