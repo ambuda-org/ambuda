@@ -70,7 +70,7 @@ def _overwrite(new_attrib: Attributes) -> Callable:
     return inner
 
 
-def _rename(mapping: Attributes) -> Callable:
+def _rename(mapping: dict[str, str]) -> Callable:
     """Rename the element's existing attributes.
 
     Attributes not defined in the mapping are removed from the output.
