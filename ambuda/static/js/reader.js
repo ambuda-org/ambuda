@@ -229,9 +229,8 @@ export default () => ({
     $('#parse--response').innerHTML = html;
   },
 
-
   dictSubmitForm() {
     if (!this.dictQuery) return;
     Dictionary.fetch(this.dictVersion, this.dictQuery, this.script);
-  }
+  },
 });
