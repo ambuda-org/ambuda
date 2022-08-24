@@ -128,7 +128,9 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
       <form id="dict--form" class="mb-4" @submit.prevent="dictSubmitForm">
         <div class="flex mb-2 hidden lg:block">
           <input name="q" type="text" placeholder="राम, ರಾಮ, ma, rAma, ..."
-          class="p-2 flex-1 bg-zinc-100 rounded-tl rounded-bl"></input>
+              class="p-2 flex-1 bg-zinc-100 rounded-tl rounded-bl"
+              x-model="dictQuery"
+              ></input>
           <input type="submit" value="Search"
           class="bg-zinc-800 text-white p-2 rounded-tr rounded-br"></input>
         </div>

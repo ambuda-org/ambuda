@@ -47,25 +47,7 @@ const Dictionary = (() => {
     );
   }
 
-  // Submit the form using the current form state.
-  function submitForm(contentScript) {
-    const $form = $('#dict--form');
-    const query = $form.querySelector('input[name=q]').value;
-    const version = $form.querySelector('select[name=version]').value;
-
-    if (!query) {
-      return;
-    }
-
-    fetch(version, query, contentScript, () => {
-      // FIXME: remove "startsWith" hack and move this to Dictionaries page.
-      if (window.location.pathname.startsWith('/tools/dict')) {
-        window.history.replaceState({}, '', Routes.dictionaryQuery(version, query));
-      }
-    });
-  }
-
-  return { fetch, submitForm };
+  return { fetch };
 })();
 
 const ParseLayer = (() => {
@@ -144,12 +126,15 @@ export default () => ({
   // The dictionary version to use.
   dictVersion: 'mw',
 
-  // (internal-only)
+  // (transient data)
+
   // Script value as stored on the <select> widget. We store this separately
   // from `script` since we currently need to know both fields in order to
   // transliterate.
   uiScript: null,
-  // (internal-only)
+  // Text in the dictionary search field. This field is visible only on wide
+  // screens.
+  dictQuery: '',
   // If true, show the sidebar.
   showSidebar: false,
 
@@ -246,6 +231,7 @@ export default () => ({
 
 
   dictSubmitForm() {
-    Dictionary.submitForm(this.script);
+    if (!this.dictQuery) return;
+    Dictionary.fetch(this.dictVersion, this.dictQuery, this.script);
   }
 });
