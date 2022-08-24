@@ -28,7 +28,7 @@ from ambuda.views.api import bp as api
 from ambuda.views.dictionaries import bp as dictionaries
 from ambuda.views.proofing import bp as proofing
 from ambuda.views.proofing.tagging import bp as tagging
-from ambuda.views.reader.cheda import bp as parses
+from ambuda.views.reader.parses import bp as parses
 from ambuda.views.reader.texts import bp as texts
 from ambuda.views.site import bp as site
 
