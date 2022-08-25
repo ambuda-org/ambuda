@@ -26,18 +26,6 @@
 {% endmacro %}
 
 
-{# Render an authenticated_related form field. #}
-{% macro auth_field(f) %}
-<div class="mb-6">
-  {{ f.label(class_="block text-slate-800 mb-2") }}
-  {{ f(class_="p-2 block w-full") }}
-</div>
-{% endmacro %}
-
-
-{% macro _markdown_desc() %}
-{% endmacro %}
-
 {# Render a markdown text box. #}
 {% macro markdown_field(field) %}
 <div>
@@ -49,3 +37,31 @@
   </p>
 </div>
 {% endmacro %}
+
+
+{# Label for an auth field. #}
+{% macro auth_label(field) %}
+{{ field.label(class_="block text-slate-600") }}
+{% endmacro %}
+
+
+{# Main input for an auth field. #}
+{% macro auth_input(field) %}
+{{ field(class_="w-full p-2 mt-2 border rounded") }}
+{% endmacro %}
+
+
+{% macro auth_submit(text) %}
+<input type="submit" class="btn text-white bg-brand w-full" value="{{ text }}" />
+{% endmacro %}
+
+
+{# Render an authenticated_related form field. #}
+{% macro auth_field(field) %}
+<div class="mb-4">
+  {{ auth_label(field) }}
+  {{ auth_input(field) }}
+</div>
+{% endmacro %}
+
+

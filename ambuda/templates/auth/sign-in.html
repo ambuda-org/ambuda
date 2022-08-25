@@ -6,7 +6,7 @@
 {% block title %}Sign in | Ambuda{% endblock %}
 
 
-{% set forgot = url_for('auth.recover') %}
+{% set forgot = url_for('auth.get_reset_password_token') %}
 {% block content %}
 
 {{ mf.show_errors_if_any(form.errors) }}
@@ -16,15 +16,17 @@
   <h1 class="text-2xl font-bold text-center mb-8">Sign in to Ambuda</h1>
 
   {{ form.csrf_token }}
-  {{ form.username.label(class_="block text-slate-600") }}
-  {{ form.username(class_="w-full p-2 mt-2 mb-4 border rounded") }}
+  {{ mf.auth_field(form.username) }}
+
+  <div class="mb-4">
   <div class="flex justify-between items-center">
-  {{ form.password.label(class_="block text-slate-600") }}
+  {{ mf.auth_label(form.password) }}
   <a class="hover:underline font-bold text-sm text-slate-500" href="{{ forgot }}">Forgot password?</a>
   </div>
-  {{ form.password(class_="w-full p-2 mt-2 mb-4 border rounded") }}
+  {{ mf.auth_input(form.password) }}
+  </div>
 
-  <input type="submit" class="btn text-white bg-brand w-full" value="Sign in">
+  {{ mf.auth_submit("Sign in") }}
 </form>
 
 <p class="text-center text-md mt-4 a-hover-underline text-slate-600">

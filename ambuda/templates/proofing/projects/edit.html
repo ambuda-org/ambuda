@@ -10,7 +10,7 @@
 {% block content %}
 {{ m.project_header_nested('Edit', project) }}
 {{ m.project_nav(project=project, active='edit', is_admin=current_user.is_admin) }}
-{% set search_url = url_for("proofing.projects.search", slug=project.slug)  %}
+{% set search_url = url_for("proofing.project.search", slug=project.slug)  %}
 
 <div class="prose">
 <p>We'll add more useful tools here soon. For now, you can <a href="{{

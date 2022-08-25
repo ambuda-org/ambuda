@@ -24,3 +24,12 @@ def pk():
 def foreign_key(field: str):
     """Define a simple foreign key."""
     return Column(Integer, ForeignKey(field), nullable=False, index=True)
+
+
+def same_as(column_name: str):
+    """Utility for setting one column's default value to another column."""
+
+    def default_function(context):
+        return context.current_parameters.get(column_name)
+
+    return default_function

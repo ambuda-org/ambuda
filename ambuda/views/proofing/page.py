@@ -1,4 +1,5 @@
 import difflib
+from pathlib import Path
 
 from flask import render_template, flash, current_app, send_file, Blueprint
 from flask_login import login_required, current_user
@@ -13,11 +14,16 @@ from wtforms.widgets import TextArea
 from ambuda import database as db, queries as q
 from ambuda.utils import google_ocr
 from ambuda.views.api import bp as api
-from ambuda.views.proofing.utils import _get_image_filesystem_path
 from ambuda.views.site import bp as site
 
 
-bp = Blueprint("pages", __name__)
+bp = Blueprint("page", __name__)
+
+
+def _get_image_filesystem_path(project_slug: str, page_slug: str) -> Path:
+    """Get the location of the given image on disk."""
+    image_dir = Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / project_slug
+    return image_dir / "pages" / f"{page_slug}.jpg"
 
 
 class EditException(Exception):
@@ -66,6 +72,7 @@ def _prev_cur_next(pages: list[db.Page], slug: str) -> tuple[db.Page, db.Page, d
 def add_revision(
     page: db.Page, summary: str, content: str, status: str, version: int, author_id: int
 ) -> int:
+    """Add a new revision for a page."""
     # If this doesn't update any rows, there's an edit conflict.
     # Details: https://gist.github.com/shreevatsa/237bd6592771caadecc68c9515403bc3
     # FIXME: rather than do this on the application side, do an `exists` query
@@ -226,7 +233,6 @@ def page_image(project_slug, page_slug):
     # In production, serve this directly via nginx.
     assert current_app.debug
     image_path = _get_image_filesystem_path(project_slug, page_slug)
-    print(image_path)
     return send_file(image_path)
 
 
@@ -260,7 +266,7 @@ def revision(project_slug, page_slug, revision_id):
     prev_revision = None
     cur_revision = None
     for r in cur.revisions:
-        if r.id == int(revision_id):
+        if str(r.id) == revision_id:
             cur_revision = r
             break
         else:

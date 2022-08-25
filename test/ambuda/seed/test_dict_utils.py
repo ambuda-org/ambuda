@@ -45,6 +45,7 @@ def test_expand_apte_keys(before, after):
         ("vaDU", ["vaDU", "vaDUH"]),
         ("rAjan", ["rAjan", "rAjA", "rAja"]),
         ("yogin", ["yogin", "yogI", "yogi"]),
+        ("muh", ["muh", "muk"]),
         ("vAc", ["vAc", "vAk"]),
         ("rAj", ["rAj", "rAk", "rAw"]),
         ("samiD", ["samiD", "samit"]),

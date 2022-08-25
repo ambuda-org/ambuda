@@ -1,3 +1,21 @@
+import pytest
+
+
+from ambuda.views.proofing import main
+
+
+@pytest.mark.parametrize(
+    "path,expected",
+    [
+        ("book.pdf", True),
+        ("book.djvu", False),
+        ("book.epub", False),
+    ],
+)
+def test_is_allowed_document_file(path, expected):
+    assert main._is_allowed_document_file(path) == expected
+
+
 def test_index(client):
     resp = client.get("/proofing/")
     assert resp.status_code == 200

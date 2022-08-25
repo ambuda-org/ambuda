@@ -36,3 +36,21 @@ def test_user__set_and_check_role(client):
     assert not user.is_admin
 
     _cleanup(session, user)
+
+
+def test_role__repr(client):
+    role = db.Role(name="foo")
+    assert repr(role) == "<Role(None, 'foo')>"
+
+
+def test_token__set_and_check_token(client):
+    session = get_session()
+    row = db.PasswordResetToken(user_id=1)
+    row.set_token("password")
+    session.add(row)
+    session.commit()
+
+    assert row.check_token("password")
+    assert not row.check_token("password2")
+
+    _cleanup(session, row)

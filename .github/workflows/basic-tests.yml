@@ -38,11 +38,14 @@ jobs:
       - name: Install dependencies
         run: |
           python3 -m pip install -r requirements.txt
-          npm install
+          npm ci
       
       - name: Lint
         run: make lint-check
   
+      - name: Build docs
+        run: make docs
+
   run-tests:
     runs-on: ubuntu-22.04
     steps:
@@ -59,4 +62,7 @@ jobs:
         run: python3 -m pip install -r requirements.txt
 
       - name: Run Tests
-        run: make test
+        run: make coverage
+      
+      - name: Check coverage
+        run: coverage report --fail-under=80

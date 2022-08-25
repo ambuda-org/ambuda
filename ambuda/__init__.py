@@ -17,16 +17,18 @@ from sqlalchemy import exc
 import config
 from ambuda import auth as auth_manager
 from ambuda import admin as admin_manager
+from ambuda import checks
 from ambuda import database
 from ambuda import filters
 from ambuda import queries
+from ambuda.mail import mailer
 from ambuda.views.about import bp as about
 from ambuda.views.auth import bp as auth
 from ambuda.views.api import bp as api
 from ambuda.views.dictionaries import bp as dictionaries
 from ambuda.views.proofing import bp as proofing
 from ambuda.views.proofing.tagging import bp as tagging
-from ambuda.views.reader.cheda import bp as parses
+from ambuda.views.reader.parses import bp as parses
 from ambuda.views.reader.texts import bp as texts
 from ambuda.views.site import bp as site
 
@@ -72,6 +74,10 @@ def create_app(config_env: str):
     load_dotenv(".env")
     config_spec = config.load_config_object(config_env)
 
+    # Sanity checks
+    if config_env != config.TESTING:
+        checks.check_app_schema_matches_db_schema(config_spec.SQLALCHEMY_DATABASE_URI)
+
     # Initialize Sentry monitoring only in production so that our Sentry page
     # contains only production warnings (as opposed to dev warnings).
     #
@@ -91,6 +97,7 @@ def create_app(config_env: str):
     # Extensions
     login_manager = auth_manager.create_login_manager()
     login_manager.init_app(app)
+    mailer.init_app(app)
 
     with app.app_context():
         admin = admin_manager.create_admin_manager(app)

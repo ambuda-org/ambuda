@@ -8,10 +8,17 @@ Running the development server
 ------------------------------
 
 After you've cloned the repo, you can bring up a minimal setup by running the
-following::
+following command::
 
     make install
-    make db_seed_basic
+
+Next, run the following commands to create a new admin user::
+
+    ./cli.py create-user
+    ./cli.py add-role <username> admin
+
+After that, you can bring up the development server::
+
     make devserver
 
 Then go to `localhost:5000` to see the local application.
@@ -21,11 +28,6 @@ To add support for these in your local setup, run the following::
 
     ./scripts/install_osx_dependencies.sh
     make celery
-
-If you also plan to make CSS changes, run the following command in a
-separate terminal window::
-
-    make tailwind_watcher
 
 Roughly, Tailwind generates a new CSS file whenever it detects certain changes
 to Ambuda's HTML files. For more details, see the `Tailwind docs`_.
@@ -39,8 +41,8 @@ Linting and testing
 For linting, you can use::
 
     # Lints both JS and Python.
-    # To lint just Python, run `black .`
-    # To lint just JS, run `make eslint`.
+    # - To lint just Python, run `black .`
+    # - To lint just JS, run `make js-lint`.
     make lint
 
 To run unit tests, you can simply run::

@@ -123,8 +123,7 @@ def section(text_slug, section_slug):
     cur = q.text_section(text.id, section_slug)
 
     with q.get_session() as sess:
-        blob = "<div>" + "".join(b.xml for b in cur.blocks) + "</div>"
-        content = xml.transform_tei(blob)
+        html_blocks = [xml.transform_text_block(b.xml) for b in cur.blocks]
 
     has_no_parse = text.slug in HAS_NO_PARSE
 
@@ -134,36 +133,8 @@ def section(text_slug, section_slug):
         prev=prev,
         section=cur,
         next=next,
-        content=content,
+        html_blocks=html_blocks,
         has_no_parse=has_no_parse,
-    )
-
-
-@api.route("/texts/<text_slug>/<section_slug>")
-def section_htmx(text_slug, section_slug):
-    text = q.text(text_slug)
-    if text is None:
-        abort(404)
-
-    try:
-        prev, cur, next = _prev_cur_next(text.sections, section_slug)
-    except ValueError:
-        abort(404)
-
-    # Fetch with content blocks
-    cur = q.text_section(text.id, section_slug)
-
-    with q.get_session() as sess:
-        blob = "<div>" + "".join(b.xml for b in cur.blocks) + "</div>"
-        content = xml.transform_tei(blob)
-
-    return render_template(
-        "htmx/text-section.html",
-        text=text,
-        prev=prev,
-        section=cur,
-        next=next,
-        content=content,
     )
 
 
@@ -177,8 +148,8 @@ def block_htmx(text_slug, block_slug):
     if not block:
         abort(404)
 
-    content = xml.transform_tei(block.xml)
+    html_block = xml.transform_text_block(block.xml)
     return render_template(
         "htmx/text-block.html",
-        content=content,
+        block=html_block,
     )

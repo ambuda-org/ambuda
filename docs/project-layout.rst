@@ -43,6 +43,8 @@ of your time. Here are the toplevel files in this directory:
 - `database.py` defines the database schema. This is an important file that you
   should change only with great care.
 
+- `enums.py` contains small enumerated data that we also store in the database.
+
 - `filters.py` contains template filters.
 
 - `queries.py` contains common database queries.

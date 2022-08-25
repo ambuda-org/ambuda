@@ -1,30 +1,22 @@
 """Views for basic site pages."""
 
-from datetime import datetime
 from pathlib import Path
 
-from celery.result import AsyncResult
 from flask import (
     Blueprint,
-    abort,
     current_app,
     flash,
     render_template,
-    redirect,
-    request,
-    url_for,
 )
-from flask_login import login_required
+from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from slugify import slugify
-from werkzeug.utils import secure_filename
 from wtforms import StringField, FileField
 from wtforms.validators import DataRequired
 
 import ambuda.queries as q
 from ambuda import database as db
 from ambuda.tasks import projects as project_tasks
-from ambuda.views.proofing.utils import _get_image_filesystem_path
 
 
 bp = Blueprint("proofing", __name__)
@@ -33,11 +25,6 @@ bp = Blueprint("proofing", __name__)
 def _is_allowed_document_file(filename: str) -> bool:
     """True iff we accept this type of document upload."""
     return Path(filename).suffix == ".pdf"
-
-
-def _is_allowed_image_file(filename: str) -> bool:
-    """True iff we accept this type of image upload."""
-    return Path(filename).suffix == ".jpg"
 
 
 class CreateProjectWithPdfForm(FlaskForm):
@@ -121,6 +108,7 @@ def create_project():
             pdf_path=str(pdf_path),
             output_dir=str(page_image_dir),
             app_environment=current_app.config["AMBUDA_ENVIRONMENT"],
+            creator_id=current_user.id,
         )
         return render_template(
             "proofing/create-project-post.html",

@@ -3,24 +3,80 @@
 UX reference:
 
 https://www.uxmatters.com/mt/archives/2018/09/signon-signoff-and-registration.php
+
+Security reference:
+
+- https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
+- https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html
 """
+
+import secrets
+from datetime import datetime, timedelta
+from typing import Optional
 
 from flask import Blueprint, flash, render_template, redirect, url_for
 from flask_login import current_user, login_user, logout_user, login_required
 from flask_wtf import FlaskForm, RecaptchaField
-from werkzeug.security import generate_password_hash
-from wtforms import StringField, PasswordField
+from wtforms import StringField, PasswordField, EmailField
 from wtforms import validators as val
 
 import ambuda.queries as q
 from ambuda import database as db
+from ambuda import mail
 
 
 bp = Blueprint("auth", __name__)
 
 
+MAX_TOKEN_LIFESPAN_IN_HOURS = 24
 # FIXME: redirect to site.index once user accounts are more useful.
 POST_AUTH_ROUTE = "proofing.index"
+
+
+def _create_reset_token(user_id) -> str:
+    raw_token = secrets.token_urlsafe()
+
+    session = q.get_session()
+    record = db.PasswordResetToken(user_id=user_id, is_active=True)
+    record.set_token(raw_token)
+    session.add(record)
+    session.commit()
+
+    return raw_token
+
+
+def _get_reset_token_for_user(user_id: int) -> Optional[db.PasswordResetToken]:
+    # User might have requested multiple tokens -- get the latest one.
+    session = q.get_session()
+    return (
+        session.query(db.PasswordResetToken)
+        .filter_by(user_id=user_id, is_active=True)
+        .order_by(db.PasswordResetToken.created_at.desc())
+        .first()
+    )
+
+
+def _is_valid_reset_token(row: db.PasswordResetToken, raw_token: str, now=None):
+    now = now or datetime.utcnow()
+
+    # No token for user
+    if not row:
+        return False
+
+    # Deactivated
+    if not row.is_active:
+        return False
+
+    # Token too old
+    max_age = timedelta(hours=MAX_TOKEN_LIFESPAN_IN_HOURS)
+    if row.created_at + max_age <= now:
+        return False
+
+    # Token mismatch
+    if not row.check_token(raw_token):
+        return False
+
+    return True
 
 
 class SignupForm(FlaskForm):
@@ -46,8 +102,9 @@ class SignInForm(FlaskForm):
     password = PasswordField("Password", [val.Length(min=8), val.DataRequired()])
 
 
-class RecoverForm(FlaskForm):
-    password = PasswordField("Password", [val.Length(min=8), val.DataRequired()])
+class ResetPasswordForm(FlaskForm):
+    email = EmailField("Email", [val.DataRequired()])
+    recaptcha = RecaptchaField()
 
 
 class ChangePasswordForm(FlaskForm):
@@ -58,6 +115,11 @@ class ChangePasswordForm(FlaskForm):
     new_password = PasswordField(
         "New password", [val.Length(min=8), val.DataRequired()]
     )
+
+
+class ResetPasswordFromTokenForm(FlaskForm):
+    password = PasswordField("Password", [val.DataRequired()])
+    confirm_password = PasswordField("Confirm password", [val.DataRequired()])
 
 
 @bp.route("/register", methods=["GET", "POST"])
@@ -105,14 +167,76 @@ def sign_out():
     return redirect(url_for(POST_AUTH_ROUTE))
 
 
-@bp.route("/recover", methods=["GET", "POST"])
-def recover():
-    form = RecoverForm()
+@bp.route("/reset-password", methods=["GET", "POST"])
+def get_reset_password_token():
+    """Email the user a password reset link."""
+    form = ResetPasswordForm()
     if form.validate_on_submit():
-        hashed = generate_password_hash(form.password.data)
-    else:
-        hashed = ""
-    return render_template("auth/recover.html", form=form, hashed=hashed)
+        email = form.email.data
+        session = q.get_session()
+        user = session.query(db.User).filter_by(email=email).first()
+        if user:
+            raw_token = _create_reset_token(user.id)
+            mail.send_reset_password_link(
+                username=user.username, email=user.email, raw_token=raw_token
+            )
+            return render_template("auth/reset-password-post.html", email=user.email)
+        else:
+            flash(
+                "Sorry, the email address you provided is not associated with any of our acounts."
+            )
+
+    # Override the default message ("The response parameter is missing.")
+    # for better UX.
+    if form.recaptcha.errors:
+        form.recaptcha.errors = ["Please click the reCAPTCHA box."]
+
+    return render_template("auth/reset-password.html", form=form)
+
+
+@bp.route("/reset-password/<username>/<raw_token>", methods=["GET", "POST"])
+def reset_password_from_token(username, raw_token):
+    """Reset password after the user clicks a reset link."""
+    msg_invalid = "Sorry, this reset password link isn't valid. Please try again."
+
+    user = q.user(username)
+    if user is None:
+        flash(msg_invalid)
+        return redirect(url_for("auth.get_reset_password_token"))
+
+    token = _get_reset_token_for_user(user.id)
+    if not _is_valid_reset_token(token, raw_token):
+        flash(msg_invalid)
+        return redirect(url_for("auth.get_reset_password_token"))
+
+    form = ResetPasswordFromTokenForm()
+    if form.validate_on_submit():
+        has_password_match = form.password.data == form.confirm_password.data
+        if has_password_match:
+            user.set_password(form.password.data)
+            token.is_active = False
+            token.used_at = datetime.now()
+
+            session = q.get_session()
+            session.add(user)
+            session.add(token)
+            session.commit()
+
+            # Expire any existing sessions.
+            logout_user()
+            flash("Successfully reset password!", "success")
+            mail.send_confirm_reset_password(
+                username=user.username,
+                email=user.email,
+            )
+            return redirect(url_for("auth.sign_in"))
+
+        if not has_password_match:
+            form.password.errors.append("Passwords must match.")
+
+    return render_template(
+        "auth/reset-password-from-token.html", username=user.username, form=form
+    )
 
 
 @bp.route("/change-password", methods=["GET", "POST"])

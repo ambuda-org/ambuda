@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
 
+
+{# Don't load any scripts, including tracking / analytics scripts
+   that might log the user's private tokens. #}
+{% block scripts %}{% endblock %}
+
+
 {% block body %}
 <body class="bg-slate-200">
   <div class="max-w-md mx-auto mt-32 p-4">

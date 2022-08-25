@@ -36,12 +36,6 @@ def test_section__section_missing(client):
     assert resp.status_code == 404
 
 
-def test_section_htmx(client):
-    resp = client.get("/api/texts/pariksha/1")
-    assert resp.status_code == 200
-    assert d("adhyAyaH 1") in resp.text
-
-
 def test_block_htmx(client):
     resp = client.get("/api/texts/pariksha/blocks/1.1")
     assert resp.status_code == 200

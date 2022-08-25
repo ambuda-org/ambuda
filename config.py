@@ -35,6 +35,11 @@ PRODUCTION = "production"
 
 
 def _make_path(path: Path):
+    """Create a path if it doesn't exist already.
+
+    If possible, avoid using this function so that our config code has fewer
+    side effects. Currently, we use this function only to set up unit tests.
+    """
     path.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -42,7 +47,8 @@ def _make_path(path: Path):
 def _env(key: str, default=None) -> Optional[str]:
     """Fetch a value from the local environment.
 
-    :param key: the envvar to fetch
+    :param key: the environment variable to fetch
+    :return: a value, or ``None`` if the variable is undefined.
     """
     return os.environ.get(key, default)
 
@@ -77,6 +83,23 @@ class BaseConfig:
     # Extensions
     # ----------
 
+    # Flask-Mail
+
+    #: URL for mail server.
+    MAIL_SERVER = _env("MAIL_SERVER")
+    #: Port for mail server.
+    MAIL_PORT = _env("MAIL_PORT")
+    #: If ``True``, use TLS for email encryption.
+    MAIL_USE_TLS = True
+    #: Username for mail server.
+    MAIL_USERNAME = _env("MAIL_USERNAME")
+    #: Password for mail server.
+    MAIL_PASSWORD = _env("MAIL_PASSWORD")
+    #: Default sender for site emails.
+    MAIL_DEFAULT_SENDER = _env("MAIL_DEFAULT_SENDER")
+
+    # Flask-WTF
+
     #: If True, enable cross-site request forgery (CSRF) protection.
     #: This must be True in production.
     WTF_CSRF_ENABLED = True
@@ -90,7 +113,7 @@ class BaseConfig:
     #: ReCAPTCHA private key.
     RECAPTCHA_PRIVATE_KEY = _env("RECAPTCHA_PRIVATE_KEY")
 
-    #: Sentry data source name (DSN)
+    #: Sentry data source name (DSN).
     #: We use Sentry to get notifications about server errors.
     SENTRY_DSN = _env("SENTRY_DSN")
 
@@ -141,11 +164,11 @@ class ProductionConfig(BaseConfig):
     # ----------------------
 
     #: Which directory to use on the production machine.
-    APP_DIRECTORY = _env("APP_DIRECTORY")
+    SERVER_APP_DIRECTORY = _env("SERVER_APP_DIRECTORY")
     #: Server username.
-    APP_SERVER_USER = _env("APP_SERVER_USER")
+    SERVER_USER = _env("SERVER_USER")
     #: Server host.
-    APP_SERVER_HOST = _env("APP_SERVER_HOST")
+    SERVER_HOST = _env("SERVER_HOST")
 
 
 def _validate_config(config: BaseConfig):
@@ -168,7 +191,7 @@ def _validate_config(config: BaseConfig):
         for key in dir(config):
             if key.isupper():
                 value = getattr(config, key)
-                assert value, key
+                assert value is not None, f"Config param {key} must not be `None`"
 
         # App must not be in debug/test mode.
         assert config.WTF_CSRF_ENABLED
