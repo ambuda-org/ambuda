@@ -1,5 +1,3 @@
-/* global Alpine */
-
 import {
   transliterateElement, transliterateHTMLString, $, Server,
 } from './core.ts';
@@ -10,6 +8,13 @@ const DICTIONARY_CONFIG_KEY = 'dictionary';
 export default () => ({
   script: 'devanagari',
   source: 'mw',
+
+  // (transient data)
+
+  // Script value as stored on the <select> widget. We store this separately
+  // from `script` since we currently need to know both fields in order to
+  // transliterate.
+  uiScript: null,
   query: '',
 
   init() {
@@ -24,6 +29,7 @@ export default () => ({
         const settings = JSON.parse(settingsStr);
         this.script = settings.script || this.script;
         this.source = settings.source || this.source;
+        this.uiScript = this.script;
       } catch (error) {
         console.error(error);
       }
@@ -42,9 +48,9 @@ export default () => ({
     this.saveSettings();
     this.searchDictionary(this.query);
   },
-  setScript(value) {
-    this.transliterate(this.script, value);
-    this.script = value;
+  updateScript() {
+    this.transliterate(this.script, this.uiScript);
+    this.script = this.uiScript;
     this.saveSettings();
   },
 

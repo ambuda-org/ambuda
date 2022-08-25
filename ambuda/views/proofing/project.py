@@ -14,7 +14,7 @@ from ambuda.utils import project_utils
 from ambuda.utils import proofing_utils
 
 
-bp = Blueprint("projects", __name__)
+bp = Blueprint("project", __name__)
 
 
 def _is_valid_page_number_spec(form, field):

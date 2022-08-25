@@ -82,14 +82,13 @@ If you're used to more traditional CSS framework, Tailwind might look hideous
 at first. But it keeps Ambuda's CSS consistent, predictable, and fairly
 professional without needing a complex build step or careful class management.
 
-
 .. _Tailwind: https://tailwindcss.com
 
 
 JavaScript
 ----------
 
-Our frontend code uses vanilla JavaScript with no extra frameworks.
+Our frontend code generally uses `Alpine.js`_.
 
 Although we don't use `HTMX`_, we do as much work as we can server-side and use
 JavaScript only for small UX features that aren't worth a round-trip on the
@@ -97,4 +96,5 @@ network. Some of the philosophy for this can be explained here:
 
 https://htmx.org/essays/a-response-to-rich-harris/
 
+.. _Alpine.js: https://alpinejs.dev/
 .. _HTMX: https://htmx.org/

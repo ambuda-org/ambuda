@@ -28,7 +28,7 @@
 <ul class="grid grid-cols-5 md:grid-cols-10 gap-2 text-center">
 {% for page_title, p in pages %}
   {% set colors = m.revision_colors(p.status.name) %}
-  {% set url = url_for('proofing.pages.edit', project_slug=project.slug, page_slug=p.slug)  %}
+  {% set url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=p.slug)  %}
   <li>
     <a class="block rounded py-1 {{ colors }}" href="{{ url }}">{{ page_title }}</a>
   </li>

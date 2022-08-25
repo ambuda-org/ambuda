@@ -17,7 +17,7 @@ from ambuda.views.api import bp as api
 from ambuda.views.site import bp as site
 
 
-bp = Blueprint("pages", __name__)
+bp = Blueprint("page", __name__)
 
 
 def _get_image_filesystem_path(project_slug: str, page_slug: str) -> Path:

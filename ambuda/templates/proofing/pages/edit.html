@@ -20,17 +20,17 @@
 <header class="border-b py-2 flex justify-between items-center mb-4 a-hover-underline">
   <h1 class="text">
     <a class="text-black font-bold"
-        href="{{ url_for("proofing.projects.summary", slug=project.slug) }}">
+        href="{{ url_for("proofing.project.summary", slug=project.slug) }}">
        {{ project.title }}</a>
     / {{ cur.slug }}
   </h1>
-  {% set edit_url = url_for("proofing.pages.edit", project_slug=project.slug, page_slug=cur.slug) %}
-  {% set history_url = url_for("proofing.pages.history", project_slug=project.slug, page_slug=cur.slug) %}
+  {% set edit_url = url_for("proofing.page.edit", project_slug=project.slug, page_slug=cur.slug) %}
+  {% set history_url = url_for("proofing.page.history", project_slug=project.slug, page_slug=cur.slug) %}
   <nav class="flex text-slate-700 text-md">
     <a class="block p-2" href="{{ edit_url }}">Edit</a>
     <a class="block p-2" href="{{ history_url }}">History</a>
-    {% set prev_url = url_for('proofing.pages.edit', project_slug=project.slug, page_slug=prev.slug) %}
-    {% set next_url = url_for('proofing.pages.edit', project_slug=project.slug, page_slug=next.slug) %}
+    {% set prev_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=prev.slug) %}
+    {% set next_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=next.slug) %}
     <a class="block p-2" href="{{ prev_url }}">&larr;</a>
     <a class="block p-2" href="{{ next_url }}">&rarr;</a>
   </nav>
@@ -104,18 +104,18 @@
     {{ form.version }}
 
     {{ toolbar() }}
-    <div :class="layout">
+    <div :class="layoutClasses">
       {# Text box #}
       <div class="flex flex-col flex-1 border border-r-slate-400">
         <div class="bg-slate-200 flex justify-between">
           <div>
             <button
                 type="button"
-                class="p-2 hover:bg-slate-300"
+                class="btn bg-sky-700 text-white m-2 hover:bg-sky-900"
                 @click="runOCR"
                 :disabled="isRunningOCR"
-                x-text="isRunningOCR ? '...' : 'OCR'">
-              OCR
+                x-text="isRunningOCR ? 'Running ...' : 'Run OCR'">
+              Run OCR
             </button>
           </div>
           <div>

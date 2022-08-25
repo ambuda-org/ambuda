@@ -28,7 +28,7 @@
 
 <ul>
 {% for page in results %}
-{% set page_url = url_for("proofing.pages.edit", project_slug=project.slug, page_slug=page.slug) %}
+{% set page_url = url_for("proofing.page.edit", project_slug=project.slug, page_slug=page.slug) %}
 <li>
     <a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}</a>
     <div class="p-2 border-l my-2">
