@@ -7,6 +7,8 @@ const CONFIG_KEY = 'proofing-editor';
 
 const LAYOUT_SIDE_BY_SIDE = 'side-by-side';
 const LAYOUT_TOP_AND_BOTTOM = 'top-and-bottom';
+const ALL_LAYOUTS = [LAYOUT_SIDE_BY_SIDE, LAYOUT_TOP_AND_BOTTOM];
+
 const CLASSES_SIDE_BY_SIDE = 'flex flex-col-reverse md:flex-row h-[90vh]';
 const CLASSES_TOP_AND_BOTTOM = 'flex flex-col-reverse h-[90vh]';
 
@@ -89,7 +91,7 @@ export default () => ({
         this.layout = settings.layout || this.layout;
 
         // Normalize layout value to protect against some recent refactoring.
-        if (![LAYOUT_SIDE_BY_SIDE, LAYOUT_TOP_AND_BOTTOM].includes(this.layout)) {
+        if (!ALL_LAYOUTS.includes(this.layout)) {
           this.layout = LAYOUT_SIDE_BY_SIDE;
         }
       } catch (error) {

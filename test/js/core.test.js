@@ -5,7 +5,7 @@ window.Sanscript = {
 }
 
 
-test('forEachTextNode transforms only Sanskrit text', () => {
+test('forEachSanskritTextNode transforms only Sanskrit text', () => {
   const $div = document.createElement('div');
   $div.innerHTML = `
   <div>bhASAH
@@ -14,7 +14,7 @@ test('forEachTextNode transforms only Sanskrit text', () => {
     <p lang="fr">Francais</p>
   </div>
   `;
-  core.forEachTextNode($div, (s) => s.toUpperCase());
+  core.forEachSanskritTextNode($div, (s) => s.toUpperCase());
   expect($div.innerHTML).toBe(`
   <div>BHASAH
     <p lang="sa">SAMSKRTAM</p>

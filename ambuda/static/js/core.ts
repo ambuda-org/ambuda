@@ -20,15 +20,21 @@ const Server = {
 
 const $ = document.querySelector.bind(document);
 
-function forEachTextNode(elem, callback) {
+/**
+ * Iterate over all Sanskrit text nodes in the given element.
+ *
+ * This function assumes that `elem`'s root language is Sanskrit. Descendant
+ * nodes are skipped if their `lang` attribute indicates a non-Sanskrit
+ * language.
+ */
+function forEachSanskritTextNode(elem, callback) {
   const nodeList = elem.childNodes;
   for (let i = 0; i < nodeList.length; i += 1) {
     const node = nodeList[i];
     if (node.nodeType === Node.TEXT_NODE) {
       node.textContent = callback(node.textContent);
     } else if (!node.lang || node.lang === 'sa') {
-      // Ignore lang="en"
-      forEachTextNode(node, callback);
+      forEachSanskritTextNode(node, callback);
     }
   }
 }
@@ -37,7 +43,7 @@ function forEachTextNode(elem, callback) {
 function transliterateElement($el, from: string, to: string) {
   if (from === to) return;
   $el.querySelectorAll('[lang=sa]').forEach((elem) => {
-    forEachTextNode(elem, (s) => Sanscript.t(s, from, to));
+    forEachSanskritTextNode(elem, (s) => Sanscript.t(s, from, to));
   });
 }
 
@@ -46,7 +52,7 @@ function transliterateSanskritBlob(blob: string, outputScript: string) {
   const $div = document.createElement('div');
   $div.innerHTML = blob;
   $div.querySelectorAll('*').forEach((elem) => {
-    forEachTextNode(elem, (text) => Sanscript.t(text, 'devanagari', outputScript));
+    forEachSanskritTextNode(elem, (text) => Sanscript.t(text, 'devanagari', outputScript));
   });
   return $div.innerHTML;
 }
@@ -66,5 +72,5 @@ export {
   transliterateSanskritBlob,
   transliterateHTMLString,
   Server,
-  forEachTextNode,
+  forEachSanskritTextNode,
 };
