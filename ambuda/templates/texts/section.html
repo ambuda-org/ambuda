@@ -64,7 +64,7 @@ or in their own modal window. #}
   </div>
   <div class="text-sm border-r px-4">
     <span class="hidden md:inline">Script:</span>
-    <select id="switch-sa" class="p-1" @change="setScript" x-model="uiScript">
+    <select id="switch-sa" class="p-1" @change="updateScript" x-model="uiScript">
       {% include 'include/script-options.html' %}
     </select>
   </div>

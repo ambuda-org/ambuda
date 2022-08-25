@@ -4,8 +4,11 @@
 import { $ } from './core.ts';
 
 const CONFIG_KEY = 'proofing-editor';
-const LAYOUT_SIDE_BY_SIDE = 'flex flex-col-reverse md:flex-row h-[90vh]';
-const LAYOUT_TOP_AND_BOTTOM = 'flex flex-col-reverse h-[90vh]';
+
+const LAYOUT_SIDE_BY_SIDE = 'side-by-side';
+const LAYOUT_TOP_AND_BOTTOM = 'top-and-bottom';
+const CLASSES_SIDE_BY_SIDE = 'flex flex-col-reverse md:flex-row h-[90vh]';
+const CLASSES_TOP_AND_BOTTOM = 'flex flex-col-reverse h-[90vh]';
 
 /* Initialize our image viewer. */
 function initializeImageViewer(imageURL) {
@@ -46,12 +49,14 @@ export default () => ({
   layout: 'side-by-side',
 
   // Internal-only
+  layoutClasses: CLASSES_SIDE_BY_SIDE,
   isRunningOCR: false,
   hasUnsavedChanges: false,
   imageViewer: null,
 
   init() {
     this.loadSettings();
+    this.layoutClasses = this.getLayoutClasses();
 
     // Set `imageZoom` only after the viewer is fully initialized.
     this.imageViewer = initializeImageViewer(IMAGE_URL);
@@ -82,6 +87,11 @@ export default () => ({
         // initialized. See `init` for details.
         this.imageZoom = settings.imageZoom;
         this.layout = settings.layout || this.layout;
+
+        // Normalize layout value to protect against some recent refactoring.
+        if (![LAYOUT_SIDE_BY_SIDE, LAYOUT_TOP_AND_BOTTOM].includes(this.layout)) {
+          this.layout = LAYOUT_SIDE_BY_SIDE;
+        }
       } catch (error) {
         console.error(error);
       }
@@ -94,6 +104,12 @@ export default () => ({
       layout: this.layout,
     };
     localStorage.setItem(CONFIG_KEY, JSON.stringify(settings));
+  },
+  getLayoutClasses() {
+    if (this.layout === LAYOUT_TOP_AND_BOTTOM) {
+      return CLASSES_TOP_AND_BOTTOM;
+    }
+    return CLASSES_SIDE_BY_SIDE;
   },
 
   // OCR controls
@@ -149,10 +165,12 @@ export default () => ({
 
   displaySideBySide() {
     this.layout = LAYOUT_SIDE_BY_SIDE;
+    this.layoutClasses = this.getLayoutClasses();
     this.saveSettings();
   },
   displayTopAndBottom() {
     this.layout = LAYOUT_TOP_AND_BOTTOM;
+    this.layoutClasses = this.getLayoutClasses();
     this.saveSettings();
   },
 

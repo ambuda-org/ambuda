@@ -11,10 +11,10 @@ module.exports = {
   coverageDirectory: "js-coverage-report",
   coverageThreshold: {
     global: {
-      statements: 20,
-      branches: 20,
-      functions: 20,
-      lines: 20,
+      statements: 50,
+      branches: 50,
+      functions: 50,
+      lines: 50,
     }
   },
   // Use '@' to refer to the root folder that contains all source modules.

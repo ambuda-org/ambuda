@@ -106,6 +106,8 @@ const ParseLayer = (() => {
  * Switch the script used in the reader.
  */
 function switchScript(oldScript, newScript) {
+  if (oldScript === newScript) return;
+
   const $textContent = $('#text--content');
   if ($textContent) {
     transliterateElement($textContent, oldScript, newScript);
@@ -183,7 +185,7 @@ export default () => ({
     localStorage.setItem(READER_CONFIG_KEY, JSON.stringify(settings));
   },
 
-  setScript() {
+  updateScript() {
     switchScript(this.script, this.uiScript);
     this.script = this.uiScript;
     this.saveSettings();
