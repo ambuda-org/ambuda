@@ -46,7 +46,7 @@ devserver:
 
 # Start using Docker.
 start-docker:
-	docker-compose up --build
+	docker-compose up --build --force-recreate
 
 # Run a local Celery instance for background tasks.
 celery:
