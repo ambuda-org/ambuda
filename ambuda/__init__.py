@@ -104,10 +104,7 @@ def create_app(config_env: str):
         "style-src": ["'self'", "'unsafe-inline'"],
     }
 
-    Talisman(
-        app,
-        content_security_policy=csp,
-    )
+    Talisman(app, content_security_policy=csp, force_https=config_env != config.TESTING)
 
     # Config
     app.config.from_object(config_spec)
