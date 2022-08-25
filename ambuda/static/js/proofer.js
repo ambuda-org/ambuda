@@ -1,4 +1,4 @@
-/* global Alpine, $, OpenSeadragon, IMAGE_URL */
+/* global Alpine, $, OpenSeadragon */
 /* Transcription and proofreading interface. */
 
 import { $ } from './core.ts';
@@ -52,6 +52,8 @@ export default () => ({
 
   init() {
     this.loadSettings();
+
+    const IMAGE_URL = JSON.parse(document.getElementById('image_url').innerText);
 
     // Set `imageZoom` only after the viewer is fully initialized.
     this.imageViewer = initializeImageViewer(IMAGE_URL);

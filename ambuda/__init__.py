@@ -11,6 +11,7 @@ from pathlib import Path
 import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask
+from flask_talisman import Talisman
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy import exc
 
@@ -88,6 +89,26 @@ def create_app(config_env: str):
 
     app = Flask(__name__)
 
+    csp = {
+        "default-src": ["'self'"],
+        "script-src": [
+            "'self'",
+            "https://cdn.jsdelivr.net",
+            "https://www.google.com",
+            "https://www.gstatic.com",
+            "https://plausible.io",
+            "'unsafe-eval'",
+        ],
+        "frame-src": ["https://www.google.com"],
+        "img-src": ["'self'", "data:"],
+        "style-src": ["'self'", "'unsafe-inline'"],
+    }
+
+    Talisman(
+        app,
+        content_security_policy=csp,
+    )
+
     # Config
     app.config.from_object(config_spec)
 
@@ -124,11 +145,11 @@ def create_app(config_env: str):
         }
     )
 
-    @app.after_request
-    def add_security_headers(resp):
-        resp.headers[
-            "Content-Security-Policy"
-        ] = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com https://plausible.io; frame-src https://www.google.com; img-src 'self' data:;"
-        return resp
+    # @app.after_request
+    # def add_security_headers(resp):
+    #     resp.headers[
+    #         "Content-Security-Policy"
+    #     ] = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com https://plausible.io; frame-src https://www.google.com; img-src 'self' data:; style-src 'self';"
+    #     return resp
 
     return app
