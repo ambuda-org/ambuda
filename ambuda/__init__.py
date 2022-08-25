@@ -28,7 +28,7 @@ from ambuda.views.api import bp as api
 from ambuda.views.dictionaries import bp as dictionaries
 from ambuda.views.proofing import bp as proofing
 from ambuda.views.proofing.tagging import bp as tagging
-from ambuda.views.reader.cheda import bp as parses
+from ambuda.views.reader.parses import bp as parses
 from ambuda.views.reader.texts import bp as texts
 from ambuda.views.site import bp as site
 
@@ -123,12 +123,5 @@ def create_app(config_env: str):
             "time_ago": filters.time_ago,
         }
     )
-
-    @app.after_request
-    def add_security_headers(resp):
-        resp.headers[
-            "Content-Security-Policy"
-        ] = "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://www.google.com https://www.gstatic.com https://plausible.io; frame-src https://www.google.com; img-src 'self' data:;"
-        return resp
 
     return app
