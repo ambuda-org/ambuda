@@ -100,9 +100,14 @@ js-dev:
 js-prod:
 	npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --minify
 
+js-test:
+	npx jest
+
+js-coverage:
+	npx jest --coverage
+
 # Lint our JavaScript code.
-# FIXME(arun): typescript lint
-js-lint: js-check-types
+js-lint:
 	npx eslint --fix ambuda/static/js/* --ext .js,.ts
 
 # Check our JavaScript code for type consistency.

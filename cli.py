@@ -25,7 +25,10 @@ def cli():
 
 @cli.command()
 def create_user():
-    """Add the given role to the given user."""
+    """Create a new user.
+
+    This command is best used in development to quickly create new users.
+    """
     username = input("Username: ")
     raw_password = getpass.getpass("Password: ")
     email = input("Email: ")
@@ -49,10 +52,14 @@ def create_user():
 
 
 @cli.command()
-@click.argument("username")
-@click.argument("role")
-def add_role(username: str, role: str):
-    """Add the given role to the given user."""
+@click.option("--username", help="the user to modify")
+@click.option("--role", help="the role to add")
+def add_role(username, role):
+    """Add the given role to the given user.
+
+    In particular, `add-role <user> admin` will give a user administrator
+    privileges and grant them full access to Ambuda's data and content.
+    """
     with Session(engine) as session:
         u = session.query(db.User).where(db.User.username == username).first()
         if u is None:
@@ -70,8 +77,8 @@ def add_role(username: str, role: str):
 
 
 @cli.command()
-@click.argument("title")
-@click.argument("pdf_path")
+@click.option("--title", help="title of the new project")
+@click.option("--pdf-path", help="path to the source PDF")
 def create_project(title, pdf_path):
     """Create a proofing project from a PDF."""
     current_app = ambuda.create_app("development")

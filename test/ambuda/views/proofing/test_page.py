@@ -1,9 +1,9 @@
-from ambuda.views.proofing import pages
+from ambuda.views.proofing import page
 
 
 def test_get_image_filesystem_path(flask_app):
     with flask_app.app_context():
-        path = pages._get_image_filesystem_path("project", "1")
+        path = page._get_image_filesystem_path("project", "1")
     assert path.match("**/project/pages/1.jpg")
 
 
