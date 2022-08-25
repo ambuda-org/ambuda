@@ -45,6 +45,31 @@
 {% endmacro %}
 
 
+{#
+Print a row of Latin characters.
+Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
+{% macro _latin_char_row(chars, class) %}
+<div class="grid {{ class }}">
+{% for char in chars.split() %}
+  <button class="hover:bg-slate-100 rounded p-1">{{ char.upper()|safe }}</button>
+  <button class="hover:bg-slate-100 rounded p-1">{{ char|safe }}</button>
+{% endfor %}
+</div>
+{% endmacro %}
+
+
+{#
+Print a row of Devanagari characters.
+Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
+{% macro _devanagari_char_row(chars, class) %}
+<div class="text-xl grid {{ class }}">
+{% for char in chars.split() %}
+  <button class="hover:bg-slate-100 rounded p-1">{{ char|safe }}</button>
+{% endfor %}
+</div>
+{% endmacro %}
+
+
 {# Editing toolbar. #}
 {% macro toolbar() %}
 <nav class="border my-2 rounded flex">
@@ -52,7 +77,7 @@
     <button class="block p-2 hover:bg-slate-100"
        @click.prevent="open=!open"
        @click.outside="open=false">Layout</button>
-    <div x-show="open" class="dropdown-pane">
+    <div x-show="open" class="dropdown-pane w-48">
       <ul class="text-sm" @click.prevent="open=false">
         {{ dropdown_item('displaySideBySide', 'Image right, text left') }}
         {{ dropdown_item('displayTopAndBottom', 'Image above, text below') }}
@@ -64,7 +89,7 @@
     <button class="block p-2 hover:bg-slate-100"
        @click.prevent="open=!open"
        @click.outside="open=false">Mark text</button>
-    <div x-show="open" class="dropdown-pane">
+    <div x-show="open" class="dropdown-pane w-48">
       <ul class="text-sm" @click.prevent="open=false">
         {{ dropdown_item('markAsError', 'Mark as error') }}
         {{ dropdown_item('markAsFix', 'Mark as fix') }}
@@ -98,6 +123,25 @@
           @click.prevent="transliterate; open=false">
           Transliterate selected text
       </button>
+    </div>
+  </div>
+
+  <div x-data="{open: false}" class="relative">
+    <button class="block p-2 hover:bg-slate-100"
+       @click.prevent="open=!open"
+       @click.outside="open=false">Characters</button>
+    <div x-show="open" class="p-2 dropdown-pane w-60" @click.prevent="copyCharacter">
+      <p class="text-xs text-center mb-2">Click a character to copy it.</p>
+      <ul class="text-center">
+        {{ _latin_char_row('ā á â à', 'grid-cols-8') }}
+        {{ _latin_char_row('ī í î ì', 'grid-cols-8') }}
+        {{ _latin_char_row('ū ú û ù', 'grid-cols-8') }}
+        {{ _latin_char_row('ē é ê è', 'grid-cols-8') }}
+        {{ _latin_char_row('ō ó ô ò', 'grid-cols-8') }}
+        {{ _latin_char_row('ṅ ñ ṇ', 'grid-cols-6') }}
+        {{ _latin_char_row('ṁ ṃ ç', 'grid-cols-6') }}
+        {{ _devanagari_char_row('&#x0964; &#x0965; &#x093d; &#x0970;', 'grid-cols-4') }}
+      </ul>
     </div>
   </div>
 </nav>
