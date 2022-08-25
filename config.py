@@ -127,15 +127,11 @@ class BaseConfig:
     #: If ``True``, enable the Flask debugger.
     DEBUG = False
 
-    #: If ``True``, enable testing mode.
-    TESTING = False
-
 
 class UnitTestConfig(BaseConfig):
     """For unit tests."""
 
     AMBUDA_ENVIRONMENT = TESTING
-    TESTING = True
     SECRET_KEY = "insecure unit test secret"
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     UPLOAD_FOLDER = _make_path(Path(__file__).parent / "data" / "file-uploads")
@@ -193,10 +189,9 @@ def _validate_config(config: BaseConfig):
                 value = getattr(config, key)
                 assert value is not None, f"Config param {key} must not be `None`"
 
-        # App must not be in debug/test mode.
+        # App must not be in debug mode.
         assert config.WTF_CSRF_ENABLED
         assert not config.DEBUG
-        assert not config.TESTING
 
         # Google credentials must be set and exist.
         google_creds = _env("GOOGLE_APPLICATION_CREDENTIALS")

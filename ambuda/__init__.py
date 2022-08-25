@@ -75,6 +75,7 @@ def create_app(config_env: str):
     config_spec = config.load_config_object(config_env)
 
     # Sanity checks
+    assert config_env == config_spec.AMBUDA_ENVIRONMENT
     if config_env != config.TESTING:
         checks.check_app_schema_matches_db_schema(config_spec.SQLALCHEMY_DATABASE_URI)
 
