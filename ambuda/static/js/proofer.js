@@ -193,8 +193,14 @@ export default () => ({
     const start = $textarea.selectionStart;
     const end = $textarea.selectionEnd;
     const { value } = $textarea;
+
     const selectedText = value.substr(start, end - start);
-    $textarea.value = value.substr(0, start) + callback(selectedText) + value.substr(end);
+    const replacement = callback(selectedText);
+    $textarea.value = value.substr(0, start) + replacement + value.substr(end);
+
+    // Update selection state and focus for better UX.
+    $textarea.setSelectionRange(start, start + replacement.length);
+    $textarea.focus();
   },
   markAsError() {
     this.changeSelectedText((s) => `<error>${s}</error>`);
