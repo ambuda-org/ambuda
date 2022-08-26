@@ -119,7 +119,7 @@ def edit(slug):
         session.commit()
 
         flash("Saved changes.", "success")
-        return redirect(url_for("proofing.projects.summary", slug=slug))
+        return redirect(url_for("proofing.project.summary", slug=slug))
 
     return render_template(
         "proofing/projects/edit.html",
