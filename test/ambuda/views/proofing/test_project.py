@@ -21,6 +21,35 @@ def test_edit__auth(rama_client):
     assert "Edit:" in resp.text
 
 
+def test_edit__auth__post_succeeds(rama_client):
+    resp = rama_client.post(
+        "/proofing/test-project/edit",
+        data={
+            "description": "some description",
+            "page_numbers": "",
+            "title": "some title",
+            "author": "some author",
+            "editor": "",
+            "publisher": "some publisher",
+            "publication_year": "",
+        },
+    )
+    assert resp.status_code == 302
+    print(resp.headers["Location"] == "/proofing/test-project/")
+
+
+def test_edit__auth__post_fails(rama_client):
+    resp = rama_client.post(
+        "/proofing/test-project/edit",
+        data={
+            # Bade page spec forces form to fail validation
+            "page_numbers": "garbage in, garbage out",
+        },
+    )
+    assert resp.status_code == 200.0
+    assert "page number spec" in resp.text
+
+
 def test_edit__auth__bad_project(rama_client):
     resp = rama_client.get("/proofing/unknown/edit")
     assert resp.status_code == 404
