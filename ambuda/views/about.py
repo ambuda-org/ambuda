@@ -47,3 +47,8 @@ def contact():
 @bp.route("/terms")
 def terms():
     return render_template("about/terms.html")
+
+
+@bp.route("/privacy-policy")
+def privacy():
+    return render_template("about/privacy.html")
