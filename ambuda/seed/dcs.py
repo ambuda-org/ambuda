@@ -64,6 +64,8 @@ def iter_parse_data(path: Path):
                     xml_id = value
                     _, _, block_slug = xml_id.partition(".")
             elif line:
+                if line.count("\t") != 3:
+                    raise ValueError(f'Line "{line}" must have exactly three fields.')
                 buf.append(line)
             else:
                 yield block_slug, "\n".join(buf)
