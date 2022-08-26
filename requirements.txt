@@ -57,7 +57,7 @@ Jinja2==3.1.2
 kombu==5.2.4
 langcodes==3.3.0
 language-data==1.1
-linkify-it-py==1.0.3
+linkify-it-py==2.0.0
 lxml==4.9.1
 Mako==1.2.0
 marisa-trie==0.7.7
@@ -136,7 +136,7 @@ watchdog-gevent==0.1.1
 wcwidth==0.2.5
 Werkzeug==2.1.2
 wrapt==1.14.1
-wsproto==1.1.0
+wsproto==1.2.0
 WTForms==3.0.1
 zipp==3.8.0
 zope.event==4.5.0
