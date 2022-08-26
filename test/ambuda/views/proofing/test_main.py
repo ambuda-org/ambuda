@@ -45,3 +45,8 @@ def test_create_project__unauth(client):
 def test_create_project__auth(rama_client):
     resp = rama_client.get("/proofing/create-project")
     assert resp.status_code == 200
+
+
+def test_talk(client):
+    resp = client.get("/proofing/talk")
+    assert "Proofing talk" in resp.text
