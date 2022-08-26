@@ -40,7 +40,7 @@
 
 {% macro dropdown_item(fn, text) %}
 <li>
-  <button class="dropdown-item" @click.prevent="{{ fn }}">{{ text }}</button>
+  <button class="dropdown-item" @click.prevent="{{ fn }}">{{ text|safe }}</button>
 </li>
 {% endmacro %}
 
@@ -71,6 +71,33 @@
         {{ dropdown_item('markAsUnclear', 'Mark as unclear') }}
         {{ dropdown_item('markAsFootnoteNumber', 'Mark as footnote number') }}
       </ul>
+    </div>
+  </div>
+
+  <div x-data="{open: false}" class="relative" @click.outside="open=false">
+    <button class="block p-2 hover:bg-slate-100"
+       @click.prevent="open=!open">Transliterate</button>
+    <div x-show="open" class="dropdown-pane w-64 p-2">
+      <div class="mb-2 flex justify-between">
+        <label>From:</label>
+        <select x-model="fromScript">
+          <option value="hk">Harvard-Kyoto</option>
+          <option value="itrans">ITRANS</option>
+        </select>
+      </div>
+
+      <div class="mb-2 flex justify-between">
+        <label>To:</label>
+        <select x-model="toScript">
+          <option value="devanagari">Devanagari</option>
+          <option value="iast">IAST</option>
+        </select>
+      </div>
+
+      <button class="mt-4 btn btn-basic block w-full"
+          @click.prevent="transliterate; open=false">
+          Transliterate selected text
+      </button>
     </div>
   </div>
 </nav>

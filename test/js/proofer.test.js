@@ -1,4 +1,11 @@
+import { $ } from '@/core.ts';
 import Proofer from '@/proofer';
+
+const sampleHTML = `
+<div>
+  <textarea id="content"></textarea>
+</div>
+`;
 
 window.IMAGE_URL = 'IMAGE_URL';
 window.OpenSeadragon = (_) => ({
@@ -8,9 +15,15 @@ window.OpenSeadragon = (_) => ({
     zoomTo: jest.fn((_) => {}),
   }
 });
+window.Sanscript = {
+  // Preface `s` with a marker so that we can verify that we're using the right
+  // selection range.
+  t: jest.fn((s, from, to) => `:${s}:${to}`),
+}
 
 beforeEach(() => {
   window.localStorage.clear();
+  document.write(sampleHTML);
 });
 
 test('Proofer can be created', () => {
@@ -26,6 +39,8 @@ test('saveSettings and loadSettings', () => {
   oldProofer.textZoom = "test text zoom";
   oldProofer.imageZoom = "test image zoom";
   oldProofer.layout = "side-by-side";
+  oldProofer.fromScript = "test from script";
+  oldProofer.toScript = "test to script";
   oldProofer.saveSettings();
 
   const p = Proofer()
@@ -33,6 +48,8 @@ test('saveSettings and loadSettings', () => {
   expect(p.textZoom).toBe("test text zoom");
   expect(p.imageZoom).toBe("test image zoom");
   expect(p.layout).toBe("side-by-side");
+  expect(p.fromScript).toBe("test from script");
+  expect(p.toScript).toBe("test to script");
 });
 
 test('increaseImageZoom works and gets saved', () => {
@@ -117,4 +134,18 @@ test('displayTopAndBottom works and gets saved', () => {
   expect(p2.layout).toBe('side-by-side');
   p2.loadSettings();
   expect(p2.layout).toBe('top-and-bottom');
+});
+
+test('transliterate works and saves settings', () => {
+  const p = Proofer();
+
+  const $text = $('#content');
+  $text.value = 'Sanskrit (saMskRtam) text'
+  $text.setSelectionRange(10, 19);
+
+  p.fromScript = 'hk'
+  p.toScript = 'iast';
+  p.transliterate()
+
+  expect($text.value).toBe('Sanskrit (:saMskRtam:iast) text')
 });
