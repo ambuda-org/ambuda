@@ -53,7 +53,7 @@ jobs:
         uses: actions/checkout@v3
       
       - name: Build and run Docker images
-        run: make start-docker
+        run: docker-compose up --build --force-recreate -d
 
       - name: Check that site is running
         run: curl --fail-with-body localhost:5000
