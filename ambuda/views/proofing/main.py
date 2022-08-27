@@ -81,6 +81,12 @@ def complete_guide():
     return render_template("proofing/complete-guidelines.html")
 
 
+@bp.route("/editor-guide")
+def editor_guide():
+    """Describe how to use the page editor."""
+    return render_template("proofing/editor-guide.html")
+
+
 @bp.route("/create-project", methods=["GET", "POST"])
 @login_required
 def create_project():
