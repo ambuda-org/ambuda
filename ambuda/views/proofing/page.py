@@ -129,7 +129,8 @@ def _split_graphemes(s: str) -> str:
 
 
 def _create_markup(tag: str, s: str) -> tuple[Markup, Markup, Markup]:
-    """Create markup for the given tag and string, used to denote additions / deletions for diffs."""
+    """Create markup for the given tag and string,
+    used to denote additions / deletions for diffs."""
     assert tag in ("ins", "del")
     attr = ""
     if s in ("\n", "\r\n"):
@@ -143,6 +144,8 @@ def _create_markup(tag: str, s: str) -> tuple[Markup, Markup, Markup]:
 
 
 def _revision_diff(old: str, new: str) -> str:
+    """Generate a diff from old and new strings, wrapping
+    additions / removals in HTML tags."""
     matcher = difflib.SequenceMatcher(a=_split_graphemes(old), b=_split_graphemes(new))
     output = []
     for opcode, a0, a1, b0, b1 in matcher.get_opcodes():
