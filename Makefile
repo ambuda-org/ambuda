@@ -26,6 +26,7 @@ db-seed-all:
 	python -m ambuda.seed.lookup.role
 	python -m ambuda.seed.lookup.page_status
 	python -m ambuda.seed.texts.gretil
+	python -m ambuda.seed.texts.sarit
 	python -m ambuda.seed.texts.ramayana
 	python -m ambuda.seed.texts.mahabharata
 	python -m ambuda.seed.dcs
