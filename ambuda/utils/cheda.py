@@ -60,6 +60,7 @@ LAKARAS = {
     "lrt": "simple future",
     "lot": "imperative",
     "lan": "imperfect",
+    "lan_unaug": "imperfect (unaugmented)",
     "vidhilin": "optative",
     "ashirlin": "benedictive",
     "lun": "aorist",
