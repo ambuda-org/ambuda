@@ -1,4 +1,4 @@
-/* global Alpine, $, OpenSeadragon */
+/* global Alpine, $, OpenSeadragon, Sanscript, IMAGE_URL */
 /* Transcription and proofreading interface. */
 
 import { $ } from './core.ts';
@@ -49,6 +49,10 @@ export default () => ({
   textZoom: 1,
   imageZoom: null,
   layout: 'side-by-side',
+  // [transliteration] the source script
+  fromScript: 'hk',
+  // [transliteration] the destination script
+  toScript: 'devanagari',
 
   // Internal-only
   layoutClasses: CLASSES_SIDE_BY_SIDE,
@@ -92,6 +96,9 @@ export default () => ({
         this.imageZoom = settings.imageZoom;
         this.layout = settings.layout || this.layout;
 
+        this.fromScript = settings.fromScript || this.fromScript;
+        this.toScript = settings.toScript || this.toScript;
+
         // Normalize layout value to protect against some recent refactoring.
         if (!ALL_LAYOUTS.includes(this.layout)) {
           this.layout = LAYOUT_SIDE_BY_SIDE;
@@ -106,6 +113,8 @@ export default () => ({
       textZoom: this.textZoom,
       imageZoom: this.imageZoom,
       layout: this.layout,
+      fromScript: this.fromScript,
+      toScript: this.toScript,
     };
     localStorage.setItem(CONFIG_KEY, JSON.stringify(settings));
   },
@@ -180,25 +189,42 @@ export default () => ({
 
   // Markup controls
 
-  markAs(before, after) {
+  changeSelectedText(callback) {
     // FIXME: more idiomatic way to get this?
     const $textarea = $('#content');
     const start = $textarea.selectionStart;
     const end = $textarea.selectionEnd;
     const { value } = $textarea;
+
     const selectedText = value.substr(start, end - start);
-    $textarea.value = value.substr(0, start) + before + selectedText + after + value.substr(end);
+    const replacement = callback(selectedText);
+    $textarea.value = value.substr(0, start) + replacement + value.substr(end);
+
+    // Update selection state and focus for better UX.
+    $textarea.setSelectionRange(start, start + replacement.length);
+    $textarea.focus();
   },
   markAsError() {
-    this.markAs('<error>', '</error>');
+    this.changeSelectedText((s) => `<error>${s}</error>`);
   },
   markAsFix() {
-    this.markAs('<fix>', '</fix>');
+    this.changeSelectedText((s) => `<fix>${s}</fix>`);
   },
   markAsUnclear() {
-    this.markAs('<flag>', '</flag>');
+    this.changeSelectedText((s) => `<flag>${s}</flag>`);
   },
   markAsFootnoteNumber() {
-    this.markAs('[^', ']');
+    this.changeSelectedText((s) => `[^${s}]`);
+  },
+  transliterate() {
+    this.changeSelectedText((s) => Sanscript.t(s, this.fromScript, this.toScript));
+    this.saveSettings();
+  },
+
+  // Character controls
+
+  copyCharacter(e) {
+    const character = e.target.textContent;
+    navigator.clipboard.writeText(character);
   },
 });

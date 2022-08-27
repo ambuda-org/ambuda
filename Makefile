@@ -44,6 +44,10 @@ db-seed-all:
 devserver:
 	npx concurrently "flask run" "make css-dev" "make js-dev"
 
+# Start using Docker.
+start-docker:
+	docker-compose up --build --force-recreate
+
 # Run a local Celery instance for background tasks.
 celery:
 	celery -A ambuda.tasks worker --loglevel=INFO

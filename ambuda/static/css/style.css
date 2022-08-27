@@ -37,7 +37,7 @@
 
   /* Dropdowns (e.g. in proofing editor) */
   .dropdown-pane {
-    @apply z-50 bg-white border absolute a-hover-underline w-48;
+    @apply z-50 bg-white border absolute a-hover-underline;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
   .dropdown-item {

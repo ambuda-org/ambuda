@@ -10,6 +10,11 @@ from ambuda.utils.cheda import readable_parse
         ("pos=a,g=f,c=2,n=d", "adjective, feminine accusative dual"),
         ("pos=va,g=n,c=3,n=p", "participle, neuter instrumental plural"),
         ("pos=v,p=3,n=s,l=lat", "verb, third-person singular present"),
+        ("pos=v,p=2,n=s,l=ashirlin", "verb, second-person singular benedictive"),
+        (
+            "pos=v,p=3,n=s,l=lan_unaug",
+            "verb, third-person singular imperfect (unaugmented)",
+        ),
         ("pos=n,g=m,comp=y", "noun, compounded"),
         ("pos=i", "indeclinable"),
     ],
