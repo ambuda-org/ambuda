@@ -23,12 +23,12 @@ def test_index(client):
 
 
 def test_beginners_guide(client):
-    resp = client.get("/proofing/beginners-guide")
+    resp = client.get("/proofing/help/beginners-guide")
     assert "Beginner's guide" in resp.text
 
 
 def test_complete_guide(client):
-    resp = client.get("/proofing/complete-guide")
+    resp = client.get("/proofing/help/complete-guide")
     assert "Proofing guidelines" in resp.text
 
 

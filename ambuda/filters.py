@@ -7,8 +7,15 @@ from indic_transliteration import sanscript
 from markdown_it import MarkdownIt
 
 
-# Markdown parser.
-# Docs: https://markdown-it-py.readthedocs.io/en/latest/using.html
+#: A markdown parser for user-generated text.
+#:
+#: - `js-default` is like Commonmark but it disables raw HTML.
+#: - `typographer` enables specific typography improvements:
+#:   - `replacements` replaces `---` with `&mdash;`, etc.
+#:   - `smartquotes` replaces basic quotes with opening and closing quotes.
+#:   - `linkify` converts URLs like `"github.com"` into clickable links.
+#:
+#: Docs: https://markdown-it-py.readthedocs.io/en/latest/using.html
 MARKDOWN = MarkdownIt("js-default", {"typographer": True, "linkify": True}).enable(
     ["replacements", "smartquotes", "linkify"]
 )
