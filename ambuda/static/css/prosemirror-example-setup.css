@@ -8,6 +8,7 @@ and a couple of other sources. */
 
 #editor,
 .editor {
+    display: none;
     background: white;
     color: black;
     background-clip: padding-box;

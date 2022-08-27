@@ -51,9 +51,9 @@ const view = new EditorView(document.querySelector("#editor"), {
 });
 (window as any).view = view;
 // console.log(toText());
-// console.log($textarea.textContent)
-// console.assert(toText() == $textarea.textContent);
-$textarea.style.display = 'none';
+// console.log($textarea.textContent, '-- the contents of the textarea.');
+console.assert(toText() == $textarea.textContent);
+// $textarea.style.display = 'none';
 
 // Before the form is submitted, copy the contents of the ProseMirror editor to the textarea.
-document.querySelector('form')!.addEventListener('submit', (event) => { $textarea.value = toText(); });
+// document.querySelector('form')!.addEventListener('submit', (event) => { $textarea.value = toText(); });
