@@ -69,19 +69,19 @@ def index():
     )
 
 
-@bp.route("/beginners-guide")
+@bp.route("/help/beginners-guide")
 def beginners_guide():
     """Display our minimal proofing guidelines."""
     return render_template("proofing/beginners-guide.html")
 
 
-@bp.route("/complete-guide")
+@bp.route("/help/complete-guide")
 def complete_guide():
     """Display our complete proofing guidelines."""
     return render_template("proofing/complete-guidelines.html")
 
 
-@bp.route("/editor-guide")
+@bp.route("/help/editor-guide")
 def editor_guide():
     """Describe how to use the page editor."""
     return render_template("proofing/editor-guide.html")
