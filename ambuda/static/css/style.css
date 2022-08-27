@@ -154,9 +154,7 @@
   }
 
   /* heatmap */
-  .heatmap text {
-    @apply text-xs;
-  }
+  .heatmap text { @apply text-xs; }
   .heatmap rect.l1 { @apply fill-slate-100; }
   .heatmap rect.l2 { @apply fill-sky-100; }
   .heatmap rect.l3 { @apply fill-sky-200; }
