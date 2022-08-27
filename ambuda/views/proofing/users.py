@@ -1,6 +1,3 @@
-from datetime import date, datetime, timedelta
-from typing import Optional
-
 from flask import (
     Blueprint,
     abort,
@@ -15,10 +12,7 @@ from wtforms import BooleanField, FormField
 import ambuda.queries as q
 from ambuda import database as db
 from ambuda.utils.auth import admin_required
-
-
-#: ISO weekday correspanding to Sunday.
-ISO_SUNDAY = 7
+from ambuda.utils import heatmap
 
 
 bp = Blueprint("users", __name__)
@@ -28,52 +22,23 @@ class RolesForm(FlaskForm):
     pass
 
 
-def _count_user_revisions_per_day(user_id: int) -> dict[datetime, int]:
-    session = q.get_session()
-    revisions = session.query(db.Revision).filter_by(author_id=user_id).all()
-
-    counts = {}
-    for r in sorted(revisions, key=lambda x: x.created):
-        key = r.created.date()
-        if key not in counts:
-            counts[key] = 1
-        else:
-            counts[key] += 1
-    return counts
-
-
-def _get_heatmap_dates(last_date: Optional[date] = None):
-    """Return a year's worth of dates up to and including `last_date`.
-
-    We construct a year's worth of dates then backfill until the first date is
-    on a Sunday.
-
-    :param `last_date`: the last date to include.
-    """
-    last_date = last_date or datetime.now().date()
-
-    # Round start date to nearest Sunday.
-    first_date = last_date - timedelta(days=365)
-    if first_date.isoweekday() != ISO_SUNDAY:
-        first_date -= timedelta(days=first_date.isoweekday())
-
-    num_days = (last_date - first_date).days
-    return [first_date + timedelta(days=i) for i in range(num_days)]
-
-
 @bp.route("/<username>/")
 def user(username):
     user_ = q.user(username)
     if not user_:
         abort(404)
 
-    revision_counts = _count_user_revisions_per_day(user_.id)
+    session = q.get_session()
+    revisions = session.query(db.Revision).filter_by(author_id=user_.id).all()
+    revision_counts = heatmap.count_revisions_per_day(revisions)
+    dates = heatmap.create_calendar_dates()
+    month_labels = heatmap.create_month_labels(dates)
 
-    dates_1y = _get_heatmap_dates()
     return render_template(
         "proofing/user.html",
         user=user_,
-        dates_1y=dates_1y,
+        dates=dates,
+        month_labels=month_labels,
         revision_counts=revision_counts,
     )
 

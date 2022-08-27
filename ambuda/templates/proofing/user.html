@@ -29,9 +29,12 @@
 
 {# "flex flex-col items-end" right-aligns the heatmap on overflow. #}
 {# Use "overflow-x-clip" because "-hidden" causes a vertical scrollbar. #}
-<div class="flex flex-col items-end h-auto overflow-x-clip max-w-xl">
 <div class="flex">
+
+{# Days of the week (row labels) #}
 <ul class="text-xs inline-grid grid-rows-7 grid-flow-col gap-0.5 pr-2">
+  {# Empty first row to leave space for columns. #}
+  <li class="h-3">&nbsp;</li>
   <li class="h-3">Sun</li>
   <li class="h-3">&nbsp;</li>
   <li class="h-3">Tue</li>
@@ -41,14 +44,23 @@
   <li class="h-3">Sat</li>
 </ul>
 
-<div class="grid grid-rows-7 grid-flow-col gap-0.5">
-{% for date in dates_1y %}
-  {% set count = revision_counts.get(date, 0) %}
-  {% set title = "1 edit" if count == 1 else "{} edits".format(count) %}
-  <div class="w-3 h-3 rounded-0.5 {{ color(count) }}" title="{{ title }}"></div>
-  {% endfor %}
+<div class="flex flex-col items-end overflow-x-clip max-w-xl">
+  {# Months (column labels) #}
+  <ul class="flex text-xs">
+    {% for month in month_labels %}
+    <li class="{{ month.classes }}">{{ month.name }}</li>
+    {% endfor %}
+  </ul>
+
+  {# Cells #}
+  <div class="grid grid-rows-7 grid-flow-col gap-0.5 max-w-xl">
+  {% for date in dates %}
+    {% set count = revision_counts.get(date, 0) %}
+    {% set title = "1 edit" if count == 1 else "{} edits".format(count) -%}
+    <div class="w-3 h-3 rounded-0.5 {{ color(count) }}" title="{{ title }}"></div>
+    {% endfor %}
+  </div>
 </div>
-    </div>
 
 </div>
 {% endblock %}
