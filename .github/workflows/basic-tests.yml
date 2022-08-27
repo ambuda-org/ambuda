@@ -56,7 +56,7 @@ jobs:
         run: make start-docker
 
       - name: Check that site is running
-      - run: curl --fail-with-body localhost:5000
+        run: curl --fail-with-body localhost:5000
 
   run-tests:
     runs-on: ubuntu-22.04
