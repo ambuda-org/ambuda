@@ -27,11 +27,42 @@
 <h2>Revisions</h2>
 </div>
 
+{# Days of the week (row labels) #}
+<table class="table-auto text-xs">
+  <thead>
+    <th>&nbsp;</th>
+    {% for label in month_labels %}
+    <th colspan="{{ label.span }}">{{ label.name }}</th>
+    {% endfor %}
+  </thead>
+
+  {% for i, row in date_rows.items() %}
+  {% set names = { 7: "Sun", 2: "Tue", 4: "Thu", 6: "Sat" } %}
+  <tr>
+    {% if i in names %}
+    <th class="pr-4 h-[0.825rem] align-top"><div class="text-[0.5rem]">{{ names[i] }}</div></th>
+    {% else %}
+    <th class="text-[0]">&nbsp;</th>
+    {% endif %}
+    {% for date in row %}
+    <td class="w-3 h-3">
+      {% set count = revision_counts.get(date, 0) %}
+      {% set title = "1 edit" if count == 1 else "{} edits".format(count) -%}
+      <div class="w-3 h-3 rounded-0.5 {{ color(count) }}" title="{{ title }} {{ date }}"></div>
+    </td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+  <tr></tr>
+  <tr></tr>
+  <tr></tr>
+</table>
+
+
 {# "flex flex-col items-end" right-aligns the heatmap on overflow. #}
 {# Use "overflow-x-clip" because "-hidden" causes a vertical scrollbar. #}
 <div class="flex">
 
-{# Days of the week (row labels) #}
 <ul class="text-xs inline-grid grid-rows-7 grid-flow-col gap-0.5 pr-2">
   {# Empty first row to leave space for columns. #}
   <li class="h-3">&nbsp;</li>

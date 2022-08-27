@@ -31,13 +31,19 @@ def user(username):
     session = q.get_session()
     revisions = session.query(db.Revision).filter_by(author_id=user_.id).all()
     revision_counts = heatmap.count_revisions_per_day(revisions)
+
     dates = heatmap.create_calendar_dates()
+    date_rows = {x: [] for x in (7, 1, 2, 3, 4, 5, 6)}
+    for d in dates:
+        date_rows[d.isoweekday()].append(d)
+
     month_labels = heatmap.create_month_labels(dates)
 
     return render_template(
         "proofing/user.html",
         user=user_,
         dates=dates,
+        date_rows=date_rows,
         month_labels=month_labels,
         revision_counts=revision_counts,
     )

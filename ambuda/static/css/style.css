@@ -19,6 +19,9 @@
   del {
     @apply bg-red-200 text-red-700;
   }
+  th {
+    @apply font-normal text-left;
+  }
 
   /* Theme colors */
   .text-brand { color: #152b48; }

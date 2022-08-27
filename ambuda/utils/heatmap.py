@@ -22,6 +22,7 @@ CLASSES = {
 @dataclass
 class MonthLabel:
     name: str
+    span: int
     classes: str
 
 
@@ -90,7 +91,9 @@ def create_month_labels(dates: list[date]) -> list[MonthLabel]:
         next_index = months_and_indices[i + 1][1]
         width = next_index - index
         labels.append(
-            MonthLabel(name=calendar.month_abbr[month], classes=CLASSES[width])
+            MonthLabel(
+                name=calendar.month_abbr[month], span=width, classes=CLASSES[width]
+            )
         )
 
     return labels
