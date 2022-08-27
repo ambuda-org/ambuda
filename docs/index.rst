@@ -1,8 +1,3 @@
-.. Ambuda documentation master file, created by
-   sphinx-quickstart on Fri Jun 24 19:48:01 2022.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Ambuda Documentation
 ====================
 
@@ -10,9 +5,11 @@ This is the technical documentation for Ambuda, a breakthrough Sanskrit library
 hosted at https://ambuda.org. We wrote this guide for anyone who wants to run
 Ambuda locally or contribute to Ambuda's technical work.
 
-This doc is owned by our community, and it is a constant work in progress. If
-you have any questions or comments about the material here, please ask us on
-our `Discord`_ server.
+This doc is owned by our community, and it is a constant work in progress. We
+strive to keep it current, but even so, parts of it might be out of date.
+
+If you have any questions or comments about the material here, please reach out
+to us on our `Discord`_ server so that we can improve our documentation.
 
 .. _Discord: https://discord.gg/7rGdTyWY7Z
 
@@ -34,7 +31,7 @@ Running the development server
 
    quickstart
    installation
-   using-ambuda-in-development
+   creating-data-from-the-command-line
 
 
 A map of the codebase

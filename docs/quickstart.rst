@@ -7,14 +7,19 @@ All of Ambuda's major commands are in `Makefile`.
 Fresh setup
 -----------
 
-After you've cloned the repo, you can can set up the server with the following::
+After you've cloned the repo, you can bring up a minimal setup by running the
+following command::
 
     make install
-    make db_seed_basic
 
 .. collapse:: Debug info
 
-    In case `make db_seed_basic` fails with an error (due some change in the database structure) and you already have a local `database.db` - try deleting it. Also see "Database migrations" below.
+    In case this fails with an error (due some change in the database structure) and you already have a local `database.db` - try deleting it. Also see "Database migrations" below.
+
+Next, run the following commands to create a new admin user::
+
+    ./cli.py create-user
+    ./cli.py add-role <username> admin
 
 
 Some parts of Ambuda, such as PDF parsing, need to run tasks in the background.
@@ -55,8 +60,8 @@ Linting and testing
 For linting, you can use::
 
     # Lints both JS and Python.
-    # To lint just Python, run `black .`
-    # To lint just JS, run `make eslint`.
+    # - To lint just Python, run `black .`
+    # - To lint just JS, run `make js-lint`.
     make lint
 
 To run unit tests, you can simply run::

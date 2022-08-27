@@ -1,30 +1,22 @@
 """Views for basic site pages."""
 
-from datetime import datetime
 from pathlib import Path
 
-from celery.result import AsyncResult
 from flask import (
     Blueprint,
-    abort,
     current_app,
     flash,
     render_template,
-    redirect,
-    request,
-    url_for,
 )
 from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from slugify import slugify
-from werkzeug.utils import secure_filename
 from wtforms import StringField, FileField
 from wtforms.validators import DataRequired
 
 import ambuda.queries as q
 from ambuda import database as db
 from ambuda.tasks import projects as project_tasks
-from ambuda.views.proofing.utils import _get_image_filesystem_path
 
 
 bp = Blueprint("proofing", __name__)
@@ -164,3 +156,16 @@ def recent_changes():
         session.query(db.Revision).order_by(db.Revision.created.desc()).limit(100).all()
     )
     return render_template("proofing/recent-changes.html", revisions=recent_revisions)
+
+
+@bp.route("/talk")
+def talk():
+    """Show discussion across all projects."""
+    session = q.get_session()
+    projects = q.projects()
+
+    # FIXME: optimize this once we have a higher thread volume.
+    all_threads = [(p, t) for p in projects for t in p.board.threads]
+    all_threads.sort(key=lambda x: x[1].updated_at, reverse=True)
+
+    return render_template("proofing/talk.html", all_threads=all_threads)

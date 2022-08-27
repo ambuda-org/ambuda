@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from pathlib import Path
+
 import click
 import getpass
 from slugify import slugify
@@ -10,6 +12,7 @@ import ambuda
 from ambuda import database as db
 from ambuda import queries as q
 from ambuda.seed.utils.itihasa_utils import create_db
+from ambuda.tasks.projects import _create_project_inner, LocalTaskStatus
 
 
 engine = create_db()
@@ -22,7 +25,10 @@ def cli():
 
 @cli.command()
 def create_user():
-    """Add the given role to the given user."""
+    """Create a new user.
+
+    This command is best used in development to quickly create new users.
+    """
     username = input("Username: ")
     raw_password = getpass.getpass("Password: ")
     email = input("Email: ")
@@ -46,10 +52,14 @@ def create_user():
 
 
 @cli.command()
-@click.argument("username")
-@click.argument("role")
-def add_role(username: str, role: str):
-    """Add the given role to the given user."""
+@click.option("--username", help="the user to modify")
+@click.option("--role", help="the role to add")
+def add_role(username, role):
+    """Add the given role to the given user.
+
+    In particular, `add-role <user> admin` will give a user administrator
+    privileges and grant them full access to Ambuda's data and content.
+    """
     with Session(engine) as session:
         u = session.query(db.User).where(db.User.username == username).first()
         if u is None:
@@ -67,9 +77,10 @@ def add_role(username: str, role: str):
 
 
 @cli.command()
-@click.argument("title")
-def create_test_project(title):
-    """Create a test proofing project with 100 pages."""
+@click.option("--title", help="title of the new project")
+@click.option("--pdf-path", help="path to the source PDF")
+def create_project(title, pdf_path):
+    """Create a proofing project from a PDF."""
     current_app = ambuda.create_app("development")
     with current_app.app_context():
         session = q.get_session()
@@ -82,20 +93,18 @@ def create_test_project(title):
             )
 
         slug = slugify(title)
-        q.create_project(title=title, slug=slug, creator_id=arbitrary_user.id)
-        project = q.project(slug)
-
-        default_status = session.query(db.PageStatus).filter_by(name="reviewed-0").one()
-        for i in range(1, 101):
-            page = db.Page(
-                project_id=project.id,
-                slug=str(i),
-                order=i,
-                status_id=default_status.id,
-            )
-            session.add(page)
-        session.commit()
-    print(f'Created project "{title}" with slug "{slug}".')
+        page_image_dir = (
+            Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / slug / "pages"
+        )
+        page_image_dir.mkdir(parents=True, exist_ok=True)
+        _create_project_inner(
+            title=title,
+            pdf_path=pdf_path,
+            output_dir=str(page_image_dir),
+            app_environment=current_app.config["AMBUDA_ENVIRONMENT"],
+            creator_id=arbitrary_user.id,
+            task_status=LocalTaskStatus(),
+        )
 
 
 if __name__ == "__main__":

@@ -61,6 +61,7 @@ LAKARAS = {
     "lot": "imperative",
     "lan": "imperfect",
     "vidhilin": "optative",
+    "ashirlin": "benedictive",
     "lun": "aorist",
     "lun_unaug": "aorist (unaugmented)",
     "lrn": "conditional",

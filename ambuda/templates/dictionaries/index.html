@@ -41,7 +41,8 @@ different languages.
   <select
       id="dict--script"
       class="text-sm bg-zinc-100 text-zinc-400 hover:text-zinc-800 p-1"
-      @change="setScript($event.target.value)">
+      x-model="uiScript"
+      @change="updateScript">
     {% include 'include/script-options.html' %}
   </select>
 </form>

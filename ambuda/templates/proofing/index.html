@@ -24,6 +24,7 @@
 
 <ul class="list-disc">
   <li><a href="{{ url_for("proofing.create_project") }}">Create a new project</a></li>
+  <li><a href="{{ url_for("proofing.talk") }}">Talk</a></li>
   <li><a href="{{ url_for("proofing.recent_changes") }}">Recent changes</a></li>
   <li><a href="{{ url_for("proofing.tagging.index") }}">Tagging</a></li>
 </ul>
@@ -57,7 +58,7 @@
 {% for p in projects %}
 <li>
   <div class="mt-4 a-hover-underline flex justify-between items-baseline">
-    <a href="{{ url_for("proofing.projects.summary", slug=p.slug) }}">{{ p.title }}</a>
+    <a href="{{ url_for("proofing.project.summary", slug=p.slug) }}">{{ p.title }}</a>
     <span class="text-xs">({{ all_page_counts[p.slug] }} pages)</span>
   </div>
 

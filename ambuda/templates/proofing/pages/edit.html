@@ -20,17 +20,17 @@
 <header class="border-b py-2 flex justify-between items-center mb-4 a-hover-underline">
   <h1 class="text">
     <a class="text-black font-bold"
-        href="{{ url_for("proofing.projects.summary", slug=project.slug) }}">
+        href="{{ url_for("proofing.project.summary", slug=project.slug) }}">
        {{ project.title }}</a>
     / {{ cur.slug }}
   </h1>
-  {% set edit_url = url_for("proofing.pages.edit", project_slug=project.slug, page_slug=cur.slug) %}
-  {% set history_url = url_for("proofing.pages.history", project_slug=project.slug, page_slug=cur.slug) %}
+  {% set edit_url = url_for("proofing.page.edit", project_slug=project.slug, page_slug=cur.slug) %}
+  {% set history_url = url_for("proofing.page.history", project_slug=project.slug, page_slug=cur.slug) %}
   <nav class="flex text-slate-700 text-md">
     <a class="block p-2" href="{{ edit_url }}">Edit</a>
     <a class="block p-2" href="{{ history_url }}">History</a>
-    {% set prev_url = url_for('proofing.pages.edit', project_slug=project.slug, page_slug=prev.slug) %}
-    {% set next_url = url_for('proofing.pages.edit', project_slug=project.slug, page_slug=next.slug) %}
+    {% set prev_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=prev.slug) %}
+    {% set next_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=next.slug) %}
     <a class="block p-2" href="{{ prev_url }}">&larr;</a>
     <a class="block p-2" href="{{ next_url }}">&rarr;</a>
   </nav>
@@ -40,8 +40,33 @@
 
 {% macro dropdown_item(fn, text) %}
 <li>
-  <button class="dropdown-item" @click.prevent="{{ fn }}">{{ text }}</button>
+  <button class="dropdown-item" @click.prevent="{{ fn }}">{{ text|safe }}</button>
 </li>
+{% endmacro %}
+
+
+{#
+Print a row of Latin characters.
+Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
+{% macro _latin_char_row(chars, class) %}
+<div class="grid {{ class }}">
+{% for char in chars.split() %}
+  <button class="hover:bg-slate-100 rounded p-1">{{ char.upper()|safe }}</button>
+  <button class="hover:bg-slate-100 rounded p-1">{{ char|safe }}</button>
+{% endfor %}
+</div>
+{% endmacro %}
+
+
+{#
+Print a row of Devanagari characters.
+Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
+{% macro _devanagari_char_row(chars, class) %}
+<div class="text-xl grid {{ class }}">
+{% for char in chars.split() %}
+  <button class="hover:bg-slate-100 rounded p-1">{{ char|safe }}</button>
+{% endfor %}
+</div>
 {% endmacro %}
 
 
@@ -52,7 +77,7 @@
     <button class="block p-2 hover:bg-slate-100"
        @click.prevent="open=!open"
        @click.outside="open=false">Layout</button>
-    <div x-show="open" class="dropdown-pane">
+    <div x-show="open" class="dropdown-pane w-48">
       <ul class="text-sm" @click.prevent="open=false">
         {{ dropdown_item('displaySideBySide', 'Image right, text left') }}
         {{ dropdown_item('displayTopAndBottom', 'Image above, text below') }}
@@ -64,12 +89,61 @@
     <button class="block p-2 hover:bg-slate-100"
        @click.prevent="open=!open"
        @click.outside="open=false">Mark text</button>
-    <div x-show="open" class="dropdown-pane">
+    <div x-show="open" class="dropdown-pane w-48">
       <ul class="text-sm" @click.prevent="open=false">
         {{ dropdown_item('markAsError', 'Mark as error') }}
         {{ dropdown_item('markAsFix', 'Mark as fix') }}
         {{ dropdown_item('markAsUnclear', 'Mark as unclear') }}
         {{ dropdown_item('markAsFootnoteNumber', 'Mark as footnote number') }}
+      </ul>
+    </div>
+  </div>
+
+  <div x-data="{open: false}" class="relative" @click.outside="open=false">
+    <button class="block p-2 hover:bg-slate-100"
+       @click.prevent="open=!open">Transliterate</button>
+    <div x-show="open" class="dropdown-pane w-64 p-2">
+      <div class="mb-2 flex justify-between">
+        <label>From:</label>
+        <select x-model="fromScript">
+          <option value="hk">Harvard-Kyoto</option>
+          <option value="itrans">ITRANS</option>
+        </select>
+      </div>
+
+      <div class="mb-2 flex justify-between">
+        <label>To:</label>
+        <select x-model="toScript">
+          <option value="devanagari">Devanagari</option>
+          <option value="iast">IAST</option>
+        </select>
+      </div>
+
+      <button class="mt-4 btn btn-basic block w-full"
+          @click.prevent="transliterate; open=false">
+          Transliterate selected text
+      </button>
+    </div>
+  </div>
+
+  <div x-data="{open: false}" class="relative">
+    <button class="block p-2 hover:bg-slate-100"
+       @click.prevent="open=!open"
+       @click.outside="open=false">Characters</button>
+    <div x-show="open" class="p-2 dropdown-pane w-60" @click.prevent="copyCharacter">
+      <p class="text-xs text-center mb-2">Click a character to copy it.</p>
+      <ul class="text-center">
+        {{ _latin_char_row('ā á â à', 'grid-cols-8') }}
+        {{ _latin_char_row('ī í î ì', 'grid-cols-8') }}
+        {{ _latin_char_row('ū ú û ù', 'grid-cols-8') }}
+        {{ _latin_char_row('ṛ ṝ ḷ ḹ', 'grid-cols-8') }}
+        {{ _latin_char_row('ē é ê è', 'grid-cols-8') }}
+        {{ _latin_char_row('ō ó ô ò', 'grid-cols-8') }}
+        {{ _latin_char_row('ḥ ṁ ṃ', 'grid-cols-6') }}
+        {{ _latin_char_row('ṅ ñ ṇ', 'grid-cols-6') }}
+        {{ _latin_char_row('ṭ ḍ ś ṣ ç', 'grid-cols-10') }}
+        {{ _devanagari_char_row('&#x0964; &#x0965; &#x093d; &#x0970; &#xa8f2; &#xa8f3;',
+            'grid-cols-6') }}
       </ul>
     </div>
   </div>
@@ -104,18 +178,18 @@
     {{ form.version }}
 
     {{ toolbar() }}
-    <div :class="layout">
+    <div :class="layoutClasses">
       {# Text box #}
       <div class="flex flex-col flex-1 border border-r-slate-400">
         <div class="bg-slate-200 flex justify-between">
           <div>
             <button
                 type="button"
-                class="p-2 hover:bg-slate-300"
+                class="btn bg-sky-700 text-white m-2 hover:bg-sky-900"
                 @click="runOCR"
                 :disabled="isRunningOCR"
-                x-text="isRunningOCR ? '...' : 'OCR'">
-              OCR
+                x-text="isRunningOCR ? 'Running ...' : 'Run OCR'">
+              Run OCR
             </button>
           </div>
           <div>
