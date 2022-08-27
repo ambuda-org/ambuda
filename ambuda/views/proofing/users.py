@@ -33,9 +33,16 @@ def user(username):
     revision_counts = heatmap.count_revisions_per_day(revisions)
 
     dates = heatmap.create_calendar_dates()
-    date_rows = {x: [] for x in (7, 1, 2, 3, 4, 5, 6)}
+    weeks = []
+    row = []
     for d in dates:
-        date_rows[d.isoweekday()].append(d)
+        if d.isoweekday() == 7:
+            if row:
+                weeks.append(row)
+            row = []
+        row.append(d)
+    if row:
+        weeks.append(row)
 
     month_labels = heatmap.create_month_labels(dates)
 
@@ -43,7 +50,7 @@ def user(username):
         "proofing/user.html",
         user=user_,
         dates=dates,
-        date_rows=date_rows,
+        weeks=weeks,
         month_labels=month_labels,
         revision_counts=revision_counts,
     )

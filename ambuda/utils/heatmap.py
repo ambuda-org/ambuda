@@ -22,8 +22,7 @@ CLASSES = {
 @dataclass
 class MonthLabel:
     name: str
-    span: int
-    classes: str
+    offset: int
 
 
 def count_revisions_per_day(revisions) -> dict[datetime, int]:
@@ -72,28 +71,23 @@ def create_month_labels(dates: list[date]) -> list[MonthLabel]:
     num_weeks = len(dates) // DAYS_PER_WEEK + (1 if len(dates) % DAYS_PER_WEEK else 0)
 
     # Find each month and where it starts in the grid.
+    labels = []
     for i in range(num_weeks):
         sunday = dates[i * DAYS_PER_WEEK]
+        print(i, sunday, flush=True)
         if sunday.month != cur_month:
             cur_month = sunday.month
             # Skip partial months
             if sunday.day > 7:
                 continue
 
-            months_and_indices.append((sunday.month, i))
-            cur_month = sunday.month
+            if sunday.day == 1:
+                offset = i
+            else:
+                offset = i - 1
 
-    months_and_indices.append((None, num_weeks + 1))
-
-    # Convert indices to spans.
-    labels = []
-    for i, (month, index) in enumerate(months_and_indices[:-1]):
-        next_index = months_and_indices[i + 1][1]
-        width = next_index - index
-        labels.append(
-            MonthLabel(
-                name=calendar.month_abbr[month], span=width, classes=CLASSES[width]
+            labels.append(
+                MonthLabel(name=calendar.month_abbr[sunday.month], offset=offset)
             )
-        )
-
+            cur_month = sunday.month
     return labels

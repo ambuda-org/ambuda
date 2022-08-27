@@ -2,11 +2,12 @@
 {% import "macros/components.html" as components %}
 {% import "macros/proofing.html" as m %}
 
+
 {% macro color(count) -%}
-  {%- if count == 0 -%}bg-slate-100
-  {%- elif count == 1 -%}bg-sky-100
-  {%- elif count == 2 -%}bg-sky-200
-  {%- else %}bg-sky-300
+  {%- if count == 0 -%}l1
+  {%- elif count == 1 -%}l2
+  {%- elif count == 2 -%}l3
+  {%- else %}l1
   {%- endif -%}
 {%- endmacro %}
 
@@ -27,40 +28,47 @@
 <h2>Revisions</h2>
 </div>
 
-{# "flex flex-col items-end" right-aligns the heatmap on overflow. #}
-{# Use "overflow-x-clip" because "-hidden" causes a vertical scrollbar. #}
-<div class="flex">
+{% set box_width = 12 %}
+{% set box_gap = 2 %}
+{% set box_total = box_width + box_gap %}
+{% set day_margin = 30 %}
+{% set month_margin = 20 %}
+{% set width = day_margin + box_total * (weeks|length + 1) %}
+<svg class="heatmap" width="{{ width }}">
 
-<ul class="text-xs pr-2">
-  {# Empty first row to leave space for columns. #}
-  <li class="h-3 mb-0.5">&nbsp;</li>
-  <li class="h-3 mb-0.5">Sun</li>
-  <li class="h-3 mb-0.5">&nbsp;</li>
-  <li class="h-3 mb-0.5">Tue</li>
-  <li class="h-3 mb-0.5">&nbsp;</li>
-  <li class="h-3 mb-0.5">Thu</li>
-  <li class="h-3 mb-0.5">&nbsp;</li>
-  <li class="h-3">Sat</li>
-</ul>
-
-<div class="flex flex-col items-end overflow-x-clip">
-  {# Months (column labels) #}
-  <ul class="flex text-xs">
-    {% for month in month_labels %}
-    <li class="{{ month.classes }}">{{ month.name }}</li>
+  {# Boxes #}
+  <g transform="translate({{ day_margin }}, {{ month_margin }})">
+    {% for week in weeks %}
+    {% set i_week = loop.index0 %}
+    <g transform="translate({{ i_week * box_total }}, 0)">
+      {% for date in week %}
+      {% set count = revision_counts.get(date, 0) %}
+      <g>
+      <title>{{ count }} edit{% if count != 1 %}s{% endif %} on {{ date }}</title>
+      <rect class="{{ color(count) }}"
+            width="{{ box_width }}" height="{{ box_width }}"
+            x="0" y="{{ loop.index0 * box_total }}"
+            rx="2" ry="2"></rect>
+      </g>
+      {% endfor %}
+    </g>
     {% endfor %}
-  </ul>
+  </g>
 
-  {# Cells #}
-  <div class="grid grid-rows-7 grid-flow-col gap-0.5">
-  {% for date in dates %}
-    {% set count = revision_counts.get(date, 0) %}
-    {% set title = "1 edit" if count == 1 else "{} edits".format(count) -%}
-    <div class="w-3 h-3 rounded-0.5 {{ color(count) }}" title="{{ title }}"></div>
-    {% endfor %}
-  </div>
-</div>
+  {# Months #}
+  <g transform="translate({{ day_margin }}, 0)">
+  {% for month in month_labels %}
+    {% set offset_x = month.offset * box_total %}
+    <text x="{{ offset_x }}" y="{{ month_margin - 4 }}">{{ month.name }}</text>
+  {% endfor %}
+  </g>
 
-</div>
+  {# Days of the week #}
+  <g>
+  {% for day in ['Sun', '', 'Tue', '', 'Thu', '', 'Sat'] %}
+    <text x="0" y="{{ month_margin + loop.index * box_total - 4 }}">{{ day }}</text>
+  {% endfor %}
+  </g>
+</svg>
 {% endblock %}
 

@@ -155,5 +155,14 @@
   .mw-entry [lang=sa] {
     @apply text-green-600;
   }
+
+  /* heatmap */
+  .heatmap text {
+    @apply text-xs;
+  }
+  .heatmap rect.l1 { @apply fill-slate-100; }
+  .heatmap rect.l2 { @apply fill-sky-100; }
+  .heatmap rect.l3 { @apply fill-sky-200; }
+  .heatmap rect.l4 { @apply fill-sky-300; }
 }
 
