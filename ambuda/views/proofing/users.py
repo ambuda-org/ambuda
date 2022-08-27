@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
+from typing import Optional
 
 from flask import (
     Blueprint,
@@ -14,6 +15,10 @@ from wtforms import BooleanField, FormField
 import ambuda.queries as q
 from ambuda import database as db
 from ambuda.utils.auth import admin_required
+
+
+#: ISO weekday correspanding to Sunday.
+ISO_SUNDAY = 7
 
 
 bp = Blueprint("users", __name__)
@@ -37,6 +42,25 @@ def _count_user_revisions_per_day(user_id: int) -> dict[datetime, int]:
     return counts
 
 
+def _get_heatmap_dates(last_date: Optional[date] = None):
+    """Return a year's worth of dates up to and including `last_date`.
+
+    We construct a year's worth of dates then backfill until the first date is
+    on a Sunday.
+
+    :param `last_date`: the last date to include.
+    """
+    last_date = last_date or datetime.now().date()
+
+    # Round start date to nearest Sunday.
+    first_date = last_date - timedelta(days=365)
+    if first_date.isoweekday() != ISO_SUNDAY:
+        first_date -= timedelta(days=first_date.isoweekday())
+
+    num_days = (last_date - first_date).days
+    return [first_date + timedelta(days=i) for i in range(num_days)]
+
+
 @bp.route("/<username>/")
 def user(username):
     user_ = q.user(username)
@@ -45,11 +69,7 @@ def user(username):
 
     revision_counts = _count_user_revisions_per_day(user_.id)
 
-    end = datetime.now().date()
-    dates_1y = [end]
-    for i in range(1, 365):
-        dates_1y.append(end - timedelta(days=i))
-    dates_1y = reversed(dates_1y)
+    dates_1y = _get_heatmap_dates()
     return render_template(
         "proofing/user.html",
         user=user_,
