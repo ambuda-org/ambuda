@@ -25,6 +25,13 @@ class MonthLabel:
     offset: int
 
 
+@dataclass
+class HeatmapData:
+    weeks: list[list[date]]
+    month_labels: list[MonthLabel]
+    counts: dict[date, int]
+
+
 def count_revisions_per_day(revisions) -> dict[datetime, int]:
     counts = {}
     for r in sorted(revisions, key=lambda x: x.created):
@@ -64,8 +71,6 @@ def create_month_labels(dates: list[date]) -> list[MonthLabel]:
     if not dates:
         return []
 
-    labels = []
-    months_and_indices = []
     cur_month = None
 
     num_weeks = len(dates) // DAYS_PER_WEEK + (1 if len(dates) % DAYS_PER_WEEK else 0)
@@ -91,3 +96,29 @@ def create_month_labels(dates: list[date]) -> list[MonthLabel]:
             )
             cur_month = sunday.month
     return labels
+
+
+def group_by_week(dates: list[date]) -> list[list[date]]:
+    weeks = []
+    row = []
+    for d in dates:
+        if d.isoweekday() == 7:
+            if row:
+                weeks.append(row)
+            row = []
+        row.append(d)
+    if row:
+        weeks.append(row)
+    return weeks
+
+
+def create(date_counts: dict[date, int]) -> HeatmapData:
+    dates = create_calendar_dates()
+    weeks = group_by_week(dates)
+    month_labels = create_month_labels(dates)
+
+    return HeatmapData(
+        weeks=weeks,
+        month_labels=month_labels,
+        counts=date_counts,
+    )

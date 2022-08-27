@@ -3,11 +3,10 @@ from flask import (
     abort,
     flash,
     render_template,
-    request,
 )
 
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, FormField
+from wtforms import BooleanField
 
 import ambuda.queries as q
 from ambuda import database as db
@@ -30,29 +29,13 @@ def user(username):
 
     session = q.get_session()
     revisions = session.query(db.Revision).filter_by(author_id=user_.id).all()
-    revision_counts = heatmap.count_revisions_per_day(revisions)
-
-    dates = heatmap.create_calendar_dates()
-    weeks = []
-    row = []
-    for d in dates:
-        if d.isoweekday() == 7:
-            if row:
-                weeks.append(row)
-            row = []
-        row.append(d)
-    if row:
-        weeks.append(row)
-
-    month_labels = heatmap.create_month_labels(dates)
+    counts_by_date = heatmap.count_revisions_per_day(revisions)
+    hm = heatmap.create(counts_by_date)
 
     return render_template(
         "proofing/user.html",
         user=user_,
-        dates=dates,
-        weeks=weeks,
-        month_labels=month_labels,
-        revision_counts=revision_counts,
+        heatmap=hm,
     )
 
 
