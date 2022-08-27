@@ -3,6 +3,10 @@
 {% import "proofing/pages/editor-components.html" as editor %}
 
 
+{# Show a button icon inline. #}
+{% macro _button(text) %}<span class="p-1 bg-slate-200">{{ text|safe }}</span>{% endmacro %}
+
+
 {# Embed an HTML widget as a figure. #}
 {% macro html_figure(caption) %}
 <figure class="my-12">
@@ -76,30 +80,57 @@ below:</p>
 {% endcall %}
 
 <div class="prose">
-<p>The menu bar contains various powerful features to help you transcribe a
-page:</p>
+<p>The menu bar contains various features to help you transcribe a page.</p>
+
+<p><dfn>Layout</dfn> lets you change the layout of different parts of the
+editor:</p>
 
 <ul>
-  <li><p><dfn>Layout</dfn> lets you change the layout of different parts of the
-      editor. For example, one user like to have the page image above the text
-      she's transcribing, whereas anotehr might like to have the page sit
-      side-by-side with the text.</p></li>
-
-  <li><p><dfn>Markup</dfn> lets you annotate parts of the text. These
-      annotations are mostly for other proofers. For example, you can <kbd>Mark
-      as unclear</kbd> to indicate that a piece of text is hard to read or
-      understand.</p></li>
-
-  <li><p><dfn>Transliterator</dfn> lets you convert the text you select into
-      Devanagari or IAST. The transliterater is useful if you don't have any
-      other way to type Devanagari or IAST on your computer.</p></li>
-
-  <li><p><dfn>Characters</dfn> lets you quickly select special characters that
-      are hard to type. These include various accented Roman characters and a
-      few special Devanagari symbols.</p></li>
-
-  <li><dfn>Help</dfn> loads the page you're reading right now.</p></li>
+  <li><p><i>Image right, text left</i> shows the image to the right of the
+      text. This view is great for simple texts and for viewing the page as a
+      whole.</p></li>
+  <li><p><i>Image above, text below</i> shows the image on the right and the
+      text on the left. This view is great for complicated work or for focusing
+      on individual words.</p></li>
 </ul>
+
+<p><dfn>Markup</dfn> lets you annotate different parts of the text:</p>
+
+{% set footnote_docs =  url_for("proofing.complete_guide", _anchor='para-footnotes') %}
+<ul>
+  <li><p>Use <i>Mark as error</i> to annotate typos in the source text. We will
+      not display these errors in our final text, but it's important to keep
+      track of them so that it's clear which changes came from the source text
+      an which changes came from our own judgment.</p></li>
+  <li><p>Use <i>Mark as fix</i> to annotate fixes to errors in the source
+      text.</p></li>
+  <li><p>Use <i>Mark as unclear</i> to annotate text that is difficult to read
+      or understand. Other more experienced proofers can help take a look and
+      resolve the issue.</p></li>
+  <li><p>Use <i>Mark as footnote</i> to annotate footnote numbers and letters.
+      For details on what you should annotate, see our <a href="{{ footnote_docs }}">
+      complete proofing guide</a>.</p></li>
+</ul>
+
+<p><dfn>Transliterator</dfn> lets you convert the text you select into
+Devanagari or IAST. The transliterator is useful if you don't have any
+other way to type Devanagari or IAST on your computer.</p>
+
+{% set itrans = "https://en.wikipedia.org/wiki/ITRANS" %}
+{% set hk = "https://en.wikipedia.org/wiki/Harvard-Kyoto" %}
+<ul>
+  <li><p>Use <i>From</i> to define the input encoding. We currently support
+      <a href="{{ itrans }}">ITRANS</a> and <a href="{{ hk }}">Harvard-Kyoto</a>.
+      </p></li>
+  <li><p>Use <i>To</i> to define the output script. We currently support
+      Devanagari and IAST.</p></li>
+</ul>
+
+<p><dfn>Characters</dfn> lets you quickly select special characters that
+are hard to type. These include various accented Roman characters and a
+few special Devanagari symbols.</p>
+
+<dfn>Help</dfn> loads the page you're reading right now.</p></li>
 
 
 <h2>The text editor</h2>
@@ -134,6 +165,11 @@ that will try to recognize all of the letters in the original image.</p>
 <p>The <i>A<sup>+</sup></i> and <i>A<sup>-</sup></i> buttons in the upper-right
 let you change the text size, in case you find it hard to read.</p>
 
+<ul>
+  <li><p>Use {{ _button('A<sup>+</sup>') }} to increase the text size.</p></li>
+  <li><p>Use {{ _button('A<sup>-</sup>') }} to decrease the text size.</p></li>
+</ul>
+
 
 <h2>The image viewer</h2>
 
@@ -155,9 +191,23 @@ let you change the text size, in case you find it hard to read.</p>
 {% endcall %}
 
 <div class="prose">
+
 <p>The image viewer contains various controls that let you change the image's
 zoom and rotation. We provide these controls so that you can view an image
 comfortably and clearly.</p>
+
+<ul>
+  <li><p>Use {{ _button('&#x1f50d;<sup>+</sup>') }} to zoom in and increase the
+      image size.</p></li>
+  <li><p>Use {{ _button('&#x1f50d;<sup>0</sup>') }} to reset the image
+      zoom.</p></li>
+  <li><p>Use {{ _button('&#x1f50d;<sup>-</sup>') }} to zoom out and decrease
+      the image size.</p></li>
+  <li><p>Use {{ _button('&#x27f2;') }} to rotate the image counterclockwise by
+      90 degrees.</p></li>
+  <li><p>Use {{ _button('&#x27f3;') }} to rotate the image clockwise by 90
+      degrees.</p></li>
+</ul>
 
 
 <h2>The submission form</h2>
@@ -190,11 +240,20 @@ below:</p>
 
 <div class="prose">
 
-<p>The submission form is how you save all of your changes. If your change is
-subtle, you can leave an optional summary of your changes.</p>
+<p>If your change is subtle, you can leave an optional summary of your
+changes. Most changes don't need an explicit summary.</p>
 
 <p>The <i>Status</i> dropdown is critical, as it lets others know what the
-status of this page is.</p>
+status of this page is:</p>
+
+<ul>
+  <li><p>Use <i>Needs more work</i> if the page doesn't look good to you.</p></li>
+  <li><p>Use <i>Proofread once</i> if the page looks good to you.</p></li>
+  <li><p>Use <i>Proofread twice</i> if the page looks good to you <em>and</em>
+      someone else has marked it as <i>Proofread once</i>.</p></li>
+  <li><p>Use <i>No useful text</i> if the page is empty or irrelevant to the
+      project.</p></li>
+</ul>
 
 
 <h2>How to get more help</h2>
