@@ -218,7 +218,7 @@ export default () => ({
     this.changeSelectedText((s) => Sanscript.t(s, this.fromScript, this.toScript));
     this.saveSettings();
   },
- 
+
   // Character controls
 
   copyCharacter(e) {
