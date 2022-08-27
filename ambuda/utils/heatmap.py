@@ -2,7 +2,7 @@
 
 Known issues:
 - This logic is not timezone-sensitive and treats all dates as UTC.
-- This logic is not timezone-sensitive and uses English day and month names.
+- This logic is not locale-sensitive and uses English day and month names.
 """
 
 import calendar
