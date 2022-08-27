@@ -1,49 +1,52 @@
-"""Utilities for creating a GitHub-style calendar heatmap of user activity."""
+"""Utilities for creating a GitHub-style calendar heatmap of user activity.
+
+Known issues:
+- This logic is not timezone-sensitive and treats all dates as UTC.
+- This logic is not timezone-sensitive and uses English day and month names.
+"""
 
 import calendar
+import math
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from typing import Optional
-
+from typing import Optional, Iterator
 
 #: ISO weekday correspanding to Sunday.
 ISO_SUNDAY = 7
 #: Number of days per week.
 DAYS_PER_WEEK = 7
 
-#: Classes for each month span.
-#: A month always takes at least 4 weeks and at most 5 weeks.
-CLASSES = {
-    4: "w-[3rem] bg-red",
-    5: "w-[3.75rem] bg-red",
-}
-
 
 @dataclass
 class MonthLabel:
+    #: The label for this month
     name: str
+    #: The 0-indexed week offset for this month against some list of dates.
     offset: int
 
 
 @dataclass
 class HeatmapData:
+    #: A list of 7-day blocks each starting with Sunday.
     weeks: list[list[date]]
+    #: A list of month labels with column offsets.
     month_labels: list[MonthLabel]
+    #: The counts per date.
     counts: dict[date, int]
 
 
-def count_revisions_per_day(revisions) -> dict[datetime, int]:
+def _count_per_date(iter_date: Iterator[date]) -> dict[date, int]:
+    """Create a simple histogram over the given dates."""
     counts = {}
-    for r in sorted(revisions, key=lambda x: x.created):
-        key = r.created.date()
-        if key not in counts:
-            counts[key] = 1
+    for d in sorted(iter_date):
+        if d not in counts:
+            counts[d] = 1
         else:
-            counts[key] += 1
+            counts[d] += 1
     return counts
 
 
-def create_calendar_dates(last_date: Optional[date] = None) -> list[date]:
+def _create_calendar_dates(last_date: Optional[date] = None) -> list[date]:
     """Return a year's worth of dates up to and including `last_date`.
 
     We construct a year's worth of dates then backfill until the first date is
@@ -59,30 +62,24 @@ def create_calendar_dates(last_date: Optional[date] = None) -> list[date]:
         first_date -= timedelta(days=first_date.isoweekday())
 
     num_days = (last_date - first_date).days
-    return [first_date + timedelta(days=i) for i in range(num_days)]
+    return [first_date + timedelta(days=i) for i in range(num_days + 1)]
 
 
-def create_month_labels(dates: list[date]) -> list[MonthLabel]:
+def _create_month_labels(dates: list[date]) -> list[MonthLabel]:
     """Create column-aligned month labels for the heatmap.
 
     :param dates: a continuous list of calendar dates whose first date is
         on a Sunday.
     """
-    if not dates:
-        return []
 
-    cur_month = None
-
-    num_weeks = len(dates) // DAYS_PER_WEEK + (1 if len(dates) % DAYS_PER_WEEK else 0)
-
-    # Find each month and where it starts in the grid.
+    num_weeks = math.ceil(len(dates) / DAYS_PER_WEEK)
     labels = []
+    cur_month = None
     for i in range(num_weeks):
         sunday = dates[i * DAYS_PER_WEEK]
-        print(i, sunday, flush=True)
+        # Start of new month.
         if sunday.month != cur_month:
             cur_month = sunday.month
-            # Skip partial months
             if sunday.day > 7:
                 continue
 
@@ -98,7 +95,11 @@ def create_month_labels(dates: list[date]) -> list[MonthLabel]:
     return labels
 
 
-def group_by_week(dates: list[date]) -> list[list[date]]:
+def _group_by_week(dates: list[date]) -> list[list[date]]:
+    """Group the given dates by week. Each week starts on Sunday.
+
+    :param dates: a sorted list of dates.
+    """
     weeks = []
     row = []
     for d in dates:
@@ -112,13 +113,19 @@ def group_by_week(dates: list[date]) -> list[list[date]]:
     return weeks
 
 
-def create(date_counts: dict[date, int]) -> HeatmapData:
-    dates = create_calendar_dates()
-    weeks = group_by_week(dates)
-    month_labels = create_month_labels(dates)
+def create(date_iter: Iterator[date]) -> HeatmapData:
+    """Create the data needed to render a calendar heatmap.
+
+    :param date_iter: an iterator of date events. The more date appear, the
+        more intense its heatmap color will be.
+    """
+    counts = _count_per_date(date_iter)
+    dates = _create_calendar_dates()
+    weeks = _group_by_week(dates)
+    month_labels = _create_month_labels(dates)
 
     return HeatmapData(
         weeks=weeks,
         month_labels=month_labels,
-        counts=date_counts,
+        counts=counts,
     )

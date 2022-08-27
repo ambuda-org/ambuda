@@ -29,8 +29,7 @@ def user(username):
 
     session = q.get_session()
     revisions = session.query(db.Revision).filter_by(author_id=user_.id).all()
-    counts_by_date = heatmap.count_revisions_per_day(revisions)
-    hm = heatmap.create(counts_by_date)
+    hm = heatmap.create(r.created.date() for r in revisions)
 
     return render_template(
         "proofing/user.html",

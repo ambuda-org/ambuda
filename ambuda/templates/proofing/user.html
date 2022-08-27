@@ -12,6 +12,12 @@
 {%- endmacro %}
 
 
+{# Display a heatmap as an SVG.
+
+HTML tables are inflexible and hard to style, and HTML elements with `grid`
+are finicky and difficult to style precisely. Creating an SVG directly was
+the most straightforward way to implement this logic.
+#}
 {% macro show_heatmap(heatmap) %}
 {% set box_width = 12 %}
 {% set box_gap = 2 %}
