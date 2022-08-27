@@ -4,7 +4,7 @@ alembic==1.8.0
 amqp==5.1.1
 async-generator==1.10
 async-timeout==4.0.2
-attrs==21.4.0
+attrs==22.1.0
 Babel==2.10.3
 backports.functools-lru-cache==1.6.4
 bcrypt==4.0.0
