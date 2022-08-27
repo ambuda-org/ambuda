@@ -2,7 +2,17 @@
 {% import "macros/components.html" as components %}
 {% import "macros/proofing.html" as m %}
 
+{% macro color(count) -%}
+  {%- if count == 0 -%}bg-slate-100
+  {%- elif count == 1 -%}bg-sky-100
+  {%- elif count == 2 -%}bg-sky-200
+  {%- else %}bg-sky-300
+  {%- endif -%}
+{%- endmacro %}
+
+
 {% block title %}User: {{ user.username }} | Ambuda{% endblock %}
+
 
 {% block content %}
 
@@ -11,7 +21,18 @@
 <h1 class="font-bold text-3xl my-4">{{ user.username }}</h1>
 {{ m.user_tabs(user=user, active='about', is_admin=current_user.is_admin) }}
 
+<div class="prose">
 <p>This user joined {{ user.created_at|time_ago }}.</p>
 
+<h2>Revisions</h2>
+</div>
+
+<div class="inline-grid grid-rows-7 grid-flow-col gap-0.5">
+{% for date in dates_1y %}
+  {% set count = revision_counts.get(date, 0) %}
+  {% set title = "1 edit" if count == 1 else "{} edits".format(count) %}
+  <div class="w-3 h-3 rounded-0.5 {{ color(count) }}" title="{{ title }}"></div>
+  {% endfor %}
+</div>
 {% endblock %}
 

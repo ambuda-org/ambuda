@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from flask import (
     Blueprint,
     abort,
@@ -21,16 +23,38 @@ class RolesForm(FlaskForm):
     pass
 
 
+def _count_user_revisions_per_day(user_id: int) -> dict[datetime, int]:
+    session = q.get_session()
+    revisions = session.query(db.Revision).filter_by(author_id=user_id).all()
+
+    counts = {}
+    for r in sorted(revisions, key=lambda x: x.created):
+        key = r.created.date()
+        if key not in counts:
+            counts[key] = 1
+        else:
+            counts[key] += 1
+    return counts
+
+
 @bp.route("/<username>/")
 def user(username):
     user_ = q.user(username)
     if not user_:
         abort(404)
 
-    session = q.get_session()
+    revision_counts = _count_user_revisions_per_day(user_.id)
+
+    end = datetime.now().date()
+    dates_1y = [end]
+    for i in range(1, 365):
+        dates_1y.append(end - timedelta(days=i))
+    dates_1y = reversed(dates_1y)
     return render_template(
         "proofing/user.html",
         user=user_,
+        dates_1y=dates_1y,
+        revision_counts=revision_counts,
     )
 
 
