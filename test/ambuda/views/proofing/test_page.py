@@ -66,20 +66,25 @@ def test_revision__bad_revision_non_numeric(client):
     r = client.get("/proofing/test-project/1/revision/unknown")
     assert r.status_code == 404
 
+
 def test_split_graphemes():
     split = page._split_graphemes("उत्क्रामन्तं")
-    assert split == ['उ', 'त्', 'क्', 'रा', 'म', 'न्', 'तं']
-    assert split[0:2] == 'उत्'
+    assert split == ["उ", "त्", "क्", "रा", "म", "न्", "तं"]
+    assert split[0:2] == "उत्"
+
 
 def test_revision_diff():
-    diff = page._revision_diff('वापि', 'वापिं')
-    assert diff == 'वा<del>पि</del><ins>पिं</ins>'
+    diff = page._revision_diff("वापि", "वापिं")
+    assert diff == "वा<del>पि</del><ins>पिं</ins>"
 
-    diff = page._revision_diff('पिहित', 'पिहितः')
-    assert diff == 'पिहि<del>त</del><ins>तः</ins>'
+    diff = page._revision_diff("पिहित", "पिहितः")
+    assert diff == "पिहि<del>त</del><ins>तः</ins>"
 
-    diff = page._revision_diff('नमस्ते', 'नम॑स्ते')
-    assert diff == 'न<del>म</del><ins>म॑</ins>स्ते'
+    diff = page._revision_diff("नमस्ते", "नम॑स्ते")
+    assert diff == "न<del>म</del><ins>म॑</ins>स्ते"
 
-    diff = page._revision_diff('वापि', 'वापि\n')
-    assert diff == 'वापि<ins>\n</ins>'
+    diff = page._revision_diff("वापि", "वापि\n")
+    assert diff == 'वापि<ins class="block">\n</ins>'
+
+    diff = page._revision_diff("\r\nवापि", "वापि\r\n")
+    assert diff == '<del class="block">\r\n</del>वापि<ins class="block">\r\n</ins>'

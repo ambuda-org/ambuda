@@ -134,7 +134,7 @@ def _create_markup(tag: str, s: str) -> tuple[Markup, Markup, Markup]:
     attr = ""
     if s in ("\n", "\r\n"):
         # Display newline changes as block so they show up in the diff.
-        attr = " class=\"block\""
+        attr = ' class="block"'
     return (
         Markup(f"<{tag}{attr}>"),
         escape(s),
