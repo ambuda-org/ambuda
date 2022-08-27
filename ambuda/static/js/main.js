@@ -5,6 +5,7 @@ import Dictionary from './dictionary';
 import Reader from './reader';
 import Proofer from './proofer';
 import HamburgerButton from './hamburger-button';
+import ProofingCreatePoll from './proofing-create-poll';
 
 window.addEventListener('alpine:init', () => {
   Alpine.data('dictionary', Dictionary);
@@ -14,6 +15,7 @@ window.addEventListener('alpine:init', () => {
 
 (() => {
   HamburgerButton.init();
+  ProofingCreatePoll.init();
 })();
 
 // Export a few internal values to support some existing ad-hoc usage (e.g.,

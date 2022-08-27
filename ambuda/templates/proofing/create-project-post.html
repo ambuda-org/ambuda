@@ -22,13 +22,6 @@
 </div>
 </div>
 
-<script type="text/javascript">
-  const taskId = '{{ task_id }}';
-  setInterval(function() {
-    Server.getText(`/proofing/status/${taskId}`, (text) => {
-      $('#progress').innerHTML = text;
-    });
-  }, 5000);
-</script>
+<script type="application/json" id="proofing_polling_task_id">"{{ task_id }}"</script>
 
 {% endblock %}
