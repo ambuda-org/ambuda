@@ -98,7 +98,7 @@ pytest-coverage==0.0
 python-dateutil==2.8.2
 python-dotenv==0.20.0
 python-slugify==6.1.2
-pytz==2022.1
+pytz==2022.2.1
 PyYAML==6.0
 redis==4.3.4
 regex==2022.6.2
