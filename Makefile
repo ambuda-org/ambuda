@@ -94,11 +94,13 @@ css-prod:
 # Run esbuild to build our JavaScript, and rebuild our JavaScript every time a
 # relevant file changes.
 js-dev:
-	npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --watch
+	npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --watch &
+	npx esbuild ambuda/static/js/pm-editor/pm-editor.ts --outfile=ambuda/static/gen/prosemirror_bundle.js --bundle --watch
 
 # Build JS for production.
 js-prod:
 	npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --minify
+	npx esbuild ambuda/static/js/pm-editor/pm-editor.ts --outfile=ambuda/static/gen/prosemirror_bundle.js --bundle --minify
 
 js-test:
 	npx jest
