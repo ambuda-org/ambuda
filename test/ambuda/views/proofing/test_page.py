@@ -70,6 +70,7 @@ def test_revision__bad_revision_non_numeric(client):
 def test_split_graphemes():
     split = page._split_graphemes("उत्क्रामन्तं")
     assert split == ["उ", "त्", "क्", "रा", "म", "न्", "तं"]
+    assert split[0] == "उ"
     assert split[0:2] == "उत्"
 
 
