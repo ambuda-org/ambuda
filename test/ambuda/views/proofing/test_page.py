@@ -73,6 +73,14 @@ def test_split_graphemes():
     assert split[0:2] == "उत्"
 
 
+def test_create_markup():
+    markup = page._create_markup("ins", "test")
+    assert markup == ("<ins>", "test", "</ins>")
+
+    markup = page._create_markup("del", "\n")
+    assert markup == ('<del class="block">', "\n", "</del>")
+
+
 def test_revision_diff():
     diff = page._revision_diff("वापि", "वापिं")
     assert diff == "वा<del>पि</del><ins>पिं</ins>"
