@@ -6,8 +6,8 @@
 {% macro color(count) -%}
   {%- if count == 0 -%}l1
   {%- elif count == 1 -%}l2
-  {%- elif count == 2 -%}l3
-  {%- else %}l1
+  {%- elif count <= 5 -%}l3
+  {%- else %}l4
   {%- endif -%}
 {%- endmacro %}
 
