@@ -18,7 +18,7 @@ class GraphemeList(list):
         return super().__getitem__(key)
 
 
-def _split_graphemes(s: str) -> str:
+def _split_graphemes(s: str) -> GraphemeList:
     """Splits the given string into graphemes and returns
     a list of those graphemes."""
 
