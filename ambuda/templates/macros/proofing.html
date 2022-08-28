@@ -1,6 +1,14 @@
 {% import 'macros/components.html' as components %}
 
 
+{% macro title_and_subtitle(title, subtitle = none) %}
+<header class="mb-4">
+  <h1 class="font-bold text-3xl">{{ title|safe }}</h1>
+  {% if subtitle %}<p class="mt-1 text-slate-500">{{ subtitle|safe }}</p>{% endif %}
+</header>
+{% endmacro %}
+
+
 {% macro project_header_nested(label, project) %}
 {% set url = url_for("proofing.project.summary", slug=project.slug) %}
 {{ nested_header(label, project.title, url) }}
@@ -8,9 +16,37 @@
 
 
 {% macro nested_header(label, title, url) %}
-<header class="a-hover-underline font-bold text-3xl my-4">
+<header class="a-hover-underline font-bold text-3xl mb-4">
   <h1>{{ label }}: <a class="text-slate-400" href="{{ url }}">{{ title }}</a></h1>
 </header>
+{% endmacro %}
+
+
+{# Main-level sidebar. #}
+{% macro main_nav(active = none) %}
+{% macro _link(label, route, text) -%}
+{% if active == label %}<li class="font-bold text-black">{% else %}<li>{% endif %}
+<a href="{{ url_for(route) }}">{{ text|safe }}</a>
+</li>
+{%- endmacro %}
+
+<nav class="rounded bg-slate-100 text-slate-500 p-4 a-hover-underline text-sm">
+<h1 class="font-bold">Help</h1>
+<ul class="list-disc pl-6">
+  {{ _link('beginners', "proofing.beginners_guide", "Beginner's guide") }}
+  {{ _link('complete', "proofing.complete_guide", "Complete guide") }}
+  {{ _link('manual', "proofing.editor_guide", "Editor manual") }}
+</ul>
+
+<h1 class="mt-2 font-bold">Contribute</h1>
+<ul class="list-disc pl-6">
+  {{ _link('projects', "proofing.index", "Ongoing projects") }}
+  {{ _link('create', "proofing.create_project", "Create project") }}
+  {{ _link('changes', "proofing.recent_changes", "Recent changes</a></li>") }}
+  {{ _link('tagging', "proofing.tagging.index", "Tagging</a></li>") }}
+  {{ _link('talk', "proofing.talk", "Talk") }}
+</ul>
+</nav>
 {% endmacro %}
 
 

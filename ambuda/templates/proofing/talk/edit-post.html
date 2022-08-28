@@ -11,7 +11,7 @@
 
 {{ show_errors_if_any(form.errors) }}
 
-<form method="POST" class="p-4 bg-zinc-100">
+<form method="POST" class="p-4 bg-slate-100">
   {{ form.csrf_token }}
   {{ m_talk.post(form.content) }}
   <input type="submit" class="btn btn-submit" value="Save edits">

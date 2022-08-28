@@ -1,5 +1,6 @@
-{% extends 'base-text.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/components.html" as components %}
+{% import "macros/proofing.html" as m %}
 {% import "proofing/pages/editor-components.html" as editor %}
 
 
@@ -19,6 +20,9 @@
 
 
 {% block title %}How to use the page editor | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('manual') }}{% endblock %}
 
 
 {% block content %}

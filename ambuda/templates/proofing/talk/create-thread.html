@@ -1,8 +1,14 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/forms.html" as mf %}
+{% import "macros/proofing.html" as m %}
 {% import "macros/talk.html" as m_talk %}
 
+
 {% block title %}Create thread on {{ project.title }} | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
+
 
 {% block content %}
 <div class="prose">
@@ -11,7 +17,7 @@
 
 {{ mf.show_errors_if_any(form.errors) }}
 
-<form method="POST" class="p-4 bg-zinc-100">
+<form method="POST" class="p-4 bg-slate-100">
   {{ form.csrf_token }}
   {{ mf.field(form.title) }}
   {{ mf.label(form.content.label) }}
