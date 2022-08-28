@@ -14,7 +14,8 @@ def hashed_static(filename: str) -> str:
     """Add cache busting for asset URLs.
 
     We append a small hash prefix that represents the asset's content. The
-    `functools.cache` decorator calls this function at most once per deploy.
+    `functools.cache` decorator memoizes the function, and a s a result, we
+    hash the given asset file at most once per worker deploy.
     """
     asset_path = STATIC_DIR / filename
     try:
