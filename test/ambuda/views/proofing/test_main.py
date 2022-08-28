@@ -29,7 +29,7 @@ def test_beginners_guide(client):
 
 def test_complete_guide(client):
     resp = client.get("/proofing/help/complete-guide")
-    assert "Proofing guidelines" in resp.text
+    assert "Complete guide" in resp.text
 
 
 def test_recent_changes(client):
@@ -49,4 +49,4 @@ def test_create_project__auth(rama_client):
 
 def test_talk(client):
     resp = client.get("/proofing/talk")
-    assert "Proofing talk" in resp.text
+    assert "Talk" in resp.text
