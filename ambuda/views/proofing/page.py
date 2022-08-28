@@ -1,11 +1,8 @@
-import difflib
 from pathlib import Path
-import regex
 
 from flask import render_template, flash, current_app, send_file, Blueprint
 from flask_login import login_required, current_user
 from flask_wtf import FlaskForm
-from markupsafe import escape, Markup
 from sqlalchemy import update
 from werkzeug.exceptions import abort
 from wtforms import StringField, HiddenField, SelectField
@@ -14,6 +11,7 @@ from wtforms.widgets import TextArea
 
 from ambuda import database as db, queries as q
 from ambuda.utils import google_ocr
+from ambuda.utils.diff import revision_diff
 from ambuda.views.api import bp as api
 from ambuda.views.site import bp as site
 
@@ -109,58 +107,6 @@ def add_revision(
     session.add(revision_)
     session.commit()
     return new_version
-
-
-def _split_graphemes(s: str) -> str:
-    """Splits the given string into graphemes and returns
-    a list of those graphemes. Taking a slice of the list
-    returns a string (rather than a list) so that the list
-    can be passed into difflib.SequenceMatcher properly."""
-
-    class CustomList(list):
-        def __getitem__(self, key):
-            if isinstance(key, slice):
-                # Slice should return a string.
-                return "".join(super().__getitem__(key))
-            return super().__getitem__(key)
-
-    # \X splits the word into graphemes.
-    return CustomList(regex.findall(r"\X", s))
-
-
-def _create_markup(tag: str, s: str) -> tuple[Markup, Markup, Markup]:
-    """Create markup for the given tag and string,
-    used to denote additions / deletions for diffs."""
-    assert tag in ("ins", "del")
-    attr = ""
-    if s in ("\n", "\r\n"):
-        # Display newline changes as block so they show up in the diff.
-        attr = ' class="block"'
-    return (
-        Markup(f"<{tag}{attr}>"),
-        escape(s),
-        Markup(f"</{tag}>"),
-    )
-
-
-def _revision_diff(old: str, new: str) -> str:
-    """Generate a diff from old and new strings, wrapping
-    additions / removals in HTML tags."""
-    matcher = difflib.SequenceMatcher(a=_split_graphemes(old), b=_split_graphemes(new))
-    output = []
-    for opcode, a0, a1, b0, b1 in matcher.get_opcodes():
-        if opcode == "equal":
-            output.append(escape(matcher.a[a0:a1]))
-        elif opcode == "insert":
-            output.extend(_create_markup("ins", matcher.b[b0:b1]))
-        elif opcode == "delete":
-            output.extend(_create_markup("del", matcher.a[a0:a1]))
-        elif opcode == "replace":
-            output.extend(_create_markup("del", matcher.a[a0:a1]))
-            output.extend(_create_markup("ins", matcher.b[b0:b1]))
-        else:
-            raise RuntimeError(f"Unexpected opcode {opcode}")
-    return "".join(output)
 
 
 @bp.route("/<project_slug>/<page_slug>/")
@@ -287,9 +233,9 @@ def revision(project_slug, page_slug, revision_id):
         abort(404)
 
     if prev_revision:
-        diff = _revision_diff(prev_revision.content, cur_revision.content)
+        diff = revision_diff(prev_revision.content, cur_revision.content)
     else:
-        diff = _revision_diff("", cur_revision.content)
+        diff = revision_diff("", cur_revision.content)
 
     return render_template(
         "proofing/pages/revision.html",
