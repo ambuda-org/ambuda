@@ -1,7 +1,12 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/proofing.html" as m %}
 
+
 {% block title %}Recent changes | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('changes') }}{% endblock %}
+
 
 {% block content %}
 <div class="prose">

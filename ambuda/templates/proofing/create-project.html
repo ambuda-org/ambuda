@@ -1,4 +1,5 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
+
 {% import "macros/components.html" as components %}
 {% import "macros/proofing.html" as m %}
 {% import "macros/talk.html" as m_talk %}
@@ -6,6 +7,9 @@
 
 
 {% block title %}Create a new project | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('create') }}{% endblock %}
 
 
 {% block content %}
@@ -19,7 +23,7 @@
 {{ components.flash_messages() }}
 {{ mf.show_errors_if_any(form.errors) }}
 
-<form action="" class="p-4 bg-zinc-100" method="POST" enctype="multipart/form-data">
+<form action="" class="p-4 bg-slate-100" method="POST" enctype="multipart/form-data">
   {{ form.csrf_token }}
   {{ mf.field(form.file) }}
   {{ mf.field(form.title) }}
