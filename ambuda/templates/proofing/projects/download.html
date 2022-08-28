@@ -1,10 +1,14 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/proofing.html" as m %}
+
 
 {% block title %}Download: {{ project.title }} | Ambuda{% endblock %}
 
-{% block content %}
 
+{% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}
+
+
+{% block content %}
 {{ m.project_header_nested('Download', project) }}
 {{ m.project_nav(project=project, active='download', is_admin=current_user.is_admin) }}
 
@@ -15,8 +19,8 @@
   you.</p>
 
 <ul class="my-4 pb-4">
-  <li><a href="{{ url_for("proofing.projects.download_as_text", slug=project.slug) }}">Download as plain text</a></li>
-  <li><a href="{{ url_for("proofing.projects.download_as_xml", slug=project.slug) }}">Download as TEI XML</a></li>
+  <li><a href="{{ url_for("proofing.project.download_as_text", slug=project.slug) }}">Download as plain text</a></li>
+  <li><a href="{{ url_for("proofing.project.download_as_xml", slug=project.slug) }}">Download as TEI XML</a></li>
 </ul>
 
 </div>

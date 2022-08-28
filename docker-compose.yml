@@ -1,0 +1,32 @@
+version: '3.4'
+
+services:
+  app:
+    build: .
+    tty: true
+    volumes:
+      - .:/app
+    ports:
+      - '5000:5000'
+    environment:
+      - FLASK_ENV=development
+      - FLASK_UPLOAD_FOLDER=/app/data/file-uploads
+      - SQLALCHEMY_DATABASE_URI=sqlite:///database.db
+      - SECRET_KEY=insecure development secret key
+      - GOOGLE_APPLICATION_CREDENTIALS=<Google API credentials>
+      - REDIS_URL=redis://redis:6379/0
+
+  celery:
+    build: .
+    command: make celery
+    volumes:
+      - .:/app
+    environment:
+    - REDIS_URL=redis://redis:6379/0
+    depends_on:
+    - redis
+    
+  redis:
+    image: redis:7.0.4
+    ports:
+      - '6379:6379'

@@ -5,9 +5,8 @@ For a high-level overview of the application and how to operate it, see:
 https://ambuda.readthedocs.io/en/latest/
 """
 
-import os
-from pathlib import Path
-
+import logging
+import sys
 import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask
@@ -17,16 +16,17 @@ from sqlalchemy import exc
 import config
 from ambuda import auth as auth_manager
 from ambuda import admin as admin_manager
-from ambuda import database
+from ambuda import checks
 from ambuda import filters
 from ambuda import queries
+from ambuda.mail import mailer
+from ambuda.utils import assets
 from ambuda.views.about import bp as about
 from ambuda.views.auth import bp as auth
 from ambuda.views.api import bp as api
 from ambuda.views.dictionaries import bp as dictionaries
 from ambuda.views.proofing import bp as proofing
-from ambuda.views.proofing.tagging import bp as tagging
-from ambuda.views.reader.cheda import bp as parses
+from ambuda.views.reader.parses import bp as parses
 from ambuda.views.reader.texts import bp as texts
 from ambuda.views.site import bp as site
 
@@ -64,6 +64,15 @@ def _initialize_db_session(app, config_name: str):
             session.rollback()
 
 
+def _initialize_logger(config: config.BaseConfig) -> None:
+    handler = logging.StreamHandler(sys.stderr)
+    handler.setFormatter(
+        logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
+    )
+    logging.getLogger().setLevel(config.LOG_LEVEL)
+    logging.getLogger().addHandler(handler)
+
+
 def create_app(config_env: str):
     """Initialize the Ambuda application."""
 
@@ -71,6 +80,10 @@ def create_app(config_env: str):
     # different configurations.
     load_dotenv(".env")
     config_spec = config.load_config_object(config_env)
+
+    # Sanity checks
+    if config_env != config.TESTING:
+        checks.check_app_schema_matches_db_schema(config_spec.SQLALCHEMY_DATABASE_URI)
 
     # Initialize Sentry monitoring only in production so that our Sentry page
     # contains only production warnings (as opposed to dev warnings).
@@ -85,12 +98,16 @@ def create_app(config_env: str):
     # Config
     app.config.from_object(config_spec)
 
+    # Logger
+    _initialize_logger(config_spec)
+
     # Database
     _initialize_db_session(app, config_env)
 
     # Extensions
     login_manager = auth_manager.create_login_manager()
     login_manager.init_app(app)
+    mailer.init_app(app)
 
     with app.app_context():
         admin = admin_manager.create_admin_manager(app)
@@ -116,5 +133,6 @@ def create_app(config_env: str):
             "time_ago": filters.time_ago,
         }
     )
+    app.jinja_env.globals.update({"asset": assets.hashed_static})
 
     return app

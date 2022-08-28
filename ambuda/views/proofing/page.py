@@ -1,9 +1,8 @@
-import difflib
+from pathlib import Path
 
 from flask import render_template, flash, current_app, send_file, Blueprint
 from flask_login import login_required, current_user
 from flask_wtf import FlaskForm
-from markupsafe import escape, Markup
 from sqlalchemy import update
 from werkzeug.exceptions import abort
 from wtforms import StringField, HiddenField, SelectField
@@ -12,12 +11,18 @@ from wtforms.widgets import TextArea
 
 from ambuda import database as db, queries as q
 from ambuda.utils import google_ocr
+from ambuda.utils.diff import revision_diff
 from ambuda.views.api import bp as api
-from ambuda.views.proofing.utils import _get_image_filesystem_path
 from ambuda.views.site import bp as site
 
 
-bp = Blueprint("pages", __name__)
+bp = Blueprint("page", __name__)
+
+
+def _get_image_filesystem_path(project_slug: str, page_slug: str) -> Path:
+    """Get the location of the given image on disk."""
+    image_dir = Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / project_slug
+    return image_dir / "pages" / f"{page_slug}.jpg"
 
 
 class EditException(Exception):
@@ -33,7 +38,7 @@ class EditPageForm(FlaskForm):
     status = SelectField(
         "Status",
         choices=[
-            ("reviewed-0", "Unreviewed"),
+            ("reviewed-0", "Needs more work"),
             ("reviewed-1", "Proofread once"),
             ("reviewed-2", "Proofread twice"),
             ("skip", "No useful text"),
@@ -102,48 +107,6 @@ def add_revision(
     session.add(revision_)
     session.commit()
     return new_version
-
-
-def _revision_diff(old: str, new: str) -> str:
-    matcher = difflib.SequenceMatcher(a=old, b=new)
-    output = []
-    for opcode, a0, a1, b0, b1 in matcher.get_opcodes():
-        if opcode == "equal":
-            output.append(escape(matcher.a[a0:a1]))
-        elif opcode == "insert":
-            output.extend(
-                [
-                    Markup("<ins>"),
-                    escape(matcher.b[b0:b1]),
-                    Markup("</ins>"),
-                ]
-            )
-        elif opcode == "delete":
-            output.extend(
-                [
-                    Markup("<del>"),
-                    escape(matcher.a[a0:a1]),
-                    Markup("</del>"),
-                ]
-            )
-        elif opcode == "replace":
-            output.extend(
-                [
-                    Markup("<del>"),
-                    escape(matcher.a[a0:a1]),
-                    Markup("</del>"),
-                ]
-            )
-            output.extend(
-                [
-                    Markup("<ins>"),
-                    escape(matcher.b[b0:b1]),
-                    Markup("</ins>"),
-                ]
-            )
-        else:
-            raise RuntimeError(f"Unexpected opcode {opcode}")
-    return "".join(output)
 
 
 @bp.route("/<project_slug>/<page_slug>/")
@@ -227,7 +190,6 @@ def page_image(project_slug, page_slug):
     # In production, serve this directly via nginx.
     assert current_app.debug
     image_path = _get_image_filesystem_path(project_slug, page_slug)
-    print(image_path)
     return send_file(image_path)
 
 
@@ -271,9 +233,9 @@ def revision(project_slug, page_slug, revision_id):
         abort(404)
 
     if prev_revision:
-        diff = _revision_diff(prev_revision.content, cur_revision.content)
+        diff = revision_diff(prev_revision.content, cur_revision.content)
     else:
-        diff = _revision_diff("", cur_revision.content)
+        diff = revision_diff("", cur_revision.content)
 
     return render_template(
         "proofing/pages/revision.html",

@@ -13,25 +13,40 @@ def test_delete():
     assert paren.tail is None
 
 
-def test_paren__text_only():
+def test_text_of():
+    xml = ET.fromstring('<div><paren class="foo">test</paren></div>')
+    assert x._text_of(xml, "./paren", default="bar") == "test"
+    assert x._text_of(xml, "./missing", default="bar") == "bar"
+
+
+def test_sanskrit_text():
+    xml = ET.fromstring("<s><b>a</b>i</s>")
+    x.sanskrit_text(xml)
+    assert (
+        ET.tostring(xml, encoding="utf-8").decode("utf-8")
+        == '<span lang="sa"><b>अ</b>इ</span>'
+    )
+
+
+def test_paren_rule__text_only():
     xml = ET.fromstring("<paren>test</paren>")
     x.paren_rule(xml)
     output = ET.tostring(xml).decode("utf-8")
     assert output == '<span class="paren">(test)</span>'
 
 
-def test_paren__text_and_child():
+def test_paren_rule__text_and_child():
     xml = ET.fromstring("<paren>test <b>foo</b></paren>")
     x.paren_rule(xml)
     output = ET.tostring(xml).decode("utf-8")
     assert output == '<span class="paren">(test <b>foo</b>)</span>'
 
 
-def test_to_verse():
-    xml = ET.fromstring('<lg xml:id="Test">verse</lg>')
-    x.to_verse(xml)
-    assert xml.tag == "s-lg"
-    assert xml.attrib == {"id": "Test"}
+def test_transform_text_block():
+    blob = '<lg xml:id="Test">verse</lg>'
+    block = x.transform_text_block(blob)
+    assert block.id == "Test"
+    assert block.html == "<s-lg>verse</s-lg>"
 
 
 def test_transform():
@@ -91,5 +106,20 @@ def test_parse_tei_header():
     assert parsed["publisher"] == "Ambuda"
 
 
-def test_parse_tei_header__missing():
+def test_parse_tei_header__elements_missing():
+    header = """
+    <teiHeader xml:lang="en">
+      <fileDesc>
+        <titleStmt>
+        </titleStmt>
+      </fileDesc>
+    </teiHeader>
+    """
+    parsed = x.parse_tei_header(header)
+    assert parsed["title"] == "Unknown"
+    assert parsed["author"] == "Unknown"
+    assert parsed["publisher"] == "Unknown"
+
+
+def test_parse_tei_header__undefined():
     assert x.parse_tei_header(None) == {}

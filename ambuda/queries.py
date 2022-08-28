@@ -160,20 +160,6 @@ def project(slug: str) -> Optional[db.Project]:
     return session.query(db.Project).filter(db.Project.slug == slug).first()
 
 
-def create_project(*, title: str, slug: str):
-    session = get_session()
-
-    board = db.Board(title=f"{slug} discussion board")
-    session.add(board)
-    session.flush()
-
-    project = db.Project(slug=slug, title=title)
-    project.board_id = board.id
-
-    session.add(project)
-    session.commit()
-
-
 def thread(*, id: int) -> Optional[db.Thread]:
     session = get_session()
     return session.query(db.Thread).filter_by(id=id).first()

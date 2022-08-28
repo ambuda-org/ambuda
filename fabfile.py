@@ -70,14 +70,10 @@ def deploy_to_commit(_, pointer: str):
         with c.prefix("source env/bin/activate"):
             c.run("pip install -r requirements.txt")
 
-        # Build production CSS with Tailwind.
+        # Build production frontend assets.
         c.run("npm install")
-        c.run(
-            (
-                "npx tailwindcss -i ./ambuda/static/css/style.css "
-                "-o ambuda/static/gen/style.css --minify"
-            )
-        )
+        c.run("make css-prod")
+        c.run("make js-prod")
 
         # Verify that unit tests pass on prod.
         with c.prefix("source env/bin/activate"):

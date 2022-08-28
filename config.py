@@ -21,6 +21,7 @@ from typing import Optional
 
 from dotenv import load_dotenv
 from flask import Flask
+import logging
 
 
 # Load dotenv early so that `_env` will work in the class definitions below.
@@ -35,6 +36,11 @@ PRODUCTION = "production"
 
 
 def _make_path(path: Path):
+    """Create a path if it doesn't exist already.
+
+    If possible, avoid using this function so that our config code has fewer
+    side effects. Currently, we use this function only to set up unit tests.
+    """
     path.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -42,7 +48,8 @@ def _make_path(path: Path):
 def _env(key: str, default=None) -> Optional[str]:
     """Fetch a value from the local environment.
 
-    :param key: the envvar to fetch
+    :param key: the environment variable to fetch
+    :return: a value, or ``None`` if the variable is undefined.
     """
     return os.environ.get(key, default)
 
@@ -74,8 +81,28 @@ class BaseConfig:
     #: Where to store user uploads (PDFs, images, etc.).
     UPLOAD_FOLDER = _env("FLASK_UPLOAD_FOLDER")
 
+    #: Logger setup
+    LOG_LEVEL = logging.INFO
+
     # Extensions
     # ----------
+
+    # Flask-Mail
+
+    #: URL for mail server.
+    MAIL_SERVER = _env("MAIL_SERVER")
+    #: Port for mail server.
+    MAIL_PORT = _env("MAIL_PORT")
+    #: If ``True``, use TLS for email encryption.
+    MAIL_USE_TLS = True
+    #: Username for mail server.
+    MAIL_USERNAME = _env("MAIL_USERNAME")
+    #: Password for mail server.
+    MAIL_PASSWORD = _env("MAIL_PASSWORD")
+    #: Default sender for site emails.
+    MAIL_DEFAULT_SENDER = _env("MAIL_DEFAULT_SENDER")
+
+    # Flask-WTF
 
     #: If True, enable cross-site request forgery (CSRF) protection.
     #: This must be True in production.
@@ -90,7 +117,7 @@ class BaseConfig:
     #: ReCAPTCHA private key.
     RECAPTCHA_PRIVATE_KEY = _env("RECAPTCHA_PRIVATE_KEY")
 
-    #: Sentry data source name (DSN)
+    #: Sentry data source name (DSN).
     #: We use Sentry to get notifications about server errors.
     SENTRY_DSN = _env("SENTRY_DSN")
 
@@ -117,6 +144,9 @@ class UnitTestConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     UPLOAD_FOLDER = _make_path(Path(__file__).parent / "data" / "file-uploads")
 
+    #: Logger setup
+    LOG_LEVEL = logging.DEBUG
+
     #: Disable CSRF protection for unit tests, since the Flask test runner
     #: doesn't have good support for it.
     WTF_CSRF_ENABLED = False
@@ -131,11 +161,17 @@ class DevelopmentConfig(BaseConfig):
     AMBUDA_ENVIRONMENT = DEVELOPMENT
     DEBUG = True
 
+    #: Logger setup
+    LOG_LEVEL = logging.DEBUG
+
 
 class ProductionConfig(BaseConfig):
     """For production."""
 
     AMBUDA_ENVIRONMENT = PRODUCTION
+
+    #: Logger setup
+    LOG_LEVEL = logging.INFO
 
     # Deployment credentials
     # ----------------------

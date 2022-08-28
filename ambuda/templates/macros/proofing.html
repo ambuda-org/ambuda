@@ -1,29 +1,65 @@
 {% import 'macros/components.html' as components %}
 
 
+{% macro title_and_subtitle(title, subtitle = none) %}
+<header class="mb-4">
+  <h1 class="font-bold text-3xl">{{ title|safe }}</h1>
+  {% if subtitle %}<p class="mt-1 text-slate-500">{{ subtitle|safe }}</p>{% endif %}
+</header>
+{% endmacro %}
+
+
 {% macro project_header_nested(label, project) %}
-{% set url = url_for("proofing.projects.summary", slug=project.slug) %}
+{% set url = url_for("proofing.project.summary", slug=project.slug) %}
 {{ nested_header(label, project.title, url) }}
 {% endmacro %}
 
 
 {% macro nested_header(label, title, url) %}
-<header class="a-hover-underline font-bold text-3xl my-4">
+<header class="a-hover-underline font-bold text-3xl mb-4">
   <h1>{{ label }}: <a class="text-slate-400" href="{{ url }}">{{ title }}</a></h1>
 </header>
+{% endmacro %}
+
+
+{# Main-level sidebar. #}
+{% macro main_nav(active = none) %}
+{% macro _link(label, route, text) -%}
+{% if active == label %}<li class="font-bold text-black">{% else %}<li>{% endif %}
+<a href="{{ url_for(route) }}">{{ text|safe }}</a>
+</li>
+{%- endmacro %}
+
+<nav class="rounded bg-slate-100 text-slate-500 p-4 a-hover-underline text-sm">
+<h1 class="font-bold">Help</h1>
+<ul class="list-disc pl-6">
+  {{ _link('beginners', "proofing.beginners_guide", "Beginner's guide") }}
+  {{ _link('complete', "proofing.complete_guide", "Complete guide") }}
+  {{ _link('manual', "proofing.editor_guide", "Editor manual") }}
+</ul>
+
+<h1 class="mt-2 font-bold">Contribute</h1>
+<ul class="list-disc pl-6">
+  {{ _link('projects', "proofing.index", "Ongoing projects") }}
+  {{ _link('create', "proofing.create_project", "Create project") }}
+  {{ _link('changes', "proofing.recent_changes", "Recent changes</a></li>") }}
+  {{ _link('tagging', "proofing.tagging.index", "Tagging</a></li>") }}
+  {{ _link('talk', "proofing.talk", "Talk") }}
+</ul>
+</nav>
 {% endmacro %}
 
 
 {# Project-level tabs. #}
 {% macro project_nav(project, active, is_admin = false) %}
 {% set routes = [
-  ("summary",  "Summary",  url_for("proofing.projects.summary", slug=project.slug)),
+  ("summary",  "Summary",  url_for("proofing.project.summary", slug=project.slug)),
   ("talk",     "Talk",     url_for("proofing.talk.board", slug=project.slug)),
-  ("edit",     "Edit",     url_for("proofing.projects.edit", slug=project.slug)),
-  ("download", "Download", url_for("proofing.projects.download", slug=project.slug)),
+  ("edit",     "Edit",     url_for("proofing.project.edit", slug=project.slug)),
+  ("download", "Download", url_for("proofing.project.download", slug=project.slug)),
 ] %}
 {% if is_admin %}{% set routes = routes + [
-  ("admin",    "Admin",    url_for("proofing.projects.admin", slug=project.slug)),
+  ("admin",    "Admin",    url_for("proofing.project.admin", slug=project.slug)),
 ] %}{% endif %}
 
 {{ components.tabs(routes, active) }}
@@ -45,7 +81,7 @@
 
 
 {% macro _page_nav_link(project, page, full_text, short_text) %}
-{% set url = url_for('proofing.pages.edit', project_slug=project.slug, page_slug=page.slug) %}
+{% set url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=page.slug) %}
 <a href="{{ url }}">
   <span class="hidden md:inline">{{ full_text|safe }}</span>
   <span class="inline md:hidden">{{ short_text|safe }}</span>
@@ -58,13 +94,13 @@
   <div>
     <h1 class="text-3xl">
       <a class="text-slate-400 font-bold"
-          href="{{ url_for("proofing.projects.summary", slug=project.slug) }}">
+          href="{{ url_for("proofing.project.summary", slug=project.slug) }}">
          {{ project.title }}</a>
       /{{ cur.slug }}
     </h1>
 
-    {% set edit_url = url_for("proofing.pages.edit", project_slug=project.slug, page_slug=cur.slug) %}
-    {% set history_url = url_for("proofing.pages.history", project_slug=project.slug, page_slug=cur.slug) %}
+    {% set edit_url = url_for("proofing.page.edit", project_slug=project.slug, page_slug=cur.slug) %}
+    {% set history_url = url_for("proofing.page.history", project_slug=project.slug, page_slug=cur.slug) %}
     <nav class="text-slate-500 text-sm">
       <a href="{{ edit_url }}">Edit</a> |
       <a href="{{ history_url }}">History</a>
@@ -83,9 +119,9 @@
 <ul class="a-hover-underline">
   {% for r in revisions %}
   <li class="my-2">
-    {% set revision_url = url_for('proofing.pages.revision',
+    {% set revision_url = url_for('proofing.page.revision',
         project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
-    {% set page_url = url_for('proofing.pages.edit',
+    {% set page_url = url_for('proofing.page.edit',
         project_slug=r.project.slug, page_slug=r.page.slug) %}
     {% set author_url = url_for('proofing.users.user',
         username=r.author.username) %}
@@ -109,9 +145,9 @@
 <ul class="a-hover-underline">
   {% for r in revisions %}
   <li class="my-2">
-    {% set revision_url = url_for('proofing.pages.revision',
+    {% set revision_url = url_for('proofing.page.revision',
         project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
-    {% set page_url = url_for('proofing.pages.edit',
+    {% set page_url = url_for('proofing.page.edit',
         project_slug=r.project.slug, page_slug=r.page.slug) %}
     {% set author_url = url_for('proofing.users.user',
         username=r.author.username) %}

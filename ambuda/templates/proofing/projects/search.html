@@ -1,13 +1,15 @@
 {% extends 'proofing/base.html' %}
 {% from "macros/forms.html" import field %}
+{% import "macros/proofing.html" as m %}
 
 {% block title %}Search {{ project.title }} | Ambuda{% endblock %}
 
 {% block content %}
 
-<div class="prose">
-  <h1>Search {{ project.title }}</h1>
+{{ m.project_header_nested('Search', project) }}
+{{ m.project_nav(project=project, active='edit', is_admin=current_user.is_admin) }}
 
+<div class="prose">
   <p>Use this simple search form to find typos across this project.</p>
 </div>
 
@@ -26,7 +28,7 @@
 
 <ul>
 {% for page in results %}
-{% set page_url = url_for("proofing.pages.edit", project_slug=project.slug, page_slug=page.slug) %}
+{% set page_url = url_for("proofing.page.edit", project_slug=project.slug, page_slug=page.slug) %}
 <li>
     <a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}</a>
     <div class="p-2 border-l my-2">

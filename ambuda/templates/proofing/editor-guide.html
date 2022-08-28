@@ -1,0 +1,270 @@
+{% extends 'proofing/base-sidebar.html' %}
+{% import "macros/components.html" as components %}
+{% import "macros/proofing.html" as m %}
+{% import "proofing/pages/editor-components.html" as editor %}
+
+
+{# Show a button icon inline. #}
+{% macro _button(text) %}<span class="p-1 bg-slate-200">{{ text|safe }}</span>{% endmacro %}
+
+
+{# Embed an HTML widget as a figure. #}
+{% macro html_figure(caption) %}
+<figure class="my-12">
+  <div class="border p-4">
+    {{ caller() }}
+  </div>
+  <figcaption class="text-sm text-slate-600 mt-2 text-center">{{ caption }}</figcaption>
+</figure>
+{% endmacro %}
+
+
+{% block title %}How to use the page editor | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('manual') }}{% endblock %}
+
+
+{% block content %}
+<div class="prose">
+<h1>How to use the page editor</h1>
+
+<p>Our simple and powerful <dfn>page editor</dfn> makes it easy to proofread a
+printed page. This document describes how to use our page editor.</p>
+
+<p>If you instead want to learn more about our proofing work and how you can
+get started, see our <a href="{{ url_for('proofing.beginners_guide')
+}}">beginner's guide to proofing</a>.</p>
+
+
+<h2>The navigation bar</h2>
+
+<p>The page editor starts with a simple <dfn>navigation bar</dfn>, which you
+can see below:</p>
+</div>
+
+{% call html_figure('The navigation bar for a sample project.') %}
+{{ editor.navigation_bar(
+    project={ "title": "madhurAvijayam"|d },
+    cur={ "slug": "14", "status": { "name": "reviewed-1" }},
+    prev={},
+    next={}) }}
+{% endcall %}
+
+<div class="prose">
+
+<p>The navigation bar shows that we're viewing page 14 of the {{
+'madhurAvijayam'|d }} project. You can click on the name of the project to
+return to the main project page.</p>
+
+<p>The <i>History</i> link will take you to the full edit history for this
+page, and the <i>&larr;</i> and <i>&rarr;</i> links will take you to the
+previous and next page, respectively.</p>
+
+<p>Finally, the <i>Proofread once</i> text shows that one person has reviewed
+this page and judged that its transcription was accurate.</p>
+</div>
+
+<div class="prose">
+<h2>The menu bar</h2>
+
+<p>Below the navigation bar is the <dfn>menu bar</dfn>, which you can see
+below:</p>
+</div>
+
+{% call html_figure('A menu bar with multiple options available.') %}
+{% set button_css = "block p-2 hover:bg-slate-100 cursor-pointer" %}
+<nav class="border my-2 rounded flex">
+  <span class="{{ button_css }}">Layout</span>
+  <span class="{{ button_css }}">Markup</span>
+  <span class="{{ button_css }}">Transliterator</span>
+  <span class="{{ button_css }}">Characters</span>
+  <span class="{{ button_css }}">Help</span>
+</nav>
+{% endcall %}
+
+<div class="prose">
+<p>The menu bar contains various features to help you transcribe a page.</p>
+
+<p><dfn>Layout</dfn> lets you change the layout of different parts of the
+editor:</p>
+
+<ul>
+  <li><p><i>Image right, text left</i> shows the image to the right of the
+      text. This view is great for simple texts and for viewing the page as a
+      whole.</p></li>
+  <li><p><i>Image above, text below</i> shows the image on the right and the
+      text on the left. This view is great for complicated work or for focusing
+      on individual words.</p></li>
+</ul>
+
+<p><dfn>Markup</dfn> lets you annotate different parts of the text:</p>
+
+{% set footnote_docs =  url_for("proofing.complete_guide", _anchor='para-footnotes') %}
+<ul>
+  <li><p>Use <i>Mark as error</i> to annotate typos in the source text. We will
+      not display these errors in our final text, but it's important to keep
+      track of them so that it's clear which changes came from the source text
+      an which changes came from our own judgment.</p></li>
+  <li><p>Use <i>Mark as fix</i> to annotate fixes to errors in the source
+      text.</p></li>
+  <li><p>Use <i>Mark as unclear</i> to annotate text that is difficult to read
+      or understand. Other more experienced proofers can help take a look and
+      resolve the issue.</p></li>
+  <li><p>Use <i>Mark as footnote</i> to annotate footnote numbers and letters.
+      For details on what you should annotate, see our <a href="{{ footnote_docs }}">
+      complete proofing guide</a>.</p></li>
+</ul>
+
+<p><dfn>Transliterator</dfn> lets you convert the text you select into
+Devanagari or IAST. The transliterator is useful if you don't have any
+other way to type Devanagari or IAST on your computer.</p>
+
+{% set itrans = "https://en.wikipedia.org/wiki/ITRANS" %}
+{% set hk = "https://en.wikipedia.org/wiki/Harvard-Kyoto" %}
+<ul>
+  <li><p>Use <i>From</i> to define the input encoding. We currently support
+      <a href="{{ itrans }}">ITRANS</a> and <a href="{{ hk }}">Harvard-Kyoto</a>.
+      </p></li>
+  <li><p>Use <i>To</i> to define the output script. We currently support
+      Devanagari and IAST.</p></li>
+</ul>
+
+<p><dfn>Characters</dfn> lets you quickly select special characters that
+are hard to type. These include various accented Roman characters and a
+few special Devanagari symbols.</p>
+
+<dfn>Help</dfn> loads the page you're reading right now.</p></li>
+
+
+<h2>The text editor</h2>
+
+<p>Next is the <dfn>text editor</dfn>, which you can see below:</p>
+</div>
+
+{% call html_figure('A text editor with multiple options.') %}
+<div class="border">
+  <div class="bg-slate-200 flex justify-between">
+    <div>
+      <button type="button" class="btn bg-sky-700 text-white m-2 hover:bg-sky-900">
+        Run OCR
+      </button>
+    </div>
+    <div>
+      {{ editor.alpine_button("A<sup>+</sup>", "increaseTextSize") }}
+      {{ editor.alpine_button("A<sup>-</sup>", "decreaseTextSize") }}
+    </div>
+  </div>
+  <textarea id="content" name="content" required=""
+    class="grow p-2 md:p-4 w-full resize-none h-32">{{ data }}</textarea>
+</div>
+{% endcall %}
+
+<div class="prose">
+<p>If the text box doesn't have any content, you should first click the big
+<i>Run OCR</i> button in the upper-left. This button will run <dfn>optical
+    character recognition</dfn>, a sophisticated machine learning algorithm
+that will try to recognize all of the letters in the original image.</p>
+
+<p>The <i>A<sup>+</sup></i> and <i>A<sup>-</sup></i> buttons in the upper-right
+let you change the text size, in case you find it hard to read.</p>
+
+<ul>
+  <li><p>Use {{ _button('A<sup>+</sup>') }} to increase the text size.</p></li>
+  <li><p>Use {{ _button('A<sup>-</sup>') }} to decrease the text size.</p></li>
+</ul>
+
+
+<h2>The image viewer</h2>
+
+<p>Next we have the <dfn>image viewer</dfn>, which you can see below:</p>
+</div>
+
+{% call html_figure('An image viewer with various options. No image is displayed.') %}
+<div class="flex flex-col flex-1 border bg-slate-100 border">
+  <div class="bg-slate-200">
+    {{ editor.alpine_button("&#x1f50d;<sup>+</sup>", "") }}
+    {{ editor.alpine_button("&#x1f50d;&#x00b0;", "") }}
+    {{ editor.alpine_button("&#x1f50d;<sup>-</sup>", "") }}
+    {{ editor.osd_button("osd-rotate-left", "&#x27f2;") }}
+    {{ editor.osd_button("osd-rotate-right", "&#x27f3;") }}
+  </div>
+
+  <div id="osd-image" class="h-32"></div>
+</div>
+{% endcall %}
+
+<div class="prose">
+
+<p>The image viewer contains various controls that let you change the image's
+zoom and rotation. We provide these controls so that you can view an image
+comfortably and clearly.</p>
+
+<ul>
+  <li><p>Use {{ _button('&#x1f50d;<sup>+</sup>') }} to zoom in and increase the
+      image size.</p></li>
+  <li><p>Use {{ _button('&#x1f50d;<sup>0</sup>') }} to reset the image
+      zoom.</p></li>
+  <li><p>Use {{ _button('&#x1f50d;<sup>-</sup>') }} to zoom out and decrease
+      the image size.</p></li>
+  <li><p>Use {{ _button('&#x27f2;') }} to rotate the image counterclockwise by
+      90 degrees.</p></li>
+  <li><p>Use {{ _button('&#x27f3;') }} to rotate the image clockwise by 90
+      degrees.</p></li>
+</ul>
+
+
+<h2>The submission form</h2>
+
+<p>Last but not least, we have the <dfn>submission form</dfn>, which you can see
+below:</p>
+</div>
+
+{% call html_figure('The submission form.') %}
+<div class="p-4 mt-4 bg-slate-200">
+  <label class="text-slate-600 mb-2 block">Summary of changes made</label>
+  <input type="text" class="block rounded bg-white w-full mb-4 p-2"></input>
+
+  <label class="text-slate-600 mb-2 block">Status</label>
+  <select class="block rounded bg-white w-full mb-4 p-2">
+    <option>Needs more work</option>
+    <option>Proofread once</option>
+    <option>Proofread twice</option>
+    <option>No useful text</option>
+  </select>
+
+  {% set cc0 = "https://creativecommons.org/publicdomain/zero/1.0/" %}
+  <p class="my-4 text-sm">By saving your changes, you agree to release your
+  contribution under the <a class="underline" href="{{ cc0 }}">CC0 (public
+  domain) license</a>.</p>
+  <a href="#" class="inline-block btn btn-submit" type="submit">Publish changes</a>
+</div>
+{% endcall %}
+
+
+<div class="prose">
+
+<p>If your change is subtle, you can leave an optional summary of your
+changes. Most changes don't need an explicit summary.</p>
+
+<p>The <i>Status</i> dropdown is critical, as it lets others know what the
+status of this page is:</p>
+
+<ul>
+  <li><p>Use <i>Needs more work</i> if the page doesn't look good to you.</p></li>
+  <li><p>Use <i>Proofread once</i> if the page looks good to you.</p></li>
+  <li><p>Use <i>Proofread twice</i> if the page looks good to you <em>and</em>
+      someone else has marked it as <i>Proofread once</i>.</p></li>
+  <li><p>Use <i>No useful text</i> if the page is empty or irrelevant to the
+      project.</p></li>
+</ul>
+
+
+<h2>How to get more help</h2>
+
+<p>If you still have questions or comments about this tool, the easiest way to
+let us know about them is to <a href="{{ url_for('about.contact') }}">contact
+us</a> directly. We'll get back to you as soon as we can.</p>
+
+</div>
+{% endblock %}

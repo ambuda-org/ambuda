@@ -38,7 +38,7 @@ setup, see steps 1 and 2 in this `tutorial`_. Copied for reference::
     sudo systemctl status redis
 
     # Should print "PONG"
-    redic-cli ping
+    redis-cli ping
 
 
 .. _tutorial: https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-redis-on-ubuntu-20-04

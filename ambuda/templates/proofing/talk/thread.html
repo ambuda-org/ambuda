@@ -1,4 +1,4 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/proofing.html" as m %}
 {% from "macros/forms.html" import field, show_errors_if_any %}
 
@@ -31,6 +31,9 @@
 
 
 {% block title %}{{ thread.title }} | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
 
 
 {% block content %}

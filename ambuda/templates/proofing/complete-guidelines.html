@@ -1,5 +1,6 @@
-{% extends 'base-text.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/components.html" as components %}
+{% import "macros/proofing.html" as m %}
 
 
 {% set contents = {
@@ -74,12 +75,15 @@
 {% endmacro %}
 
 
-{% block title %}Proofing guidelines | Ambuda{% endblock %}
+{% block title %}Complete guide to proofing | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('complete') }}{% endblock %}
 
 
 {% block content %}
 <div class="prose">
-<h1>Proofing guidelines</h1>
+<h1>Complete guide to proofing</h1>
 
 <p>This document defines the proofreading guidelines we use on Ambuda.
 Generally, these guidelines apply to all of the projects we proof.
@@ -117,13 +121,13 @@ we should write <i>çru</i> and not <i>śru</i>.
 <li>
 <p>
 <strong>Follow the book's script conventions.</strong> If the book uses
-Devanagari, we should use Devanagari, not Roman script. or some other convention.
+Devanagari, we should use Devanagari, not Roman script or some other convention.
 
 
 <li>
 <p>
 <strong>Follow the book's word-splitting conventions.</strong> Different books
-have different conventions for splitting long blocks of Devanagari text, or for
+have different conventions for splitting long blocks of Devanagari text or for
 adding and removing Sanskrit's sound changes ({{ 'sandhi'|d }}). We follow the
 conventions of the book regardless of our personal preference.
 
@@ -150,7 +154,7 @@ good use of time.
 
 {{ _h2('characters', 'eol-hyphens') }}
 
-<p>If the printed line ends with a hyphen, keep the hyphen. Our program uses
+<p>If the printed line ends with a hyphen, we keep the hyphen. Our program uses
 these hyphens to stitch together different lines:
 
 {% call _example() -%}
@@ -206,6 +210,8 @@ We delete spaces at the end of a line:
 {{ _h('paragraphs') }}
 
 {{ _h2('paragraphs', 'para-breaks') }}
+
+<p>Keep line breaks and line-ending hyphens.</p>
 
 <p>Proofing is easier when we can quickly compare our digitized text to the
 original image. Line breaks and line-breaking make our digitized text look more

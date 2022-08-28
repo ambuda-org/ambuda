@@ -25,10 +25,13 @@ or pre-build common requests.
 """
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Callable, NewType, Optional
 from xml.etree import ElementTree as ET
 
 from indic_transliteration import sanscript
+
+
+Attributes = NewType("Attributes", dict[str, str])
 
 
 @dataclass
@@ -38,16 +41,17 @@ class Rule:
 
     #: The tag to apply to this element.
     tag: str
-    #: Attributes to apply to this element.
-    attrib: dict
+    #: Function that transforms the element's existing attributes into our
+    #: desired format.
+    attrib_fn: Callable
     #: Text to insert before this element's `text` field.
-    text_before: str
+    text_before: str = ""
     #: Text to insert after this element's `tail` field.
-    text_after: str
+    text_after: str = ""
 
     def __call__(self, el: ET.Element):
         el.tag = self.tag
-        el.attrib = self.attrib
+        el.attrib = self.attrib_fn(el.attrib)
         if self.text_before:
             el.text = self.text_before + (el.text or "")
         if self.text_after:
@@ -57,6 +61,39 @@ class Rule:
                 el.text = (el.text or "") + self.text_after
 
 
+def _overwrite(new_attrib: Attributes) -> Callable:
+    """Remove the element's existing attributes and use `new_attrib` instead."""
+
+    def inner(_: Attributes) -> Attributes:
+        return new_attrib
+
+    return inner
+
+
+def _rename(mapping: dict[str, str]) -> Callable:
+    """Rename the element's existing attributes.
+
+    Attributes not defined in the mapping are removed from the output.
+    """
+
+    def inner(old_attrib: Attributes) -> Attributes:
+        new_attrib = {}
+        for k, v in mapping.items():
+            if k in old_attrib:
+                new_attrib[v] = old_attrib[k]
+        return new_attrib
+
+    return inner
+
+
+@dataclass
+class Block:
+    #: The block's HTML id.
+    id: str
+    #: HTML content for the given block.
+    html: str
+
+
 def _delete(xml: ET.Element):
     xml.clear()
     xml.tag = None
@@ -64,12 +101,12 @@ def _delete(xml: ET.Element):
 
 def elem(tag, attrib=None, text_before="", text_after="") -> Rule:
     """Helper to rename an element and change its attributes."""
-    return Rule(tag, attrib or {}, text_before, text_after)
+    return Rule(tag, _overwrite(attrib or {}), text_before, text_after)
 
 
 def text(before="", after="") -> Rule:
     """Replace an element with plain text."""
-    return Rule(None, {}, before, after)
+    return Rule(None, _overwrite({}), before, after)
 
 
 def sanskrit_text(xml: ET.Element):
@@ -86,9 +123,9 @@ def sanskrit_text(xml: ET.Element):
 
 
 #: Wrap in parentheses.
-paren_rule = Rule("span", {"class": "paren"}, "(", ")")
+paren_rule = elem("span", {"class": "paren"}, "(", ")")
 #: Wrap in brackets.
-bracket_rule = Rule("span", {"class": "paren"}, "[", "]")
+bracket_rule = elem("span", {"class": "paren"}, "[", "]")
 
 
 # Tag meanings are documented here:
@@ -192,15 +229,6 @@ vacaspatyam_xml = {
 }
 
 
-def to_verse(el: ET.Element):
-    # "xml:id" can't be specified directly due to how ElementTree treats
-    # namespaces. So, hard-code it like this:
-    xml_id = "{http://www.w3.org/XML/1998/namespace}id"
-    # "-" is the HTML syntax for custom elements.
-    el.tag = "s-lg"
-    el.attrib = {"id": el.attrib.get(xml_id, "")}
-
-
 # Defined against the TEI spec
 tei_header_xml = {
     "teiHeader": elem("section"),
@@ -214,6 +242,7 @@ tei_header_xml = {
     "publisher": None,
     "bibl": elem("p"),
     "licence": elem("p"),
+    "ref": Rule("a", _rename({"target": "href"})),
 }
 
 
@@ -229,7 +258,7 @@ tei_xml = {
     "note": None,
     "orig": elem("span"),
     # A verse (line group)
-    "lg": to_verse,
+    "lg": elem("s-lg", {}),
     # A line break
     "lb": elem("br"),
     # A line
@@ -284,7 +313,8 @@ def transform_vacaspatyam(blob: str) -> str:
     return transform(xml, vacaspatyam_xml)
 
 
-def _text_of(xml, path: str, default) -> str:
+def _text_of(xml: ET.Element, path: str, default: str) -> str:
+    """Get the text of the given XML element."""
     try:
         return xml.find(path).text
     except AttributeError:
@@ -313,14 +343,21 @@ def parse_tei_header(blob: Optional[str]) -> dict[str, str]:
     }
 
 
-def transform_tei(blob: str) -> str:
-    """Transform XML for a TEI document."""
-    xml = ET.fromstring(blob)
-    return transform(xml, tei_xml)
-
-
 def transform_sak(blob: str) -> str:
     """Transform XML for the Shabdarthakaustubha."""
     xml = ET.fromstring(blob)
     # Reuse the Vacaspatyam xml config, since it's close enough.
     return transform(xml, vacaspatyam_xml)
+
+
+def transform_text_block(block_blob: str) -> Block:
+    """Transform XML for a TEI document."""
+    # FIXME: leaky abstraction. We should return just a string blob here and
+    # get the XML ID from `database.Block` instead.
+    xml = ET.fromstring(block_blob)
+
+    # "xml:id" can't be specified directly due to how ElementTree treats
+    # namespaces. So, hard-code it like this:
+    id = xml.attrib.get("{http://www.w3.org/XML/1998/namespace}id", "")
+    html = transform(xml, transforms=tei_xml)
+    return Block(id=id, html=html)

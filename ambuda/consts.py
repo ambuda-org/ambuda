@@ -21,5 +21,6 @@ TEXT_CATEGORIES = {
     "upanishad": ["shivopanishat"],
     "anye": [
         "bodhicaryavatara",
+        "catuhshloki",
     ],
 }
