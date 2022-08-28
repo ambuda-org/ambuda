@@ -20,5 +20,6 @@ TEXT_CATEGORIES = {
     ],
     "anye": [
         "bodhicaryavatara",
+        "catuhsloki",
     ],
 }
