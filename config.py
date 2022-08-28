@@ -136,7 +136,7 @@ class UnitTestConfig(BaseConfig):
 
     AMBUDA_ENVIRONMENT = TESTING
     TESTING = True
-    SECRET_KEY = "insecure unit test secret"
+    SECRET_KEY = "insecure unit test secret"  # nosec B105
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     UPLOAD_FOLDER = _make_path(Path(__file__).parent / "data" / "file-uploads")
 

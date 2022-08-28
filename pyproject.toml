@@ -3,3 +3,8 @@ omit = [
     "ambuda/scripts/*",
     "ambuda/seed/**",
 ]
+
+[tool.bandit]
+targets = ["ambuda", "test"]
+exclude_dirs = ["env", "node_modules", "data"]
+skips = ["B101", "B405", "B314", "B324", "B404", "B603", "B607"]

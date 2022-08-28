@@ -55,10 +55,12 @@ celery:
 # Lint our Python and JavaScript code.
 lint: js-lint
 	black .
+	bandit -c pyproject.toml -r . --exit-zero
 
 # Lint our Python and JavaScript code. Fail on any issues.
 lint-check: js-lint
 	black . --diff
+	bandit -c pyproject.toml -r .
 
 # Run all Python unit tests.
 test:
