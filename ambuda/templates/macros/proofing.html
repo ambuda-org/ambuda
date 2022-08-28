@@ -1,6 +1,14 @@
 {% import 'macros/components.html' as components %}
 
 
+{% macro title_and_subtitle(title, subtitle = none) %}
+<header class="mb-4">
+  <h1 class="font-bold text-3xl">{{ title|safe }}</h1>
+  {% if subtitle %}<p class="mt-1 text-slate-500">{{ subtitle|safe }}</p>{% endif %}
+</header>
+{% endmacro %}
+
+
 {% macro project_header_nested(label, project) %}
 {% set url = url_for("proofing.project.summary", slug=project.slug) %}
 {{ nested_header(label, project.title, url) }}
