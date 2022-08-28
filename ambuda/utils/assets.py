@@ -17,7 +17,12 @@ def hashed_static(filename: str) -> str:
     `functools.cache` decorator calls this function at most once per deploy.
     """
     asset_path = STATIC_DIR / filename
-    content = asset_path.read_bytes()
+    try:
+        content = asset_path.read_bytes()
+    except FileNotFoundError:
+        # If the content is missing, use an empty string to prevent a 500
+        # error.
+        content = b""
     hash_prefix = hashlib.md5(content).hexdigest()[:7]
 
     base_url = url_for("static", filename=filename)
