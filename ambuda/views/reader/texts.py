@@ -18,7 +18,7 @@ HAS_NO_PARSE = {
     "bhattikavyam",
     "shatakatrayam",
     "shishupalavadham",
-    "catuhsloki",
+    "catuhshloki",
 }
 
 
