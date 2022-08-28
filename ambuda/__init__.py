@@ -22,6 +22,7 @@ from ambuda import database
 from ambuda import filters
 from ambuda import queries
 from ambuda.mail import mailer
+from ambuda.utils import assets
 from ambuda.views.about import bp as about
 from ambuda.views.auth import bp as auth
 from ambuda.views.api import bp as api
@@ -123,5 +124,6 @@ def create_app(config_env: str):
             "time_ago": filters.time_ago,
         }
     )
+    app.jinja_env.globals.update({"asset": assets.hashed_static})
 
     return app

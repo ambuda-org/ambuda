@@ -40,7 +40,7 @@ class EditPageForm(FlaskForm):
     status = SelectField(
         "Status",
         choices=[
-            ("reviewed-0", "Unreviewed"),
+            ("reviewed-0", "Needs more work"),
             ("reviewed-1", "Proofread once"),
             ("reviewed-2", "Proofread twice"),
             ("skip", "No useful text"),
