@@ -1,6 +1,13 @@
 # Needed because we have folders called "docs" and "test" that confuse `make`.
-.PHONY: docs test
+.PHONY: docs test py-venv-check
 
+py-venv-check: 
+ifeq ("$(VIRTUAL_ENV)","")
+	@echo "Error! Python venv not activated. Activate venv to proceed. Run: "
+	@echo "  > source env/bin/activate"
+	@echo
+	exit 1
+endif
 
 # Setup commands
 # ===============================================
@@ -12,7 +19,7 @@ install:
 
 
 # Seed the database with just enough data for the devserver to be interesting.
-db-seed-basic:
+db-seed-basic: py-venv-check
 	python -m ambuda.seed.lookup.role
 	python -m ambuda.seed.lookup.page_status
 	python -m ambuda.seed.texts.gretil
@@ -22,7 +29,7 @@ db-seed-basic:
 
 # Seed the database with all of the text, parse, and dictionary data we serve
 # in production.
-db-seed-all:
+db-seed-all: py-venv-check
 	python -m ambuda.seed.lookup.role
 	python -m ambuda.seed.lookup.page_status
 	python -m ambuda.seed.texts.gretil
@@ -41,7 +48,7 @@ db-seed-all:
 # ===============================================
 
 # Run the devserver, and live reload our CSS and JS.
-devserver:
+devserver: py-venv-check
 	npx concurrently "flask run" "make css-dev" "make js-dev"
 
 # Start using Docker.
@@ -49,19 +56,36 @@ start-docker:
 	docker-compose up --build --force-recreate
 
 # Run a local Celery instance for background tasks.
-celery:
+celery: 
 	celery -A ambuda.tasks worker --loglevel=INFO
 
+lint-isort:
+	@echo "$(BOLD) Running isort to organize python imports"
+	@git ls-files '*.py' | xargs isort --check 2>&1
+
+lint-black:
+	@echo "$(BOLD) Running black to check python formatting"
+	@git ls-files '*.py' | xargs black 2>&1
+
+lint-flake8:
+	@echo "$(BOLD) Running flake8 to check python syntax"	
+	@git ls-files '*.py' | xargs flake8 --config=./.flake8
+
+# Add isort when imports are organized better
+# lint-py: py-venv-check lint-black lint-isort lint-flake8
+lint-py: py-venv-check lint-black lint-flake8
+	@echo "Python lint completed"
+
 # Lint our Python and JavaScript code.
-lint: js-lint
-	black .
+lint: js-lint py-lint
+
 
 # Lint our Python and JavaScript code. Fail on any issues.
 lint-check: js-lint
 	black . --diff
 
 # Run all Python unit tests.
-test:
+test: py-venv-check
 	pytest .
 
 # Run all Python unit tests with a coverage report.
