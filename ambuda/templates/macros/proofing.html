@@ -69,11 +69,11 @@
 {# User-level tabs. #}
 {% macro user_tabs(user, active, is_admin = false) %}
 {% set routes = [
-  ("about", "About", url_for("proofing.users.user", username=user.username)),
-  ("edits", "Edits", url_for("proofing.users.user_edits", username=user.username)),
+  ("about", "About", url_for("proofing.user.user", username=user.username)),
+  ("edits", "Edits", url_for("proofing.user.user_edits", username=user.username)),
 ] %}
 {% if is_admin %}{% set routes = routes + [
-  ("admin", "Admin", url_for("proofing.users.user_admin", username=user.username)),
+  ("admin", "Admin", url_for("proofing.user.user_admin", username=user.username)),
 ] %}{% endif %}
 
 {{ components.tabs(routes, active) }}
@@ -123,7 +123,7 @@
         project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
     {% set page_url = url_for('proofing.page.edit',
         project_slug=r.project.slug, page_slug=r.page.slug) %}
-    {% set author_url = url_for('proofing.users.user',
+    {% set author_url = url_for('proofing.user.user',
         username=r.author.username) %}
     {% set page_title = r.project.title + "/" + r.page.slug %}
     {% set author = r.author.username %}
@@ -149,7 +149,7 @@
         project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
     {% set page_url = url_for('proofing.page.edit',
         project_slug=r.project.slug, page_slug=r.page.slug) %}
-    {% set author_url = url_for('proofing.users.user',
+    {% set author_url = url_for('proofing.user.user',
         username=r.author.username) %}
     {% set page_title = r.project.title + "/" + r.page.slug %}
     {% set author = r.author.username %}

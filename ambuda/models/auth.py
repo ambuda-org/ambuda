@@ -37,8 +37,6 @@ class User(UserMixin, Base):
 
     #: All roles available for this user.
     roles = relationship("Role", secondary="user_roles")
-    #: The user's profile.
-    profile = relationship("Profile", cascade="delete")
 
     def set_password(self, raw_password: str):
         """Hash and save the given password."""

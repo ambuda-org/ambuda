@@ -7,7 +7,7 @@
 
 
 {% block content %}
-{% set url = url_for('proofing.users.user', username=user.username) %}
+{% set url = url_for('proofing.user.user', username=user.username) %}
 
 {{ components.flash_messages() }}
 {{ m.nested_header('Admin', user.username, url) }}
