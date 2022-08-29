@@ -1,6 +1,6 @@
 /* globals Alpine, Sanscript */
 
-import { $, Server } from './core.ts';
+import { $ } from './core.ts';
 import Dictionary from './dictionary';
 import Reader from './reader';
 import Proofer from './proofer';
@@ -20,5 +20,4 @@ window.addEventListener('alpine:init', () => {
 // in the pages that shows the progress bar for a project upload.)
 // FIXME(arun): clean up existing usage of these values so that our code is less
 // FIXME(arun): ad-hoc.
-window.Server = Server;
 window.$ = $;
