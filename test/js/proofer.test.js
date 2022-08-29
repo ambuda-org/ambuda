@@ -226,4 +226,3 @@ test('markAsFootnoteNumber works', () => {
   p.markAsFootnoteNumber()
   expect($text.value).toBe('This is [^sample] text.')
 });
-
