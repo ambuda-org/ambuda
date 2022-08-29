@@ -44,7 +44,7 @@ function getBlockSlug(blockID) {
   return blockID.split('.').slice(1).join('.');
 }
 
-async function showParsedBlock(blockID, contentScript) {
+async function showParsedBlock(blockID, contentScript, onFailure) {
   const blockSlug = getBlockSlug(blockID);
   const $container = $('#parse--response');
   const textSlug = Routes.getTextSlug();
@@ -78,6 +78,7 @@ async function showParsedBlock(blockID, contentScript) {
   } else {
     $block.classList.remove('has-parsed');
     $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
+    onFailure();
   }
 }
 
@@ -193,7 +194,9 @@ export default () => ({
     // Block: show parse data for this block.
     const $block = e.target.closest('s-block');
     if ($block) {
-      showParsedBlock($block.id, this.script);
+      showParsedBlock($block.id, this.script, () => {
+        this.showSidebar = true;
+      });
     }
   },
 
