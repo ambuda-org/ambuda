@@ -33,7 +33,9 @@ function fromText(text: string): Node {
 // Create a new ProseMirror editor with the contents of the textarea, and hide the textarea.
 function replaceTextareaWithPmeditor() {
     const $textarea = document.querySelector('textarea')!;
-    const view = new EditorView(document.querySelector("#editor"), {
+    const editor = document.getElementById('editor')!;
+    // Initialze it with the textarea's contents.
+    const view = new EditorView(editor, {
         state: EditorState.create({
             schema: almostTrivialSchema,
             doc: fromText($textarea.textContent!),
@@ -42,7 +44,7 @@ function replaceTextareaWithPmeditor() {
     });
     (window as any).view = view;
 
-    // Serialize the EditorState into a plain text string.
+    // Serializes the EditorState into a plain text string.
     function toText(): string {
         return view.state.doc.textBetween(
             0, // from
@@ -56,10 +58,14 @@ function replaceTextareaWithPmeditor() {
     // console.log(toText());
     // console.log($textarea.textContent, '-- the contents of the textarea.');
     console.assert(toText() == $textarea.textContent); // TODO: Show error message if this fails.
+
+    // Make it visible
+    editor.style.display = 'unset';
     $textarea.style.display = 'none';
 
     // Before the form is submitted, copy the contents of the ProseMirror editor back to the textarea.
     document.querySelector('form')!.addEventListener('submit', (event) => { $textarea.value = toText(); });
 }
 
-// TODO: Add a button that will call replaceTextareaWithPmeditor()
+// TODO: Figure out how to make this available "properly".
+(window as any).replaceTextareaWithPmeditor = replaceTextareaWithPmeditor;
