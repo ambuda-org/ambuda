@@ -1,0 +1,17 @@
+# flake8 configuration file
+[flake8]
+max-line-length = 240
+ignore =
+    # --- ignore these warnings. Some of these will be addressed soon
+    W291  # trailing whitespace
+    W503  # line break after binary operator
+    W605  # invalid escape sequence '\w'
+    
+    F401  # imported not used
+    F403  # import used; unable to detect undefinted names
+    F541  # f-string is missing placeholders
+    F811  # redefinition of unused function
+    F841  # local variable 'parse' is assigned to but never used
+
+    E203  # whitespace before ':'
+    
