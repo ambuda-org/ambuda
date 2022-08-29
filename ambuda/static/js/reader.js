@@ -62,9 +62,10 @@ async function showParsedBlock(blockID, contentScript) {
   const url = Routes.parseData(textSlug, blockSlug);
   const resp = await fetch(url);
   if (resp.ok) {
+    const text = await resp.text();
     const parsedNode = document.createElement('div');
     parsedNode.classList.add('parsed');
-    parsedNode.innerHTML = transliterateHTMLString(resp, contentScript);
+    parsedNode.innerHTML = transliterateHTMLString(text, contentScript);
     $block.appendChild(parsedNode);
 
     const link = document.createElement('a');
@@ -192,8 +193,7 @@ export default () => ({
     // Block: show parse data for this block.
     const $block = e.target.closest('s-block');
     if ($block) {
-      await showParsedBlock($block.id, this.script);
-      this.showSidebar = true;
+      showParsedBlock($block.id, this.script);
     }
   },
 
