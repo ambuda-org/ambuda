@@ -17,11 +17,27 @@ endif
 install:
 	./scripts/install_from_scratch.sh
 
+# Install frontend dependencies and build CSS and JS assets.
+install-frontend:
+	npm install
+	make css-prod js-prod
+
+# Install Python dependencies.
+install-python:
+	python3 -m venv env
+	bash env/bin/activate
+	pip install --upgrade pip
+	pip install -r requirements.txt
+
+# Upgrade an existing setup.
+upgrade:
+	make install-frontend install-python
+	python -m ambuda.seed.lookup
+	alembic upgrade head
 
 # Seed the database with just enough data for the devserver to be interesting.
 db-seed-basic: py-venv-check
-	python -m ambuda.seed.lookup.role
-	python -m ambuda.seed.lookup.page_status
+	python -m ambuda.seed.lookup
 	python -m ambuda.seed.texts.gretil
 	python -m ambuda.seed.dcs
 	python -m ambuda.seed.dictionaries.monier
