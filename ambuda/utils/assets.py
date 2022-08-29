@@ -1,9 +1,9 @@
 """Manages how we build and deploy assets.
 
 Our CSS and JS stacks both support watcher programs that rebuild our assets
-automatically whenever they detect an underlying changes. For simplicity, we
-use those some watcher programs and avaid the Python `webassets` stack. But
-since we avoid that stack, we must re-implement some parts of it.
+automatically whenever they detect filesystem changes on their input files. For
+simplicity, we use those same watcher programs and avaid the Python `webassets`
+stack. But since we avoid that stack, we must re-implement some parts of it.
 """
 
 import functools
