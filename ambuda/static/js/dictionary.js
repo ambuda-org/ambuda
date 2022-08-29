@@ -43,10 +43,11 @@ export default () => ({
     localStorage.setItem(DICTIONARY_CONFIG_KEY, JSON.stringify(settings));
   },
 
-  setSource(value) {
+  async setSource(value) {
     this.source = value;
     this.saveSettings();
-    this.searchDictionary(this.query);
+    // Return the promise so we can await it in tests.
+    return this.searchDictionary(this.query);
   },
   updateScript() {
     this.transliterate(this.script, this.uiScript);
