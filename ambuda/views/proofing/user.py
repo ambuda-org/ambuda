@@ -14,7 +14,7 @@ from ambuda.utils.auth import admin_required
 from ambuda.utils import heatmap
 
 
-bp = Blueprint("users", __name__)
+bp = Blueprint("user", __name__)
 
 
 class RolesForm(FlaskForm):
@@ -22,7 +22,7 @@ class RolesForm(FlaskForm):
 
 
 @bp.route("/<username>/")
-def user(username):
+def summary(username):
     user_ = q.user(username)
     if not user_:
         abort(404)

@@ -24,7 +24,7 @@
     {% if current_user.is_authenticated %}
     {% set name = current_user.username %}
     <li class="p-4 py-2">
-      <a href="{{ url_for("proofing.user.user", username=name) }}">{{ name }}</a> |
+      <a href="{{ url_for("proofing.user.summary", username=name) }}">{{ name }}</a> |
       <a href="{{ url_for("auth.sign_out") }}">Sign out</a>
     </li>
     {% else %}

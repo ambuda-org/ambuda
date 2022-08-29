@@ -2,7 +2,7 @@
 <ul>
   {% for thread in threads %}
   {% set thread_url = url_for('proofing.talk.thread', project_slug=project_slug, thread_id=thread.id)  %}
-  {% set author_url = url_for('proofing.user.user', username=thread.author.username) %}
+  {% set author_url = url_for('proofing.user.summary', username=thread.author.username) %}
   <li class="p-4 border-t a-hover-underline flex justify-between">
     <div>
       <a href="{{ thread_url }}">{{ thread.title }}</a>

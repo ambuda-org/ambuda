@@ -19,7 +19,7 @@
 <h2>Summary</h2>
 
 {% if project.creator %}
-{% set user_link = url_for('proofing.user.user', username=project.creator.username) %}
+{% set user_link = url_for('proofing.user.summary', username=project.creator.username) %}
 <p>Created by <a href="{{ user_link }}">{{ project.creator.username }}</a>
 {{ project.created_at|time_ago }}.</p>
 {% else %}

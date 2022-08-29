@@ -9,7 +9,7 @@
   {% set username = post.author.username %}
   <div class="text-sm mb-2 text-slate-500 a-hover-underline flex justify-between">
     <div>
-      <a class="font-bold" href="{{ url_for("proofing.user.user", username=username) }}">{{ username }}</a>
+      <a class="font-bold" href="{{ url_for("proofing.user.summary", username=username) }}">{{ username }}</a>
       &#xb7; {{ post.created_at|time_ago }}
       {% if (post.updated_at - post.created_at).seconds > 600 %}
       <span class="italic">(edited {{ post.updated_at|time_ago }})</span>

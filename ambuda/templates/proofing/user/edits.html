@@ -5,7 +5,7 @@
 {% block title %}User: {{ user.username }} | Ambuda{% endblock %}
 
 {% block content %}
-{% set url = url_for('proofing.user.user', username=user.username) %}
+{% set url = url_for('proofing.user.summary', username=user.username) %}
 
 {{ components.flash_messages() }}
 {{ m.nested_header('Edits', user.username, url) }}
