@@ -4,6 +4,7 @@ from pathlib import Path
 
 import fitz
 from celery import states
+import logging
 from slugify import slugify
 
 from ambuda import database as db
@@ -72,13 +73,13 @@ class LocalTaskStatus(TaskStatus):
     """Helper class to track progress on a task running locally."""
 
     def progress(self, current: int, total: int):
-        print(f"{current} / {total} complete")
+        logging.info(f"{current} / {total} complete")
 
     def success(self, num_pages: int, slug: str):
-        print(f"Succeeded. Project is at {slug}.")
+        logging.info(f"Succeeded. Project is at {slug}.")
 
     def failure(self, message: str):
-        print(f"Failed. ({message})")
+        logging.info(f"Failed. ({message})")
 
 
 def _split_pdf_into_pages(
@@ -108,7 +109,7 @@ def _add_project_to_database(title: str, slug: str, num_pages: int, creator_id: 
     :param num_pages: the number of pages in the project
     """
 
-    print(f"Creating project (slug = {slug}) ...")
+    logging.info(f"Creating project (slug = {slug}) ...")
     session = q.get_session()
     board = db.Board(title=f"{slug} discussion board")
     session.add(board)
@@ -119,10 +120,10 @@ def _add_project_to_database(title: str, slug: str, num_pages: int, creator_id: 
     session.add(project)
     session.flush()
 
-    print(f"Fetching project and status (slug = {slug}) ...")
+    logging.info(f"Fetching project and status (slug = {slug}) ...")
     unreviewed = session.query(db.PageStatus).filter_by(name="reviewed-0").one()
 
-    print(f"Creating {num_pages} Page entries (slug = {slug}) ...")
+    logging.info(f"Creating {num_pages} Page entries (slug = {slug}) ...")
     for n in range(1, num_pages + 1):
         session.add(
             db.Page(
@@ -156,7 +157,7 @@ def _create_project_inner(
     :param creator_id: the user that created this project.
     :param task_status: tracks progress on the task.
     """
-    print(f'Received upload task "{title}" for path {pdf_path}.')
+    logging.info(f'Received upload task "{title}" for path {pdf_path}.')
 
     # Tasks must be idempotent. Exit if the project already exists.
     app = create_config_only_app(app_environment)

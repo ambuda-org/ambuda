@@ -1,16 +1,17 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/proofing.html" as m %}
 {% import "macros/proofing-talk.html" as m_talk %}
 {% from "macros/forms.html" import field %}
 
-{% block title %}Project Talk | Ambuda{% endblock %}
+
+{% block title %}Talk | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
+
 
 {% block content %}
-<div class="prose">
-  <h1>Proofing talk</h1>
-
-  <p>Recent discussion across all projects.</p>
-</div>
+{{ m.title_and_subtitle('Talk', 'Recent discussion across all projects') }}
 
 {% for project, thread in all_threads %}
   {% set project_url = url_for('proofing.project.summary', slug=project.slug) %}

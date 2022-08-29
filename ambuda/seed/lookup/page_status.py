@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 import ambuda.database as db
 from ambuda.seed.utils.itihasa_utils import create_db
 
+import logging
+
 
 FIELD_NAMES = [
     # Page has never been fully proofread.
@@ -16,10 +18,6 @@ FIELD_NAMES = [
 ]
 
 
-def log(*a):
-    print(*a)
-
-
 def get_default_id():
     """Used in the `add_page_statuses` migration."""
     engine = create_db()
@@ -31,7 +29,7 @@ def run():
     """Create page statuses iff they don't exist already."""
 
     engine = create_db()
-    log("Creating PageStatus rows ...")
+    logging.debug("Creating PageStatus rows ...")
     with Session(engine) as session:
         statuses = session.query(db.PageStatus).all()
         existing_names = {s.name for s in statuses}
@@ -42,7 +40,7 @@ def run():
                 status = db.PageStatus(name=name)
                 session.add(status)
             session.commit()
-    log("Done.")
+    logging.debug("Done.")
 
 
 if __name__ == "__main__":

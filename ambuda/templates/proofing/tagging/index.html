@@ -1,4 +1,10 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
+
+{% import "macros/proofing.html" as m %}
+
+
+{% block sidebar %}{{ m.main_nav('tagging') }}{% endblock %}
+
 
 {% block content %}
 <div class="prose">
