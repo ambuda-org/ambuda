@@ -11,7 +11,7 @@ import { Schema } from "prosemirror-model"
 
 const mac = typeof navigator != "undefined" ? /Mac|iP(hone|[oa]d)/.test(navigator.platform) : false
 
-export function buildKeymap(schema: Schema) {
+function buildKeymap(schema: Schema) {
     let keys: { [key: string]: Command } = {}, type
     function bind(key: string, cmd: Command) {
         keys[key] = cmd
@@ -32,18 +32,18 @@ export function buildKeymap(schema: Schema) {
     /// * **Escape** to `selectParentNode`
     bind("Escape", selectParentNode)
 
-    if (type = schema.marks.strong) {
+    if ((type = schema.marks.strong) != undefined) {
         /// * **Mod-b** for toggling [strong](#schema-basic.StrongMark)
         bind("Mod-b", toggleMark(type))
         bind("Mod-B", toggleMark(type))
     }
-    if (type = schema.marks.em) {
+    if ((type = schema.marks.em) != undefined) {
         /// * **Mod-i** for toggling [emphasis](#schema-basic.EmMark)
         bind("Mod-i", toggleMark(type))
         bind("Mod-I", toggleMark(type))
     }
     /// * **Mod-Enter** to insert a hard break
-    if (type = schema.nodes.hard_break) {
+    if ((type = schema.nodes.hard_break) != undefined) {
         let br = type, cmd = chainCommands(exitCode, (state, dispatch) => {
             if (dispatch) dispatch(state.tr.replaceSelectionWith(br.create()).scrollIntoView())
             return true
@@ -53,10 +53,10 @@ export function buildKeymap(schema: Schema) {
         if (mac) bind("Ctrl-Enter", cmd)
     }
     /// * **Ctrl-Shift-0** for making the current textblock a paragraph
-    if (type = schema.nodes.paragraph)
+    if ((type = schema.nodes.paragraph) != undefined)
         bind("Shift-Ctrl-0", setBlockType(type))
     /// * **Mod-_** to insert a horizontal rule
-    if (type = schema.nodes.horizontal_rule) {
+    if ((type = schema.nodes.horizontal_rule) != undefined) {
         let hr = type
         bind("Mod-_", (state, dispatch) => {
             if (dispatch) dispatch(state.tr.replaceSelectionWith(hr.create()).scrollIntoView())
@@ -66,3 +66,5 @@ export function buildKeymap(schema: Schema) {
 
     return keys
 }
+
+export default buildKeymap;

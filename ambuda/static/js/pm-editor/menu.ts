@@ -11,7 +11,7 @@ import { toggleMark } from "prosemirror-commands"
 
 function canInsert(state: EditorState, nodeType: NodeType) {
     let $from = state.selection.$from
-    for (let d = $from.depth; d >= 0; d--) {
+    for (let d = $from.depth; d >= 0; d -= 1) {
         let index = $from.index(d)
         if ($from.node(d).canReplaceWith(index, index, nodeType)) return true
     }

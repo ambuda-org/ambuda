@@ -11,7 +11,7 @@ import { menuBar } from "prosemirror-menu"
 import { inputRules, smartQuotes, emDash, ellipsis } from "prosemirror-inputrules"
 
 import { buildMenuItems } from "./menu"
-import { buildKeymap } from "./keymap"
+import buildKeymap from "./keymap"
 
 // An array of plugins.
 export function plugins(schema: Schema) {
