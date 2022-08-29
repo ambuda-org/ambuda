@@ -1,9 +1,12 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/components.html" as components %}
 {% import "macros/proofing.html" as m %}
 
 
 {% block title %}User: {{ user.username }} | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
 
 
 {% block content %}

@@ -69,11 +69,11 @@
 {# User-level tabs. #}
 {% macro user_tabs(user, active, is_admin = false) %}
 {% set routes = [
-  ("about", "About", url_for("proofing.user.summary", username=user.username)),
-  ("edits", "Edits", url_for("proofing.user.user_edits", username=user.username)),
+  ("about",    "Overview",  url_for("proofing.user.summary", username=user.username)),
+  ("activity", "Activity",  url_for("proofing.user.activity", username=user.username)),
 ] %}
 {% if is_admin %}{% set routes = routes + [
-  ("admin", "Admin", url_for("proofing.user.user_admin", username=user.username)),
+  ("admin",    "Admin",     url_for("proofing.user.admin", username=user.username)),
 ] %}{% endif %}
 
 {{ components.tabs(routes, active) }}
