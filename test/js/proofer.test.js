@@ -7,6 +7,9 @@ const sampleHTML = `
 </div>
 `;
 
+// Can't modify existing `window.location` -- delete it so that we can mock it.
+// (See beforeEach and the tests below.)
+delete window.location;
 window.IMAGE_URL = 'IMAGE_URL';
 window.OpenSeadragon = (_) => ({
   addHandler: jest.fn((_, callback) => callback()),
@@ -20,8 +23,22 @@ window.Sanscript = {
   // selection range.
   t: jest.fn((s, from, to) => `:${s}:${to}`),
 }
+window.fetch = jest.fn(async (url) => {
+  // Special URL so we can test server errors.
+  if (url === '/api/ocr/error') {
+    return { ok: false }
+  } else {
+    const segments = url.split('/');
+    const page = segments.pop();
+    return {
+      ok: true,
+      text: async () => `text for ${page}`,
+    }
+  }
+});
 
 beforeEach(() => {
+  window.location = null;
   window.localStorage.clear();
   document.write(sampleHTML);
 });
@@ -50,6 +67,20 @@ test('saveSettings and loadSettings', () => {
   expect(p.layout).toBe("side-by-side");
   expect(p.fromScript).toBe("test from script");
   expect(p.toScript).toBe("test to script");
+});
+
+test('runOCR handles a valid server response', async () => {
+  const p = Proofer();
+  window.location = new URL("https://ambuda.org/proofing/my-project/my-page");
+  await p.runOCR();
+  expect($("#content").value).toBe('text for my-page');
+});
+
+test('runOCR handles an invalid server response', async () => {
+  const p = Proofer();
+  window.location = new URL("https://ambuda.org/proofing/error");
+  await p.runOCR();
+  expect($("#content").value).toBe('(server error)');
 });
 
 test('increaseImageZoom works and gets saved', () => {

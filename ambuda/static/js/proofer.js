@@ -138,7 +138,7 @@ export default () => ({
         }
         return '(server error)';
       });
-    $('[name=content]').value = content;
+    $('#content').value = content;
 
     this.isRunningOCR = false;
   },
