@@ -1,3 +1,4 @@
+// Adding basic functionality (like a menu bar and keyboard shortcuts) to the editor.
 // Subset of prosemirror-example-setup: https://github.com/ProseMirror/prosemirror-example-setup
 
 import { Schema } from "prosemirror-model"

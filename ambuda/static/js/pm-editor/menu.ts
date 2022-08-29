@@ -1,3 +1,4 @@
+// Contents of the menu bar.
 // Subset of https://github.com/ProseMirror/prosemirror-example-setup/blob/master/src/menu.ts
 import {
     Dropdown, joinUpItem, liftItem,

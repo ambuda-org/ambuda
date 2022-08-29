@@ -1,3 +1,4 @@
+// Keyboard shortcuts.
 // Subset of https://github.com/ProseMirror/prosemirror-example-setup/blob/master/src/keymap.ts
 
 import {
