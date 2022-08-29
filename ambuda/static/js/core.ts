@@ -1,22 +1,4 @@
 /* global Sanscript */
-const Server = {
-  getText(url, success, failure) {
-    const req = new XMLHttpRequest();
-    req.onreadystatechange = () => {
-      if (req.readyState === XMLHttpRequest.DONE) {
-        if (req.status === 200) {
-          success(req.responseText);
-        } else {
-          failure();
-        }
-      }
-    };
-    req.open('GET', url);
-    req.send();
-  },
-};
-
-// Utilities
 
 const $ = document.querySelector.bind(document);
 
@@ -71,6 +53,5 @@ export {
   transliterateElement,
   transliterateSanskritBlob,
   transliterateHTMLString,
-  Server,
   forEachSanskritTextNode,
 };

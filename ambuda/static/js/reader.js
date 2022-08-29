@@ -16,7 +16,7 @@
  */
 
 import {
-  transliterateElement, transliterateHTMLString, transliterateSanskritBlob, $, Server,
+  transliterateElement, transliterateHTMLString, transliterateSanskritBlob, $, 
 } from './core.ts';
 import Routes from './routes';
 
@@ -44,7 +44,7 @@ function getBlockSlug(blockID) {
   return blockID.split('.').slice(1).join('.');
 }
 
-function showParsedBlock(blockID, contentScript, callback) {
+async function showParsedBlock(blockID, contentScript, callback) {
   const blockSlug = getBlockSlug(blockID);
   const $container = $('#parse--response');
   const textSlug = Routes.getTextSlug();
@@ -60,28 +60,25 @@ function showParsedBlock(blockID, contentScript, callback) {
 
   // Fetch parsed data.
   const url = Routes.parseData(textSlug, blockSlug);
-  Server.getText(
-    url,
-    (resp) => {
-      const parsedNode = document.createElement('div');
-      parsedNode.classList.add('parsed');
-      parsedNode.innerHTML = transliterateSanskritBlob(resp, contentScript);
-      $block.appendChild(parsedNode);
+  const resp = await fetch(url);
+  if (resp.ok) {
+    const parsedNode = document.createElement('div');
+    parsedNode.classList.add('parsed');
+    parsedNode.innerHTML = transliterateSanskritBlob(resp, contentScript);
+    $block.appendChild(parsedNode);
 
-      const link = document.createElement('a');
-      link.className = 'text-sm text-zinc-400 hover:underline js--source';
-      link.href = '#';
-      link.innerHTML = '<span class=\'shown-side-by-side\'>Hide</span><span class=\'hidden-side-by-side\'>Show original</span>';
-      parsedNode.firstChild.appendChild(link);
+    const link = document.createElement('a');
+    link.className = 'text-sm text-zinc-400 hover:underline js--source';
+    link.href = '#';
+    link.innerHTML = '<span class=\'shown-side-by-side\'>Hide</span><span class=\'hidden-side-by-side\'>Show original</span>';
+    parsedNode.firstChild.appendChild(link);
 
-      $block.classList.add('show-parsed');
-    },
-    () => {
-      $block.classList.remove('has-parsed');
-      $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
-      callback();
-    },
-  );
+    $block.classList.add('show-parsed');
+  } else {
+    $block.classList.remove('has-parsed');
+    $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
+    callback();
+  }
 }
 
 /* Alpine code
@@ -179,7 +176,7 @@ export default () => ({
   },
 
   // Generic click handler for multiple objects in the reader.
-  onClick(e) {
+  async onClick(e) {
     // Parsed word: show details for this word.
     const $word = e.target.closest('s-w');
     if ($word) {
@@ -195,9 +192,8 @@ export default () => ({
     // Block: show parse data for this block.
     const $block = e.target.closest('s-block');
     if ($block) {
-      showParsedBlock($block.id, this.script, () => {
-        this.showSidebar = true;
-      });
+      await showParsedBlock($block.id, this.script);
+      this.showSidebar = true;
     }
   },
 
