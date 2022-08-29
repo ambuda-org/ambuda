@@ -5,7 +5,7 @@ from indic_transliteration import sanscript
 
 import ambuda.database as db
 import ambuda.queries as q
-from ambuda import xml
+from ambuda.utils import xml
 from ambuda.consts import TEXT_CATEGORIES
 from ambuda.views.api import bp as api
 

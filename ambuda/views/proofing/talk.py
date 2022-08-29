@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from flask import render_template, url_for, Blueprint
 from flask_login import login_required, current_user
 from flask_wtf import FlaskForm

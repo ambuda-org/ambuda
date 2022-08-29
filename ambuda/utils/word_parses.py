@@ -1,4 +1,4 @@
-"""Utilities for working with parse data.
+"""Utilities for interpreting parsed words.
 
 This module is quite sloppy and will likely change in the future.
 """

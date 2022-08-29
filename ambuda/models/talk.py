@@ -5,8 +5,6 @@ from datetime import datetime
 from sqlalchemy import (
     Column,
     DateTime,
-    ForeignKey,
-    Integer,
     String,
     Text as _Text,
 )
