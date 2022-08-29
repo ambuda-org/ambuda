@@ -14,7 +14,7 @@ from ambuda.utils import project_utils
 from ambuda.utils import proofing_utils
 
 
-bp = Blueprint("projects", __name__)
+bp = Blueprint("project", __name__)
 
 
 def _is_valid_page_number_spec(form, field):
@@ -119,7 +119,7 @@ def edit(slug):
         session.commit()
 
         flash("Saved changes.", "success")
-        return redirect(url_for("proofing.projects.summary", slug=slug))
+        return redirect(url_for("proofing.project.summary", slug=slug))
 
     return render_template(
         "proofing/projects/edit.html",

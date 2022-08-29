@@ -2,7 +2,7 @@ Installation
 ============
 
 This guide will show you how to install Ambuda and its dependencies. By the end
-of this guide, you'll have a working devserver that contains the same text and
+of this guide, you'll have a working devserver that contains the same texts and
 data as our production server.
 
 
@@ -32,6 +32,9 @@ Start by downloading Ambuda's project code from GitHub::
 You can install all dependencies with a simple `make` call::
 
     $ make install
+
+This command will install Ambuda's Python and JavaScript dependencies, create a
+new database, and add a sample dictionary and a few sample texts to that database.
 
 If the install command succeeds, you can bring up a basic version of Ambuda by
 running the following commands::
@@ -70,6 +73,15 @@ Or the following commands for Python scripts:
     load_dotenv(".env")
 
 
+Docker setup (beta)
+-----------------
+
+This feature is still under development and may change. You can alternatively
+run a local development environment using Docker by running:
+
+    make start-docker
+
+
 Data dependencies
 -----------------
 
@@ -77,14 +89,17 @@ The `ambuda` repo doesn't contain any of the texts, dictionaries, or parse data
 that we serve on our library. To install this data, we run different **seed
 scripts** that fetch the data we need from the Internet.
 
-Running all of the Ambuda seed scripts can be quite slow. For basic dev tasks,
-we recomemnd running just a basic subset of them::
+The `make install` script runs many of these seed scripts for you
+automatically. Specifically, it runs `make db-seed-basic`, which installs a
+small amount of sample data that you can experiment with.
 
-    make db-seed-basic
-
-If you want to install everything and are willing to wait, you can run::
+If you want to install all texts, dictionaries, and parse data, you can run the
+following command::
 
     make db-seed-all
+
+This command fetches multiple large data sources from multiple sites, so it
+might take several minutes to run.
 
 .. note::
 

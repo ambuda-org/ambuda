@@ -1,4 +1,4 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/components.html" as components %}
 {% import "macros/forms.html" as mf %}
 {% import "macros/proofing.html" as m %}
@@ -7,10 +7,13 @@
 {% block title %}Edit: {{ project.title }} | Ambuda{% endblock %}
 
 
+{% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}
+
+
 {% block content %}
 {{ m.project_header_nested('Edit', project) }}
 {{ m.project_nav(project=project, active='edit', is_admin=current_user.is_admin) }}
-{% set search_url = url_for("proofing.projects.search", slug=project.slug)  %}
+{% set search_url = url_for("proofing.project.search", slug=project.slug)  %}
 
 <div class="prose">
 <p>We'll add more useful tools here soon. For now, you can <a href="{{

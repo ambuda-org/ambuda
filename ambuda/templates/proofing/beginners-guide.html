@@ -1,5 +1,6 @@
-{% extends 'base-text.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/components.html" as components %}
+{% import "macros/proofing.html" as m %}
 
 
 {% set contents = {
@@ -23,6 +24,9 @@
 
 
 {% block title %}Beginner's guide to proofing | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('beginners') }}{% endblock %}
 
 
 {% block content %}

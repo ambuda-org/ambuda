@@ -59,11 +59,11 @@ And downgrade to the earliest migration::
 	# Move to earliest migration
 	alembic downgrade base
 
-We can also modify the database by creating a new migration:
+We can also modify the database by creating a new migration::
 
 	alembic revision --autogenerate -m "Add my cool column"
 
-Then applying it:
+Then applying it::
 
 	alembic upgrade head
 

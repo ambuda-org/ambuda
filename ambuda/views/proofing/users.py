@@ -3,15 +3,15 @@ from flask import (
     abort,
     flash,
     render_template,
-    request,
 )
 
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, FormField
+from wtforms import BooleanField
 
 import ambuda.queries as q
 from ambuda import database as db
 from ambuda.utils.auth import admin_required
+from ambuda.utils import heatmap
 
 
 bp = Blueprint("users", __name__)
@@ -28,9 +28,13 @@ def user(username):
         abort(404)
 
     session = q.get_session()
+    revisions = session.query(db.Revision).filter_by(author_id=user_.id).all()
+    hm = heatmap.create(r.created.date() for r in revisions)
+
     return render_template(
         "proofing/user.html",
         user=user_,
+        heatmap=hm,
     )
 
 

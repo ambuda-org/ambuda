@@ -69,16 +69,22 @@ def index():
     )
 
 
-@bp.route("/beginners-guide")
+@bp.route("/help/beginners-guide")
 def beginners_guide():
     """Display our minimal proofing guidelines."""
     return render_template("proofing/beginners-guide.html")
 
 
-@bp.route("/complete-guide")
+@bp.route("/help/complete-guide")
 def complete_guide():
     """Display our complete proofing guidelines."""
     return render_template("proofing/complete-guidelines.html")
+
+
+@bp.route("/help/editor-guide")
+def editor_guide():
+    """Describe how to use the page editor."""
+    return render_template("proofing/editor-guide.html")
 
 
 @bp.route("/create-project", methods=["GET", "POST"])
@@ -156,3 +162,16 @@ def recent_changes():
         session.query(db.Revision).order_by(db.Revision.created.desc()).limit(100).all()
     )
     return render_template("proofing/recent-changes.html", revisions=recent_revisions)
+
+
+@bp.route("/talk")
+def talk():
+    """Show discussion across all projects."""
+    session = q.get_session()
+    projects = q.projects()
+
+    # FIXME: optimize this once we have a higher thread volume.
+    all_threads = [(p, t) for p in projects for t in p.board.threads]
+    all_threads.sort(key=lambda x: x[1].updated_at, reverse=True)
+
+    return render_template("proofing/talk.html", all_threads=all_threads)

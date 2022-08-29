@@ -1,15 +1,19 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/components.html" as components %}
 {% import "macros/proofing-talk.html" as m_talk %}
 {% import "macros/proofing.html" as m %}
 
+
 {% block title %}{{ project.title }} | Ambuda{% endblock %}
 
-{% block content %}
 
+{% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}
+
+
+{% block content %}
 {{ components.flash_messages() }}
 
-<h1 class="font-bold text-3xl my-4">{{ project.title }}</h1>
+<h1 class="font-bold text-3xl mb-4">{{ project.title }}</h1>
 {{ m.project_nav(project=project, active='summary', is_admin=current_user.is_admin) }}
 
 {% if project.description %}
@@ -28,7 +32,7 @@
 <ul class="grid grid-cols-5 md:grid-cols-10 gap-2 text-center">
 {% for page_title, p in pages %}
   {% set colors = m.revision_colors(p.status.name) %}
-  {% set url = url_for('proofing.pages.edit', project_slug=project.slug, page_slug=p.slug)  %}
+  {% set url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=p.slug)  %}
   <li>
     <a class="block rounded py-1 {{ colors }}" href="{{ url }}">{{ page_title }}</a>
   </li>

@@ -21,6 +21,7 @@ from typing import Optional
 
 from dotenv import load_dotenv
 from flask import Flask
+import logging
 
 
 # Load dotenv early so that `_env` will work in the class definitions below.
@@ -79,6 +80,9 @@ class BaseConfig:
 
     #: Where to store user uploads (PDFs, images, etc.).
     UPLOAD_FOLDER = _env("FLASK_UPLOAD_FOLDER")
+
+    #: Logger setup
+    LOG_LEVEL = logging.INFO
 
     # Extensions
     # ----------
@@ -140,6 +144,9 @@ class UnitTestConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     UPLOAD_FOLDER = _make_path(Path(__file__).parent / "data" / "file-uploads")
 
+    #: Logger setup
+    LOG_LEVEL = logging.DEBUG
+
     #: Disable CSRF protection for unit tests, since the Flask test runner
     #: doesn't have good support for it.
     WTF_CSRF_ENABLED = False
@@ -154,11 +161,17 @@ class DevelopmentConfig(BaseConfig):
     AMBUDA_ENVIRONMENT = DEVELOPMENT
     DEBUG = True
 
+    #: Logger setup
+    LOG_LEVEL = logging.DEBUG
+
 
 class ProductionConfig(BaseConfig):
     """For production."""
 
     AMBUDA_ENVIRONMENT = PRODUCTION
+
+    #: Logger setup
+    LOG_LEVEL = logging.INFO
 
     # Deployment credentials
     # ----------------------

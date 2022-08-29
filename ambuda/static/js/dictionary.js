@@ -1,7 +1,5 @@
-/* global Alpine */
-
 import {
-  transliterateElement, transliterateHTMLString, $, Server,
+  transliterateElement, transliterateHTMLString, $,
 } from './core.ts';
 import Routes from './routes';
 
@@ -10,6 +8,13 @@ const DICTIONARY_CONFIG_KEY = 'dictionary';
 export default () => ({
   script: 'devanagari',
   source: 'mw',
+
+  // (transient data)
+
+  // Script value as stored on the <select> widget. We store this separately
+  // from `script` since we currently need to know both fields in order to
+  // transliterate.
+  uiScript: null,
   query: '',
 
   init() {
@@ -24,8 +29,10 @@ export default () => ({
         const settings = JSON.parse(settingsStr);
         this.script = settings.script || this.script;
         this.source = settings.source || this.source;
+        this.uiScript = this.script;
       } catch (error) {
-        console.error(error);
+        // Old settings are invalid -- rewrite with valid values.
+        this.saveSettings();
       }
     }
   },
@@ -37,36 +44,36 @@ export default () => ({
     localStorage.setItem(DICTIONARY_CONFIG_KEY, JSON.stringify(settings));
   },
 
-  setSource(value) {
+  async setSource(value) {
     this.source = value;
     this.saveSettings();
-    this.searchDictionary(this.query);
+    // Return the promise so we can await it in tests.
+    return this.searchDictionary(this.query);
   },
-  setScript(value) {
-    this.transliterate(this.script, value);
-    this.script = value;
+  updateScript() {
+    this.transliterate(this.script, this.uiScript);
+    this.script = this.uiScript;
     this.saveSettings();
   },
 
-  searchDictionary() {
+  async searchDictionary() {
     if (!this.query) {
       return;
     }
 
     const url = Routes.ajaxDictionaryQuery(this.source, this.query);
     const $container = $('#dict--response');
-    Server.getText(
-      url,
-      (resp) => {
-        $container.innerHTML = transliterateHTMLString(resp, this.script);
-        window.history.replaceState({}, '', Routes.dictionaryQuery(this.source, this.query));
-      },
-      () => {
-        $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
-      },
-    );
-  },
+    const resp = await fetch(url);
+    if (resp.ok) {
+      const text = await resp.text();
+      $container.innerHTML = transliterateHTMLString(text, this.script);
 
+      const newURL = Routes.dictionaryQuery(this.source, this.query);
+      window.history.replaceState({}, '', newURL);
+    } else {
+      $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
+    }
+  },
   transliterate(oldScript, newScript) {
     transliterateElement($('#dict--response'), oldScript, newScript);
   },

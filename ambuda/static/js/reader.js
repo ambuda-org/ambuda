@@ -13,10 +13,10 @@
  * NOTE: our migration to Alpine is in progress, and much of this file includes
  * legacy code from our older vanilla JS approach. We will migrate this code to
  * Alpine over time.
- * */
+ */
 
 import {
-  transliterateElement, transliterateHTMLString, transliterateSanskritBlob, $, Server,
+  transliterateElement, transliterateHTMLString, $,
 } from './core.ts';
 import Routes from './routes';
 
@@ -25,204 +25,82 @@ import Routes from './routes';
  * Future PRs will migrate this code to Alpine.
  */
 
-const Preferences = {
-  // FIXME(arun): remove this once everything has been migrated to `reader.js`.
-  get contentScript() {
-    const ls = localStorage.getItem('user-script');
-    if (!ls || ls === 'undefined') {
-      return 'devanagari';
-    }
-    return ls;
-  },
-  set contentScript(value) {
-    if (value) {
-      localStorage.setItem('user-script', value);
-    }
-  },
+async function searchDictionary(version, query, contentScript) {
+  $('#dict--form input[name=q]').value = query;
 
-  get dictVersion() {
-    const val = localStorage.getItem('dict-version');
-    if (!val || val === 'undefined') {
-      // MW for now because of Apte coverage issues.
-      return 'mw';
-    }
-    return val;
-  },
-  set dictVersion(value) {
-    localStorage.setItem('dict-version', value);
-  },
-};
-
-const Sidebar = {
-  toggle() {
-    const classes = $('#sidebar').classList;
-    classes.toggle('block');
-    classes.toggle('hidden');
-  },
-  show() {
-    if ($('#sidebar').classList.contains('hidden')) {
-      this.toggle();
-    }
-  },
-  hide() {
-    if (!$('#sidebar').classList.contains('hidden')) {
-      this.toggle();
-    }
-  },
-  setCurrentWord(form, lemma, parse) {
-    const niceForm = Sanscript.t(form, 'slp1', Preferences.contentScript);
-    const niceLemma = Sanscript.t(lemma, 'slp1', Preferences.contentScript);
-    const html = `
-    <header>
-      <h1 class="text-xl" lang="sa">${niceForm}</h1>
-      <p class="mb-8"><span lang="sa">${niceLemma}</span> ${parse}</p>
-    </header>`;
-    $('#parse--response').innerHTML = html;
-  },
-  transliterate(from, to) {
-    const $content = $('#sidebar');
-    if ($content) {
-      transliterateElement($content, from, to);
-    }
-  },
-};
-
-// Dictionary
-
-const Dictionary = (() => {
-  function fetch(version, query, callback) {
-    $('#dict--form input[name=q]').value = query;
-
-    const url = Routes.ajaxDictionaryQuery(version, query);
-    const $container = $('#dict--response');
-    Server.getText(
-      url,
-      (resp) => {
-        $container.innerHTML = transliterateHTMLString(resp, Preferences.contentScript);
-        if (callback) {
-          callback();
-        }
-      },
-      () => {
-        $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
-      },
-    );
+  const url = Routes.ajaxDictionaryQuery(version, query);
+  const $container = $('#dict--response');
+  const resp = await fetch(url);
+  if (resp.ok) {
+    const text = await resp.text();
+    $container.innerHTML = transliterateHTMLString(text, contentScript);
+  } else {
+    $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
   }
+}
 
-  // Submit the form using the current form state.
-  function submitForm() {
-    const $form = $('#dict--form');
-    const query = $form.querySelector('input[name=q]').value;
-    const version = $form.querySelector('select[name=version]').value;
+function getBlockSlug(blockID) {
+  // Slice to remove text XML id.
+  return blockID.split('.').slice(1).join('.');
+}
 
-    if (!query) {
-      return;
-    }
+async function showParsedBlock(blockID, contentScript, onFailure) {
+  const blockSlug = getBlockSlug(blockID);
+  const $container = $('#parse--response');
+  const textSlug = Routes.getTextSlug();
 
-    fetch(version, query, () => {
-      // FIXME: remove "startsWith" hack and move this to Dictionaries page.
-      if (window.location.pathname.startsWith('/tools/dict')) {
-        window.history.replaceState({}, '', Routes.dictionaryQuery(version, query));
-      }
-    });
+  const $block = $(`#${blockID.replaceAll('.', '\\.')}`);
+
+  if ($block.classList.contains('has-parsed')) {
+    // Text has already been parsed. Show it if necessary.
+    $block.classList.add('show-parsed');
+    return;
   }
+  $block.classList.add('has-parsed');
 
-  function init() {
-    const $dictForm = $('#dict--form');
-    if ($dictForm) {
-      $dictForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        submitForm();
-      });
+  // Fetch parsed data.
+  const url = Routes.parseData(textSlug, blockSlug);
+  const resp = await fetch(url);
+  if (resp.ok) {
+    const text = await resp.text();
+    const parsedNode = document.createElement('div');
+    parsedNode.classList.add('parsed');
+    parsedNode.innerHTML = transliterateHTMLString(text, contentScript);
+    $block.appendChild(parsedNode);
 
-      const $dictVersion = $('#dict--version');
-      $dictVersion.addEventListener('change', (e) => {
-        Preferences.dictVersion = e.target.value;
-        submitForm();
-      });
-      $dictVersion.value = Preferences.dictVersion;
-    }
+    const link = document.createElement('a');
+    link.className = 'text-sm text-zinc-400 hover:underline js--source';
+    link.href = '#';
+    link.innerHTML = '<span class=\'shown-side-by-side\'>Hide</span><span class=\'hidden-side-by-side\'>Show original</span>';
+    parsedNode.firstChild.appendChild(link);
+
+    $block.classList.add('show-parsed');
+  } else {
+    $block.classList.remove('has-parsed');
+    $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
+    onFailure();
   }
-
-  return { init, fetch };
-})();
-
-const ParseLayer = (() => {
-  function getBlockSlug(blockID) {
-    // Slice to remove text XML id.
-    return blockID.split('.').slice(1).join('.');
-  }
-
-  function showParsedBlock(blockID) {
-    const blockSlug = getBlockSlug(blockID);
-    const $container = $('#parse--response');
-    const textSlug = Routes.getTextSlug();
-
-    const $block = $(`#${blockID.replaceAll('.', '\\.')}`);
-
-    if ($block.classList.contains('has-parsed')) {
-      // Text has already been parsed. Show it if necessary.
-      $block.classList.add('show-parsed');
-      return;
-    }
-    $block.classList.add('has-parsed');
-
-    // Fetch parsed data.
-    const url = Routes.parseData(textSlug, blockSlug);
-    Server.getText(
-      url,
-      (resp) => {
-        const parsedNode = document.createElement('div');
-        parsedNode.classList.add('parsed');
-        parsedNode.innerHTML = transliterateSanskritBlob(resp, Preferences.contentScript);
-        $block.appendChild(parsedNode);
-
-        const link = document.createElement('a');
-        link.className = 'text-sm text-zinc-400 hover:underline js--source';
-        link.href = '#';
-        link.innerHTML = '<span class=\'shown-side-by-side\'>Hide</span><span class=\'hidden-side-by-side\'>Show original</span>';
-        parsedNode.firstChild.appendChild(link);
-
-        $block.classList.add('show-parsed');
-      },
-      () => {
-        $block.classList.remove('has-parsed');
-        $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
-        Sidebar.show();
-      },
-    );
-  }
-
-  function init() {
-    const $container = $('#parse--response');
-    if ($container) {
-      $container.addEventListener('click', (e) => {
-        e.preventDefault();
-        const link = e.target.closest('a');
-
-        const $form = $('#dict--form');
-        const query = link.textContent.trim();
-        const version = $form.querySelector('select[name=version]').value;
-        Dictionary.fetch(version, query);
-      });
-    }
-  }
-
-  return { init, showParsedBlock, getBlockSlug };
-})();
+}
 
 /* Alpine code
  * ===========
  * Future PRs will merge the legacy code above into the application below.
  */
 
+/**
+ * Switch the script used in the reader.
+ */
 function switchScript(oldScript, newScript) {
+  if (oldScript === newScript) return;
+
   const $textContent = $('#text--content');
   if ($textContent) {
     transliterateElement($textContent, oldScript, newScript);
   }
-
-  Sidebar.transliterate(oldScript, newScript);
+  const $content = $('#sidebar');
+  if ($content) {
+    transliterateElement($content, oldScript, newScript);
+  }
 }
 
 const READER_CONFIG_KEY = 'reader';
@@ -233,11 +111,20 @@ export default () => ({
   script: 'devanagari',
   // How to display parse data to the user.
   parseLayout: 'in-place',
+  // The dictionary version to use.
+  dictVersion: 'mw',
 
-  // (internal-only) Script value as stored on the <select> widget. We store
-  // this separately from `script` since we currently need to know both fields
-  // in order to transliterate.
+  // (transient data)
+
+  // Script value as stored on the <select> widget. We store this separately
+  // from `script` since we currently need to know both fields in order to
+  // transliterate.
   uiScript: null,
+  // Text in the dictionary search field. This field is visible only on wide
+  // screens.
+  dictQuery: '',
+  // If true, show the sidebar.
+  showSidebar: false,
 
   init() {
     this.loadSettings();
@@ -246,9 +133,14 @@ export default () => ({
     // Sync UI with application state. See comments on `uiScript` for details.
     this.uiScript = this.script;
 
-    // Load legacy content.
-    Dictionary.init();
-    ParseLayer.init();
+    // Allow sidebar to be shown. (We add `hidden` by default so that the
+    // sidebar doesn't display while JS is loading. Alpine's show/hide seems
+    // not to work if the element has this class hidden, which is why we don't
+    // just use "this.showSidebar = true" here.)
+    const $sidebar = $('#sidebar');
+    if ($sidebar) {
+      $sidebar.classList.remove('hidden');
+    }
   },
 
   // Parse application settings from local storage.
@@ -260,12 +152,10 @@ export default () => ({
         this.fontSize = settings.fontSize || this.fontSize;
         this.script = settings.script || this.script;
         this.parseLayout = settings.parseLayout || this.parseLayout;
-
-        // To support legacy code.
-        // FIXME: remove this once the migration is complete.
-        Preferences.contentScript = settings.script;
+        this.dictVersion = settings.dictVersion || this.dictVersion;
       } catch (error) {
-        console.error(error);
+        // Old settings are invalid -- rewrite with valid values.
+        this.saveSettings();
       }
     }
   },
@@ -276,54 +166,67 @@ export default () => ({
       fontSize: this.fontSize,
       script: this.script,
       parseLayout: this.parseLayout,
+      dictVersion: this.dictVersion,
     };
     localStorage.setItem(READER_CONFIG_KEY, JSON.stringify(settings));
   },
 
-  setScript() {
+  updateScript() {
     switchScript(this.script, this.uiScript);
     this.script = this.uiScript;
     this.saveSettings();
   },
 
   // Generic click handler for multiple objects in the reader.
-  onClick(e) {
-    // word
+  async onClick(e) {
+    // Parsed word: show details for this word.
     const $word = e.target.closest('s-w');
     if ($word) {
       this.showWordPanel($word);
       return;
     }
-    // "hide parse" link
+    // "Hide parse" link: hide the displayed parse.
     if (e.target.closest('.js--source')) {
       const $block = e.target.closest('s-block');
       $block.classList.remove('show-parsed');
       return;
     }
-    // block
+    // Block: show parse data for this block.
     const $block = e.target.closest('s-block');
     if ($block) {
-      ParseLayer.showParsedBlock($block.id);
+      showParsedBlock($block.id, this.script, () => {
+        this.showSidebar = true;
+      });
     }
   },
 
   // Show information for a clicked word.
-  showWordPanel($word) {
+  async showWordPanel($word) {
     const lemma = $word.getAttribute('lemma');
     const form = $word.textContent;
     const parse = $word.getAttribute('parse');
+    this.dictQuery = Sanscript.t(lemma, 'slp1', this.script);
 
-    const version = Preferences.dictVersion;
-    const query = Sanscript.t(lemma, 'slp1', this.script);
-
-    Dictionary.fetch(version, query, () => {
-      Sidebar.setCurrentWord(form, lemma, parse);
-      Sidebar.show();
-    });
+    await searchDictionary(this.dictVersion, this.dictQuery, this.script);
+    this.setSidebarWord(form, lemma, parse);
+    this.showSidebar = true;
   },
 
-  // legacy bindings
-  hideSidebar() {
-    Sidebar.hide();
+  // Display a specific word in the sidebar.
+  setSidebarWord(form, lemma, parse) {
+    const niceForm = Sanscript.t(form, 'slp1', this.script);
+    const niceLemma = Sanscript.t(lemma, 'slp1', this.script);
+    const html = `
+    <header>
+      <h1 class="text-xl" lang="sa">${niceForm}</h1>
+      <p class="mb-8"><span lang="sa">${niceLemma}</span> ${parse}</p>
+    </header>`;
+    $('#parse--response').innerHTML = html;
+  },
+
+  // Search a word in the dictionary and display the results to the user.
+  submitDictionaryQuery() {
+    if (!this.dictQuery) return;
+    searchDictionary(this.dictVersion, this.dictQuery, this.script);
   },
 });

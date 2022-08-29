@@ -1,5 +1,6 @@
 import io
 import itertools
+import logging
 from xml.etree import ElementTree as ET
 
 from sqlalchemy.orm import Session
@@ -84,4 +85,4 @@ def create_from_scratch(engine, slug: str, title: str, generator):
                     {"dictionary_id": dictionary.id, "key": key, "value": value}
                 )
             conn.execute(ins, items)
-            print(10000 * (i + 1))
+            logging.info(10000 * (i + 1))

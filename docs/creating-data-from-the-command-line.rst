@@ -1,5 +1,5 @@
-Using Ambuda in development
-===========================
+Creating data from the command line
+===================================
 
 Ambuda exposes a basic CLI for common administrative tasks. This interface lets
 you quickly create objects to interact with on the development server.
@@ -14,4 +14,4 @@ Make that user an administrator::
 
 Create a fake proofing project::
 
-    ./cli.py create-proofing-project
+    ./cli.py create-proofing-project <title> <path-to-your-pdf-file>

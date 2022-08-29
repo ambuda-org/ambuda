@@ -29,7 +29,7 @@ DATA_DIR = PROJECT_DIR / "data" / "ambuda-gretil"
 SINGLE_SECTION_SLUG = "all"
 
 ALLOW = [
-    Spec("amarushatakam", "amaruzakatam", "sa_amaru-amaruzataka.xml"),
+    Spec("amarushatakam", "amaruzatakam", "sa_amaru-amaruzataka.xml"),
     Spec("kumarasambhavam", "kumArasambhavam", "sa_kAlidAsa-kumArasaMbhava.xml"),
     Spec("raghuvamsham", "raghuvaMzam", "sa_kAlidAsa-raghuvaMza.xml"),
     Spec("kiratarjuniyam", "kirAtArjunIyam", "sa_bhAravi-kirAtArjunIya.xml"),
@@ -39,13 +39,15 @@ ALLOW = [
     Spec("bhattikavyam", "bhaTTikAvyam", "sa_bhaTTi-rAvaNavadha.xml"),
     Spec("meghadutam-kale", "meghadUtam", "sa_kAlidAsa-meghadUta-edkale.xml"),
     Spec("kokilasandesha", "kokilasaMdezaH", "sa_uddaNDa-kokilasaMdesa.xml"),
-    Spec("bodhicaryavatara", "bodhicAryAvatAraH", "sa_zAntideva-bodhicaryAvatAra.xml"),
+    Spec("bodhicaryavatara", "bodhicaryAvatAraH", "sa_zAntideva-bodhicaryAvatAra.xml"),
     Spec(
         "saundaranandam", "saundaranandam", "sa_azvaghoSa-saundarAnanda-edmatsunami.xml"
     ),
     Spec("caurapancashika", "caurapaJcAzikA", "sa_bilhaNa-caurapaJcAzikA.xml"),
     Spec("hamsadutam", "haMsadUtam", "sa_rUpagosvAmin-haMsadUta.xml"),
     Spec("mukundamala", "mukundamAlA", "sa_kulazekhara-mukundamAlA-eddurgaprasad.xml"),
+    Spec("shivopanishat", "zivopaniSat", "sa_zivopaniSad.xml"),
+    Spec("catuhshloki", "catuHzlokI", "sa_yAmuna-catuHzlokI.xml"),
 ]
 
 
