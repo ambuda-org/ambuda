@@ -78,7 +78,7 @@ def beginners_guide():
 @bp.route("/help/complete-guide")
 def complete_guide():
     """Display our complete proofing guidelines."""
-    return render_template("proofing/complete-guidelines.html")
+    return render_template("proofing/complete-guide.html")
 
 
 @bp.route("/help/editor-guide")

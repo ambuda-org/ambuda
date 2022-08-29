@@ -1,0 +1,73 @@
+{% import "macros/proofing.html" as m %}
+{% import "proofing/pages/editor-components.html" as editor %}
+
+
+{# Show a button icon inline. #}
+{% macro _button(text) %}<span class="p-1 bg-slate-200">{{ text|safe }}</span>{% endmacro %}
+
+
+{# Embed an HTML widget as a figure. #}
+{% macro html_figure(caption) %}
+<figure class="my-12">
+  <div class="border p-4">
+    {{ caller() }}
+  </div>
+  <figcaption class="text-sm text-slate-600 mt-2 text-center">{{ caption }}</figcaption>
+</figure>
+{% endmacro %}
+
+
+{% macro text_box() %}
+<div class="border flex-1">
+  <div class="bg-slate-200 flex justify-between">
+    <div>
+      <button type="button" class="btn bg-sky-700 text-white m-2 hover:bg-sky-900">
+        Run OCR
+      </button>
+    </div>
+    <div>
+      {{ editor.alpine_button("A<sup>+</sup>", "increaseTextSize") }}
+      {{ editor.alpine_button("A<sup>-</sup>", "decreaseTextSize") }}
+    </div>
+  </div>
+  <textarea id="content" name="content" required=""
+    class="grow p-2 md:p-4 w-full resize-none h-32">{{ data }}</textarea>
+</div>
+{% endmacro %}
+
+
+{% macro image_viewer() %}
+<div class="flex flex-col flex-1 border bg-slate-100 border">
+  <div class="bg-slate-200">
+    {{ editor.alpine_button("&#x1f50d;<sup>+</sup>", "") }}
+    {{ editor.alpine_button("&#x1f50d;&#x00b0;", "") }}
+    {{ editor.alpine_button("&#x1f50d;<sup>-</sup>", "") }}
+    {{ editor.osd_button("osd-rotate-left", "&#x27f2;") }}
+    {{ editor.osd_button("osd-rotate-right", "&#x27f3;") }}
+  </div>
+
+  <div id="osd-image" class="h-32"></div>
+</div>
+{% endmacro %}
+
+
+{% macro submission_form() %}
+<div class="p-4 mt-4 bg-slate-200">
+  <label class="text-slate-600 mb-2 block">Summary of changes made</label>
+  <input type="text" class="block rounded bg-white w-full mb-4 p-2"></input>
+
+  <label class="text-slate-600 mb-2 block">Status</label>
+  <select class="block rounded bg-white w-full mb-4 p-2">
+    <option>Needs more work</option>
+    <option>Proofread once</option>
+    <option>Proofread twice</option>
+    <option>No useful text</option>
+  </select>
+
+  {% set cc0 = "https://creativecommons.org/publicdomain/zero/1.0/" %}
+  <p class="my-4 text-sm">By saving your changes, you agree to release your
+  contribution under the <a class="underline" href="{{ cc0 }}">CC0 (public
+  domain) license</a>.</p>
+  <a href="#" class="inline-block btn btn-submit" type="submit">Publish changes</a>
+</div>
+{% endmacro %}
