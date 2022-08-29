@@ -25,77 +25,64 @@ import Routes from './routes';
  * Future PRs will migrate this code to Alpine.
  */
 
-const Dictionary = (() => {
-  function fetch(version, query, contentScript, callback) {
-    $('#dict--form input[name=q]').value = query;
+async function searchDictionary(version, query, contentScript) {
+  $('#dict--form input[name=q]').value = query;
 
-    const url = Routes.ajaxDictionaryQuery(version, query);
-    const $container = $('#dict--response');
-    Server.getText(
-      url,
-      (resp) => {
-        $container.innerHTML = transliterateHTMLString(resp, contentScript);
-        if (callback) {
-          callback();
-        }
-      },
-      () => {
-        $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
-      },
-    );
+  const url = Routes.ajaxDictionaryQuery(version, query);
+  const $container = $('#dict--response');
+  const resp = await(url);
+  if (resp.ok) {
+    const text = await resp.text();
+    $container.innerHTML = transliterateHTMLString(text, contentScript);
+  } else {
+    $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
   }
+}
 
-  return { fetch };
-})();
+function getBlockSlug(blockID) {
+  // Slice to remove text XML id.
+  return blockID.split('.').slice(1).join('.');
+}
 
-const ParseLayer = (() => {
-  function getBlockSlug(blockID) {
-    // Slice to remove text XML id.
-    return blockID.split('.').slice(1).join('.');
+function showParsedBlock(blockID, contentScript, callback) {
+  const blockSlug = getBlockSlug(blockID);
+  const $container = $('#parse--response');
+  const textSlug = Routes.getTextSlug();
+
+  const $block = $(`#${blockID.replaceAll('.', '\\.')}`);
+
+  if ($block.classList.contains('has-parsed')) {
+    // Text has already been parsed. Show it if necessary.
+    $block.classList.add('show-parsed');
+    return;
   }
+  $block.classList.add('has-parsed');
 
-  function showParsedBlock(blockID, contentScript, callback) {
-    const blockSlug = getBlockSlug(blockID);
-    const $container = $('#parse--response');
-    const textSlug = Routes.getTextSlug();
+  // Fetch parsed data.
+  const url = Routes.parseData(textSlug, blockSlug);
+  Server.getText(
+    url,
+    (resp) => {
+      const parsedNode = document.createElement('div');
+      parsedNode.classList.add('parsed');
+      parsedNode.innerHTML = transliterateSanskritBlob(resp, contentScript);
+      $block.appendChild(parsedNode);
 
-    const $block = $(`#${blockID.replaceAll('.', '\\.')}`);
+      const link = document.createElement('a');
+      link.className = 'text-sm text-zinc-400 hover:underline js--source';
+      link.href = '#';
+      link.innerHTML = '<span class=\'shown-side-by-side\'>Hide</span><span class=\'hidden-side-by-side\'>Show original</span>';
+      parsedNode.firstChild.appendChild(link);
 
-    if ($block.classList.contains('has-parsed')) {
-      // Text has already been parsed. Show it if necessary.
       $block.classList.add('show-parsed');
-      return;
-    }
-    $block.classList.add('has-parsed');
-
-    // Fetch parsed data.
-    const url = Routes.parseData(textSlug, blockSlug);
-    Server.getText(
-      url,
-      (resp) => {
-        const parsedNode = document.createElement('div');
-        parsedNode.classList.add('parsed');
-        parsedNode.innerHTML = transliterateSanskritBlob(resp, contentScript);
-        $block.appendChild(parsedNode);
-
-        const link = document.createElement('a');
-        link.className = 'text-sm text-zinc-400 hover:underline js--source';
-        link.href = '#';
-        link.innerHTML = '<span class=\'shown-side-by-side\'>Hide</span><span class=\'hidden-side-by-side\'>Show original</span>';
-        parsedNode.firstChild.appendChild(link);
-
-        $block.classList.add('show-parsed');
-      },
-      () => {
-        $block.classList.remove('has-parsed');
-        $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
-        callback();
-      },
-    );
-  }
-
-  return { showParsedBlock, getBlockSlug };
-})();
+    },
+    () => {
+      $block.classList.remove('has-parsed');
+      $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
+      callback();
+    },
+  );
+}
 
 /* Alpine code
  * ===========
@@ -208,23 +195,22 @@ export default () => ({
     // Block: show parse data for this block.
     const $block = e.target.closest('s-block');
     if ($block) {
-      ParseLayer.showParsedBlock($block.id, this.script, () => {
+      showParsedBlock($block.id, this.script, () => {
         this.showSidebar = true;
       });
     }
   },
 
   // Show information for a clicked word.
-  showWordPanel($word) {
+  async showWordPanel($word) {
     const lemma = $word.getAttribute('lemma');
     const form = $word.textContent;
     const parse = $word.getAttribute('parse');
     this.dictQuery = Sanscript.t(lemma, 'slp1', this.script);
 
-    Dictionary.fetch(this.dictVersion, this.dictQuery, this.script, () => {
-      this.setSidebarWord(form, lemma, parse);
-      this.showSidebar = true;
-    });
+    await searchDictionary(this.dictVersion, this.dictQuery, this.script);
+    this.setSidebarWord(form, lemma, parse);
+    this.showSidebar = true;
   },
 
   // Display a specific word in the sidebar.
@@ -242,6 +228,7 @@ export default () => ({
   // Search a word in the dictionary and display the results to the user.
   submitDictionaryQuery() {
     if (!this.dictQuery) return;
-    Dictionary.fetch(this.dictVersion, this.dictQuery, this.script);
+    // Return promise for unit tests.
+    return searchDictionary(this.dictVersion, this.dictQuery, this.script);
   },
 });

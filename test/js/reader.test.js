@@ -6,6 +6,9 @@ const sampleHTML = `
   <div id="text--content">
     <p lang="sa">granthaH</p>
   </div>
+  <form id="dict--form">
+    <input type="text" name="q"></input>
+  </form>
   <div id="sidebar"><span lang="sa">padam</span> English</div>
 </div>
 `;
