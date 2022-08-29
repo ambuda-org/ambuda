@@ -138,7 +138,6 @@ test('displayTopAndBottom works and gets saved', () => {
 
 test('transliterate works and saves settings', () => {
   const p = Proofer();
-
   const $text = $('#content');
   $text.value = 'Sanskrit (saMskRtam) text'
   $text.setSelectionRange(10, 19);
@@ -149,3 +148,36 @@ test('transliterate works and saves settings', () => {
 
   expect($text.value).toBe('Sanskrit (:saMskRtam:iast) text')
 });
+
+function markupFixtures(text) {
+  const p = Proofer();
+  const $text = $('#content');
+  $text.value = 'This is sample text.'
+  $text.setSelectionRange(8, 14);
+  return { p, $text };
+}
+
+test('markAsError works', () => {
+  const {p, $text } = markupFixtures();
+  p.markAsError()
+  expect($text.value).toBe('This is <error>sample</error> text.')
+});
+
+test('markAsFix works', () => {
+  const {p, $text } = markupFixtures();
+  p.markAsFix()
+  expect($text.value).toBe('This is <fix>sample</fix> text.')
+});
+
+test('markAsUnclear works', () => {
+  const {p, $text } = markupFixtures();
+  p.markAsUnclear()
+  expect($text.value).toBe('This is <flag>sample</flag> text.')
+});
+
+test('markAsFootnoteNumber works', () => {
+  const {p, $text } = markupFixtures();
+  p.markAsFootnoteNumber()
+  expect($text.value).toBe('This is [^sample] text.')
+});
+

@@ -1,5 +1,5 @@
 import {
-  transliterateElement, transliterateHTMLString, $, Server,
+  transliterateElement, transliterateHTMLString, $,
 } from './core.ts';
 import Routes from './routes';
 
@@ -54,25 +54,24 @@ export default () => ({
     this.saveSettings();
   },
 
-  searchDictionary() {
+  async searchDictionary() {
     if (!this.query) {
       return;
     }
 
     const url = Routes.ajaxDictionaryQuery(this.source, this.query);
     const $container = $('#dict--response');
-    Server.getText(
-      url,
-      (resp) => {
-        $container.innerHTML = transliterateHTMLString(resp, this.script);
-        window.history.replaceState({}, '', Routes.dictionaryQuery(this.source, this.query));
-      },
-      () => {
-        $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
-      },
-    );
-  },
+    const resp = await fetch(url);
+    if (resp.ok) {
+      const text = await resp.text();
+      $container.innerHTML = transliterateHTMLString(text, this.script);
 
+      const newURL = Routes.dictionaryQuery(this.source, this.query);
+      window.history.replaceState({}, '', newURL);
+    } else {
+      $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
+    }
+  },
   transliterate(oldScript, newScript) {
     transliterateElement($('#dict--response'), oldScript, newScript);
   },

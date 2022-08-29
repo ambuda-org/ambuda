@@ -13,6 +13,13 @@ window.Sanscript = {
   t: jest.fn((s, from, to) => `${s}:${to}`),
 }
 
+window.fetch = jest.fn(async (url) => {
+  return {
+    ok: true,
+    text: async () => '<div>response</div>',
+  }
+});
+
 beforeEach(() => {
   document.write(sampleHTML);
   window.localStorage.clear();
@@ -38,10 +45,11 @@ test('saveSettings and loadSettings', () => {
   expect(d2.source).toBe("test source");
 });
 
-test('searchDictionary with empty query does nothing', () => {
+test('searchDictionary fetches a response', async () => {
   const d = Dictionary();
-  expect(d.query).toBe("");
-  d.searchDictionary();
+  d.query = "saMskRtam";
+  await d.searchDictionary();
+  expect($('#dict--response').innerHTML).toBe('<div>response</div>');
 });
 
 test('updateScript transliterates and updates settings', () => {
