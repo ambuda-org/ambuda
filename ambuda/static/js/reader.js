@@ -30,7 +30,7 @@ async function searchDictionary(version, query, contentScript) {
 
   const url = Routes.ajaxDictionaryQuery(version, query);
   const $container = $('#dict--response');
-  const resp = await(url);
+  const resp = await (url);
   if (resp.ok) {
     const text = await resp.text();
     $container.innerHTML = transliterateHTMLString(text, contentScript);
@@ -152,7 +152,8 @@ export default () => ({
         this.parseLayout = settings.parseLayout || this.parseLayout;
         this.dictVersion = settings.dictVersion || this.dictVersion;
       } catch (error) {
-        console.error(error);
+        // Old settings are invalid -- rewrite with valid values.
+        this.saveSettings();
       }
     }
   },
@@ -223,7 +224,6 @@ export default () => ({
   // Search a word in the dictionary and display the results to the user.
   submitDictionaryQuery() {
     if (!this.dictQuery) return;
-    // Return promise for unit tests.
-    return searchDictionary(this.dictVersion, this.dictQuery, this.script);
+    searchDictionary(this.dictVersion, this.dictQuery, this.script);
   },
 });

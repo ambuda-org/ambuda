@@ -31,7 +31,8 @@ export default () => ({
         this.source = settings.source || this.source;
         this.uiScript = this.script;
       } catch (error) {
-        console.error(error);
+        // Old settings are invalid -- rewrite with valid values.
+        this.saveSettings();
       }
     }
   },

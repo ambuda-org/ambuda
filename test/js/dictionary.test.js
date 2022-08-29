@@ -38,7 +38,7 @@ test('Dictionary can be created', () => {
   d.init();
 });
 
-test('saveSettings and loadSettings', () => {
+test('saveSettings and loadSettings work as expected', () => {
   const d1 = Dictionary();
   d1.script = "test script";
   d1.source = "test source";
@@ -51,6 +51,22 @@ test('saveSettings and loadSettings', () => {
   d2.loadSettings();
   expect(d2.script).toBe("test script");
   expect(d2.source).toBe("test source");
+});
+
+test('loadSettings works if localStorage data is empty', () => {
+  localStorage.setItem('dictionary', "{}");
+  const d = Dictionary();
+  d.loadSettings();
+  expect(d.script).toBe('devanagari');
+  expect(d.source).toBe('mw');
+});
+
+test('loadSettings works if localStorage data is corrupt', () => {
+  localStorage.setItem('proofing-editor', "invalid JSON");
+  const d = Dictionary();
+  d.loadSettings();
+  expect(d.script).toBe('devanagari');
+  expect(d.source).toBe('mw');
 });
 
 test('setSource sets dictionary source then fetches', async () => {

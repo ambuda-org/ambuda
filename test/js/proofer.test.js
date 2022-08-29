@@ -51,7 +51,7 @@ test('Proofer can be created', () => {
   expect(p.imageZoom).toBe(0.5);
 });
 
-test('saveSettings and loadSettings', () => {
+test('saveSettings and loadSettings work as expected', () => {
   const oldProofer = Proofer()
   oldProofer.textZoom = "test text zoom";
   oldProofer.imageZoom = "test image zoom";
@@ -67,6 +67,21 @@ test('saveSettings and loadSettings', () => {
   expect(p.layout).toBe("side-by-side");
   expect(p.fromScript).toBe("test from script");
   expect(p.toScript).toBe("test to script");
+});
+
+test('loadSettings works if localStorage data is empty', () => {
+  localStorage.setItem('proofing-editor', "{}");
+  const p = Proofer();
+  p.loadSettings();
+  expect(p.textZoom).toBe(1);
+  expect(p.layout).toBe('side-by-side');
+});
+
+test('loadSettings works if localStorage data is corrupt', () => {
+  localStorage.setItem('proofing-editor', "invalid JSON");
+  const p = Proofer();
+  p.loadSettings();
+  // No error -- OK
 });
 
 test('runOCR handles a valid server response', async () => {
