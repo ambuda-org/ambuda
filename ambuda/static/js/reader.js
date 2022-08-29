@@ -16,7 +16,7 @@
  */
 
 import {
-  transliterateElement, transliterateHTMLString, transliterateSanskritBlob, $, 
+  transliterateElement, transliterateHTMLString, $,
 } from './core.ts';
 import Routes from './routes';
 
@@ -44,7 +44,7 @@ function getBlockSlug(blockID) {
   return blockID.split('.').slice(1).join('.');
 }
 
-async function showParsedBlock(blockID, contentScript, callback) {
+async function showParsedBlock(blockID, contentScript) {
   const blockSlug = getBlockSlug(blockID);
   const $container = $('#parse--response');
   const textSlug = Routes.getTextSlug();
@@ -64,7 +64,7 @@ async function showParsedBlock(blockID, contentScript, callback) {
   if (resp.ok) {
     const parsedNode = document.createElement('div');
     parsedNode.classList.add('parsed');
-    parsedNode.innerHTML = transliterateSanskritBlob(resp, contentScript);
+    parsedNode.innerHTML = transliterateHTMLString(resp, contentScript);
     $block.appendChild(parsedNode);
 
     const link = document.createElement('a');
@@ -77,7 +77,6 @@ async function showParsedBlock(blockID, contentScript, callback) {
   } else {
     $block.classList.remove('has-parsed');
     $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
-    callback();
   }
 }
 
