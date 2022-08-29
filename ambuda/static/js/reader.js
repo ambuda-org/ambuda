@@ -30,7 +30,7 @@ async function searchDictionary(version, query, contentScript) {
 
   const url = Routes.ajaxDictionaryQuery(version, query);
   const $container = $('#dict--response');
-  const resp = await (url);
+  const resp = await fetch(url);
   if (resp.ok) {
     const text = await resp.text();
     $container.innerHTML = transliterateHTMLString(text, contentScript);
