@@ -1,8 +1,7 @@
 // Contents of the menu bar. https://github.com/prosemirror/prosemirror-menu
 // Subset of https://github.com/ProseMirror/prosemirror-example-setup/blob/master/src/menu.ts
-import { undoItem, redoItem, MenuElement } from "prosemirror-menu"
-import { Schema } from "prosemirror-model"
-
+import { undoItem, redoItem, MenuElement } from 'prosemirror-menu';
+import { Schema } from 'prosemirror-model';
 
 type MenuItemResult = {
     /// An array of arrays of menu elements.
@@ -10,9 +9,9 @@ type MenuItemResult = {
 }
 
 function buildMenuItems(_schema: Schema): MenuItemResult {
-    return {
-        fullMenu: [[undoItem, redoItem]]
-    };
+  return {
+    fullMenu: [[undoItem, redoItem]],
+  };
 }
 
 export default buildMenuItems;
