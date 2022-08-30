@@ -117,6 +117,7 @@ css-prod:
 
 # Run esbuild to build our JavaScript, and rebuild our JavaScript every time a
 # relevant file changes.
+# TODO: This doesn't quite work (only the second gets watched); bundle everything into one file?
 js-dev:
 	npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --watch &
 	npx esbuild ambuda/static/js/pm-editor/pm-editor.ts --outfile=ambuda/static/gen/prosemirror_bundle.js --bundle --watch
