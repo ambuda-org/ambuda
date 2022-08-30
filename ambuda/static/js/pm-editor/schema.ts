@@ -3,8 +3,7 @@
 
 import { Schema, NodeSpec, DOMOutputSpec } from "prosemirror-model"
 
-const pDOM: DOMOutputSpec = ["p", 0],
-    brDOM: DOMOutputSpec = ["br"]
+const pDOM: DOMOutputSpec = ["p", 0];
 
 /// Specs for the nodes defined in this schema.
 const nodes = {
@@ -13,28 +12,18 @@ const nodes = {
         content: "block+"
     } as NodeSpec,
 
-    /// A plain paragraph textblock. Represented in the DOM
-    /// as a `<p>` element.
-    paragraph: {
+    /// A line on the page. Represented in the DOM as a `<p>` element.
+    line: {
         content: "inline*",
         group: "block",
         parseDOM: [{ tag: "p" }],
         toDOM() { return pDOM }
     } as NodeSpec,
 
-    /// The text node.
+    /// A text node (contents of a line).
     text: {
         group: "inline"
     } as NodeSpec,
-
-    /// A hard line break, represented in the DOM as `<br>`.
-    hard_break: {
-        inline: true,
-        group: "inline",
-        selectable: false,
-        parseDOM: [{ tag: "br" }],
-        toDOM() { return brDOM }
-    } as NodeSpec
 }
 
 export const almostTrivialSchema = new Schema({

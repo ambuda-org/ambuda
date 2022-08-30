@@ -2,10 +2,6 @@
 and https://github.com/ProseMirror/prosemirror-gapcursor/blob/master/style/gapcursor.css
 and a couple of other sources. */
 
-.ProseMirror p {
-    margin-bottom: 1rem;
-}
-
 #editor,
 .editor {
     display: none;
