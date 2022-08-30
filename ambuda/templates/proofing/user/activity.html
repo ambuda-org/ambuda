@@ -1,0 +1,39 @@
+{% extends 'proofing/base-sidebar.html' %}
+{% import "macros/components.html" as components %}
+{% import "macros/proofing.html" as m %}
+{% import "macros/heatmap.html" as hm %}
+
+
+{% block title %}User: {{ user.username }} | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
+
+
+{% block content %}
+{% set url = url_for('proofing.user.summary', username=user.username) %}
+
+{{ components.flash_messages() }}
+{{ m.nested_header('Activity', user.username, url) }}
+
+{{ m.user_tabs(user=user, active='activity', is_admin=current_user.is_admin) }}
+
+{% if user_revisions %}
+<div class="prose">
+<h2>Summary</h2>
+</div>
+
+<div class="flex flex-col items-end overflow-hidden max-w-xl xl:max-w-full">
+{{ hm.show_heatmap(heatmap) }}
+</div>
+
+<div class="prose">
+<h2>Edits</h2>
+</div>
+{{ m.revision_list(user_revisions|reverse) }}
+{% else %}
+<p>This user has not made any edits.</p>
+{% endif %}
+
+{% endblock %}
+

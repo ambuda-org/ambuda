@@ -1,0 +1,31 @@
+{% extends 'proofing/base-sidebar.html' %}
+{% import "macros/components.html" as components %}
+{% import "macros/proofing.html" as m %}
+
+
+{% block title %}User: {{ user.username }} | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
+
+
+{% block content %}
+{{ components.flash_messages() }}
+
+{{ m.title_and_subtitle(user.username) }}
+
+{{ m.user_tabs(user=user, active='about', is_admin=current_user.is_admin) }}
+
+{% if user.description %}
+
+<div class="prose border p-4 my-8">
+{{ user.description|markdown|safe }}
+</div>
+{% endif %}
+
+{% if current_user.username == user.username %}
+<a class="btn btn-basic"
+    href="{{ url_for('proofing.user.edit', username=user.username) }}">Edit bio</a>
+{% endif %}
+{% endblock %}
+

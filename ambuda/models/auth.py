@@ -7,6 +7,7 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
+    Text as Text_,
 )
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -30,6 +31,9 @@ class User(UserMixin, Base):
     email = Column(String, nullable=False, unique=True)
     #: Timestamp at which this user record was created.
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    #: The user's self-description.
+    description = Column(Text_, nullable=False, default="")
 
     #: All roles available for this user.
     roles = relationship("Role", secondary="user_roles")
@@ -56,7 +60,10 @@ class User(UserMixin, Base):
 
 class Role(Base):
 
-    """A role"""
+    """A role.
+
+    Roles are how we model fine-grained permissions on Ambuda.
+    """
 
     __tablename__ = "roles"
 

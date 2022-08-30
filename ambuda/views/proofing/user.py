@@ -2,11 +2,16 @@ from flask import (
     Blueprint,
     abort,
     flash,
+    redirect,
     render_template,
+    url_for,
 )
 
+from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from wtforms import BooleanField
+from wtforms import StringField
+from wtforms.widgets import TextArea
 
 import ambuda.queries as q
 from ambuda import database as db
@@ -14,41 +19,69 @@ from ambuda.utils.auth import admin_required
 from ambuda.utils import heatmap
 
 
-bp = Blueprint("users", __name__)
+bp = Blueprint("user", __name__)
 
 
 class RolesForm(FlaskForm):
     pass
 
 
+class EditProfileForm(FlaskForm):
+    description = StringField("Profile description", widget=TextArea())
+
+
 @bp.route("/<username>/")
-def user(username):
+def summary(username):
     user_ = q.user(username)
     if not user_:
         abort(404)
 
-    session = q.get_session()
-    revisions = session.query(db.Revision).filter_by(author_id=user_.id).all()
-    hm = heatmap.create(r.created.date() for r in revisions)
-
     return render_template(
-        "proofing/user.html",
+        "proofing/user/summary.html",
         user=user_,
-        heatmap=hm,
     )
 
 
-@bp.route("/<username>/edits")
-def user_edits(username):
+@bp.route("/<username>/activity")
+def activity(username):
+    """Summarize the user's public activity on Ambuda."""
     user_ = q.user(username)
     if not user_:
         abort(404)
 
     session = q.get_session()
     user_revisions = session.query(db.Revision).filter_by(author_id=user_.id).all()
+    hm = heatmap.create(r.created.date() for r in user_revisions)
+
     return render_template(
-        "proofing/user-edits.html", user=user_, user_revisions=user_revisions
+        "proofing/user/activity.html",
+        user=user_,
+        user_revisions=user_revisions,
+        heatmap=hm,
     )
+
+
+@bp.route("/<username>/edit", methods=["GET", "POST"])
+@login_required
+def edit(username):
+    """Allow a user to edit their own information."""
+    user_ = q.user(username)
+    if not user_:
+        abort(404)
+
+    # Only this user can edit their bio.
+    if username != current_user.username:
+        abort(403)
+
+    form = EditProfileForm(obj=user_)
+    if form.validate_on_submit():
+        session = q.get_session()
+        form.populate_obj(user_)
+        session.commit()
+        flash("Saved changes.", "success")
+        return redirect(url_for("proofing.user.summary", username=username))
+
+    return render_template("proofing/user/edit.html", user=user_, form=form)
 
 
 def _make_role_form(roles, user_):
@@ -71,7 +104,7 @@ def _make_role_form(roles, user_):
 
 @bp.route("/<username>/admin", methods=["GET", "POST"])
 @admin_required
-def user_admin(username):
+def admin(username):
     """Adjust a user's roles."""
     user_ = q.user(username)
     if not user_:
@@ -107,7 +140,7 @@ def user_admin(username):
         flash("Saved changes.", "success")
 
     return render_template(
-        "proofing/user-admin.html",
+        "proofing/user/admin.html",
         user=user_,
         form=form,
     )
