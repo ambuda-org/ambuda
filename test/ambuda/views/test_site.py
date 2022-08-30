@@ -24,4 +24,4 @@ def test_404(client):
 
 def test_sentry_500_throws_error(client):
     with pytest.raises(ZeroDivisionError):
-        resp = client.get("/test-sentry-500")
+        _ = client.get("/test-sentry-500")

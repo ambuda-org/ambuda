@@ -111,7 +111,7 @@ def create_app(config_env: str):
     mailer.init_app(app)
 
     with app.app_context():
-        admin = admin_manager.create_admin_manager(app)
+        _ = admin_manager.create_admin_manager(app)
 
     # Blueprints
     app.register_blueprint(about, url_prefix="/about")

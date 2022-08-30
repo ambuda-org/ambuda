@@ -149,7 +149,6 @@ def create_project_status(task_id):
     if isinstance(info, Exception):
         current = total = percent = 0
         slug = None
-        status = r.status
     else:
         current = info.get("current", 100)
         total = info.get("total", 100)
@@ -179,7 +178,6 @@ def recent_changes():
 @bp.route("/talk")
 def talk():
     """Show discussion across all projects."""
-    session = q.get_session()
     projects = q.projects()
 
     # FIXME: optimize this once we have a higher thread volume.
