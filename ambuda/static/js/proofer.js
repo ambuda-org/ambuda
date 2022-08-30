@@ -194,9 +194,9 @@ export default () => ({
 
     // If the ProseMirror-based editor is on, just use its `replaceWith`.
     if ($textarea.style.display === 'none') {
-      const { state } = window.view;
-      let { tr } = state;
-      tr = tr.replaceWith(state.schema.text(callback(tr.selection.text)));
+      const editorState = window.view.state;
+      let t = editorState.tr;
+      t = t.replaceWith(editorState.schema.text(callback(t.selection.text)));
       return;
     }
     const start = $textarea.selectionStart;
@@ -229,7 +229,6 @@ export default () => ({
   },
 
   // Character controls
-
   copyCharacter(e) {
     const character = e.target.textContent;
     navigator.clipboard.writeText(character);
