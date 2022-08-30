@@ -25,15 +25,14 @@ install-frontend:
 # Install Python dependencies.
 install-python:
 	python3 -m venv env
-	bash env/bin/activate
-	pip install --upgrade pip
-	pip install -r requirements.txt
+	. env/bin/activate; pip install --upgrade pip
+	. env/bin/activate; pip install -r requirements.txt
 
 # Upgrade an existing setup.
 upgrade:
 	make install-frontend install-python
-	python -m ambuda.seed.lookup
-	alembic upgrade head
+	. env/bin/activate; python -m ambuda.seed.lookup
+	. env/bin/activate; alembic upgrade head
 
 # Seed the database with just enough data for the devserver to be interesting.
 db-seed-basic: py-venv-check
@@ -41,7 +40,6 @@ db-seed-basic: py-venv-check
 	python -m ambuda.seed.texts.gretil
 	python -m ambuda.seed.dcs
 	python -m ambuda.seed.dictionaries.monier
-
 
 # Seed the database with all of the text, parse, and dictionary data we serve
 # in production.
