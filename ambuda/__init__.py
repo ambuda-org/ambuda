@@ -110,9 +110,6 @@ def create_app(config_env: str):
     login_manager.init_app(app)
     mailer.init_app(app)
 
-    with app.app_context():
-        admin = admin_manager.create_admin_manager(app)
-
     # Blueprints
     app.register_blueprint(about, url_prefix="/about")
     app.register_blueprint(api, url_prefix="/api")

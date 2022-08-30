@@ -124,7 +124,7 @@ def section(text_slug, section_slug):
     # Fetch with content blocks
     cur = q.text_section(text.id, section_slug)
 
-    with q.get_session() as sess:
+    with q.get_session() as _:
         html_blocks = [xml.transform_text_block(b.xml) for b in cur.blocks]
 
     has_no_parse = text.slug in HAS_NO_PARSE
