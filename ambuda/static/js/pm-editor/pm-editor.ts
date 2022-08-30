@@ -4,8 +4,8 @@ import { EditorState } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
 import { DOMParser, Node } from "prosemirror-model"
 
-import { almostTrivialSchema } from "./schema"
-import { plugins } from "./plugins"
+import almostTrivialSchema from "./schema"
+import plugins from "./plugins"
 
 // Parse a string (the contents of the textarea) into a HTML element.
 // Just splits on line breaks.
@@ -29,7 +29,7 @@ function fromText(text: string): Node {
 // Create a new ProseMirror editor with the contents of the textarea, and hide the textarea.
 function replaceTextareaWithPmeditor() {
     const $textarea = document.querySelector('textarea')!;
-    if ($textarea.style.display == 'none') {
+    if ($textarea.style.display === 'none') {
         return;
     }
     const editor = document.getElementById('editor')!;
@@ -73,14 +73,17 @@ function replaceTextareaWithPmeditor() {
     // To be safe, first verify that the round-trip is clean, at least initially.
     // console.log($textarea.textContent, '-- the contents of the textarea.');
     // console.log(toText(), '-- the result of toText');
-    console.assert(toText() == $textarea.textContent); // TODO: Show error message if this fails.
+    if (toText() !== $textarea.textContent) {
+        return;
+    }
 
     // Make it visible
     editor.style.display = 'unset';
     $textarea.style.display = 'none';
 
     // Before the form is submitted, copy the contents of the ProseMirror editor back to the textarea.
-    document.querySelector('form')!.addEventListener('submit', (event) => { $textarea.value = toText(); });
+    document.querySelector('form')!.addEventListener('submit',
+        (event) => { $textarea.value = toText(); });
 }
 
 // TODO: Figure out how to make this available "properly".

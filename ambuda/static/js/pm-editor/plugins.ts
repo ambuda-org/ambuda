@@ -7,12 +7,12 @@ import { history } from "prosemirror-history"
 import { baseKeymap } from "prosemirror-commands"
 import { menuBar } from "prosemirror-menu"
 
-import { buildMenuItems } from "./menu"
-import buildKeymap from "./keymap"
+import buildMenuItems from "./menu.js"
+import buildKeymap from "./keymap.js"
 
 // An array of plugins.
-export function plugins(schema: Schema) {
-    const plugins = [
+function plugins(schema: Schema) {
+    return [
         // Keys we defined
         keymap(buildKeymap(schema)),
         // The default keys provided by the prosemirror-commands module
@@ -25,5 +25,6 @@ export function plugins(schema: Schema) {
             content: buildMenuItems(schema).fullMenu
         }),
     ];
-    return plugins;
 }
+
+export default plugins;

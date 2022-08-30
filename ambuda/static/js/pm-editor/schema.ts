@@ -26,6 +26,8 @@ const nodes = {
     } as NodeSpec,
 }
 
-export const almostTrivialSchema = new Schema({
+const almostTrivialSchema = new Schema({
     nodes: nodes,
 })
+
+export default almostTrivialSchema;

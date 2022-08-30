@@ -9,8 +9,10 @@ type MenuItemResult = {
     fullMenu: MenuElement[][]
 }
 
-export function buildMenuItems(_schema: Schema): MenuItemResult {
+function buildMenuItems(_schema: Schema): MenuItemResult {
     return {
         fullMenu: [[undoItem, redoItem]]
     };
 }
+
+export default buildMenuItems;
