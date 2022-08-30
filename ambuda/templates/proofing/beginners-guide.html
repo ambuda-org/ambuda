@@ -1,6 +1,7 @@
 {% extends 'proofing/base-sidebar.html' %}
 {% import "macros/components.html" as components %}
 {% import "macros/proofing.html" as m %}
+{% import "macros/proofing-guides.html" as m_guide %}
 
 
 {% set contents = {
@@ -30,9 +31,11 @@
 
 
 {% block content %}
-<div class="prose">
-<h1>Beginner's guide to proofing</h1>
+{{ m.title_and_subtitle(
+    "Beginner's guide",
+    "A five minute guide to proofing Sanskrit texts") }}
 
+<div class="prose">
 <p><dfn>Proofing</dfn>, short for "proofreading," is when people like you create
 high-quality Sanskrit text that everyone can use and enjoy. All of our proofing
 projects are based on scans of physical books.
@@ -44,9 +47,9 @@ projects are based on scans of physical books.
 
 {% set index = url_for('proofing.index') %}
 {% set create = url_for('proofing.create_project') %}
-<p>You can see all of our active projects on our <a href="{{ index }}">main
-    page</a>. Each of these projects has a progress bar that shows the status of
-each of its pages:
+<p>You can see all of our active projects on our <a href="{{ index }}">ongoing
+projects</a> page. Each project has a progress bar that shows what work has
+been done on its pages so far:</p>
 
 <ul>
   <li><p><dfn class="p-0.5 bg-gray-200">gray</dfn> means that the page is not
@@ -54,21 +57,20 @@ each of its pages:
       pages, and so on.</li>
 
   <li><p><dfn class="p-0.5 bg-red-200">red</dfn> means that nobody has
-      fully proofread the page.</li>
+      fully proofed the page.</li>
 
   <li><p><dfn class="p-0.5 bg-yellow-200">yellow</dfn> means that one person
-      has fully proofread the page and that the page is ready for a second
-      proofreader to review it.</li>
+      has fully proofed the page and that the page is ready for a second
+      proofer to review it.</li>
 
   <li><p><dfn class="p-0.5 bg-green-200">green</dfn> means that two people have
-      fully proofread the page. We recommend that you check some of our green
+      fully proofed the page. We recommend that you check some of our green
       pages to get a sense of what kinds of results we're aiming for.</li>
 </ul>
 
 <p>If you don't see a book you want to work on, you can <a href="{{ create
-    }}">create a new project</a> instead. We are open to any book that is
-in the public domain and related to Sanskrit in some way. But to avoid wasting
-effort, please also search online to see if your book has already been digitized.
+}}">create a project</a> instead. We are open to any book that is in the public
+domain and related to Sanskrit in some way.</p>
 
 
 {{ _h('how-to-proof') }}
@@ -79,11 +81,18 @@ pages. We recommend starting with a <span class="p-0.5 bg-red-200
 
 <p>Our page editor shows a basic side-by-side view:
 
-<p class="bg-red-300 p-2">Image coming soon</p>
+{% call m_guide.html_figure("Our page editor. This example doesn't display any
+image on the right-hand side. On a real page, the right side will display a
+page from some Sanskrit text.") %}
+<div class="flex flex-row">
+{{ m_guide.text_box() }}
+{{ m_guide.image_viewer() }}
+</div>
+{% endcall %}
 
 <p>The right side has the original page, and the left side has a text box where
 you can type your changes. The left side also has an <span class="p-1
-    bg-slate-100">OCR</span> button that automatically transcribes a page.
+    bg-slate-100">OCR</span> button that automatically transcribes the page.
 
 <p>Your goal is to match the text in the original scan as accurately as
 possible. We strongly recommend running OCR first then fixing its mistakes by
@@ -91,13 +100,17 @@ hand.
 
 <p>When you're ready to save your changes, you can use the form at the bottom
 of the page editor:
+</div>
 
-<p class="bg-red-300 p-2">Image coming soon</p>
+{% call m_guide.html_figure("The submission form") %}
+{{ m_guide.submission_form() }}
+{% endcall %}
 
+<div class="prose">
 <p>If your change is complex, feel free to write a short message about what
 changes you made. Otherwise, you can leave this blank.
 
-<p>More importantly, you can change the page's status so that other proofreaders
+<p>More importantly, you can change the page's status so that other proofers
 know what work still needs to be done on the page.
 
 
@@ -106,7 +119,7 @@ know what work still needs to be done on the page.
 
 {% call components.div_note() %}
 {% set url = url_for("proofing.complete_guide") %}
-<p class="prose">For much more detail, see our <a href="{{ url }}">full
+<p class="prose">For much more detail, see our <a href="{{ url }}">complete
     guidelines</a>.</p>
 {% endcall %}
 
@@ -122,7 +135,7 @@ pixel-perfect copy of the original image.
       please write {{ 'kAryyate'|d }} and not {{ 'kAryate'|d }}. Our goal is to
       transcribe the text, not to edit it.</li>
   <li><p>hyphens and line breaks, if they appear in the original text. Hyphens
-      and line breaks help proofreaders quickly compare a specific line against
+      and line breaks help proofers quickly compare a specific line against
       the original page, and we can easily remove them later on.</li>
 </ul>
 
@@ -133,10 +146,10 @@ pixel-perfect copy of the original image.
       edition, so we can exclude them.</li>
   <li><p>any content that is not part of the original book. This includes:
       handwritten notes, stamps, watermarks, dirt, stains, etc.</li>
-  <li><p>word splitting ({{ 'padaccheda'|d }}) or sandhi splitting ({{
-      'sandhivigraha'|d }}) of any kind. If the original book says {{
-      'kazca'|d }}, please write {{ 'kazca'|d }} and not {{ 'kaz ca'|d }} or {{
-      'kaH ca'|d }}.
+  <li><p>extra word splitting ({{ 'padaccheda'|d }}) or sandhi splitting ({{
+      'sandhivigraha'|d }}) of any kind. If the original book says {{ 'kazca'|d
+      }}, please write {{ 'kazca'|d }} and not {{ 'kaz ca'|d }} or {{ 'kaH
+      ca'|d }}.
   </li>
   <li><p>transliterations of the original text. If the original text says {{
       'narasya'|d }}, please write {{ 'narasya'|d }} and not <i>{{
@@ -160,14 +173,30 @@ pixel-perfect copy of the original image.
 
 <h3>How should I handle typos and mistakes?</h3>
 
-<p>Our job is to capture the text as-is. If you believe the text has an error,
-wrap the error in <kbd>&lt;error&gt;&lt;/error&gt;</kbd> tags like so:
+<p>Our job is to capture the text as-is. If you see an error, please do the
+following:</p>
 
-<pre class="bg-slate-100 p-2 my-4">
-This is an &lt;error&gt;exampel&lt;/error&gt; of an error.
-</pre>
+<ol>
+  <li>Highlight the error.</li>
+  <li>Select <kbd>Markup &rarr; Mark as error</kbd> from the menu bar.</li>
+</ol>
 
-<p>Once the page is proofread and ready for publishing, a specialist will
+<p>If you are very sure how to fix the error, please do the following:
+
+<ol>
+  <li>Write your fix next to the error.</li>
+  <li>Highlight your fix.</li>
+  <li>Select <kbd>Markup &rarr; Mark as fix</kbd> from the menu bar.</li>
+</ol>
+
+<p>If you cannot understand what the source text says, please do the following:
+
+<ol>
+  <li>Highlight the unclear text.</li>
+  <li>Select <kbd>Markup &rarr; Mark as unclear</kbd> from the menu bar.</li>
+</ol>
+
+<p>Once the page is proofed and ready for publishing, a specialist will
 examine each of these errors and decide how to handle them.
 
 {% set discord_url = "https://discord.gg/7rGdTyWY7Z" %}
@@ -175,7 +204,7 @@ examine each of these errors and decide how to handle them.
 <h3>What if I still have questions?</h3>
 
 <p>Please <a href="{{ discord_url }}">join our Discord server</a> and ask your
-question on our <kbd>#proofreading</kbd> channel! We are friendly, responsive,
+question on our <kbd>#proofing</kbd> channel! We are friendly, responsive,
 and deeply grateful for your help.</p>
 
 </ul>
