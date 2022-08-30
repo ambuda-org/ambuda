@@ -17,6 +17,7 @@ from wtforms.validators import DataRequired
 
 import ambuda.queries as q
 from ambuda import database as db
+from ambuda.enums import SitePageStatus
 from ambuda.tasks import projects as project_tasks
 
 
@@ -50,34 +51,45 @@ def index():
         )
         .all()
     )
+    status_classes = {
+        SitePageStatus.R2: "bg-green-200",
+        SitePageStatus.R1: "bg-yellow-200",
+        SitePageStatus.R0: "bg-red-300",
+        SitePageStatus.SKIP: "bg-slate-100",
+    }
 
-    all_counts = {}
-    all_page_counts = {}
+    projects = q.projects()
+    statuses_per_project = {}
+    progress_per_project = {}
+    pages_per_project = {}
     for project in projects:
         page_statuses = [p.status.name for p in project.pages]
 
         # FIXME(arun): catch this properly, prevent prod issues
         if not page_statuses:
-            all_counts[project.slug] = {}
-            all_page_counts[project.slug] = 0
+            statuses_per_project[project.id] = {}
+            pages_per_project[project.id] = 0
             continue
 
         num_pages = len(page_statuses)
-        project_counts = {
-            "bg-green-200": page_statuses.count("reviewed-2") / num_pages,
-            "bg-yellow-200": page_statuses.count("reviewed-1") / num_pages,
-            "bg-red-300": page_statuses.count("reviewed-0") / num_pages,
-            "bg-slate-100": page_statuses.count("skip") / num_pages,
-        }
+        project_counts = {}
+        for enum_value, class_ in status_classes.items():
+            fraction = page_statuses.count(enum_value) / num_pages
+            project_counts[class_] = fraction
+            if enum_value == SitePageStatus.R0:
+                # The more red pages there are, the lower progress is.
+                progress_per_project[project.id] = 1 - fraction
 
-        all_counts[project.slug] = project_counts
-        all_page_counts[project.slug] = num_pages
+        statuses_per_project[project.id] = project_counts
+        pages_per_project[project.id] = num_pages
 
+    projects.sort(key=lambda x: x.title)
     return render_template(
         "proofing/index.html",
         projects=projects,
-        all_counts=all_counts,
-        all_page_counts=all_page_counts,
+        statuses_per_project=statuses_per_project,
+        progress_per_project=progress_per_project,
+        pages_per_project=pages_per_project,
     )
 
 

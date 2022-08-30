@@ -30,17 +30,34 @@
 </div>
 {{ status_legend() }}
 
-<ul>
+<div x-data="sortableList('title')">
+
+<form class="border p-2 rounded text-sm">
+<label class="text-slate-500">Sort by:</label>
+<select class="bg-white" x-model="field" @change="sort">
+  <option value="title" selected>Title</option> 
+  <option value="created">Creation date</option> 
+  <option value="progress">Progress</option> 
+</select>
+<select class="bg-white" x-model="order" @change="sort">
+  <option value="asc" selected>Ascending</option> 
+  <option value="desc">Descending</option> 
+</select>
+</form>
+
+<ul x-ref="list">
   {% for p in projects %}
-  <li>
+  <li data-title="{{ p.title }}"
+      data-created="{{ p.created_at }}"
+      data-progress="{{ progress_per_project[p.id] }}">
     <div class="mt-4 a-hover-underline flex justify-between items-baseline">
       <a href="{{ url_for("proofing.project.summary", slug=p.slug) }}">{{ p.title }}</a>
-      <span class="text-xs">({{ all_page_counts[p.slug] }} pages)</span>
+      <span class="text-xs">{{ pages_per_project[p.id] }} pages</span>
     </div>
 
     <div class="flex">
-    {% for cls, width in all_counts[p.slug].items() %}
-      <div class="h-1 {{ cls }}" style="width: {{ width * 100 }}%"></div>
+    {% for cls, fraction in statuses_per_project[p.id].items() %}
+      <div class="h-1 {{ cls }}" style="width: {{ fraction * 100 }}%"></div>
     {% endfor %}
     </div>
 
@@ -52,4 +69,5 @@
   </li>
   {% endfor %}
 </ul>
+</div>
 {% endblock %}

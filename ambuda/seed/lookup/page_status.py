@@ -1,39 +1,27 @@
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
+from ambuda.enums import SitePageStatus
 from ambuda.seed.utils.itihasa_utils import create_db
 
 import logging
-
-
-FIELD_NAMES = [
-    # Page has never been fully proofread.
-    "reviewed-0",
-    # Page has been fully proofread once.
-    "reviewed-1",
-    # Page has been fully proofread twice.
-    "reviewed-2",
-    # Page is out of scope for proofreading.
-    "skip",
-]
 
 
 def get_default_id():
     """Used in the `add_page_statuses` migration."""
     engine = create_db()
     with Session(engine) as session:
-        return session.query(db.PageStatus).filter_by(name="reviewed-0").one()
+        return session.query(db.PageStatus).filter_by(name=SitePageStatus.R0).one()
 
 
 def run():
     """Create page statuses iff they don't exist already."""
-
     engine = create_db()
     logging.debug("Creating PageStatus rows ...")
     with Session(engine) as session:
         statuses = session.query(db.PageStatus).all()
         existing_names = {s.name for s in statuses}
-        new_names = {n for n in FIELD_NAMES if n not in existing_names}
+        new_names = {n.value for n in SitePageStatus if n not in existing_names}
 
         if new_names:
             for name in new_names:
