@@ -81,7 +81,7 @@ function replaceTextareaWithPmeditor() {
     editor.style.display = 'unset';
     $textarea.style.display = 'none';
 
-    // Before the form is submitted, copy the contents of the ProseMirror editor back to the textarea.
+    // Before the form is submitted, copy contents of the ProseMirror editor back to the textarea.
     document.querySelector('form')!.addEventListener('submit',
         (event) => { $textarea.value = toText(); });
 }

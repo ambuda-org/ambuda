@@ -7,8 +7,8 @@ import { history } from "prosemirror-history"
 import { baseKeymap } from "prosemirror-commands"
 import { menuBar } from "prosemirror-menu"
 
-import buildMenuItems from "./menu.js"
-import buildKeymap from "./keymap.js"
+import buildMenuItems from "./menu"
+import buildKeymap from "./keymap"
 
 // An array of plugins.
 function plugins(schema: Schema) {
