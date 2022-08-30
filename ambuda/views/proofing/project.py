@@ -17,9 +17,9 @@ from ambuda.utils import proofing_utils
 bp = Blueprint("project", __name__)
 
 
-def _is_valid_page_number_spec(form, field):
+def _is_valid_page_number_spec(_, field):
     try:
-        parse = project_utils.parse_page_number_spec(field.data)
+        _ = project_utils.parse_page_number_spec(field.data)
     except Exception:
         raise ValidationError("The page number spec isn't valid.")
 

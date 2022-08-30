@@ -23,6 +23,12 @@ class AmbudaAnonymousUser(AnonymousUserMixin):
 
 
 def _load_user(user_id: int) -> Optional[User]:
+    """Load a user from the database.
+
+    Flask-Login uses this function to populate the `current_user` variable.
+    This variable is made available both by direct import (`from flask_login
+    import current_user`) and as a template variable injected into each template.
+    """
     session = get_session()
     return session.query(User).get(int(user_id))
 
@@ -34,11 +40,11 @@ def _unauthorized():
     if request.blueprint == "api":
         abort(HTTPStatus.UNAUTHORIZED)
 
-    # For regular pages, just prompt sign-in.
+    # For regular pages, just prompt the user to sign in.
     return redirect(url_for("auth.sign_in"))
 
 
-def create_login_manager():
+def create_login_manager() -> LoginManager:
     login_manager = LoginManager()
     login_manager.user_loader(_load_user)
     login_manager.unauthorized_handler(_unauthorized)
