@@ -39,9 +39,8 @@ class CreateProjectWithPdfForm(FlaskForm):
 def index():
     """List all available proofing projects."""
 
-    session = q.get_session()
-
     # Fetch all project data in a single query for better performance.
+    session = q.get_session()
     projects = (
         session.query(db.Project)
         .options(
