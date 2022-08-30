@@ -60,15 +60,15 @@ celery:
 	celery -A ambuda.tasks worker --loglevel=INFO
 
 lint-isort:
-	@echo "Running isort to organize python imports"
+	@echo "Running Python isort to organize module imports"
 	@git ls-files '*.py' | xargs isort --check 2>&1
 
 lint-black:
-	@echo "Running Black to check python formatting"
+	@echo "Running Python Black to check formatting"
 	@git ls-files '*.py' | xargs black 2>&1
 
 lint-flake8:
-	@echo "Running flake8 to check python syntax"	
+	@echo "Running Python flake8 to conform with PEP8"	
 	@git ls-files '*.py' | xargs flake8 --config=./.flake8 2>&1
 
 # Add isort when imports are organized better
@@ -78,7 +78,7 @@ py-lint: py-venv-check lint-black lint-flake8
 
 # Lint our Python and JavaScript code.
 lint: js-lint py-lint
-
+	@echo 'Lint completed'
 
 # Lint our Python and JavaScript code. Fail on any issues.
 lint-check: js-lint
