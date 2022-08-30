@@ -39,7 +39,6 @@ class CreateProjectWithPdfForm(FlaskForm):
 @bp.route("/")
 def index():
     """List all available proofing projects."""
-<<<<<<< HEAD
 
     # Fetch all project data in a single query for better performance.
     session = q.get_session()
@@ -84,6 +83,7 @@ def index():
         statuses_per_project[project.id] = project_counts
         pages_per_project[project.id] = num_pages
 
+    projects.sort(key=lambda x: x.title)
     return render_template(
         "proofing/index.html",
         projects=projects,
