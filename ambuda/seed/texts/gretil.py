@@ -1,5 +1,6 @@
 """Upload TEI documents from GRETIL."""
 
+import logging
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -47,7 +48,7 @@ ALLOW = [
 
 
 def log(*a):
-    print(*a)
+    logging.info(*a)
 
 
 def fetch_latest_data():
@@ -103,6 +104,7 @@ def add_document(engine, spec: Spec):
 
 
 def run():
+    logging.getLogger().setLevel(0)
     log("Downloading the latest data ...")
     fetch_latest_data()
 

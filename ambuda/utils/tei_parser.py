@@ -13,7 +13,6 @@ each document with `_to_devanagari`. Once we start supporting translations, we
 should change this logic.
 """
 
-
 from dataclasses import dataclass
 from pathlib import Path
 from xml.etree import ElementTree as ET
@@ -120,13 +119,21 @@ def _to_devanagari(xml: ET.Element):
             el.tail = t(el.tail, sanscript.IAST, sanscript.DEVANAGARI)
 
 
+def _validate_section(section: Section):
+    """Raise an exception if the section seems malformed."""
+    all_slugs = [x.slug for x in section.blocks]
+    if len(set(all_slugs)) != len(section.blocks):
+        slug_list = ", ".join(sorted(all_slugs))
+        raise ValueError(f"Block slugs are not unique: {slug_list}")
+
+
 def _create_section(xml: ET.Element, section_slug: str) -> Section:
     """Create a section with the given slug.
 
     :param xml: the `Element` corresponding to this section.
     """
     section = Section(slug=section_slug, blocks=[])
-    n = 1
+    block_number = 1
     for child in xml:
         # Skip these elements entirely.
         if child.tag in {"note", "del"}:
@@ -136,21 +143,19 @@ def _create_section(xml: ET.Element, section_slug: str) -> Section:
         if child.tag == "head":
             block_slug = "head"
         else:
-            block_slug = str(n)
-            n += 1
+            block_slug = str(block_number)
+            block_number += 1
 
         blob = ET.tostring(child, encoding="utf-8").decode("utf-8")
         if section_slug == SINGLE_SECTION_SLUG:
             full_slug = block_slug
         else:
             full_slug = f"{section_slug}.{block_slug}"
+
         block = Block(slug=full_slug, blob=blob)
         section.blocks.append(block)
 
-    all_slugs = [x.slug for x in section.blocks]
-    if len(set(all_slugs)) != len(section.blocks):
-        slug_list = ", ".join(sorted(all_slugs))
-        raise ValueError(f"Block slugs are not unique: {slug_list}")
+    _validate_section(section)
     return section
 
 
