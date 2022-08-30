@@ -190,6 +190,14 @@ export default () => ({
   changeSelectedText(callback) {
     // FIXME: more idiomatic way to get this?
     const $textarea = $('#content');
+
+    // If the ProseMirror-based editor is on, just use its `replaceWith`.
+    if ($textarea.style.display === 'none') {
+      const state = window.view.state;
+      let tr = state.tr;
+      tr = tr.replaceWith(state.schema.text(callback(tr.selection.text)));
+      return;
+    }
     const start = $textarea.selectionStart;
     const end = $textarea.selectionEnd;
     const { value } = $textarea;
