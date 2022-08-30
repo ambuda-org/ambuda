@@ -1,3 +1,5 @@
+/* globals Alpine */
+
 import { EditorState } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
 import { DOMParser, Node } from "prosemirror-model"
@@ -27,6 +29,9 @@ function fromText(text: string): Node {
 // Create a new ProseMirror editor with the contents of the textarea, and hide the textarea.
 function replaceTextareaWithPmeditor() {
     const $textarea = document.querySelector('textarea')!;
+    if ($textarea.style.display == 'none') {
+        return;
+    }
     const editor = document.getElementById('editor')!;
     // Initialze it with the textarea's contents.
     const view = new EditorView(editor, {
