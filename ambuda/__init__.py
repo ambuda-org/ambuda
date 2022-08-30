@@ -41,11 +41,11 @@ def _initialize_sentry(sentry_dsn: str):
 def _initialize_db_session(app, config_name: str):
     """Ensure that our SQLAlchemy session behaves well.
 
-    The Flask-SQLAlchemy manages all of this boilerplate for us automatically,
-    but Flask-SQLAlchemy has relatively poor support for using our models
-    outside of the application context, e.g. when running seed scripts or other
-    batch jobs. So instead of using that extension, we manage the boilerplate
-    ourselves.
+    The Flask-SQLAlchemy library manages all of this boilerplate for us
+    automatically, but Flask-SQLAlchemy has relatively poor support for using
+    our models outside of the application context, e.g. when running seed
+    scripts or other batch jobs. So instead of using that extension, we manage
+    the boilerplate ourselves.
     """
 
     @app.teardown_appcontext
@@ -64,12 +64,13 @@ def _initialize_db_session(app, config_name: str):
             session.rollback()
 
 
-def _initialize_logger(config: config.BaseConfig) -> None:
+def _initialize_logger(log_level: int) -> None:
+    """Initialize a simple logger for all requests."""
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(
         logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
     )
-    logging.getLogger().setLevel(config.LOG_LEVEL)
+    logging.getLogger().setLevel(log_level)
     logging.getLogger().addHandler(handler)
 
 
@@ -99,7 +100,7 @@ def create_app(config_env: str):
     app.config.from_object(config_spec)
 
     # Logger
-    _initialize_logger(config_spec)
+    _initialize_logger(config_spec.LOG_LEVEL)
 
     # Database
     _initialize_db_session(app, config_env)
@@ -122,7 +123,7 @@ def create_app(config_env: str):
     app.register_blueprint(site)
     app.register_blueprint(texts, url_prefix="/texts")
 
-    # Filters
+    # Template functions and filters
     app.jinja_env.filters.update(
         {
             "d": filters.devanagari,

@@ -9,9 +9,9 @@
 
 
 {% block content %}
-<div class="prose">
-  <h1>Recent changes</h1>
-</div>
+{{ m.title_and_subtitle(
+    "Recent changes",
+    "Recent edits and revisions made by people like you.") }}
 
 {% if revisions %}
 {{ m.revision_list(revisions) }}

@@ -7,7 +7,7 @@ from ambuda.utils.parse_alignment import (
     _iter_text_with_parent,
     get_padas_for_text,
 )
-from ambuda.utils.cheda import Token
+from ambuda.utils.word_parses import Token
 
 
 @pytest.mark.parametrize(

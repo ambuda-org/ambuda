@@ -1,10 +1,13 @@
 """Background tasks for proofing projects."""
 
+import logging
 from pathlib import Path
 
+# NOTE: `fitz` is the internal package name for PyMuPDF. PyPI hosts another
+# package called `fitz` (https://pypi.org/project/fitz/) that is completely
+# unrelated to PDF parsing.
 import fitz
 from celery import states
-import logging
 from slugify import slugify
 
 from ambuda import database as db

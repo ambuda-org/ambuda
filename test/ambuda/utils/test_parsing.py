@@ -1,6 +1,6 @@
 import pytest
 
-from ambuda.utils.cheda import readable_parse
+from ambuda.utils.word_parses import readable_parse
 
 
 @pytest.mark.parametrize(

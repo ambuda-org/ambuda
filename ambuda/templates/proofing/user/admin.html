@@ -1,4 +1,4 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/components.html" as components %}
 {% import "macros/proofing.html" as m %}
 
@@ -6,8 +6,11 @@
 {% block title %}User: {{ user.username }} | Ambuda{% endblock %}
 
 
+{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
+
+
 {% block content %}
-{% set url = url_for('proofing.users.user', username=user.username) %}
+{% set url = url_for('proofing.user.summary', username=user.username) %}
 
 {{ components.flash_messages() }}
 {{ m.nested_header('Admin', user.username, url) }}

@@ -67,13 +67,8 @@ def deploy_to_commit(_, pointer: str):
 
         # Install project requirements.
         c.run("python3.10 -m venv env")
-        with c.prefix("source env/bin/activate"):
-            c.run("pip install -r requirements.txt")
-
-        # Build production frontend assets.
-        c.run("npm install")
-        c.run("make css-prod")
-        c.run("make js-prod")
+        c.run("make install-python")
+        c.run("make install-frontend")
 
         # Verify that unit tests pass on prod.
         with c.prefix("source env/bin/activate"):

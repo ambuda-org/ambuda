@@ -162,7 +162,7 @@ class DevelopmentConfig(BaseConfig):
     DEBUG = True
 
     #: Logger setup
-    LOG_LEVEL = logging.DEBUG
+    LOG_LEVEL = logging.INFO
 
 
 class ProductionConfig(BaseConfig):

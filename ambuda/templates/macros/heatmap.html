@@ -1,8 +1,3 @@
-{% extends 'proofing/base.html' %}
-{% import "macros/components.html" as components %}
-{% import "macros/proofing.html" as m %}
-
-
 {% macro color(count) -%}
   {%- if count == 0 -%}l1
   {%- elif count == 1 -%}l2
@@ -25,7 +20,8 @@ the most straightforward way to implement this logic.
 {% set day_margin = 30 %}
 {% set month_margin = 20 %}
 {% set width = day_margin + box_total * (heatmap.weeks|length + 1) %}
-<svg class="heatmap" width="{{ width }}">
+{% set height = month_margin + box_total * 7 %}
+<svg class="heatmap" width="{{ width }}" height="{{ height }}">
 
   {# Boxes #}
   <g transform="translate({{ day_margin }}, {{ month_margin }})">
@@ -62,24 +58,4 @@ the most straightforward way to implement this logic.
   </g>
 </svg>
 {% endmacro %}
-
-
-{% block title %}User: {{ user.username }} | Ambuda{% endblock %}
-
-
-{% block content %}
-
-{{ components.flash_messages() }}
-
-<h1 class="font-bold text-3xl my-4">{{ user.username }}</h1>
-{{ m.user_tabs(user=user, active='about', is_admin=current_user.is_admin) }}
-
-<div class="prose">
-<p>This user joined {{ user.created_at|time_ago }}.</p>
-
-<h2>Revisions</h2>
-
-{{ show_heatmap(heatmap) }}
-</div>
-{% endblock %}
 
