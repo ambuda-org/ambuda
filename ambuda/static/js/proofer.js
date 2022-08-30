@@ -194,8 +194,8 @@ export default () => ({
 
     // If the ProseMirror-based editor is on, just use its `replaceWith`.
     if ($textarea.style.display === 'none') {
-      const state = window.view.state;
-      let tr = state.tr;
+      const { state } = window.view;
+      let { tr } = state;
       tr = tr.replaceWith(state.schema.text(callback(tr.selection.text)));
       return;
     }
