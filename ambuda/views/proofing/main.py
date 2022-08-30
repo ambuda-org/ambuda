@@ -11,6 +11,7 @@ from flask import (
 from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from slugify import slugify
+from sqlalchemy import orm
 from wtforms import StringField, FileField
 from wtforms.validators import DataRequired
 
@@ -37,7 +38,19 @@ class CreateProjectWithPdfForm(FlaskForm):
 @bp.route("/")
 def index():
     """List all available proofing projects."""
-    projects = q.projects()
+
+    session = q.get_session()
+
+    # Fetch all project data in a single query for better performance.
+    projects = (
+        session.query(db.Project)
+        .options(
+            orm.joinedload(db.Project.pages)
+            .load_only(db.Page.id)
+            .joinedload(db.Page.status)
+        )
+        .all()
+    )
 
     all_counts = {}
     all_page_counts = {}
