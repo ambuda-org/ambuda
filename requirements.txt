@@ -38,7 +38,7 @@ fonttools==4.33.3
 gevent==21.12.0
 google-api-core==2.8.2
 google-auth==2.9.0
-google-cloud-vision==2.7.3
+google-cloud-vision==3.1.1
 googleapis-common-protos==1.56.3
 greenlet==1.1.2
 grpcio==1.47.0
@@ -77,7 +77,7 @@ platformdirs==2.5.2
 pluggy==1.0.0
 prometheus-client==0.14.1
 prompt-toolkit==3.0.30
-proto-plus==1.20.6
+proto-plus==1.22.0
 protobuf==3.20.1
 psutil==5.9.1
 py==1.11.0
