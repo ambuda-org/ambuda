@@ -27,6 +27,9 @@
     </div>
     <p class="text-sm">{{ thread.updated_at|time_ago }}</p>
   </li>
+{% else %}
+<p>There isn't any ongoing discussion yet. To start a discussion, go to the
+project you want to discuss and click on its <kbd>Talk</kbd> tab.</p>
 {% endfor %}
 
 {% endblock %}
