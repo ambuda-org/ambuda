@@ -103,9 +103,9 @@ def check_app_schema_matches_db_schema(database_uri: str):
     if errors:
         _warn("The data tables defined in your application code don't match the")
         _warn("tables defined in your database. Usually, this means that you need")
-        _warn("to upgrade your database schemas. You can do so by running:")
+        _warn("to upgrade your setup. You can do so by running:")
         _warn()
-        _warn("    alembic upgrade head")
+        _warn("    make upgrade")
         _warn()
         _warn("For more information, see our official docs at:")
         _warn()
