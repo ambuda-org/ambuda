@@ -2,7 +2,6 @@
 
 
 import sys
-from typing import Optional
 
 from click import style
 from sqlalchemy import create_engine

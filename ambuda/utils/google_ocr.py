@@ -8,10 +8,7 @@
 
 
 import io
-import json
 from google.cloud import vision
-from google.protobuf.json_format import MessageToDict
-from google.cloud.vision_v1 import AnnotateImageResponse
 
 import logging
 

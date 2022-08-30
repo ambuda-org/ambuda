@@ -2,10 +2,8 @@
 
 This module is used in `scripts/initialize_from_scratch.sh`.
 
-TODO: what are the implications of running `create_all` on app startup? 
+TODO: what are the implications of running `create_all` on app startup?
 """
-
-import os
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine

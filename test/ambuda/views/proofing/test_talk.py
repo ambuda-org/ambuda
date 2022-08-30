@@ -49,7 +49,7 @@ def test_create_post__bad_project(rama_client):
     assert resp.status_code == 404
 
 
-def test_create_post__bad_project(rama_client):
+def test_create_post__missing_project(rama_client):
     resp = rama_client.get("/proofing/test-project/talk/108/create")
     assert resp.status_code == 404
 

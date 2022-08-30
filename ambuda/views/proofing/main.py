@@ -114,7 +114,8 @@ def create_project():
         pdf_dir.mkdir(parents=True, exist_ok=True)
         page_image_dir.mkdir(parents=True, exist_ok=True)
 
-        pdf_path = pdf_dir / f"source.pdf"
+        source_file = "source.pdf"
+        pdf_path = pdf_dir / f"{source_file}"
         filename = form.file.raw_data[0].filename
         if not _is_allowed_document_file(filename):
             flash("Please upload a PDF.")
