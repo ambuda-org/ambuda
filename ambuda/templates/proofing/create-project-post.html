@@ -24,10 +24,11 @@
 
 <script type="text/javascript">
   const taskId = '{{ task_id }}';
-  setInterval(function() {
-    Server.getText(`/proofing/status/${taskId}`, (text) => {
-      $('#progress').innerHTML = text;
-    });
+  setInterval(async function() {
+    const url = `/proofing/status/${taskId}`;
+    const resp = await fetch(url);
+    const progress = await resp.text();
+    document.querySelector('#progress').innerHTML = progress;
   }, 5000);
 </script>
 

@@ -4,7 +4,6 @@ from sqlalchemy import (
     Column,
     Integer,
     ForeignKey,
-    Text as Text_,
 )
 from sqlalchemy.orm import (
     declarative_base,

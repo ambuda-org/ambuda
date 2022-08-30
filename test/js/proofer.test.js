@@ -7,6 +7,9 @@ const sampleHTML = `
 </div>
 `;
 
+// Can't modify existing `window.location` -- delete it so that we can mock it.
+// (See beforeEach and the tests below.)
+delete window.location;
 window.IMAGE_URL = 'IMAGE_URL';
 window.OpenSeadragon = (_) => ({
   addHandler: jest.fn((_, callback) => callback()),
@@ -20,8 +23,22 @@ window.Sanscript = {
   // selection range.
   t: jest.fn((s, from, to) => `:${s}:${to}`),
 }
+window.fetch = jest.fn(async (url) => {
+  // Special URL so we can test server errors.
+  if (url === '/api/ocr/error') {
+    return { ok: false }
+  } else {
+    const segments = url.split('/');
+    const page = segments.pop();
+    return {
+      ok: true,
+      text: async () => `text for ${page}`,
+    }
+  }
+});
 
 beforeEach(() => {
+  window.location = null;
   window.localStorage.clear();
   document.write(sampleHTML);
 });
@@ -34,7 +51,7 @@ test('Proofer can be created', () => {
   expect(p.imageZoom).toBe(0.5);
 });
 
-test('saveSettings and loadSettings', () => {
+test('saveSettings and loadSettings work as expected', () => {
   const oldProofer = Proofer()
   oldProofer.textZoom = "test text zoom";
   oldProofer.imageZoom = "test image zoom";
@@ -50,6 +67,35 @@ test('saveSettings and loadSettings', () => {
   expect(p.layout).toBe("side-by-side");
   expect(p.fromScript).toBe("test from script");
   expect(p.toScript).toBe("test to script");
+});
+
+test('loadSettings works if localStorage data is empty', () => {
+  localStorage.setItem('proofing-editor', "{}");
+  const p = Proofer();
+  p.loadSettings();
+  expect(p.textZoom).toBe(1);
+  expect(p.layout).toBe('side-by-side');
+});
+
+test('loadSettings works if localStorage data is corrupt', () => {
+  localStorage.setItem('proofing-editor', "invalid JSON");
+  const p = Proofer();
+  p.loadSettings();
+  // No error -- OK
+});
+
+test('runOCR handles a valid server response', async () => {
+  const p = Proofer();
+  window.location = new URL("https://ambuda.org/proofing/my-project/my-page");
+  await p.runOCR();
+  expect($("#content").value).toBe('text for my-page');
+});
+
+test('runOCR handles an invalid server response', async () => {
+  const p = Proofer();
+  window.location = new URL("https://ambuda.org/proofing/error");
+  await p.runOCR();
+  expect($("#content").value).toBe('(server error)');
 });
 
 test('increaseImageZoom works and gets saved', () => {
@@ -138,7 +184,6 @@ test('displayTopAndBottom works and gets saved', () => {
 
 test('transliterate works and saves settings', () => {
   const p = Proofer();
-
   const $text = $('#content');
   $text.value = 'Sanskrit (saMskRtam) text'
   $text.setSelectionRange(10, 19);
@@ -148,4 +193,36 @@ test('transliterate works and saves settings', () => {
   p.transliterate()
 
   expect($text.value).toBe('Sanskrit (:saMskRtam:iast) text')
+});
+
+function markupFixtures(text) {
+  const p = Proofer();
+  const $text = $('#content');
+  $text.value = 'This is sample text.'
+  $text.setSelectionRange(8, 14);
+  return { p, $text };
+}
+
+test('markAsError works', () => {
+  const {p, $text } = markupFixtures();
+  p.markAsError()
+  expect($text.value).toBe('This is <error>sample</error> text.')
+});
+
+test('markAsFix works', () => {
+  const {p, $text } = markupFixtures();
+  p.markAsFix()
+  expect($text.value).toBe('This is <fix>sample</fix> text.')
+});
+
+test('markAsUnclear works', () => {
+  const {p, $text } = markupFixtures();
+  p.markAsUnclear()
+  expect($text.value).toBe('This is <flag>sample</flag> text.')
+});
+
+test('markAsFootnoteNumber works', () => {
+  const {p, $text } = markupFixtures();
+  p.markAsFootnoteNumber()
+  expect($text.value).toBe('This is [^sample] text.')
 });

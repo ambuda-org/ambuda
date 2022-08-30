@@ -1,22 +1,4 @@
 /* global Sanscript */
-const Server = {
-  getText(url, success, failure) {
-    const req = new XMLHttpRequest();
-    req.onreadystatechange = () => {
-      if (req.readyState === XMLHttpRequest.DONE) {
-        if (req.status === 200) {
-          success(req.responseText);
-        } else {
-          failure();
-        }
-      }
-    };
-    req.open('GET', url);
-    req.send();
-  },
-};
-
-// Utilities
 
 const $ = document.querySelector.bind(document);
 
@@ -47,18 +29,7 @@ function transliterateElement($el, from: string, to: string) {
   });
 }
 
-// Transliterate mixed Sanskrit content.
-function transliterateSanskritBlob(blob: string, outputScript: string) {
-  const $div = document.createElement('div');
-  $div.innerHTML = blob;
-  $div.querySelectorAll('*').forEach((elem) => {
-    forEachSanskritTextNode(elem, (text) => Sanscript.t(text, 'devanagari', outputScript));
-  });
-  return $div.innerHTML;
-}
-
 // Transliterate mixed English/Sanskrit content.
-// FIXME: unify with transliterateSanskritBlob.
 function transliterateHTMLString(s: string, outputScript: string) {
   const $div = document.createElement('div');
   $div.innerHTML = s;
@@ -69,8 +40,6 @@ function transliterateHTMLString(s: string, outputScript: string) {
 export {
   $,
   transliterateElement,
-  transliterateSanskritBlob,
   transliterateHTMLString,
-  Server,
   forEachSanskritTextNode,
 };

@@ -56,8 +56,6 @@ def parse_page_number_spec(numbers: str) -> list[Rule]:
 
 def apply_rules(num_pages: int, rules: list[Rule]):
     slugs = []
-    offset = 0
-    mode = "devanagari"
 
     for n in range(1, num_pages + 1):
         rule_matches = [r for r in rules if r.start <= n]

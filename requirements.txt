@@ -28,6 +28,7 @@ dnspython==2.2.1
 docutils==0.17.1
 email-validator==1.2.1
 fabric==2.7.0
+flake8==5.0.4
 Flask==2.1.2
 Flask-Admin==1.6.0
 Flask-Bcrypt==1.0.1
@@ -38,7 +39,7 @@ fonttools==4.33.3
 gevent==21.12.0
 google-api-core==2.8.2
 google-auth==2.9.0
-google-cloud-vision==2.7.3
+google-cloud-vision==3.1.1
 googleapis-common-protos==1.56.3
 greenlet==1.1.2
 grpcio==1.47.0
@@ -51,6 +52,7 @@ importlib-metadata==4.11.4
 indic-transliteration==2.3.31
 iniconfig==1.1.1
 invoke==1.7.1
+isort==5.10.1
 itsdangerous==2.1.2
 jaconv==0.3
 Jinja2==3.1.2
@@ -63,6 +65,7 @@ Mako==1.2.0
 marisa-trie==0.7.7
 markdown-it-py==2.1.0
 MarkupSafe==2.1.1
+mccabe==0.7.0
 mdurl==0.1.1
 memory-profiler==0.60.0
 mypy-extensions==0.4.3
@@ -77,13 +80,15 @@ platformdirs==2.5.2
 pluggy==1.0.0
 prometheus-client==0.14.1
 prompt-toolkit==3.0.30
-proto-plus==1.20.6
+proto-plus==1.22.0
 protobuf==3.20.1
 psutil==5.9.1
 py==1.11.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
+pycodestyle==2.9.1
 pycparser==2.21
+pyflakes==2.5.0
 Pygments==2.12.0
 pykakasi==2.2.1
 PyMuPDF==1.20.2

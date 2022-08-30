@@ -1,3 +1,5 @@
+"""Everything related to our proofing and transcription work."""
+
 from . import main, page, project, tagging, talk, users
 
 
