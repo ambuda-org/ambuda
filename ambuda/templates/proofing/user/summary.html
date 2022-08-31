@@ -10,16 +10,21 @@
 
 
 {% block content %}
-{{ components.flash_messages() }}
-
 {{ m.title_and_subtitle(user.username) }}
 
 {{ m.user_tabs(user=user, active='about', is_admin=current_user.is_admin) }}
 
 {% if user.description %}
-
 <div class="prose border p-4 my-8">
 {{ user.description|markdown|safe }}
+</div>
+{% else %}
+<div class="prose">
+  {% if current_user.id == user.id %}
+  <p>Tell others who you are by writing a short bio!</p>
+  {% else %}
+  <p>This user hasn't written anything about themselves.</p>
+  {% endif %}
 </div>
 {% endif %}
 

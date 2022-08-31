@@ -11,7 +11,7 @@ def test_edit__user_match(rama_client):
 def test_edit__user_match__post(rama_client):
     resp = rama_client.get("/proofing/users/ramacandra/")
     assert resp.status_code == 200
-    assert "My description" not in resp.text
+    assert "Tell others who you are" in resp.text
 
     resp = rama_client.post(
         "/proofing/users/ramacandra/edit", data={"description": "My description"}

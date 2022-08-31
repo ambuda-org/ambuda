@@ -28,6 +28,8 @@
 <div class="prose">
 <h1 class="md:!mt-0">Ongoing projects</h1>
 </div>
+
+{% if projects %}
 {{ status_legend() }}
 
 <div x-data="sortableList('title')">
@@ -70,4 +72,11 @@
   {% endfor %}
 </ul>
 </div>
+{% else %}
+<div class="prose">
+<p>There aren't any ongoing projects. <a href="{{ url_for('proofing.create_project') }}">
+    Create a new project to get started</a>.</p>
+</div>
+{% endif %}
+
 {% endblock %}
