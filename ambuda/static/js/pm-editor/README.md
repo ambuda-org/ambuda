@@ -36,7 +36,7 @@ The cost is that because ProseMirror is so flexible and modular, it requires spe
 
     *   `plugins.ts`: Adding basic functionality to the editor.
 
-        *   `menu.ts`: Menu buttons for toggling bold/italic etc (when the schema supports them).
+        *   ~~`menu.ts`: Menu buttons for toggling bold/italic etc (when the schema supports them).~~
 
-        *   `keymap.ts`: Keyboard shortcuts. (By default, even keys like undo–redo aren't supported.)
+        *   ~~`keymap.ts`: Keyboard shortcuts. (By default, even keys like undo–redo aren't supported.)~~
 
