@@ -97,5 +97,4 @@ function replaceTextareaWithPmeditor() {
     );
 }
 
-// TODO: Figure out how to make this available "properly".
-(window as any).replaceTextareaWithPmeditor = replaceTextareaWithPmeditor;
+replaceTextareaWithPmeditor();

@@ -190,31 +190,18 @@ export default () => ({
 
   changeSelectedText(callback) {
     // FIXME: more idiomatic way to get this?
-    const $textarea = $('#content');
+    const { state } = window.view;
+    let { tr } = state;
+    const text = state.doc.textBetween(tr.selection.from, tr.selection.to);
+    const replacement = callback(text);
+    tr = tr.replaceSelectionWith(state.schema.text(replacement));
+    const newState = state.apply(tr);
+    window.view.updateState(newState);
 
-    // If the ProseMirror-based editor is on, just use its `replaceWith`.
-    if ($textarea.style.display === 'none') {
-      const { state } = window.view;
-      let { tr } = state;
-      const text = state.doc.textBetween(tr.selection.from, tr.selection.to);
-      const replacement = callback(text);
-      tr = tr.replaceSelectionWith(state.schema.text(replacement));
-      const newState = state.apply(tr);
-      window.view.updateState(newState);
-      return;
-    }
-
-    const start = $textarea.selectionStart;
-    const end = $textarea.selectionEnd;
-    const { value } = $textarea;
-
-    const selectedText = value.substr(start, end - start);
-    const replacement = callback(selectedText);
-    $textarea.value = value.substr(0, start) + replacement + value.substr(end);
-
-    // Update selection state and focus for better UX.
-    $textarea.setSelectionRange(start, start + replacement.length);
-    $textarea.focus();
+    // // Update selection state and focus for better UX.
+    // $textarea.setSelectionRange(start, start + replacement.length);
+    // $textarea.focus();
+    return;
   },
   markAsError() {
     this.changeSelectedText((s) => `<error>${s}</error>`);
