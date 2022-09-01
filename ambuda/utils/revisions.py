@@ -31,7 +31,7 @@ def add_revision(
 
     num_rows_changed = result.rowcount
     if num_rows_changed == 0:
-        raise EditException("Edit conflict")
+        raise EditException(f"Edit conflict {page.slug}, {version}")
 
     # Must be 1 since there's exactly one page with the given page ID.
     # If this fails, the application data is in a weird state.
