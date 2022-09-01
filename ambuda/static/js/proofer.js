@@ -1,8 +1,9 @@
 /* global Alpine, $, OpenSeadragon, Sanscript, IMAGE_URL */
 /* Transcription and proofreading interface. */
 
+import { TextSelection } from 'prosemirror-state';
 import { $ } from './core.ts';
-import replaceTextareaWithPmeditor from "./pm-editor/pm-editor.ts";
+import { toText, replaceTextareaWithPmeditor } from './pm-editor/pm-editor.ts';
 
 const CONFIG_KEY = 'proofing-editor';
 
@@ -222,4 +223,21 @@ export default () => ({
     const character = e.target.textContent;
     navigator.clipboard.writeText(character);
   },
+
+  // Sets the ProseMirror editor's selection from `from` to `to`: note that these depend on
+  // the schema and are not byte offsets: https://prosemirror.net/docs/guide/#doc.indexing
+  setSelectionRange(from, to) {
+    window.view.updateState(window.view.state.apply(window.view.state.tr.setSelection(
+      new TextSelection(
+        window.view.state.doc.resolve(from),
+        window.view.state.doc.resolve(to),
+      ),
+    )));
+  },
+
+  // Before the form is submitted, copy contents of the ProseMirror editor back to the textarea.
+  syncPMToTextarea() {
+    document.querySelector('textarea').value = toText();
+  },
+
 });

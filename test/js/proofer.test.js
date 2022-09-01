@@ -183,46 +183,54 @@ test('displayTopAndBottom works and gets saved', () => {
 });
 
 test('transliterate works and saves settings', () => {
-  const p = Proofer();
   const $text = $('#content');
   $text.value = 'Sanskrit (saMskRtam) text'
-  $text.setSelectionRange(10, 19);
+  const p = Proofer();
+  p.init();
+  p.setSelectionRange(11, 20);
 
   p.fromScript = 'hk'
   p.toScript = 'iast';
   p.transliterate()
 
+  p.syncPMToTextarea();
+
   expect($text.value).toBe('Sanskrit (:saMskRtam:iast) text')
 });
 
 function markupFixtures(text) {
-  const p = Proofer();
   const $text = $('#content');
   $text.value = 'This is sample text.'
-  $text.setSelectionRange(8, 14);
+  const p = Proofer();
+  p.init();
+  p.setSelectionRange(9, 15);
   return { p, $text };
 }
 
 test('markAsError works', () => {
   const {p, $text } = markupFixtures();
   p.markAsError()
+  p.syncPMToTextarea()
   expect($text.value).toBe('This is <error>sample</error> text.')
 });
 
 test('markAsFix works', () => {
   const {p, $text } = markupFixtures();
   p.markAsFix()
+  p.syncPMToTextarea()
   expect($text.value).toBe('This is <fix>sample</fix> text.')
 });
 
 test('markAsUnclear works', () => {
   const {p, $text } = markupFixtures();
   p.markAsUnclear()
+  p.syncPMToTextarea()
   expect($text.value).toBe('This is <flag>sample</flag> text.')
 });
 
 test('markAsFootnoteNumber works', () => {
   const {p, $text } = markupFixtures();
   p.markAsFootnoteNumber()
+  p.syncPMToTextarea()
   expect($text.value).toBe('This is [^sample] text.')
 });

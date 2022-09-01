@@ -25,7 +25,7 @@
   <pre class="p-2 bg-slate-100 my-4">{{ conflict.content }}</pre>
   {% endif %}
 
-  <form x-data="proofer" method="POST">
+  <form x-data="proofer" @submit="syncPMToTextarea" method="POST">
     {{ form.csrf_token }}
     {{ form.version }}
 
