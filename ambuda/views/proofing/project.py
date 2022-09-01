@@ -2,6 +2,7 @@ from flask import render_template, flash, url_for, make_response, request, Bluep
 from flask_login import login_required
 from flask_wtf import FlaskForm
 from markupsafe import escape, Markup
+from sqlalchemy import orm
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 from wtforms import StringField
