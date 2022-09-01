@@ -57,9 +57,6 @@ function toText(): string {
 // Create a new ProseMirror editor with the contents of the textarea, and hide the textarea.
 function replaceTextareaWithPmeditor() {
     const $textarea = document.querySelector('textarea')!;
-    if ($textarea.style.display === 'none') {
-        return;
-    }
     const editor = document.getElementById('editor')!;
     // Initialize an editor with the textarea's contents.
     const state = EditorState.create({
@@ -78,17 +75,6 @@ function replaceTextareaWithPmeditor() {
         }
     });
     (window as any).view = view;
-
-    // To be safe, first verify that the round-trip is clean, at least initially.
-    // console.log($textarea.textContent, '-- the contents of the textarea.');
-    // console.log(toText(), '-- the result of toText');
-    if (toText() !== $textarea.textContent) {
-        return;
-    }
-
-    // Make it visible
-    editor.style.display = 'unset';
-    $textarea.style.display = 'none';
 
     // Before the form is submitted, copy contents of the ProseMirror editor back to the textarea.
     document.querySelector('form')!.addEventListener(

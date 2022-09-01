@@ -4,8 +4,7 @@ and a couple of other sources. */
 
 #editor,
 .editor {
-    display: none;
-    background: white;
+    background: lightcyan;
     color: black;
     background-clip: padding-box;
     border-radius: 4px;
