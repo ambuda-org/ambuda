@@ -2,18 +2,17 @@
 {% from "macros/forms.html" import field %}
 {% import "macros/proofing.html" as m %}
 
+
 {% block title %}OCR {{ project.title }} | Ambuda{% endblock %}
 
-{% block content %}
 
+{% block content %}
 {{ m.project_header_nested('OCR', project) }}
 {{ m.project_nav(project=project, active='edit', is_admin=current_user.is_admin) }}
 
-<div class="prose">
-  <p>Use this simple search form to find typos across this project.</p>
-
-  <form method="POST">
-      <input class="btn btn-submit" type="submit" value="Run OCR"></input>
-  </form>
+<div id="progress" x-data="htmlPoller('aoeu')">
+  {% with current=current, total=total, percent=percent, slug=slug, status=status %}
+    {% include 'include/task-progress.html' %}
+  {% endwith %}
 </div>
 {% endblock %}

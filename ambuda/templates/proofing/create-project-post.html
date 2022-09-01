@@ -15,7 +15,7 @@
 
 <p class="text-sm">(This page updates every 5 seconds.)</p>
 
-<div id="progress">
+<div x-data="htmlPoller('/proofing/status/{{ task_id }}')">
   {% with current=current, total=total, percent=percent, slug=slug, status=status %}
     {% include 'include/task-progress.html' %}
   {% endwith %}
@@ -23,13 +23,6 @@
 </div>
 
 <script type="text/javascript">
-  const taskId = '{{ task_id }}';
-  setInterval(async function() {
-    const url = `/proofing/status/${taskId}`;
-    const resp = await fetch(url);
-    const progress = await resp.text();
-    document.querySelector('#progress').innerHTML = progress;
-  }, 5000);
 </script>
 
 {% endblock %}

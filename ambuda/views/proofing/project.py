@@ -1,5 +1,7 @@
+from celery.result import GroupResult
 from flask import (
     current_app,
+    jsonify,
     render_template,
     flash,
     url_for,
@@ -278,21 +280,33 @@ def batch_ocr(slug):
     if project_ is None:
         abort(404)
 
-    progress = None
     if request.method == "POST":
         r = ocr_tasks.run_ocr_for_book(
             app_env=current_app.config["AMBUDA_ENVIRONMENT"],
             project=project_,
             user=current_user,
         )
-        num_tasks = len(r.results)
-        if num_tasks:
-            progress = r.completed_count() / len(r.results)
-        else:
-            progress = 0
+        total = len(r.results)
+        return render_template(
+            "proofing/projects/batch-ocr-post.html",
+            project=project_,
+            completed=0,
+            total=total,
+        )
 
     return render_template(
         "proofing/projects/batch-ocr.html", project=project_, progress=progress
+    )
+
+
+@bp.route("/batch-ocr-status/<task_id>")
+def batch_ocr_status(status):
+    r = GroupResult(task_id)
+    return jsonify(
+        {
+            "completed": r.completed_count(),
+            "total": len(r.results),
+        }
     )
 
 
