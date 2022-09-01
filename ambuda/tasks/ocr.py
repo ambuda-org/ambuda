@@ -35,7 +35,7 @@ def _run_ocr_for_page_inner(
                 summary="Run batch OCR",
                 content=content,
                 status=SitePageStatus.R0,
-                version=1,
+                version=0,
                 author_id=user_id,
             )
         except Exception:
