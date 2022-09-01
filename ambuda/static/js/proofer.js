@@ -3,7 +3,7 @@
 
 import { TextSelection } from 'prosemirror-state';
 import { $ } from './core.ts';
-import { toText, replaceTextareaWithPmeditor } from './pm-editor/pm-editor.ts';
+import { toText, createEditorFromTextAt } from './pm-editor/pm-editor.ts';
 
 const CONFIG_KEY = 'proofing-editor';
 
@@ -73,7 +73,7 @@ export default () => ({
       this.imageViewer.viewport.zoomTo(this.imageZoom);
     });
 
-    replaceTextareaWithPmeditor();
+    this.view = createEditorFromTextAt(document.querySelector('textarea').value, document.getElementById('editor'));
 
     // Warn the user if navigating away with unsaved changes.
     window.onbeforeunload = () => {
@@ -193,13 +193,13 @@ export default () => ({
   // Markup controls
 
   changeSelectedText(callback) {
-    const { state } = window.view;
+    const { state } = this.view;
     let { tr } = state;
     const replacement = callback(state.doc.textBetween(tr.selection.from, tr.selection.to));
     tr = tr.replaceRangeWith(tr.selection.from, tr.selection.to, state.schema.text(replacement));
-    window.view.updateState(state.apply(tr));
+    this.view.updateState(state.apply(tr));
     // Retain focus for better UX.
-    window.view.focus();
+    this.view.focus();
   },
   markAsError() {
     this.changeSelectedText((s) => `<error>${s}</error>`);
@@ -227,21 +227,21 @@ export default () => ({
   // Sets the ProseMirror editor's selection from `from` to `to`: note that these depend on
   // the schema and are not byte offsets: https://prosemirror.net/docs/guide/#doc.indexing
   setSelectionRange(from, to) {
-    window.view.updateState(window.view.state.apply(window.view.state.tr.setSelection(
+    this.view.updateState(this.view.state.apply(this.view.state.tr.setSelection(
       new TextSelection(
-        window.view.state.doc.resolve(from),
-        window.view.state.doc.resolve(to),
+        this.view.state.doc.resolve(from),
+        this.view.state.doc.resolve(to),
       ),
     )));
   },
 
   // Before the form is submitted, copy contents of the ProseMirror editor back to the textarea.
   syncPMToTextarea() {
-    document.querySelector('textarea').value = toText();
+    document.querySelector('textarea').value = this.textValue();
   },
 
   textValue() {
-    return toText();
-  }
+    return toText(this.view);
+  },
 
 });

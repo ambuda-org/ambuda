@@ -37,8 +37,8 @@ function docFromText(text: string): Node {
 }
 
 // Serializes the EditorState into a plain text string.
-export function toText(): string {
-  const doc = (window as any).view.state.doc.toJSON();
+export function toText(view: EditorView): string {
+  const doc = view.state.doc.toJSON();
   /*
     The JSON looks like:
           {
@@ -63,12 +63,10 @@ export function toText(): string {
   return doc.content.map((line) => (line.content ? line.content[0].text : '')).join('\n');
 }
 
-// Create a new ProseMirror editor with the contents of the textarea, and hide the textarea.
-export function replaceTextareaWithPmeditor() {
-  const $textarea = document.querySelector('textarea')!;
-  // Initialize an editor with a Document created from the textarea's contents.
+// Creates new editor with contents from `text`, append it to `parentNode`. Returns its EditorView.
+export function createEditorFromTextAt(text: string, parentNode: HTMLElement): EditorView {
   const state = EditorState.create({
-    doc: docFromText($textarea.value!),
+    doc: docFromText(text),
     plugins: [
       history(),
       keymap({ 'Mod-z': undo, 'Mod-y': redo }),
@@ -76,6 +74,6 @@ export function replaceTextareaWithPmeditor() {
     ],
   });
   // Display the editor.
-  const view = new EditorView(document.getElementById('editor'), { state });
-  (window as any).view = view;
+  const view = new EditorView(parentNode, { state });
+  return view;
 }
