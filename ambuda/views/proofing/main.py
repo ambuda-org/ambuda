@@ -11,11 +11,13 @@ from flask import (
 from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from slugify import slugify
+from sqlalchemy import orm
 from wtforms import StringField, FileField
 from wtforms.validators import DataRequired
 
 import ambuda.queries as q
 from ambuda import database as db
+from ambuda.enums import SitePageStatus
 from ambuda.tasks import projects as project_tasks
 
 
@@ -37,35 +39,57 @@ class CreateProjectWithPdfForm(FlaskForm):
 @bp.route("/")
 def index():
     """List all available proofing projects."""
-    projects = q.projects()
 
-    all_counts = {}
-    all_page_counts = {}
+    # Fetch all project data in a single query for better performance.
+    session = q.get_session()
+    projects = (
+        session.query(db.Project)
+        .options(
+            orm.joinedload(db.Project.pages)
+            .load_only(db.Page.id)
+            .joinedload(db.Page.status)
+        )
+        .all()
+    )
+    status_classes = {
+        SitePageStatus.R2: "bg-green-200",
+        SitePageStatus.R1: "bg-yellow-200",
+        SitePageStatus.R0: "bg-red-300",
+        SitePageStatus.SKIP: "bg-slate-100",
+    }
+
+    projects = q.projects()
+    statuses_per_project = {}
+    progress_per_project = {}
+    pages_per_project = {}
     for project in projects:
         page_statuses = [p.status.name for p in project.pages]
 
         # FIXME(arun): catch this properly, prevent prod issues
         if not page_statuses:
-            all_counts[project.slug] = {}
-            all_page_counts[project.slug] = 0
+            statuses_per_project[project.id] = {}
+            pages_per_project[project.id] = 0
             continue
 
         num_pages = len(page_statuses)
-        project_counts = {
-            "bg-green-200": page_statuses.count("reviewed-2") / num_pages,
-            "bg-yellow-200": page_statuses.count("reviewed-1") / num_pages,
-            "bg-red-300": page_statuses.count("reviewed-0") / num_pages,
-            "bg-slate-100": page_statuses.count("skip") / num_pages,
-        }
+        project_counts = {}
+        for enum_value, class_ in status_classes.items():
+            fraction = page_statuses.count(enum_value) / num_pages
+            project_counts[class_] = fraction
+            if enum_value == SitePageStatus.R0:
+                # The more red pages there are, the lower progress is.
+                progress_per_project[project.id] = 1 - fraction
 
-        all_counts[project.slug] = project_counts
-        all_page_counts[project.slug] = num_pages
+        statuses_per_project[project.id] = project_counts
+        pages_per_project[project.id] = num_pages
 
+    projects.sort(key=lambda x: x.title)
     return render_template(
         "proofing/index.html",
         projects=projects,
-        all_counts=all_counts,
-        all_page_counts=all_page_counts,
+        statuses_per_project=statuses_per_project,
+        progress_per_project=progress_per_project,
+        pages_per_project=pages_per_project,
     )
 
 
@@ -137,7 +161,6 @@ def create_project_status(task_id):
     if isinstance(info, Exception):
         current = total = percent = 0
         slug = None
-        status = r.status
     else:
         current = info.get("current", 100)
         total = info.get("total", 100)
@@ -167,7 +190,6 @@ def recent_changes():
 @bp.route("/talk")
 def talk():
     """Show discussion across all projects."""
-    session = q.get_session()
     projects = q.projects()
 
     # FIXME: optimize this once we have a higher thread volume.

@@ -29,25 +29,8 @@ fi
 
 echo "Beginning clean install of Ambuda."
 
-
-# Frontend dependencies
-# =====================
-
-# Install Node dependencies.
-npm install
-
-# Build initial CSS and JavaScript.
-make css-prod js-prod
-
-
-# Python dependencies
-# ===================
-
-# Install Python dependencies.
-python3 -m venv env
-source env/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
+make install-frontend
+make install-python
 
 # Confirm that the setup worked.
 make test

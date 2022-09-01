@@ -201,11 +201,11 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
   <textarea id="content" name="content" required=""
     class="grow p-2 md:p-4 w-full resize-none"
     :style="`font-size: ${textZoom}rem`"
-    @change="hasUnsavedChanges = true" spellcheck="false">{{ data }}</textarea>
+    @keydown="hasUnsavedChanges = true" spellcheck="false">{{ data }}</textarea>
     <div id="editor" name="content" required=""
     class="grow p-2 md:p-4 w-full resize-none"
     :style="`font-size: ${textZoom}rem`"
-    @change="hasUnsavedChanges = true"></div>
+    @keydown="hasUnsavedChanges = true" spellcheck="false"></div>
 </div>
 {% endmacro %}
 

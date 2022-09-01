@@ -16,7 +16,7 @@
 {% for project, thread in all_threads %}
   {% set project_url = url_for('proofing.project.summary', slug=project.slug) %}
   {% set thread_url = url_for('proofing.talk.thread', project_slug=project.slug, thread_id=thread.id) %}
-  {% set author_url = url_for('proofing.users.user', username=thread.author.username) %}
+  {% set author_url = url_for('proofing.user.summary', username=thread.author.username) %}
   <li class="p-4 border-t a-hover-underline flex justify-between">
     <div>
       <a href="{{ thread_url }}">{{ thread.title }}</a>
@@ -27,6 +27,9 @@
     </div>
     <p class="text-sm">{{ thread.updated_at|time_ago }}</p>
   </li>
+{% else %}
+<p>There isn't any ongoing discussion yet. To start a discussion, go to the
+project you want to discuss and click on its <kbd>Talk</kbd> tab.</p>
 {% endfor %}
 
 {% endblock %}

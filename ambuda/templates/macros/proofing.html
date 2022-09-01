@@ -1,6 +1,7 @@
 {% import 'macros/components.html' as components %}
 
 
+{# Display a title+subtitle pair. #}
 {% macro title_and_subtitle(title, subtitle = none) %}
 <header class="mb-4">
   <h1 class="font-bold text-4xl">{{ title|safe }}</h1>
@@ -69,11 +70,11 @@
 {# User-level tabs. #}
 {% macro user_tabs(user, active, is_admin = false) %}
 {% set routes = [
-  ("about", "About", url_for("proofing.users.user", username=user.username)),
-  ("edits", "Edits", url_for("proofing.users.user_edits", username=user.username)),
+  ("about",    "Overview",  url_for("proofing.user.summary", username=user.username)),
+  ("activity", "Activity",  url_for("proofing.user.activity", username=user.username)),
 ] %}
 {% if is_admin %}{% set routes = routes + [
-  ("admin", "Admin", url_for("proofing.users.user_admin", username=user.username)),
+  ("admin",    "Admin",     url_for("proofing.user.admin", username=user.username)),
 ] %}{% endif %}
 
 {{ components.tabs(routes, active) }}
@@ -123,7 +124,7 @@
         project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
     {% set page_url = url_for('proofing.page.edit',
         project_slug=r.project.slug, page_slug=r.page.slug) %}
-    {% set author_url = url_for('proofing.users.user',
+    {% set author_url = url_for('proofing.user.summary',
         username=r.author.username) %}
     {% set page_title = r.project.title + "/" + r.page.slug %}
     {% set author = r.author.username %}
@@ -149,7 +150,7 @@
         project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
     {% set page_url = url_for('proofing.page.edit',
         project_slug=r.project.slug, page_slug=r.page.slug) %}
-    {% set author_url = url_for('proofing.users.user',
+    {% set author_url = url_for('proofing.user.summary',
         username=r.author.username) %}
     {% set page_title = r.project.title + "/" + r.page.slug %}
     {% set author = r.author.username %}
