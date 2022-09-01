@@ -12,7 +12,7 @@ from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from slugify import slugify
 from sqlalchemy import orm
-from wtforms import StringField, FileField
+from wtforms import StringField, FileField, RadioField
 from wtforms.validators import DataRequired
 
 from ambuda import consts
@@ -34,6 +34,13 @@ class CreateProjectWithPdfForm(FlaskForm):
     file = FileField("PDF file", validators=[DataRequired()])
     title = StringField(
         "Title of the book (you can change this later)", validators=[DataRequired()]
+    )
+    pdf_source = RadioField(
+        "Source",
+        choices=[
+            ("archive.org", "From archive.org"),
+            ("my-computer", "From my computer"),
+        ],
     )
 
 
