@@ -46,26 +46,26 @@ function fromText(text: string): Node {
 function toText(): string {
   const doc = (window as any).view.state.doc.toJSON();
   /*
-                The JSON looks like:
-                    {
-                        "type": "doc",
-                        "content": [
-                            {
-                                "type": "line",
-                                "content": [
-                                    {
-                                        "type": "text",
-                                        "text": "This is the first line."
-                                    }
-                                ]
-                            },
-                            {
-                                "type": "line"
-                            },
-                        ]
-                    }
-                etc.
-                */
+    The JSON looks like:
+          {
+              "type": "doc",
+              "content": [
+                  {
+                      "type": "line",
+                      "content": [
+                          {
+                              "type": "text",
+                              "text": "This is the first line."
+                          }
+                      ]
+                  },
+                  {
+                      "type": "line"
+                  },
+              ]
+          }
+    etc.
+  */
   return doc.content.map((line) => (line.content ? line.content[0].text : '')).join('\n');
 }
 
