@@ -55,6 +55,7 @@
 {% macro project_nav(project, active, is_admin = false) %}
 {% set routes = [
   ("summary",  "Summary",  url_for("proofing.project.summary", slug=project.slug)),
+  ("activity", "Activity",  url_for("proofing.project.activity", slug=project.slug)),
   ("talk",     "Talk",     url_for("proofing.talk.board", slug=project.slug)),
   ("edit",     "Edit",     url_for("proofing.project.edit", slug=project.slug)),
   ("download", "Download", url_for("proofing.project.download", slug=project.slug)),
@@ -115,28 +116,59 @@
 {% endmacro %}
 
 
+{# A revision in an activity log. #}
+{% macro revision_li(r) %}
+<li class="my-2">
+  {% set revision_url = url_for('proofing.page.revision',
+      project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
+  {% set page_url = url_for('proofing.page.edit',
+      project_slug=r.project.slug, page_slug=r.page.slug) %}
+  {% set author_url = url_for('proofing.user.summary',
+      username=r.author.username) %}
+  {% set page_title = r.project.title + "/" + r.page.slug %}
+  {% set author = r.author.username %}
+
+  <span class="{{ revision_colors(r.status.name) }} inline-block w-2 h-2 mr-0.5 rounded-sm"></span>
+  <a class="text-slate-400 text-sm p-0.5 rounded"
+      href="{{ revision_url }}">{{ r.created.strftime("%Y-%m-%d %H:%M") }}</a>
+  <a href="{{ page_url }}">{{ page_title }}</a>
+  by <a href="{{ author_url }}">{{ author }}</a>
+  {% if r.summary %}<i>({{ r.summary }})</i>{% endif %}
+</li>
+{% endmacro %}
+
+
+{# A project in an activity log #} 
+{% macro project_li(p) %}
+<li class="my-2 flex justify-between">
+  {% set project_url = url_for('proofing.project.summary', slug=p.slug) %}
+  {% set creator = p.creator.username %}
+  {% set creator_url = url_for('proofing.user.summary', username=creator) %}
+  <div>
+    <span class="border border-slate-500 inline-block w-2 h-2 mr-0.5 rounded-sm"></span>
+    <a class="text-slate-400 text-sm p-0.5 rounded"
+        href="{{ project_url }}">{{ p.created_at.strftime("%Y-%m-%d %H:%M") }}</a>
+    {{ p.title }} created by <a href="{{ creator_url }}">{{ creator }}</a>
+</li>
+{% endmacro %}
+
+
+{# List various activity (edits, new projects, etc.) #}
+{% macro activity_log(activity) %}
+<ul class="a-hover-underline">
+{% for type_, _, obj in activity %}
+  {% if type_ == 'revision' %}{{ revision_li(obj) }}
+  {% elif type_ == 'project' %}{{ project_li(obj) }}
+  {% endif %}
+{% endfor %}
+</ul>
+{% endmacro %}
+
+
 {# List the given revisions. Revisions might correspond to multiple pages. #}
 {% macro revision_list(revisions) %}
 <ul class="a-hover-underline">
-  {% for r in revisions %}
-  <li class="my-2">
-    {% set revision_url = url_for('proofing.page.revision',
-        project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
-    {% set page_url = url_for('proofing.page.edit',
-        project_slug=r.project.slug, page_slug=r.page.slug) %}
-    {% set author_url = url_for('proofing.user.summary',
-        username=r.author.username) %}
-    {% set page_title = r.project.title + "/" + r.page.slug %}
-    {% set author = r.author.username %}
-
-    <span class="{{ revision_colors(r.status.name) }} inline-block w-2 h-2 mr-0.5 rounded-full"></span>
-    <a class="text-slate-400 text-sm p-0.5 rounded"
-        href="{{ revision_url }}">{{ r.created.strftime("%Y-%m-%d %H:%M") }}</a>
-    <a href="{{ page_url }}">{{ page_title }}</a>
-    by <a href="{{ author_url }}">{{ author }}</a>
-    {% if r.summary %}<i>({{ r.summary }})</i>{% endif %}
-  </li>
-  {% endfor %}
+  {% for r in revisions %}{{ revision_li(r) }}{% endfor %}
 </ul>
 {% endmacro %}
 

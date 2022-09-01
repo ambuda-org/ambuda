@@ -184,7 +184,17 @@ def recent_changes():
     recent_revisions = (
         session.query(db.Revision).order_by(db.Revision.created.desc()).limit(100).all()
     )
-    return render_template("proofing/recent-changes.html", revisions=recent_revisions)
+    recent_activity = [("revision", r.created, r) for r in recent_revisions]
+
+    recent_projects = (
+        session.query(db.Project).order_by(db.Project.created_at.desc()).all()
+    )
+    recent_activity += [("project", p.created_at, p) for p in recent_projects]
+
+    recent_activity.sort(key=lambda x: x[1], reverse=True)
+    return render_template(
+        "proofing/recent-changes.html", recent_activity=recent_activity
+    )
 
 
 @bp.route("/talk")

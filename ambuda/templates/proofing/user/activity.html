@@ -30,10 +30,12 @@
 <div class="prose">
 <h2>Edits</h2>
 </div>
-{{ m.revision_list(user_revisions|reverse) }}
+
+{% if user_revisions %}
+{{ m.revision_list(user_revisions) }}
 {% else %}
 <p>This user has not made any edits.</p>
 {% endif %}
 
+{% endif %}
 {% endblock %}
-
