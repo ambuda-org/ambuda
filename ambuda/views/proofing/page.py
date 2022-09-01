@@ -3,7 +3,6 @@ from pathlib import Path
 from flask import render_template, flash, current_app, send_file, Blueprint
 from flask_login import login_required, current_user
 from flask_wtf import FlaskForm
-from sqlalchemy import update
 from werkzeug.exceptions import abort
 from wtforms import StringField, HiddenField, SelectField
 from wtforms.validators import DataRequired
@@ -12,6 +11,7 @@ from wtforms.widgets import TextArea
 from ambuda import database as db, queries as q
 from ambuda.utils import google_ocr
 from ambuda.utils.diff import revision_diff
+from ambuda.utils.revisions import add_revision, EditException
 from ambuda.views.api import bp as api
 from ambuda.views.site import bp as site
 
@@ -23,12 +23,6 @@ def _get_image_filesystem_path(project_slug: str, page_slug: str) -> Path:
     """Get the location of the given image on disk."""
     image_dir = Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / project_slug
     return image_dir / "pages" / f"{page_slug}.jpg"
-
-
-class EditException(Exception):
-    """Raised if a user's attempt to edit a page fails."""
-
-    pass
 
 
 class EditPageForm(FlaskForm):
@@ -66,47 +60,6 @@ def _prev_cur_next(pages: list[db.Page], slug: str) -> tuple[db.Page, db.Page, d
     cur = pages[i]
     next = pages[i + 1] if i < len(pages) - 1 else None
     return prev, cur, next
-
-
-def add_revision(
-    page: db.Page, summary: str, content: str, status: str, version: int, author_id: int
-) -> int:
-    """Add a new revision for a page."""
-    # If this doesn't update any rows, there's an edit conflict.
-    # Details: https://gist.github.com/shreevatsa/237bd6592771caadecc68c9515403bc3
-    # FIXME: rather than do this on the application side, do an `exists` query
-    # FIXME: instead? Not sure if this is a clear win, but worth thinking about.
-
-    # FIXME: Check for `proofreading` user permission before allowing changes
-    session = q.get_session()
-    status_ids = {s.name: s.id for s in q.page_statuses()}
-    new_version = version + 1
-    result = session.execute(
-        update(db.Page)
-        .where((db.Page.id == page.id) & (db.Page.version == version))
-        .values(version=new_version, status_id=status_ids[status])
-    )
-    session.commit()
-
-    num_rows_changed = result.rowcount
-    if num_rows_changed == 0:
-        raise EditException("Edit conflict")
-
-    # Must be 1 since there's exactly one page with the given page ID.
-    # If this fails, the application data is in a weird state.
-    assert num_rows_changed == 1
-
-    revision_ = db.Revision(
-        project_id=page.project_id,
-        page_id=page.id,
-        summary=summary,
-        content=content,
-        author_id=author_id,
-        status_id=status_ids[status],
-    )
-    session.add(revision_)
-    session.commit()
-    return new_version
 
 
 @bp.route("/<project_slug>/<page_slug>/")

@@ -281,8 +281,8 @@ def batch_ocr(slug):
     running_ocr = False
     if request.method == "POST":
         ocr_tasks.run_ocr_for_book.delay(
+            app_env=current_app.config["AMBUDA_ENVIRONMENT"],
             project_slug=project_.slug,
-            app_environment=current_app.config["AMBUDA_ENVIRONMENT"],
             user_id=current_user.id,
         )
         running_ocr = True

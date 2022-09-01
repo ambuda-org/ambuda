@@ -27,4 +27,9 @@ app = Celery(
         "ambuda.tasks.ocr",
     ],
 )
-app.conf.update(task_serializer="json")
+app.conf.update(
+    # Run all tasks asynchronously by default.
+    task_always_eager=False,
+    # Force arguments to be plain data by requiring them to be JSON-compatible.
+    task_serializer="json",
+)
