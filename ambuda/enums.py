@@ -4,11 +4,15 @@ from enum import Enum
 class SiteRole(str, Enum):
     """Defines user roles on Ambuda."""
 
-    #: Can mark pages as yellow
+    #: Basic proofer. Can mark pages as yellow and upload simple projects.
     P1 = "p1"
-    #: Can mark pages as green
+    #: Advanced proofer. Can mark pages as green, upload arbitrary PDFs, and
+    #: run operations across an entire project.
     P2 = "p2"
-    #: Administrator rights
+    #: Moderator. Can delete projects, ban users, and run operations across the
+    #: entire proofing effort.
+    MODERATOR = "moderator"
+    #: Administrator. Has full access to the database.
     ADMIN = "admin"
 
 
