@@ -240,4 +240,8 @@ export default () => ({
     document.querySelector('textarea').value = toText();
   },
 
+  textValue() {
+    return toText();
+  }
+
 });

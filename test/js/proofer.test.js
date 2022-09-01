@@ -193,9 +193,7 @@ test('transliterate works and saves settings', () => {
   p.toScript = 'iast';
   p.transliterate()
 
-  p.syncPMToTextarea();
-
-  expect($text.value).toBe('Sanskrit (:saMskRtam:iast) text')
+  expect(p.textValue()).toBe('Sanskrit (:saMskRtam:iast) text')
 });
 
 function markupFixtures(text) {
@@ -210,27 +208,23 @@ function markupFixtures(text) {
 test('markAsError works', () => {
   const {p, $text } = markupFixtures();
   p.markAsError()
-  p.syncPMToTextarea()
-  expect($text.value).toBe('This is <error>sample</error> text.')
+  expect(p.textValue()).toBe('This is <error>sample</error> text.')
 });
 
 test('markAsFix works', () => {
   const {p, $text } = markupFixtures();
   p.markAsFix()
-  p.syncPMToTextarea()
-  expect($text.value).toBe('This is <fix>sample</fix> text.')
+  expect(p.textValue()).toBe('This is <fix>sample</fix> text.')
 });
 
 test('markAsUnclear works', () => {
   const {p, $text } = markupFixtures();
   p.markAsUnclear()
-  p.syncPMToTextarea()
-  expect($text.value).toBe('This is <flag>sample</flag> text.')
+  expect(p.textValue()).toBe('This is <flag>sample</flag> text.')
 });
 
 test('markAsFootnoteNumber works', () => {
   const {p, $text } = markupFixtures();
   p.markAsFootnoteNumber()
-  p.syncPMToTextarea()
-  expect($text.value).toBe('This is [^sample] text.')
+  expect(p.textValue()).toBe('This is [^sample] text.')
 });
