@@ -1,7 +1,6 @@
 /* global Alpine, $, OpenSeadragon, Sanscript, IMAGE_URL */
 /* Transcription and proofreading interface. */
 
-import { TextSelection } from 'prosemirror-state';
 import { $ } from './core.ts';
 import { toText, createEditorFromTextAt } from './pm-editor/pm-editor.ts';
 
@@ -222,17 +221,6 @@ export default () => ({
   copyCharacter(e) {
     const character = e.target.textContent;
     navigator.clipboard.writeText(character);
-  },
-
-  // Sets the ProseMirror editor's selection from `from` to `to`: note that these depend on
-  // the schema and are not byte offsets: https://prosemirror.net/docs/guide/#doc.indexing
-  setSelectionRange(from, to) {
-    this.view.updateState(this.view.state.apply(this.view.state.tr.setSelection(
-      new TextSelection(
-        this.view.state.doc.resolve(from),
-        this.view.state.doc.resolve(to),
-      ),
-    )));
   },
 
   // Before the form is submitted, copy contents of the ProseMirror editor back to the textarea.

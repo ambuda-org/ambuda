@@ -1,5 +1,6 @@
 import { $ } from '@/core.ts';
 import Proofer from '@/proofer';
+import { TextSelection } from 'prosemirror-state';
 
 const sampleHTML = `
 <div>
@@ -182,12 +183,23 @@ test('displayTopAndBottom works and gets saved', () => {
   expect(p2.layout).toBe('top-and-bottom');
 });
 
+// Sets the ProseMirror editor's selection from `from` to `to`: note that these depend on
+// the schema and are not byte offsets: https://prosemirror.net/docs/guide/#doc.indexing
+function setSelectionRange(p, from, to) {
+  p.view.updateState(p.view.state.apply(p.view.state.tr.setSelection(
+    new TextSelection(
+      p.view.state.doc.resolve(from),
+      p.view.state.doc.resolve(to),
+    ),
+  )));
+}
+
 test('transliterate works and saves settings', () => {
   const $text = $('#content');
   $text.value = 'Sanskrit (saMskRtam) text'
   const p = Proofer();
   p.init();
-  p.setSelectionRange(11, 20);
+  setSelectionRange(p, 11, 20);
 
   p.fromScript = 'hk'
   p.toScript = 'iast';
@@ -201,30 +213,30 @@ function markupFixtures(text) {
   $text.value = 'This is sample text.'
   const p = Proofer();
   p.init();
-  p.setSelectionRange(9, 15);
+  setSelectionRange(p, 9, 15);
   return { p, $text };
 }
 
 test('markAsError works', () => {
-  const {p, $text } = markupFixtures();
+  const { p, $text } = markupFixtures();
   p.markAsError()
   expect(p.textValue()).toBe('This is <error>sample</error> text.')
 });
 
 test('markAsFix works', () => {
-  const {p, $text } = markupFixtures();
+  const { p, $text } = markupFixtures();
   p.markAsFix()
   expect(p.textValue()).toBe('This is <fix>sample</fix> text.')
 });
 
 test('markAsUnclear works', () => {
-  const {p, $text } = markupFixtures();
+  const { p, $text } = markupFixtures();
   p.markAsUnclear()
   expect(p.textValue()).toBe('This is <flag>sample</flag> text.')
 });
 
 test('markAsFootnoteNumber works', () => {
-  const {p, $text } = markupFixtures();
+  const { p, $text } = markupFixtures();
   p.markAsFootnoteNumber()
   expect(p.textValue()).toBe('This is [^sample] text.')
 });

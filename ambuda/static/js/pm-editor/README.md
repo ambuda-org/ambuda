@@ -1,42 +1,40 @@
 # Background
 
-This directory contains code relateed to the [ProseMirror](https://prosemirror.net/)-based editor for [proofreading](https://ambuda.org/proofing/).
+This directory contains code related to the [ProseMirror](https://prosemirror.net/)-based editor for [proofreading](https://ambuda.org/proofing/).
 
-The idea is that while:
-
--   the current textarea-based requires users to mark up using various conventions, and results in plain text being sent to the backend to be parsed,
-
--   a random WYSIWYG editor would allow arbitrarily styled HTML (which we hardly need, and much of it would have to be stripped out),
-
-a ProseMirror-based editor can provide a "best of both worlds" alternative, allowing (and enforcing) a structured document to be edited. (Implemented internally as a [contenteditable](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/contenteditable) div, dealing with all the cross-browser [complexity](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Editable_content).)
-
-Something like this:
-
-```mermaid
-graph LR;
-    A[Page scan: image pixels]-->B[textarea]:::someclass--plain text-->C[parse]-->D[TEI];
-    classDef someclass fill:#f96;
-```
-
-into
-
-```mermaid
-graph LR;
-    A[Page scan: image pixels]-->B[PM-based editor]:::someclass--structured JSON document-->C[parse]-->D[TEI];
-    classDef someclass fill:#f96;
-```
-
-The cost is that because ProseMirror is so flexible and modular, it requires specifying in tedious detail *exactly* what we want out of the editor. It's more like a set of Lego blocks than anything readily usable.
+This will allow (and enforce) the text being edited to be a structured document. (Implemented internally as a [contenteditable](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/contenteditable) div, where ProseMirror deals with all the cross-browser [complexity](https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Editable_content).)
 
 # Code structure
 
-*   `pm-editor.ts`: The top-level code to replace the textarea with the PM-based editor
+*   `pm-editor.ts`: The top-level code that defines a schema and (for now) conversion from/to plain text.
 
-    *   ~~`schema.ts`: Specifying exactly what structure we'd like the "structured document" being edited to have.~~
+# ProseMirror quick intro
 
-    *   ~~`plugins.ts`: Adding basic functionality to the editor.~~
+Because ProseMirror is so flexible and modular (_"we are prioritizing modularity and customizability over simplicity […] more of a Lego set than a Matchbox car"_), it requires specifying in detail *exactly* what we want out of the editor.
 
-        *   ~~`menu.ts`: Menu buttons for toggling bold/italic etc (when the schema supports them).~~
+The [documentation](https://prosemirror.net/docs/guide/) is good and can be read in an hour, but below is a quick 5-minute version to help look up the [reference](https://prosemirror.net/docs/ref/).
 
-        *   ~~`keymap.ts`: Keyboard shortcuts. (By default, even keys like undo–redo aren't supported.)~~
+ProseMirror is built on a few concepts:
 
+- A *schema* specifies what kind of nodes a document may contain.
+
+- A [*Document*](https://prosemirror.net/docs/guide/#doc) is a data structure that holds the document being edited.
+
+- The editor's *state* includes the document and things like the current selection.
+
+- There are *Transform*s (in particular, *Transaction*s) that can be applied to a state to give a new state.
+
+- The editor *view* displays the editor state in the browser DOM, and handles user events (editing actions).
+
+So: `view.state.doc.schema`.
+
+[Data flow](https://prosemirror.net/docs/guide/#view.data_flow):
+
+> So the editor view displays a given editor state, and when something happens, it creates a transaction and broadcasts this. This transaction is then, typically, used to create a new state, which is given to the view using its `updateState` method.
+
+```mermaid
+graph LR;
+A[DOM event] --> Transaction --> C[new EditorState] --> EditorView --> A;
+```
+
+More details are in [the guide](https://prosemirror.net/docs/guide/) and [reference](https://prosemirror.net/docs/ref/).

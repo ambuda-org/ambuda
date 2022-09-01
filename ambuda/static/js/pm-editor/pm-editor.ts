@@ -7,11 +7,11 @@ import { keymap } from 'prosemirror-keymap';
 import { undo, redo, history } from 'prosemirror-history';
 import { baseKeymap } from 'prosemirror-commands';
 
-const almostTrivialSchema = new Schema({
+const schema = new Schema({
   nodes: {
-    // The document is a nonempty sequence of lines.
+    // The document (page) is a nonempty sequence of lines.
     doc: { content: 'line+' },
-    // A line on the page. Represented in the DOM as a `<p>` element.
+    // A line contains text. Represented in the DOM as a `<p>` element.
     line: {
       content: 'text*',
       parseDOM: [{ tag: 'p' }],
@@ -32,11 +32,11 @@ function docFromText(text: string): Node {
     p.appendChild(document.createTextNode(line));
     dom.appendChild(p);
   });
-  const ret = DOMParser.fromSchema(almostTrivialSchema).parse(dom, { preserveWhitespace: 'full' });
+  const ret = DOMParser.fromSchema(schema).parse(dom, { preserveWhitespace: 'full' });
   return ret;
 }
 
-// Serializes the EditorState into a plain text string.
+// Serializes the EditorState (assuming the schema above) into a plain text string.
 export function toText(view: EditorView): string {
   const doc = view.state.doc.toJSON();
   /*
@@ -63,7 +63,7 @@ export function toText(view: EditorView): string {
   return doc.content.map((line) => (line.content ? line.content[0].text : '')).join('\n');
 }
 
-// Creates new editor with contents from `text`, append it to `parentNode`. Returns its EditorView.
+// Creates editor with contents from `text`, appends it to `parentNode`. Returns its EditorView.
 export function createEditorFromTextAt(text: string, parentNode: HTMLElement): EditorView {
   const state = EditorState.create({
     doc: docFromText(text),

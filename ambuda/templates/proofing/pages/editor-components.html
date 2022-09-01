@@ -198,8 +198,8 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
       {{ alpine_button("A<sup>-</sup>", "decreaseTextSize") }}
     </div>
   </div>
-  <textarea id="content" name="content" style="display: none">{{ data }}</textarea>
-  <div id="editor" required=""
+  <textarea id="content" name="content" required="" style="display: none">{{ data }}</textarea>
+  <div id="editor"
     class="grow p-2 md:p-4 w-full resize-none"
     :style="`font-size: ${textZoom}rem`"
     @keydown="hasUnsavedChanges = true" spellcheck="false"></div>
