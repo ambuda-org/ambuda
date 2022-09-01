@@ -25,12 +25,6 @@ URLS_200 = [
     "/tools/dictionaries/",
 ]
 
-URLS_404 = [
-    "/dictionaries/unknown",
-    "/texts/mahabharatam/unknown",
-    "/texts/unknown",
-]
-
 
 def _ok(s) -> str:
     print(f"\033[92m[  OK  ] {s}\033[0m")
@@ -53,21 +47,7 @@ def check_200() -> bool:
     return ok
 
 
-def check_404() -> bool:
-    ok = True
-    for path in URLS_404:
-        url = f"https://ambuda.org{path}"
-        resp = requests.get(url)
-        if resp.status_code == 404:
-            _ok(f"HTTP 404 {url}")
-        else:
-            _fail(f"HTTP 404 {url}")
-            ok = False
-    return ok
-
-
 if __name__ == "__main__":
-    ok_200 = check_200()
-    ok_404 = check_404()
-    if not (ok_200 and ok_404):
+    ok = check_200()
+    if not ok:
         sys.exit(1)
