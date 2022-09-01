@@ -104,6 +104,32 @@ def summary(slug):
     )
 
 
+@bp.route("/<slug>/activity")
+def activity(slug):
+    """Show recent activity on this project."""
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    session = q.get_session()
+    recent_revisions = (
+        session.query(db.Revision)
+        .options(orm.defer(db.Revision.content))
+        .filter_by(project_id=project_.id)
+        .order_by(db.Revision.created.desc())
+        .limit(100)
+        .all()
+    )
+    recent_activity = [("revision", r.created, r) for r in recent_revisions]
+    recent_activity.append(("project", project_.created_at, project_))
+
+    return render_template(
+        "proofing/projects/activity.html",
+        project=project_,
+        recent_activity=recent_activity,
+    )
+
+
 @bp.route("/<slug>/edit", methods=["GET", "POST"])
 @login_required
 def edit(slug):
