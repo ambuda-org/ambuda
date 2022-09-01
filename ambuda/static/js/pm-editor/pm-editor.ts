@@ -86,4 +86,4 @@ function replaceTextareaWithPmeditor() {
   );
 }
 
-replaceTextareaWithPmeditor();
+export default replaceTextareaWithPmeditor;

@@ -63,7 +63,7 @@ db-seed-all: py-venv-check
 
 # Run the devserver, and live reload our CSS and JS.
 devserver: py-venv-check
-	npx concurrently "flask run" "make css-dev" "make js-dev" "make js-dev-pm"
+	npx concurrently "flask run" "make css-dev" "make js-dev"
 
 # Start using Docker.
 start-docker:
@@ -134,13 +134,9 @@ css-prod:
 js-dev:
 	npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --watch
 
-js-dev-pm:
-	npx esbuild ambuda/static/js/pm-editor/pm-editor.ts --outfile=ambuda/static/gen/prosemirror_bundle.js --bundle --watch
-
 # Build JS for production.
 js-prod:
 	npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --minify
-	npx esbuild ambuda/static/js/pm-editor/pm-editor.ts --outfile=ambuda/static/gen/prosemirror_bundle.js --bundle --minify
 
 js-test:
 	npx jest

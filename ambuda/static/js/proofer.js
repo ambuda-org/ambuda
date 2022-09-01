@@ -2,6 +2,7 @@
 /* Transcription and proofreading interface. */
 
 import { $ } from './core.ts';
+import replaceTextareaWithPmeditor from "./pm-editor/pm-editor.ts";
 
 const CONFIG_KEY = 'proofing-editor';
 
@@ -70,6 +71,8 @@ export default () => ({
       this.imageZoom = this.imageZoom || this.imageViewer.viewport.getHomeZoom();
       this.imageViewer.viewport.zoomTo(this.imageZoom);
     });
+
+    replaceTextareaWithPmeditor();
 
     // Warn the user if navigating away with unsaved changes.
     window.onbeforeunload = () => {
