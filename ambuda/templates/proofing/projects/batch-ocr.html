@@ -1,0 +1,25 @@
+{% extends 'proofing/base.html' %}
+{% from "macros/forms.html" import field %}
+{% import "macros/proofing.html" as m %}
+
+{% block title %}OCR {{ project.title }} | Ambuda{% endblock %}
+
+{% block content %}
+
+{{ m.project_header_nested('OCR', project) }}
+{{ m.project_nav(project=project, active='edit', is_admin=current_user.is_admin) }}
+
+{% if running_ocr %}
+<div class="prose">
+  <p>OCR is in progress.</p>
+</div>
+{% else %}
+<div class="prose">
+  <p>Use this simple search form to find typos across this project.</p>
+
+  <form method="POST">
+      <input class="btn btn-submit" type="submit" value="Run OCR"></input>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

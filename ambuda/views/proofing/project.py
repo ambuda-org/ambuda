@@ -1,5 +1,13 @@
-from flask import render_template, flash, url_for, make_response, request, Blueprint
-from flask_login import login_required
+from flask import (
+    current_app,
+    render_template,
+    flash,
+    url_for,
+    make_response,
+    request,
+    Blueprint,
+)
+from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from markupsafe import escape, Markup
 from sqlalchemy import orm
@@ -10,6 +18,7 @@ from wtforms.validators import DataRequired, ValidationError
 from wtforms.widgets import TextArea
 
 from ambuda import queries as q, database as db
+from ambuda.tasks import ocr as ocr_tasks
 from ambuda.utils.auth import admin_required
 from ambuda.utils import project_utils
 from ambuda.utils import proofing_utils
@@ -259,6 +268,27 @@ def search(slug):
         form=form,
         query=query,
         results=results,
+    )
+
+
+@bp.route("/<slug>/batch-ocr", methods=["GET", "POST"])
+@login_required
+def batch_ocr(slug):
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    running_ocr = False
+    if request.method == "POST":
+        ocr_tasks.run_ocr_for_book.delay(
+            project_slug=project_.slug,
+            app_environment=current_app.config["AMBUDA_ENVIRONMENT"],
+            user_id=current_user.id,
+        )
+        running_ocr = True
+
+    return render_template(
+        "proofing/projects/batch-ocr.html", project=project_, running_ocr=running_ocr
     )
 
 
