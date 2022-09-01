@@ -2,9 +2,7 @@
 
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
-import {
-  DOMParser, Node, Schema, DOMOutputSpec,
-} from 'prosemirror-model';
+import { DOMParser, Node, Schema, DOMOutputSpec } from 'prosemirror-model';
 import { keymap } from 'prosemirror-keymap';
 import { undo, redo, history } from 'prosemirror-history';
 import { baseKeymap } from 'prosemirror-commands';
@@ -83,15 +81,15 @@ function replaceTextareaWithPmeditor() {
       keymap(baseKeymap),
     ],
   });
-    // Render it.
+  // Render it.
   const view = new EditorView(editor, { state });
   (window as any).view = view;
 
-    // Before the form is submitted, copy contents of the ProseMirror editor back to the textarea.
-    document.querySelector('form')!.addEventListener(
-      'submit',
-      (event) => { $textarea.value = toText(); },
-    );
+  // Before the form is submitted, copy contents of the ProseMirror editor back to the textarea.
+  document.querySelector('form')!.addEventListener(
+    'submit',
+    (event) => { $textarea.value = toText(); },
+  );
 }
 
 replaceTextareaWithPmeditor();

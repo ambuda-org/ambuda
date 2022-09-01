@@ -189,18 +189,13 @@ export default () => ({
   // Markup controls
 
   changeSelectedText(callback) {
-    // FIXME: more idiomatic way to get this?
     const { state } = window.view;
     let { tr } = state;
-    const text = state.doc.textBetween(tr.selection.from, tr.selection.to);
-    const replacement = callback(text);
-    tr = tr.replaceSelectionWith(state.schema.text(replacement));
-    const newState = state.apply(tr);
-    window.view.updateState(newState);
-
-    // // Update selection state and focus for better UX.
-    // $textarea.setSelectionRange(start, start + replacement.length);
-    // $textarea.focus();
+    const replacement = callback(state.doc.textBetween(tr.selection.from, tr.selection.to));
+    tr = tr.replaceRangeWith(tr.selection.from, tr.selection.to, state.schema.text(replacement));
+    view.updateState(state.apply(tr));
+    // Retain focus for better UX.
+    view.focus();
   },
   markAsError() {
     this.changeSelectedText((s) => `<error>${s}</error>`);

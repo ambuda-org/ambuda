@@ -63,7 +63,7 @@ db-seed-all: py-venv-check
 
 # Run the devserver, and live reload our CSS and JS.
 devserver: py-venv-check
-	npx concurrently "flask run" "make css-dev" "make js-dev"
+	npx concurrently "flask run" "make css-dev" "make js-dev" "make js-dev-pm"
 
 # Start using Docker.
 start-docker:
@@ -131,9 +131,10 @@ css-prod:
 
 # Run esbuild to build our JavaScript, and rebuild our JavaScript every time a
 # relevant file changes.
-# TODO: This doesn't quite work (only the second gets watched); bundle everything into one file?
 js-dev:
-	npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --watch &
+	npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --watch
+
+js-dev-pm:
 	npx esbuild ambuda/static/js/pm-editor/pm-editor.ts --outfile=ambuda/static/gen/prosemirror_bundle.js --bundle --watch
 
 # Build JS for production.
