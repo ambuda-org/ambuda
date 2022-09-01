@@ -53,9 +53,9 @@ def activity(username):
     session = q.get_session()
     recent_revisions = (
         session.query(db.Revision)
+        .options(orm.defer(db.Revision.content))
         .filter_by(author_id=user_.id)
         .order_by(db.Revision.created.desc())
-        .options(orm.defer("content"))
         .all()
     )
     recent_projects = (

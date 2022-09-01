@@ -182,12 +182,19 @@ def recent_changes():
     """Show recent changes across all projects."""
     session = q.get_session()
     recent_revisions = (
-        session.query(db.Revision).order_by(db.Revision.created.desc()).limit(100).all()
+        session.query(db.Revision)
+        .options(orm.defer(db.Revision.content))
+        .order_by(db.Revision.created.desc())
+        .limit(100)
+        .all()
     )
     recent_activity = [("revision", r.created, r) for r in recent_revisions]
 
     recent_projects = (
-        session.query(db.Project).order_by(db.Project.created_at.desc()).all()
+        session.query(db.Project)
+        .order_by(db.Project.created_at.desc())
+        .limit(100)
+        .all()
     )
     recent_activity += [("project", p.created_at, p) for p in recent_projects]
 

@@ -106,7 +106,7 @@ def summary(slug):
 
 @bp.route("/<slug>/activity")
 def activity(slug):
-    """Download the project in various output formats."""
+    """Show recent activity on this project."""
     project_ = q.project(slug)
     if project_ is None:
         abort(404)
@@ -114,6 +114,7 @@ def activity(slug):
     session = q.get_session()
     recent_revisions = (
         session.query(db.Revision)
+        .options(orm.defer(db.Revision.content))
         .filter_by(project_id=project_.id)
         .order_by(db.Revision.created.desc())
         .limit(100)
