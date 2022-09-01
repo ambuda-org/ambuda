@@ -9,11 +9,12 @@
 
 import io
 import json
+import logging
+from pathlib import Path
+
 from google.cloud import vision
 from google.protobuf.json_format import MessageToDict
 from google.cloud.vision_v1 import AnnotateImageResponse
-
-import logging
 
 
 def post_process(text: str) -> str:
@@ -38,7 +39,7 @@ def prepare_image(file_path):
     return vision.Image(content=content)
 
 
-def full_text_annotation(file_path):
+def full_text_annotation(file_path: Path) -> str:
     """Detects document features in the file located in Google Cloud
     Storage."""
     logging.debug("Starting full text annotation: {}".format(file_path))

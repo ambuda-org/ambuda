@@ -3,6 +3,7 @@
 import time
 
 from celery import group
+from celery.result import GroupResult
 
 from ambuda import consts
 from ambuda import database as db
@@ -20,13 +21,14 @@ def _run_ocr_for_page_inner(
     page_slug: str,
     username: str,
     task_status: TaskStatus,
-):
+) -> int:
     """Must run in the application context."""
-    time.sleep(2)
-    flask_app = create_config_only_app(app_env)
 
+    time.sleep(2)
     summary = f"Run OCR"
     content = f"OCR response for {project_slug}/{page_slug}"
+
+    flask_app = create_config_only_app(app_env)
     with flask_app.app_context():
         session = q.get_session()
         project = q.project(project_slug)
@@ -34,7 +36,7 @@ def _run_ocr_for_page_inner(
         bot_user = q.user(consts.BOT_USERNAME)
 
         try:
-            add_revision(
+            return add_revision(
                 page=page,
                 summary=summary,
                 content=content,
@@ -43,7 +45,7 @@ def _run_ocr_for_page_inner(
                 author_id=bot_user.id,
             )
         except Exception:
-            raise ValueError("Could not create revision")
+            return -1
 
 
 @app.task(bind=True)
@@ -56,25 +58,25 @@ def run_ocr_for_page(
     )
 
 
-@app.task(bind=True)
-def run_ocr_for_book(self, *, app_env: str, project_slug: str, user_id: int):
+def run_ocr_for_book(app_env: str, project: db.Project, user: db.User) -> GroupResult:
+    """Create a `group` task to run OCR on a project.
+
+    Usage:
+
+    >>> r = run_ocr_for_book(...)
+    >>> progress = r.completed_count() / len(r.results)
+    """
     flask_app = create_config_only_app(app_env)
     with flask_app.app_context():
-        session = q.get_session()
-        project = q.project(project_slug)
         unedited_pages = [p for p in project.pages if p.version == 0]
-
-        user = session.query(db.User).filter_by(id=user_id).first()
-        if not user:
-            raise ValueError("The requesting user does not exist.")
 
     tasks = group(
         run_ocr_for_page.s(
             app_env=app_env,
-            project_slug=project_slug,
+            project_slug=project.slug,
             page_slug=p.slug,
             username=user.username,
         )
         for p in unedited_pages
     )
-    tasks.apply_async()
+    return tasks.apply_async()

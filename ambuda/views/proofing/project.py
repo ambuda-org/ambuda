@@ -278,17 +278,21 @@ def batch_ocr(slug):
     if project_ is None:
         abort(404)
 
-    running_ocr = False
+    progress = None
     if request.method == "POST":
-        ocr_tasks.run_ocr_for_book.delay(
+        r = ocr_tasks.run_ocr_for_book(
             app_env=current_app.config["AMBUDA_ENVIRONMENT"],
-            project_slug=project_.slug,
-            user_id=current_user.id,
+            project=project_,
+            user=current_user,
         )
-        running_ocr = True
+        num_tasks = len(r.results)
+        if num_tasks:
+            progress = r.completed_count() / len(r.results)
+        else:
+            progress = 0
 
     return render_template(
-        "proofing/projects/batch-ocr.html", project=project_, running_ocr=running_ocr
+        "proofing/projects/batch-ocr.html", project=project_, progress=progress
     )
 
 
