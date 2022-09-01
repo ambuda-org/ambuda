@@ -4,15 +4,15 @@
 {% import "macros/proofing.html" as m %}
 
 
-{% block title %}Activity: {{ project.title }} | Ambuda{% endblock %}
+{% block title %}Edit: {{ project.title }} | Ambuda{% endblock %}
 
 
 {% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}
 
 
 {% block content %}
-{{ m.project_header_nested('Activity', project) }}
-{{ m.project_nav(project=project, active='activity', is_admin=current_user.is_admin) }}
+{{ m.project_header_nested('Edit', project) }}
+{{ m.project_nav(project=project, active='edit', is_admin=current_user.is_admin) }}
 {% set search_url = url_for("proofing.project.search", slug=project.slug)  %}
 
 <div class="prose">
