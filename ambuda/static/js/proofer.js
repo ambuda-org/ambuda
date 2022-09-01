@@ -193,9 +193,9 @@ export default () => ({
     let { tr } = state;
     const replacement = callback(state.doc.textBetween(tr.selection.from, tr.selection.to));
     tr = tr.replaceRangeWith(tr.selection.from, tr.selection.to, state.schema.text(replacement));
-    view.updateState(state.apply(tr));
+    window.view.updateState(state.apply(tr));
     // Retain focus for better UX.
-    view.focus();
+    window.view.focus();
   },
   markAsError() {
     this.changeSelectedText((s) => `<error>${s}</error>`);
