@@ -9,8 +9,8 @@ class SiteRole(str, Enum):
     #: Advanced proofer. Can mark pages as green, upload arbitrary PDFs, and
     #: run operations across an entire project.
     P2 = "p2"
-    #: Moderator. Can delete projects, ban users, and run operations across the
-    #: entire proofing effort.
+    #: Moderator. Can delete projects, promote and ban users, and run
+    #: operations across the entire proofing effort.
     MODERATOR = "moderator"
     #: Administrator. Has full access to the database.
     ADMIN = "admin"
