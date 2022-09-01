@@ -201,7 +201,6 @@ export default () => ({
     // // Update selection state and focus for better UX.
     // $textarea.setSelectionRange(start, start + replacement.length);
     // $textarea.focus();
-    return;
   },
   markAsError() {
     this.changeSelectedText((s) => `<error>${s}</error>`);

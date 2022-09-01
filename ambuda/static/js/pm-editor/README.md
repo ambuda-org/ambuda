@@ -32,9 +32,9 @@ The cost is that because ProseMirror is so flexible and modular, it requires spe
 
 *   `pm-editor.ts`: The top-level code to replace the textarea with the PM-based editor
 
-    *   `schema.ts`: Specifying exactly what structure we'd like the "structured document" being edited to have.
+    *   ~~`schema.ts`: Specifying exactly what structure we'd like the "structured document" being edited to have.~~
 
-    *   `plugins.ts`: Adding basic functionality to the editor.
+    *   ~~`plugins.ts`: Adding basic functionality to the editor.~~
 
         *   ~~`menu.ts`: Menu buttons for toggling bold/italic etc (when the schema supports them).~~
 
