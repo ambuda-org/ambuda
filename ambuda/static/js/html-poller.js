@@ -1,3 +1,7 @@
+/**
+ * Poll the given URL every 5 seconds and replace this component's innerHTML
+ * with the result.
+ */
 export default (url) => ({
   init() {
     // Use an arrow function so that `this` is bound to the Alpine component.

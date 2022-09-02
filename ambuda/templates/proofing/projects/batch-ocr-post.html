@@ -10,9 +10,10 @@
 {{ m.project_header_nested('OCR', project) }}
 {{ m.project_nav(project=project, active='edit', is_admin=current_user.is_admin) }}
 
-<div id="progress" x-data="htmlPoller('aoeu')">
+{% set url = url_for('proofing.project.batch_ocr_status', task_id=task_id) %}
+<div id="progress" x-data="htmlPoller('{{ url }}')">
   {% with current=current, total=total, percent=percent, slug=slug, status=status %}
-    {% include 'include/task-progress.html' %}
+    {% include 'include/ocr-progress.html' %}
   {% endwith %}
 </div>
 {% endblock %}

@@ -15,7 +15,8 @@
 
 <p class="text-sm">(This page updates every 5 seconds.)</p>
 
-<div x-data="htmlPoller('/proofing/status/{{ task_id }}')">
+{% set url = url_for('proofing.create_project_status', task_id=task_id) %}
+<div x-data="htmlPoller('{{ url }}')">
   {% with current=current, total=total, percent=percent, slug=slug, status=status %}
     {% include 'include/task-progress.html' %}
   {% endwith %}

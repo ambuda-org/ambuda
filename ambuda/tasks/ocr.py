@@ -1,6 +1,7 @@
 """Background tasks for proofing projects."""
 
 import time
+from typing import Optional
 
 from celery import group
 from celery.result import GroupResult
@@ -36,6 +37,8 @@ def _run_ocr_for_page_inner(
         bot_user = q.user(consts.BOT_USERNAME)
 
         try:
+            pass
+            """
             return add_revision(
                 page=page,
                 summary=summary,
@@ -44,6 +47,7 @@ def _run_ocr_for_page_inner(
                 version=0,
                 author_id=bot_user.id,
             )
+            """
         except Exception:
             return -1
 
@@ -58,25 +62,36 @@ def run_ocr_for_page(
     )
 
 
-def run_ocr_for_book(app_env: str, project: db.Project, user: db.User) -> GroupResult:
+def run_ocr_for_book(
+    app_env: str, project: db.Project, user: db.User
+) -> Optional[GroupResult]:
     """Create a `group` task to run OCR on a project.
 
     Usage:
 
     >>> r = run_ocr_for_book(...)
     >>> progress = r.completed_count() / len(r.results)
+
+    :return: the Celery result, or ``None`` if no tasks were run.
     """
     flask_app = create_config_only_app(app_env)
     with flask_app.app_context():
         unedited_pages = [p for p in project.pages if p.version == 0]
 
-    tasks = group(
-        run_ocr_for_page.s(
-            app_env=app_env,
-            project_slug=project.slug,
-            page_slug=p.slug,
-            username=user.username,
+    if unedited_pages:
+        tasks = group(
+            run_ocr_for_page.s(
+                app_env=app_env,
+                project_slug=project.slug,
+                page_slug=p.slug,
+                username=user.username,
+            )
+            for p in unedited_pages
         )
-        for p in unedited_pages
-    )
-    return tasks.apply_async()
+        ret = tasks.apply_async()
+        # Save the result so that we can poll for it later. If we don't do
+        # this, the result won't be available at all..
+        ret.save()
+        return ret
+    else:
+        return None

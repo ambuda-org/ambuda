@@ -21,6 +21,7 @@ from wtforms.widgets import TextArea
 
 from ambuda import queries as q, database as db
 from ambuda.tasks import ocr as ocr_tasks
+from ambuda.tasks import app as celery_app
 from ambuda.utils.auth import admin_required
 from ambuda.utils import project_utils
 from ambuda.utils import proofing_utils
@@ -281,32 +282,66 @@ def batch_ocr(slug):
         abort(404)
 
     if request.method == "POST":
-        r = ocr_tasks.run_ocr_for_book(
+        task = ocr_tasks.run_ocr_for_book(
             app_env=current_app.config["AMBUDA_ENVIRONMENT"],
             project=project_,
             user=current_user,
         )
-        total = len(r.results)
-        return render_template(
-            "proofing/projects/batch-ocr-post.html",
-            project=project_,
-            completed=0,
-            total=total,
-        )
+        if task:
+            return render_template(
+                "proofing/projects/batch-ocr-post.html",
+                project=project_,
+                status="PENDING",
+                current=0,
+                total=0,
+                percent=0,
+                task_id=task.id,
+            )
+        else:
+            flash("All pages in this project have at least one edit already.")
 
     return render_template(
-        "proofing/projects/batch-ocr.html", project=project_, progress=progress
+        "proofing/projects/batch-ocr.html",
+        project=project_,
     )
 
 
 @bp.route("/batch-ocr-status/<task_id>")
-def batch_ocr_status(status):
-    r = GroupResult(task_id)
-    return jsonify(
-        {
-            "completed": r.completed_count(),
-            "total": len(r.results),
+def batch_ocr_status(task_id):
+    r = GroupResult.restore(task_id, app=celery_app)
+    assert r, task_id
+
+    if r.results:
+        current = r.completed_count()
+        total = len(r.results)
+        percent = current / total
+
+        status = None
+        if total:
+            if current == total:
+                status = "SUCCESS"
+            else:
+                status == "PROGRESS"
+        else:
+            status = "FAILURE"
+
+        data = {
+            "status": status,
+            "current": current,
+            "total": total,
+            "percent": percent,
         }
+    else:
+        data = {
+            "status": "PENDING",
+            "current": 0,
+            "total": 0,
+            "percent": 0,
+        }
+
+    return render_template(
+        "include/ocr-progress.html",
+        **data,
     )
 
 
