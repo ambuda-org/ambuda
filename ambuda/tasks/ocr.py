@@ -37,8 +37,6 @@ def _run_ocr_for_page_inner(
         bot_user = q.user(consts.BOT_USERNAME)
 
         try:
-            pass
-            """
             return add_revision(
                 page=page,
                 summary=summary,
@@ -47,7 +45,6 @@ def _run_ocr_for_page_inner(
                 version=0,
                 author_id=bot_user.id,
             )
-            """
         except Exception:
             return -1
 

@@ -20,7 +20,7 @@
 
 {% elif status == 'SUCCESS' %}
   {{ progress_bar(100) }}
-  <p>OCR complete.</p>
+  <p>Done. (Processed {{ current }} of {{ total }} unedited pages.)</p>
 
 {% else %}
   {{ progress_bar(0) }}
