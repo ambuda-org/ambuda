@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from flask import render_template, flash, current_app, send_file, Blueprint
 from flask_login import login_required, current_user
 from flask_wtf import FlaskForm
@@ -10,6 +8,7 @@ from wtforms.widgets import TextArea
 
 from ambuda import database as db, queries as q
 from ambuda.utils import google_ocr
+from ambuda.utils.assets import get_page_image_filepath
 from ambuda.utils.diff import revision_diff
 from ambuda.utils.revisions import add_revision, EditException
 from ambuda.views.api import bp as api
@@ -17,12 +16,6 @@ from ambuda.views.site import bp as site
 
 
 bp = Blueprint("page", __name__)
-
-
-def _get_image_filesystem_path(project_slug: str, page_slug: str) -> Path:
-    """Get the location of the given image on disk."""
-    image_dir = Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / project_slug
-    return image_dir / "pages" / f"{page_slug}.jpg"
 
 
 class EditPageForm(FlaskForm):
@@ -142,7 +135,7 @@ def edit_post(project_slug, page_slug):
 def page_image(project_slug, page_slug):
     # In production, serve this directly via nginx.
     assert current_app.debug
-    image_path = _get_image_filesystem_path(project_slug, page_slug)
+    image_path = get_page_image_filepath(project_slug, page_slug)
     return send_file(image_path)
 
 
@@ -215,6 +208,6 @@ def ocr(project_slug, page_slug):
     if not page_:
         abort(404)
 
-    image_path = _get_image_filesystem_path(project_slug, page_slug)
+    image_path = get_page_image_filepath(project_slug, page_slug)
     result = google_ocr.full_text_annotation(image_path)
     return result

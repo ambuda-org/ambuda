@@ -1,7 +1,6 @@
 from celery.result import GroupResult
 from flask import (
     current_app,
-    jsonify,
     render_template,
     flash,
     url_for,
@@ -22,9 +21,9 @@ from wtforms.widgets import TextArea
 from ambuda import queries as q, database as db
 from ambuda.tasks import ocr as ocr_tasks
 from ambuda.tasks import app as celery_app
-from ambuda.utils.auth import admin_required
 from ambuda.utils import project_utils
 from ambuda.utils import proofing_utils
+from ambuda.utils.auth import admin_required
 
 
 bp = Blueprint("project", __name__)
@@ -285,7 +284,6 @@ def batch_ocr(slug):
         task = ocr_tasks.run_ocr_for_book(
             app_env=current_app.config["AMBUDA_ENVIRONMENT"],
             project=project_,
-            user=current_user,
         )
         if task:
             return render_template(

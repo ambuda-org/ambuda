@@ -11,6 +11,8 @@ from ambuda import database as db
 from ambuda.enums import SitePageStatus
 from ambuda.tasks import app
 from ambuda.tasks.utils import TaskStatus, CeleryTaskStatus
+from ambuda.utils import google_ocr
+from ambuda.utils.assets import get_page_image_filepath
 from ambuda.utils.revisions import add_revision
 from ambuda import queries as q
 from config import create_config_only_app
@@ -20,14 +22,12 @@ def _run_ocr_for_page_inner(
     app_env: str,
     project_slug: str,
     page_slug: str,
-    username: str,
-    task_status: TaskStatus,
 ) -> int:
     """Must run in the application context."""
 
-    time.sleep(2)
+    image_path = get_page_image_filepath(project_slug, page_slug)
+    content = google_ocr.full_text_annotation(image_path)
     summary = f"Run OCR"
-    content = f"OCR response for {project_slug}/{page_slug}"
 
     flask_app = create_config_only_app(app_env)
     with flask_app.app_context():
@@ -51,16 +51,23 @@ def _run_ocr_for_page_inner(
 
 @app.task(bind=True)
 def run_ocr_for_page(
-    self, *, app_env: str, project_slug: str, page_slug: str, username: str
+    self,
+    *,
+    app_env: str,
+    project_slug: str,
+    page_slug: str,
 ):
     task_status = CeleryTaskStatus(self)
     _run_ocr_for_page_inner(
-        app_env, project_slug, page_slug, username, task_status=task_status
+        app_env,
+        project_slug,
+        page_slug,
     )
 
 
 def run_ocr_for_book(
-    app_env: str, project: db.Project, user: db.User
+    app_env: str,
+    project: db.Project,
 ) -> Optional[GroupResult]:
     """Create a `group` task to run OCR on a project.
 
@@ -81,7 +88,6 @@ def run_ocr_for_book(
                 app_env=app_env,
                 project_slug=project.slug,
                 page_slug=p.slug,
-                username=user.username,
             )
             for p in unedited_pages
         )
