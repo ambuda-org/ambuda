@@ -7,6 +7,7 @@ https://ambuda.readthedocs.io/en/latest/
 
 import logging
 import sys
+
 import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask
@@ -14,16 +15,14 @@ from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy import exc
 
 import config
-from ambuda import auth as auth_manager
 from ambuda import admin as admin_manager
-from ambuda import checks
-from ambuda import filters
-from ambuda import queries
+from ambuda import auth as auth_manager
+from ambuda import checks, filters, queries
 from ambuda.mail import mailer
 from ambuda.utils import assets
 from ambuda.views.about import bp as about
-from ambuda.views.auth import bp as auth
 from ambuda.views.api import bp as api
+from ambuda.views.auth import bp as auth
 from ambuda.views.dictionaries import bp as dictionaries
 from ambuda.views.proofing import bp as proofing
 from ambuda.views.reader.parses import bp as parses

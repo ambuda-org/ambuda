@@ -2,24 +2,18 @@
 
 from pathlib import Path
 
-from flask import (
-    Blueprint,
-    current_app,
-    flash,
-    render_template,
-)
+from flask import Blueprint, current_app, flash, render_template
 from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from slugify import slugify
 from sqlalchemy import orm
-from wtforms import StringField, FileField
+from wtforms import FileField, StringField
 from wtforms.validators import DataRequired
 
 import ambuda.queries as q
 from ambuda import database as db
 from ambuda.enums import SitePageStatus
 from ambuda.tasks import projects as project_tasks
-
 
 bp = Blueprint("proofing", __name__)
 

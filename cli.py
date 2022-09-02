@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
+import getpass
 from pathlib import Path
 
 import click
-import getpass
 from slugify import slugify
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
@@ -12,8 +12,7 @@ import ambuda
 from ambuda import database as db
 from ambuda import queries as q
 from ambuda.seed.utils.itihasa_utils import create_db
-from ambuda.tasks.projects import _create_project_inner, LocalTaskStatus
-
+from ambuda.tasks.projects import LocalTaskStatus, _create_project_inner
 
 engine = create_db()
 

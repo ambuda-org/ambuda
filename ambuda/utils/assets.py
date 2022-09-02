@@ -12,7 +12,6 @@ from pathlib import Path
 
 from flask import url_for
 
-
 STATIC_DIR = Path(__file__).parent.parent / "static"
 assert STATIC_DIR.exists(), "Could not find static directory."
 

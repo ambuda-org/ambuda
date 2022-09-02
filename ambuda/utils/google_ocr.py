@@ -8,9 +8,9 @@
 
 
 import io
-from google.cloud import vision
-
 import logging
+
+from google.cloud import vision
 
 
 def post_process(text: str) -> str:

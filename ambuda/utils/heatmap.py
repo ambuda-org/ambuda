@@ -9,7 +9,7 @@ import calendar
 import math
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from typing import Optional, Iterator
+from typing import Iterator, Optional
 
 #: ISO weekday correspanding to Sunday.
 ISO_SUNDAY = 7

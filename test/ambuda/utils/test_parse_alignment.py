@@ -3,9 +3,9 @@ from xml.etree import ElementTree as ET
 import pytest
 
 from ambuda.utils.parse_alignment import (
-    num_vowels,
     _iter_text_with_parent,
     get_padas_for_text,
+    num_vowels,
 )
 from ambuda.utils.word_parses import Token
 

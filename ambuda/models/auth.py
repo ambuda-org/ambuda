@@ -1,19 +1,13 @@
-from flask_login import UserMixin
 from datetime import datetime
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    String,
-    Text as Text_,
-)
+
+from flask_login import UserMixin
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Text as Text_
 from sqlalchemy.orm import relationship
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 from ambuda.enums import SiteRole
-from ambuda.models.base import Base, pk, foreign_key
+from ambuda.models.base import Base, foreign_key, pk
 
 
 class User(UserMixin, Base):

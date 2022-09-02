@@ -86,8 +86,7 @@ lint-flake8:
 	@git ls-files '*.py' | xargs flake8 --config=./.flake8 2>&1
 
 # Add isort when imports are organized better
-# lint-py: py-venv-check lint-black lint-isort lint-flake8
-py-lint: py-venv-check lint-black lint-flake8
+py-lint: py-venv-check lint-black lint-isort lint-flake8
 	@echo "Python lint completed"
 
 # Lint our Python and JavaScript code.

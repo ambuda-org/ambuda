@@ -1,10 +1,10 @@
+import logging
+
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
 from ambuda.enums import SiteRole
 from ambuda.seed.utils.itihasa_utils import create_db
-
-import logging
 
 
 def run():

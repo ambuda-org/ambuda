@@ -5,9 +5,9 @@
 import hashlib
 import io
 import os
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
-import zipfile
 from typing import Iterator
 
 import requests
@@ -16,9 +16,8 @@ from indic_transliteration import sanscript
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-import config
 import ambuda.database as db
-
+import config
 
 load_dotenv()
 PROJECT_DIR = Path(__file__).parent.parent.parent

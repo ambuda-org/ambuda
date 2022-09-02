@@ -19,7 +19,6 @@ from xml.etree import ElementTree as ET
 
 from indic_transliteration import sanscript
 
-
 #: Most texts have multiple sections and use section slugs like "1", "2", etc.
 #: If a text has just one section, we create a single "default" section with
 #: the slug "all".

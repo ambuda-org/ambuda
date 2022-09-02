@@ -1,14 +1,13 @@
 """Views related to texts: title pages, sections, verses, etc."""
 
-from flask import Blueprint, render_template, abort
+from flask import Blueprint, abort, render_template
 from indic_transliteration import sanscript
 
 import ambuda.database as db
 import ambuda.queries as q
-from ambuda.utils import xml
 from ambuda.consts import TEXT_CATEGORIES
+from ambuda.utils import xml
 from ambuda.views.api import bp as api
-
 
 bp = Blueprint("texts", __name__)
 

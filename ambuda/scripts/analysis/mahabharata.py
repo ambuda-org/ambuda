@@ -5,8 +5,7 @@ from pathlib import Path
 from typing import Iterator
 
 import ambuda.scripts.analysis.dcs_utils as dcs
-from ambuda.scripts.analysis.ramayana import map_and_write, get_kanda_and_sarga
-
+from ambuda.scripts.analysis.ramayana import get_kanda_and_sarga, map_and_write
 
 TITLE_MAP = {
     "MBh, 1": "1",

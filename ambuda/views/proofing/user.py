@@ -1,24 +1,14 @@
-from flask import (
-    Blueprint,
-    abort,
-    flash,
-    redirect,
-    render_template,
-    url_for,
-)
-
+from flask import Blueprint, abort, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from sqlalchemy import orm
-from wtforms import BooleanField
-from wtforms import StringField
+from wtforms import BooleanField, StringField
 from wtforms.widgets import TextArea
 
 import ambuda.queries as q
 from ambuda import database as db
-from ambuda.utils.auth import admin_required
 from ambuda.utils import heatmap
-
+from ambuda.utils.auth import admin_required
 
 bp = Blueprint("user", __name__)
 

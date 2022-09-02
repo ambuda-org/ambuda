@@ -1,20 +1,20 @@
 from pathlib import Path
 
-from flask import render_template, flash, current_app, send_file, Blueprint
-from flask_login import login_required, current_user
+from flask import Blueprint, current_app, flash, render_template, send_file
+from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from sqlalchemy import update
 from werkzeug.exceptions import abort
-from wtforms import StringField, HiddenField, SelectField
+from wtforms import HiddenField, SelectField, StringField
 from wtforms.validators import DataRequired
 from wtforms.widgets import TextArea
 
-from ambuda import database as db, queries as q
+from ambuda import database as db
+from ambuda import queries as q
 from ambuda.utils import google_ocr
 from ambuda.utils.diff import revision_diff
 from ambuda.views.api import bp as api
 from ambuda.views.site import bp as site
-
 
 bp = Blueprint("page", __name__)
 

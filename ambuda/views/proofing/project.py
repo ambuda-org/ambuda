@@ -1,7 +1,7 @@
-from flask import render_template, flash, url_for, make_response, request, Blueprint
+from flask import Blueprint, flash, make_response, render_template, request, url_for
 from flask_login import login_required
 from flask_wtf import FlaskForm
-from markupsafe import escape, Markup
+from markupsafe import Markup, escape
 from sqlalchemy import orm
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
@@ -9,11 +9,10 @@ from wtforms import StringField
 from wtforms.validators import DataRequired, ValidationError
 from wtforms.widgets import TextArea
 
-from ambuda import queries as q, database as db
+from ambuda import database as db
+from ambuda import queries as q
+from ambuda.utils import project_utils, proofing_utils
 from ambuda.utils.auth import admin_required
-from ambuda.utils import project_utils
-from ambuda.utils import proofing_utils
-
 
 bp = Blueprint("project", __name__)
 

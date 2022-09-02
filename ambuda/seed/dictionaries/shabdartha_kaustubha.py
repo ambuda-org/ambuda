@@ -8,13 +8,9 @@ import re
 
 from indic_transliteration import sanscript
 
-from ambuda.utils.dict_utils import standardize_key
 from ambuda.seed.utils.cdsl_utils import create_from_scratch
-from ambuda.seed.utils.itihasa_utils import (
-    fetch_text,
-    create_db,
-)
-
+from ambuda.seed.utils.itihasa_utils import create_db, fetch_text
+from ambuda.utils.dict_utils import standardize_key
 
 RAW_URL = "https://github.com/indic-dict/stardict-sanskrit/raw/master/sa-head/other-indic-entries/shabdArtha_kaustubha/shabdArtha_kaustubha.babylon"
 

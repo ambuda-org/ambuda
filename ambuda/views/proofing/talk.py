@@ -1,5 +1,5 @@
-from flask import render_template, url_for, Blueprint
-from flask_login import login_required, current_user
+from flask import Blueprint, render_template, url_for
+from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
@@ -8,7 +8,6 @@ from wtforms.validators import DataRequired, Length
 from wtforms.widgets import TextArea
 
 from ambuda import queries as q
-
 
 bp = Blueprint("talk", __name__)
 
