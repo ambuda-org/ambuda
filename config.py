@@ -133,6 +133,10 @@ class BaseConfig:
     # Environment variables
     # ---------------------
 
+    # AMBUDA_BOT_PASSWORD is the password we use for the "ambuda-bot" account.
+    # We set this account as an envvar because we need to create this user as
+    # part of database seeding.
+
     # GOOGLE_APPLICATION_CREDENTIALS contains credentials for the Google Vision
     # API, but these credentials are fetched by the Google API implicitly,
     # so we don't need to define it on the Config object here.

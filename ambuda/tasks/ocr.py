@@ -25,17 +25,19 @@ def _run_ocr_for_page_inner(
 ) -> int:
     """Must run in the application context."""
 
-    image_path = get_page_image_filepath(project_slug, page_slug)
-    content = google_ocr.full_text_annotation(image_path)
-    summary = f"Run OCR"
-
     flask_app = create_config_only_app(app_env)
     with flask_app.app_context():
-        session = q.get_session()
+        bot_user = q.user(consts.BOT_USERNAME)
+        if bot_user is None:
+            raise ValueError(f'User "{bot_user}" is not defined.')
+
+        # The actual API call.
+        image_path = get_page_image_filepath(project_slug, page_slug)
+        content = google_ocr.full_text_annotation(image_path)
+
         project = q.project(project_slug)
         page = q.page(project.id, page_slug)
-        bot_user = q.user(consts.BOT_USERNAME)
-
+        summary = f"Run OCR"
         try:
             return add_revision(
                 page=page,
@@ -46,7 +48,7 @@ def _run_ocr_for_page_inner(
                 author_id=bot_user.id,
             )
         except Exception:
-            return -1
+            raise ValueError(f'OCR failed for page "{project.slug}/{page.slug}".')
 
 
 @app.task(bind=True)
