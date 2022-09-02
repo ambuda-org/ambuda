@@ -8,6 +8,16 @@ def test_summary__bad_project(client):
     assert resp.status_code == 404
 
 
+def test_activity(client):
+    resp = client.get("/proofing/test-project/activity")
+    assert resp.status_code == 200
+
+
+def test_activity__bad_project(client):
+    resp = client.get("/proofing/unknown/activity")
+    assert resp.status_code == 404
+
+
 # For "Talk:" tests, see test_talk.py.
 
 

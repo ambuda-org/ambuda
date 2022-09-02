@@ -9,6 +9,7 @@ from flask import (
 
 from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
+from sqlalchemy import orm
 from wtforms import BooleanField
 from wtforms import StringField
 from wtforms.widgets import TextArea
@@ -50,13 +51,28 @@ def activity(username):
         abort(404)
 
     session = q.get_session()
-    user_revisions = session.query(db.Revision).filter_by(author_id=user_.id).all()
-    hm = heatmap.create(r.created.date() for r in user_revisions)
+    recent_revisions = (
+        session.query(db.Revision)
+        .options(orm.defer(db.Revision.content))
+        .filter_by(author_id=user_.id)
+        .order_by(db.Revision.created.desc())
+        .all()
+    )
+    recent_projects = (
+        session.query(db.Project)
+        .filter_by(creator_id=user_.id)
+        .order_by(db.Project.created_at.desc())
+        .all()
+    )
+
+    recent_activity = [("revision", r.created, r) for r in recent_revisions]
+    recent_activity += [("project", p.created_at, p) for p in recent_projects]
+    hm = heatmap.create(x[1].date() for x in recent_activity)
 
     return render_template(
         "proofing/user/activity.html",
         user=user_,
-        user_revisions=user_revisions,
+        recent_activity=recent_activity,
         heatmap=hm,
     )
 

@@ -18,7 +18,7 @@
 
 {{ m.user_tabs(user=user, active='activity', is_admin=current_user.is_admin) }}
 
-{% if user_revisions %}
+{% if recent_activity %}
 <div class="prose">
 <h2>Summary</h2>
 </div>
@@ -28,12 +28,12 @@
 </div>
 
 <div class="prose">
-<h2>Edits</h2>
+<h2>All changes</h2>
 </div>
-{{ m.revision_list(user_revisions|reverse) }}
+
+{{ m.activity_log(recent_activity) }}
+
 {% else %}
-<p>This user has not made any edits.</p>
+<p>This user has not made any changes.</p>
 {% endif %}
-
 {% endblock %}
-

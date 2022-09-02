@@ -11,10 +11,10 @@
 {% block content %}
 {{ m.title_and_subtitle(
     "Recent changes",
-    "Recent edits and revisions made by people like you.") }}
+    "Recent edits and revisions made by people like you!") }}
 
-{% if revisions %}
-{{ m.revision_list(revisions) }}
+{% if recent_activity -%}
+{{ m.activity_log(recent_activity) }}
 {% else %}
 <p>No changes found.</p>
 {% endif %}

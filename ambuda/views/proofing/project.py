@@ -2,6 +2,7 @@ from flask import render_template, flash, url_for, make_response, request, Bluep
 from flask_login import login_required
 from flask_wtf import FlaskForm
 from markupsafe import escape, Markup
+from sqlalchemy import orm
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 from wtforms import StringField
@@ -101,6 +102,32 @@ def summary(slug):
         project=project_,
         pages=zip(page_titles, project_.pages),
         recent_revisions=recent_revisions,
+    )
+
+
+@bp.route("/<slug>/activity")
+def activity(slug):
+    """Show recent activity on this project."""
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    session = q.get_session()
+    recent_revisions = (
+        session.query(db.Revision)
+        .options(orm.defer(db.Revision.content))
+        .filter_by(project_id=project_.id)
+        .order_by(db.Revision.created.desc())
+        .limit(100)
+        .all()
+    )
+    recent_activity = [("revision", r.created, r) for r in recent_revisions]
+    recent_activity.append(("project", project_.created_at, project_))
+
+    return render_template(
+        "proofing/projects/activity.html",
+        project=project_,
+        recent_activity=recent_activity,
     )
 
 

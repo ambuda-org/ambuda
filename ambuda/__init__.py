@@ -82,10 +82,6 @@ def create_app(config_env: str):
     load_dotenv(".env")
     config_spec = config.load_config_object(config_env)
 
-    # Sanity checks
-    if config_env != config.TESTING:
-        checks.check_app_schema_matches_db_schema(config_spec.SQLALCHEMY_DATABASE_URI)
-
     # Initialize Sentry monitoring only in production so that our Sentry page
     # contains only production warnings (as opposed to dev warnings).
     #
@@ -98,6 +94,11 @@ def create_app(config_env: str):
 
     # Config
     app.config.from_object(config_spec)
+
+    # Sanity checks
+    if config_env != config.TESTING:
+        with app.app_context():
+            checks.check_database(config_spec.SQLALCHEMY_DATABASE_URI)
 
     # Logger
     _initialize_logger(config_spec.LOG_LEVEL)

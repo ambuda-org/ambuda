@@ -179,6 +179,8 @@ export default () => ({
 
   // Generic click handler for multiple objects in the reader.
   async onClick(e) {
+    e.preventDefault();
+
     // Parsed word: show details for this word.
     const $word = e.target.closest('s-w');
     if ($word) {
