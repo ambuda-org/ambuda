@@ -11,5 +11,5 @@ export default (url) => ({
       const progress = await resp.text();
       this.$root.innerHTML = progress;
     }, 5000);
-  }
+  },
 });
