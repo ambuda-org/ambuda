@@ -59,7 +59,6 @@ def run_ocr_for_page(
     project_slug: str,
     page_slug: str,
 ):
-    task_status = CeleryTaskStatus(self)
     _run_ocr_for_page_inner(
         app_env,
         project_slug,

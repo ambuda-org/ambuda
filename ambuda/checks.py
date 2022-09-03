@@ -147,7 +147,6 @@ def _check_bot_user(session) -> list[str]:
 def check_database(database_uri: str):
     errors = _check_app_schema_matches_db_schema(database_uri)
 
-    engine = create_engine(database_uri)
     session = q.get_session()
     errors += _check_lookup_tables(session)
     errors += _check_bot_user(session)
