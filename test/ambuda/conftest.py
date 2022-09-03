@@ -3,7 +3,7 @@ from flask_login import FlaskLoginClient
 
 import ambuda.database as db
 from ambuda import create_app
-from ambuda.consts import TEXT_CATEGORIES
+from ambuda.consts import BOT_USERNAME, TEXT_CATEGORIES
 from ambuda.queries import get_engine, get_session
 
 
@@ -54,6 +54,12 @@ def initialize_test_db():
         dictionary_id=dictionary.id, key="agni", value="<div>fire</div>"
     )
     session.add(dictionary_entry)
+
+    # Bot
+    bot = db.User(username=BOT_USERNAME, email="bot@ambuad.org")
+    bot.set_password("password")
+    session.add(bot)
+    session.flush()
 
     # Auth
     rama = db.User(username="ramacandra", email="rama@ayodhya.com")
