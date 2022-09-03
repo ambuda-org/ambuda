@@ -28,6 +28,11 @@ def test_edit__user_mismatch(rama_client):
     assert resp.status_code == 403
 
 
+def test_edit__user_does_not_exist(rama_client):
+    resp = rama_client.get("/proofing/users/unknown/edit")
+    assert resp.status_code == 404
+
+
 def test_edit__unauth(client):
     resp = client.get("/proofing/users/ramacandra/edit")
     assert resp.status_code == 302

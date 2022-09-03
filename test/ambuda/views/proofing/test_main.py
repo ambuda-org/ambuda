@@ -47,6 +47,12 @@ def test_create_project__auth(rama_client):
     assert resp.status_code == 200
 
 
+def test_create_project_status__missing_task(client):
+    resp = client.get("/proofing/status/unknown-task")
+    # Loads correctly, but with empty data.
+    assert resp.status_code == 200
+
+
 def test_talk(client):
     resp = client.get("/proofing/talk")
     assert "Talk" in resp.text

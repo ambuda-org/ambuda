@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from flask_login import AnonymousUserMixin, UserMixin
 from ambuda.enums import SiteRole
 
@@ -33,6 +35,10 @@ class AmbudaUserMixin(UserMixin):
     def has_role(self, role: SiteRole) -> bool:
         return role.value in {r.name for r in self.roles}
 
+    def has_any_role(self, *roles: Iterable[SiteRole]) -> bool:
+        user_roles = {r.name for r in self.roles}
+        return any(r.value in user_roles for r in roles)
+
     @property
     def is_p1(self) -> bool:
         return self.has_role(SiteRole.P1)
@@ -43,11 +49,11 @@ class AmbudaUserMixin(UserMixin):
 
     @property
     def is_proofreader(self) -> bool:
-        return self.has_role(SiteRole.P1) or self.has_role(SiteRole.P2)
+        return self.has_any_role(SiteRole.P1, SiteRole.P2)
 
     @property
     def is_moderator(self) -> bool:
-        return self.has_role(SiteRole.MODERATOR)
+        return self.has_any_role(SiteRole.MODERATOR, SiteRole.ADMIN)
 
     @property
     def is_admin(self) -> bool:
