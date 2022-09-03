@@ -1,0 +1,23 @@
+{% extends 'proofing/base.html' %}
+{% import "macros/components.html" as components %}
+{% from "macros/forms.html" import field %}
+{% import "macros/proofing.html" as m %}
+
+
+{% block title %}OCR {{ project.title }} | Ambuda{% endblock %}
+
+
+{% block content %}
+{{ components.flash_messages() }}
+
+{{ m.project_header_nested('OCR', project) }}
+{{ m.project_nav(project=project, active='edit', is_admin=current_user.is_admin) }}
+
+<div class="prose">
+  <p>Click the button below to run OCR on every unedited page.</p>
+
+  <form method="POST">
+      <input class="btn btn-submit" type="submit" value="Run OCR"></input>
+  </form>
+</div>
+{% endblock %}

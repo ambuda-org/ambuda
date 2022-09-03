@@ -6,6 +6,7 @@ from click import style
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.schema import Column
 
+from ambuda import consts
 from ambuda import database as db
 from ambuda import enums
 from ambuda import queries as q
@@ -103,9 +104,7 @@ def _check_app_schema_matches_db_schema(database_uri: str) -> list[str]:
     return errors
 
 
-def _check_lookup_tables(database_uri: str) -> list[str]:
-    _ = create_engine(database_uri)
-    session = q.get_session()
+def _check_lookup_tables(session) -> list[str]:
     lookups = [
         (enums.SitePageStatus, db.PageStatus),
         (enums.SiteRole, db.Role),
@@ -132,9 +131,22 @@ def _check_lookup_tables(database_uri: str) -> list[str]:
     return errors
 
 
+def _check_bot_user(session) -> list[str]:
+    """Check that the ambuda-bot user exists."""
+    username = consts.BOT_USERNAME
+    bot_user = session.query(db.User).filter_by(username=username).first()
+    if bot_user:
+        return []
+    else:
+        return [f'Bot user "{username}" does not exist.']
+
+
 def check_database(database_uri: str):
     errors = _check_app_schema_matches_db_schema(database_uri)
-    errors += _check_lookup_tables(database_uri)
+
+    session = q.get_session()
+    errors += _check_lookup_tables(session)
+    errors += _check_bot_user(session)
 
     if errors:
         _warn("The data tables defined in your application code don't match the")
@@ -143,15 +155,17 @@ def check_database(database_uri: str):
         _warn()
         _warn("    make upgrade")
         _warn()
+        _warn("Specific errors are:")
+        _warn()
+        for error in errors:
+            _warn(f"- {error}")
+        _warn()
         _warn("For more information, see our official docs at:")
         _warn()
         _warn("    https://ambuda.readthedocs.io/en/latest/managing-the-database.html")
         _warn()
         _warn("If the error persists, please ping the #backend channel on the")
         _warn("Ambuda Discord server (https://discord.gg/7rGdTyWY7Z).")
-        _warn()
-        for error in errors:
-            _warn(f"- {error}")
         sys.exit(1)
     else:
         # Style the output to match Flask's styling.

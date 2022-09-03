@@ -10,7 +10,7 @@ import functools
 import hashlib
 from pathlib import Path
 
-from flask import url_for
+from flask import current_app, url_for
 
 STATIC_DIR = Path(__file__).parent.parent / "static"
 assert STATIC_DIR.exists(), "Could not find static directory."
@@ -35,3 +35,12 @@ def hashed_static(filename: str) -> str:
 
     base_url = url_for("static", filename=filename)
     return f"{base_url}?h={hash_prefix}"
+
+
+def get_page_image_filepath(project_slug: str, page_slug: str) -> Path:
+    """Get the location of the given image on disk.
+
+    This function must run within an app context.
+    """
+    image_dir = Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / project_slug
+    return image_dir / "pages" / f"{page_slug}.jpg"
