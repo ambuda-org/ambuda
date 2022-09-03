@@ -209,5 +209,5 @@ def ocr(project_slug, page_slug):
         abort(404)
 
     image_path = get_page_image_filepath(project_slug, page_slug)
-    result = google_ocr.full_text_annotation(image_path)
-    return result
+    ocr_response = google_ocr.run(image_path)
+    return ocr_response.text_content

@@ -33,7 +33,11 @@ def _run_ocr_for_page_inner(
 
         # The actual API call.
         image_path = get_page_image_filepath(project_slug, page_slug)
-        content = google_ocr.full_text_annotation(image_path)
+        ocr_response = google_ocr.run(image_path)
+
+        bounding_boxes_tsv = "\n".join(
+            "\t".join(row) for row in ocr_response.bounding_boxes
+        )
 
         project = q.project(project_slug)
         page = q.page(project.id, page_slug)
@@ -42,7 +46,7 @@ def _run_ocr_for_page_inner(
             return add_revision(
                 page=page,
                 summary=summary,
-                content=content,
+                content=ocr_response.text_content,
                 status=SitePageStatus.R0,
                 version=0,
                 author_id=bot_user.id,
