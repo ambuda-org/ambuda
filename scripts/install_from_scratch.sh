@@ -45,6 +45,8 @@ FLASK_UPLOAD_FOLDER="$(pwd)/data/file-uploads"
 SECRET_KEY="insecure development secret key"
 SQLALCHEMY_DATABASE_URI="sqlite:///database.db"
 
+AMBUDA_BOT_PASSWORD="insecure bot password"
+
 GOOGLE_APPLICATION_CREDENTIALS="<Google API credentials>"
 EOF
 

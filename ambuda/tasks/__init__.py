@@ -22,6 +22,14 @@ app = Celery(
     "ambuda-tasks",
     backend=redis_url,
     broker=redis_url,
-    include=["ambuda.tasks.projects"],
+    include=[
+        "ambuda.tasks.projects",
+        "ambuda.tasks.ocr",
+    ],
 )
-app.conf.update(task_serializer="json")
+app.conf.update(
+    # Run all tasks asynchronously by default.
+    task_always_eager=False,
+    # Force arguments to be plain data by requiring them to be JSON-compatible.
+    task_serializer="json",
+)

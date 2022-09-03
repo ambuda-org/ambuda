@@ -24,3 +24,5 @@ TEXT_CATEGORIES = {
         "catuhshloki",
     ],
 }
+
+BOT_USERNAME = "ambuda-bot"

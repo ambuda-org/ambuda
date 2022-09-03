@@ -4,6 +4,7 @@ import fitz
 
 import ambuda.queries as q
 import ambuda.tasks.projects as projects
+import ambuda.tasks.utils
 
 
 def _create_sample_pdf(output_path: str, num_pages: int):
@@ -30,7 +31,7 @@ def test_create_project_inner(flask_app):
             output_dir=flask_app.config["UPLOAD_FOLDER"],
             app_environment=flask_app.config["AMBUDA_ENVIRONMENT"],
             creator_id=1,
-            task_status=projects.LocalTaskStatus(),
+            task_status=ambuda.tasks.utils.LocalTaskStatus(),
         )
 
         project = q.project("cool-project")

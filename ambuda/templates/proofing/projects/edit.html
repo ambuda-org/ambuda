@@ -14,10 +14,12 @@
 {{ m.project_header_nested('Edit', project) }}
 {{ m.project_nav(project=project, active='edit', is_admin=current_user.is_admin) }}
 {% set search_url = url_for("proofing.project.search", slug=project.slug)  %}
+{% set ocr_url = url_for("proofing.project.batch_ocr", slug=project.slug)  %}
 
 <div class="prose">
 <p>We'll add more useful tools here soon. For now, you can <a href="{{
-    search_url }}">search the project</a> or edit its metadata:</p>
+search_url }}">search the project</a>, <a href="{{ ocr_url }}">run batch OCR</a>,
+or edit its metadata:</p>
 </div>
 
 {{ components.flash_messages() }}
