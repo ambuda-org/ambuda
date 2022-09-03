@@ -309,9 +309,6 @@ def stats():
 
     return render_template(
         "proofing/stats.html",
-        num_active_users_30d=0,
-        num_active_users_7d=0,
-        num_active_users_1d=0,
         num_revisions_30d=num_revisions_30d,
         num_revisions_7d=num_revisions_7d,
         num_revisions_1d=num_revisions_1d,
