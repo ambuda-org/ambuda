@@ -35,12 +35,16 @@ def _run_ocr_for_page_inner(
         image_path = get_page_image_filepath(project_slug, page_slug)
         ocr_response = google_ocr.run(image_path)
 
-        bounding_boxes_tsv = "\n".join(
-            "\t".join(row) for row in ocr_response.bounding_boxes
-        )
-
+        session = q.get_session()
         project = q.project(project_slug)
         page = q.page(project.id, page_slug)
+
+        page.ocr_bounding_boxes = google_ocr.serialize_bounding_boxes(
+            ocr_response.bounding_boxes
+        )
+        session.add(page)
+        session.commit()
+
         summary = f"Run OCR"
         try:
             return add_revision(
