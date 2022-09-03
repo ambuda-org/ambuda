@@ -14,6 +14,7 @@ from slugify import slugify
 from sqlalchemy import orm
 from wtforms import StringField, FileField, RadioField
 from wtforms.validators import DataRequired
+from wtforms.widgets import TextArea
 
 from ambuda import consts
 from ambuda import database as db
@@ -30,17 +31,23 @@ def _is_allowed_document_file(filename: str) -> bool:
     return Path(filename).suffix == ".pdf"
 
 
-class CreateProjectWithPdfForm(FlaskForm):
-    file = FileField("PDF file", validators=[DataRequired()])
-    title = StringField(
-        "Title of the book (you can change this later)", validators=[DataRequired()]
-    )
+class CreateProjectForm(FlaskForm):
+    archive_identifier = StringField("archive.org identifier")
+    computer_file = FileField("PDF file")
+    computer_title = StringField("Title of the book (you can change this later)")
     pdf_source = RadioField(
         "Source",
         choices=[
             ("archive.org", "From archive.org"),
             ("my-computer", "From my computer"),
         ],
+    )
+    license_other = StringField(
+        "License",
+        widget=TextArea(),
+        render_kw={
+            "placeholder": "Please tell us about this book's license.",
+        },
     )
 
 
@@ -122,7 +129,7 @@ def editor_guide():
 @bp.route("/create-project", methods=["GET", "POST"])
 @login_required
 def create_project():
-    form = CreateProjectWithPdfForm()
+    form = CreateProjectForm()
     if form.validate_on_submit():
         # TODO: timestamp slug?
         slug = slugify(form.title.data)
