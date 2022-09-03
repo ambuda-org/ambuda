@@ -3,4 +3,5 @@
 
 export default () => ({
   source: null,
+  license: null,
 });

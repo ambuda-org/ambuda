@@ -10,6 +10,14 @@
 <h2 class="text-2xl mt-8 mb-4 pb-2 border-b"><span class="font-bold">Step {{ n }}</span> &mdash; {{ text }}</h2>
 {% endmacro %}
 
+{% macro _radio(name, n, model, value, text) %}
+<div class="flex items-center">
+  <input class="w-4 mr-2" id="{{ name }}-{{ n }}"
+      name="{{ name }}" type="radio" value="{{ value }}" x-model="{{ model }}" @>
+  <label class="cursor-pointer text-lg" for="{{ name }}-{{ n }}">{{ text }}</label>
+</div>
+{% endmacro %}
+
 
 {% block title %}Create project | Ambuda{% endblock %}
 
@@ -32,7 +40,7 @@
 {{ step(1, "Learn") }}
 
 <div class="prose">
-<p>We are interested in any book that has some connection to Sanskrit
+<p>At Ambuda, we're interested in any book that has some connection to Sanskrit
 literature. This includes:</p>
 
 <ul>
@@ -43,14 +51,11 @@ literature. This includes:</p>
   <li>grammar books</li>
 </ul>
 
-<p>And so on.</p>
+<p>And anything else you think is relevant.</p>
 
-<p>Our only restriction is that the book must be available under a permissive
-license, so that we can host the book on our servers and make it available to
-others. (We'll help you determine a book's license further below.)</p>
-
-<p>To avoid duplicating effort, we also prefer that you use books that don't
-already have a transcription available elsewhere on the Internet.</p>
+<p>To avoid duplicating effort, we suggest that you first check the Internet
+carefully to see if your book has been digitized elsewhere already. Try
+searching for exact words and phrases from the book.</p>
 </div>
 
 
@@ -61,11 +66,8 @@ already have a transcription available elsewhere on the Internet.</p>
 coming from?</p>
 
 {% set radios = form.pdf_source|list %}
-<fieldset>
-  <div class="text-lg">
-    <input id="pdf_source-0" name="pdf_source" type="radio" value="archive.org" x-model="source">
-    <label for="pdf_source-0">From archive.org</label>
-  </div>
+<fieldset class="p-4 bg-slate-100">
+  {{ _radio("pdf_source", "0", "source", "archive.org", "From archive.org") }}
   <div class="my-4" x-show="source === 'archive.org'">
     <p>We'll fetch the PDF for you from archive.org. To do so, we need the
     PDF's <dfn>identifier</dfn>, which is the short text ID that follows
@@ -76,10 +78,7 @@ coming from?</p>
     </div>
   </div>
 
-  <div class="text-lg">
-    <input id="pdf_source-1" name="pdf_source" type="radio" value="my-computer" x-model="source" @>
-    <label for="pdf_source-1">From my computer</label>
-  </div>
+  {{ _radio("pdf_source", "1", "source", "my-computer", "From my computer") }}
   <div class="my-4" x-show="source === 'my-computer'">
     <p>We'll copy the PDF from your computer. Please use the form below to find
     a PDF on your computer:</p>
@@ -88,11 +87,8 @@ coming from?</p>
       {{ form.file }}
     </div>
 
-    <p clas="my-2">We also need a title for this PDF:</p>
-
-    <div class="p-4 bg-slate-100">
-      {{ form.title(class_="p-2 block w-full", placeholder="My cool title") }}
-    </div>
+    <p class="my-2">We also need a title for this PDF:</p>
+    {{ form.title(class_="p-2 block w-full", placeholder="My cool title") }}
   </div>
 </fieldset>
 </div>
@@ -100,20 +96,43 @@ coming from?</p>
 {{ step(3, "Verify") }}
 
 <div class="prose">
-<p>What is the license of this book?</p> 
-
-This book is in the public domain.
-This book is available under a permissive license.
-This book is copyrighted, but I have permission to upload it.
-
-<p>For our purposes, the following books are in the public domain:</p>
-
-<ul>
-  <li>Books published in India on or before 1957.</li>
-  <li>Books published in the United States on or before 1927.</li>
-</ul>
-
+<p>As best as you can tell, what is the license of this book?</p> 
 </div>
+
+<fieldset class="p-4 bg-slate-100 my-4">
+  {{ _radio("license", "0", "license", "public", "Public domain") }}
+
+  <div class="prose ml-6 mt-4">
+  <p>The following books are in the public domain:</p>
+
+  <ul>
+    <li>Books published in India on or before 1957.</li>
+    <li>Books published in the United States on or before 1927.</li>
+  </ul>
+  </div>
+
+  {{ _radio("license", "2", "license", "scholarly", "Copyrighted (personal and scholarly use only)") }}
+
+  <div class="prose ml-6 mt-4">
+  <p>We accept copyrighted texts only under the following terms:</p>
+
+  <ul>
+    <li>The text is made available for personal or scholarly purposes only.</li>
+    <li>We will remove the project if the copyright holder requests it.</li>
+  </ul>
+  </div>
+
+  {{ _radio("license", "3", "license", "other", "Other") }}
+
+  <div class="prose ml-6 mt-4" x-show="license === 'other'">
+  <p>If this project falls under some other license, please say more about the
+  usage terms here:</p>
+
+  <textarea class="block w-full h-32 rounded my-4"></textarea>
+  </div>
+
+
+</fieldset>
 
   <input class="block btn btn-submit" type="submit" value="Upload PDF">
 </form>
