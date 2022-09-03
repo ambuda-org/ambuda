@@ -56,7 +56,7 @@ def initialize_test_db():
     session.add(dictionary_entry)
 
     # Bot
-    bot = db.User(username=BOT_USERNAME, email="bot@ambuad.org")
+    bot = db.User(username=BOT_USERNAME, email="ambuda-bot@ambuda.org")
     bot.set_password("password")
     session.add(bot)
     session.flush()
