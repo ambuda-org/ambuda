@@ -1,0 +1,55 @@
+{% extends 'proofing/base-sidebar.html' %}
+{% import "macros/proofing.html" as m %}
+
+
+{% macro _number(n, label) %}
+<li class="flex-1">
+  <div class="font-bold text-3xl">{{ n }}</div>
+  <div class="text-slate-500 text-sm">{{ label }}</div>
+</li>
+{% endmacro %}
+
+
+{% block title %}Stats | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}
+
+
+{% block content %}
+{{ m.title_and_subtitle(
+    "Stats",
+    "Statistics about our proofing work") }}
+
+<div class="prose">
+<h2>Active users</h2>
+</div>
+
+<ul class="flex text-center justify-between">
+  {{ _number(num_active_users_30d, "Last 30 days") }}
+  {{ _number(num_active_users_7d, "Last 7 days") }}
+  {{ _number(num_active_users_1d, "Last 1 day") }}
+</ul>
+
+<ul>
+  {% for user in p1_users %}
+  <li>{{ user.username }}</li>
+  {% endfor %}
+</ul>
+
+<ul>
+  {% for user in p2_users %}
+  <li>{{ user.username }}</li>
+  {% endfor %}
+</ul>
+
+<div class="prose">
+<h2>Revisions</h2>
+</div>
+
+<ul class="flex text-center justify-between">
+  {{ _number(num_revisions_30d, "Last 30 days") }}
+  {{ _number(num_revisions_7d, "Last 7 days") }}
+  {{ _number(num_revisions_1d, "Last 1 day") }}
+</ul>
+{% endblock %}

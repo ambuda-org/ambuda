@@ -1,5 +1,6 @@
 """Views for basic site pages."""
 
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from flask import Blueprint, current_app, flash, render_template
@@ -283,3 +284,35 @@ def talk():
     all_threads.sort(key=lambda x: x[1].updated_at, reverse=True)
 
     return render_template("proofing/talk.html", all_threads=all_threads)
+
+
+@bp.route("/stats/")
+def stats():
+    now = datetime.now()
+    days_ago_30d = now - timedelta(days=30)
+    days_ago_7d = now - timedelta(days=7)
+    days_ago_1d = now - timedelta(days=1)
+
+    session = q.get_session()
+
+    revisions_30d = (
+        session.query(db.Revision)
+        .filter(db.Revision.created >= days_ago_30d)
+        .options(orm.load_only(db.Revision.id, db.Revision.created))
+        .all()
+    )
+    revisions_7d = [x for x in revisions_30d if x.created >= days_ago_7d]
+    revisions_1d = [x for x in revisions_7d if x.created >= days_ago_1d]
+    num_revisions_30d = len(revisions_30d)
+    num_revisions_7d = len(revisions_7d)
+    num_revisions_1d = len(revisions_1d)
+
+    return render_template(
+        "proofing/stats.html",
+        num_active_users_30d=0,
+        num_active_users_7d=0,
+        num_active_users_1d=0,
+        num_revisions_30d=num_revisions_30d,
+        num_revisions_7d=num_revisions_7d,
+        num_revisions_1d=num_revisions_1d,
+    )
