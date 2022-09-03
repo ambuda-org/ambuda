@@ -76,6 +76,7 @@ def fetch_text(url: str) -> str:
     path = CACHE_DIR / code
 
     resp = requests.get(url)
+    resp.encoding = resp.apparent_encoding
     path.write_text(resp.text)
     return resp.text
 
