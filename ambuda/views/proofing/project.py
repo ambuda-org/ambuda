@@ -281,7 +281,7 @@ def batch_ocr(slug):
         abort(404)
 
     if request.method == "POST":
-        task = ocr_tasks.run_ocr_for_book(
+        task = ocr_tasks.run_ocr_for_project(
             app_env=current_app.config["AMBUDA_ENVIRONMENT"],
             project=project_,
         )

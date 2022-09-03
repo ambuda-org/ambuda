@@ -29,7 +29,7 @@ def _run_ocr_for_page_inner(
     with flask_app.app_context():
         bot_user = q.user(consts.BOT_USERNAME)
         if bot_user is None:
-            raise ValueError(f'User "{bot_user}" is not defined.')
+            raise ValueError(f'User "{consts.BOT_USERNAME}" is not defined.')
 
         # The actual API call.
         image_path = get_page_image_filepath(project_slug, page_slug)
@@ -67,7 +67,7 @@ def run_ocr_for_page(
     )
 
 
-def run_ocr_for_book(
+def run_ocr_for_project(
     app_env: str,
     project: db.Project,
 ) -> Optional[GroupResult]:
@@ -75,7 +75,7 @@ def run_ocr_for_book(
 
     Usage:
 
-    >>> r = run_ocr_for_book(...)
+    >>> r = run_ocr_for_project(...)
     >>> progress = r.completed_count() / len(r.results)
 
     :return: the Celery result, or ``None`` if no tasks were run.
