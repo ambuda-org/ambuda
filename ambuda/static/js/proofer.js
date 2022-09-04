@@ -73,6 +73,8 @@ export default () => ({
     });
 
     this.view = createEditorFromTextAt(document.querySelector('textarea').value, document.getElementById('editor'));
+    window.view = this.view;
+    this.view.focus();
 
     // Warn the user if navigating away with unsaved changes.
     window.onbeforeunload = () => {
@@ -196,6 +198,7 @@ export default () => ({
     let { tr } = state;
     const replacement = callback(state.doc.textBetween(tr.selection.from, tr.selection.to));
     tr = tr.replaceRangeWith(tr.selection.from, tr.selection.to, state.schema.text(replacement));
+    // Note: `this.view.dispatch(tr)` fails with "RangeError: Applying a mismatched transaction"
     this.view.updateState(state.apply(tr));
     // Retain focus for better UX.
     this.view.focus();

@@ -5,18 +5,11 @@ https://github.com/ProseMirror/prosemirror-gapcursor/blob/master/style/gapcursor
 
 #editor,
 .editor {
-    background: lightcyan;
+    background: white;
     color: black;
-    background-clip: padding-box;
-    border-radius: 4px;
-    border: 2px solid rgba(0, 0, 0, 0.2);
-    padding: 5px 0;
-    margin-bottom: 23px;
 }
 
 .ProseMirror {
     padding: 4px 8px;
-    border: 2px dashed red;
-    height: calc(100% - 30px);
-    overflow: scroll;
+    height: 100%;
 }
