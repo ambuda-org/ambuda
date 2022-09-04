@@ -121,10 +121,6 @@ class BaseConfig:
     #: We use Sentry to get notifications about server errors.
     SENTRY_DSN = _env("SENTRY_DSN")
 
-    # We need GOOGLE_APPLICATION_CREDENTIALS for the Google Vision API,
-    # but these credentials are fetched by the Google API implicitly,
-    # so we don't need to define it on the Config object here.
-
     # Test-only
     # ---------
 
@@ -133,6 +129,17 @@ class BaseConfig:
 
     #: If ``True``, enable testing mode.
     TESTING = False
+
+    # Environment variables
+    # ---------------------
+
+    # AMBUDA_BOT_PASSWORD is the password we use for the "ambuda-bot" account.
+    # We set this account as an envvar because we need to create this user as
+    # part of database seeding.
+
+    # GOOGLE_APPLICATION_CREDENTIALS contains credentials for the Google Vision
+    # API, but these credentials are fetched by the Google API implicitly,
+    # so we don't need to define it on the Config object here.
 
 
 class UnitTestConfig(BaseConfig):
