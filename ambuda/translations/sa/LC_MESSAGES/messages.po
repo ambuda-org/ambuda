@@ -32,9 +32,9 @@ msgstr "शब्दकोशाः"
 
 #: ambuda/templates/include/header.html:24
 msgid "Proofing"
-msgstr "संशोधनम्"
+msgstr "पाठशोधनम्"
 
 #: ambuda/templates/include/header.html:25
 msgid "About"
-msgstr "विषये"
+msgstr "अध्यम्बुदम्"
 
