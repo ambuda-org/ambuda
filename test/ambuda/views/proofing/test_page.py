@@ -1,5 +1,4 @@
 import ambuda.utils.assets
-from ambuda.views.proofing import page
 
 
 def test_get_image_filesystem_path(flask_app):
