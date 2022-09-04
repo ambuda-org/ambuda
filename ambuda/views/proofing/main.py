@@ -13,7 +13,7 @@ from flask_wtf import FlaskForm
 from slugify import slugify
 from sqlalchemy import orm
 from wtforms import StringField, FileField, RadioField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, ValidationError
 from wtforms.widgets import TextArea
 
 from ambuda import consts
@@ -31,16 +31,59 @@ def _is_allowed_document_file(filename: str) -> bool:
     return Path(filename).suffix == ".pdf"
 
 
+def _required_if_archive(message: str):
+    def fn(form, field):
+        source = form.pdf_source.data
+        if source == "archive.org" and not field.data:
+            raise ValidationError(message)
+
+    return fn
+
+
+def _required_if_local(message: str):
+    def fn(form, field):
+        source = form.pdf_source.data
+        if source == "local" and not field.data:
+            raise ValidationError(message)
+
+    return fn
+
+
 class CreateProjectForm(FlaskForm):
-    archive_identifier = StringField("archive.org identifier")
-    computer_file = FileField("PDF file")
-    computer_title = StringField("Title of the book (you can change this later)")
     pdf_source = RadioField(
         "Source",
         choices=[
             ("archive.org", "From archive.org"),
-            ("my-computer", "From my computer"),
+            ("local", "From my computer"),
         ],
+        validators=[DataRequired()],
+    )
+    archive_identifier = StringField(
+        "archive.org identifier",
+        validators=[
+            _required_if_archive("Please provide a valid archive.org identifier.")
+        ],
+    )
+    local_file = FileField(
+        "PDF file", validators=[_required_if_local("Please provide a PDF file.")]
+    )
+    local_title = StringField(
+        "Title of the book (you can change this later)",
+        validators=[
+            _required_if_local(
+                "Please provide a title for your PDF.",
+            )
+        ],
+    )
+
+    license = RadioField(
+        "License",
+        choices=[
+            ("public", "Public domain"),
+            ("copyrighted", "Copyrighted"),
+            ("other", "Other"),
+        ],
+        validators=[DataRequired()],
     )
     license_other = StringField(
         "License",
@@ -131,8 +174,10 @@ def editor_guide():
 def create_project():
     form = CreateProjectForm()
     if form.validate_on_submit():
+        title = form.local_title.data
+
         # TODO: timestamp slug?
-        slug = slugify(form.title.data)
+        slug = slugify(title)
         project_dir = Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / slug
 
         pdf_dir = project_dir / "pdf"
@@ -146,10 +191,10 @@ def create_project():
         if not _is_allowed_document_file(filename):
             flash("Please upload a PDF.")
             return render_template("proofing/create-project.html", form=form)
-        form.file.data.save(pdf_path)
+        form.local_file.data.save(pdf_path)
 
         task = project_tasks.create_project.delay(
-            title=form.title.data,
+            title=title,
             pdf_path=str(pdf_path),
             output_dir=str(page_image_dir),
             app_environment=current_app.config["AMBUDA_ENVIRONMENT"],
