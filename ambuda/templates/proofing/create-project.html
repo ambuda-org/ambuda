@@ -112,7 +112,8 @@ coming from?</p>
 <fieldset x-ref="license" class="p-4 bg-slate-100 my-4">
   {{ _radio2(radios[0], "license") }}
   <div class="prose ml-6 mt-4">
-  <p>The following books are in the public domain by default:</p>
+  <p>Public domain books can be used by anyone for any purpose. The following
+  books are in the public domain by default:</p>
 
   <ul>
     <li>Books published in India on or before 1957.</li>
@@ -122,18 +123,19 @@ coming from?</p>
 
   {{ _radio2(radios[1], "license") }}
   <div class="prose ml-6 mt-4">
-    <p>We accept copyrighted books under the following terms <strong>only</strong>:</p>
+    <p>Copyrighted books are owned by a specific person or group. We accept
+    copyrighted books under the following terms <strong>only</strong>:</p>
 
   <ul>
     <li><p>You are providing the book in good faith that its main text is out of
         copyright. OR, you have received permission from the copyright
         holder.</p></li>
-    <li><p>We will make the book available for personal and scholarly use only.
-        Those who wish to use the book beyond the scope of fair use are
+    <li><p>Ambuda will make the book available for personal and scholarly use
+        only. Those who wish to use the book beyond the scope of fair use are
         responsible for any legal consequences and are encouraged to contact
         the copyright holder directly.</p></li>
-    <li><p>We will remove the book immediately if the copyright holder requests
-        it.</p></li>
+    <li><p>Ambuda will remove the book immediately if the copyright holder
+        requests it.</p></li>
   </ul>
   </div>
 
@@ -142,7 +144,7 @@ coming from?</p>
   <p>If this project falls under some other license, please say more about that
   license here:</p>
 
-  {{ form.license_other(class_="block w-full h-32 rounded my-4 p-2") }}
+  {{ form.custom_license(class_="block w-full h-32 rounded my-4 p-2") }}
   </div>
 </fieldset>
 

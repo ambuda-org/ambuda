@@ -85,7 +85,7 @@ class CreateProjectForm(FlaskForm):
         ],
         validators=[DataRequired()],
     )
-    license_other = StringField(
+    custom_license = StringField(
         "License",
         widget=TextArea(),
         render_kw={
@@ -176,21 +176,27 @@ def create_project():
     if form.validate_on_submit():
         title = form.local_title.data
 
-        # TODO: timestamp slug?
+        # TODO: add timestamp to slug for extra uniqueness?
         slug = slugify(title)
-        project_dir = Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / slug
 
-        pdf_dir = project_dir / "pdf"
-        page_image_dir = project_dir / "pages"
-
-        pdf_dir.mkdir(parents=True, exist_ok=True)
-        page_image_dir.mkdir(parents=True, exist_ok=True)
-
-        pdf_path = pdf_dir / "source.pdf"
-        filename = form.file.raw_data[0].filename
+        # We accept only PDFs, so validate that the user hasn't uploaded some
+        # other kind of document format.
+        filename = form.local_file.raw_data[0].filename
         if not _is_allowed_document_file(filename):
             flash("Please upload a PDF.")
             return render_template("proofing/create-project.html", form=form)
+
+        # Create all directories for this project ahead of time.
+        # FIXME(arun): push this further into the Celery task.
+        project_dir = Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / slug
+        pdf_dir = project_dir / "pdf"
+        page_image_dir = project_dir / "pages"
+        pdf_dir.mkdir(parents=True, exist_ok=True)
+        page_image_dir.mkdir(parents=True, exist_ok=True)
+
+        # Save the original PDF so that it can be downloaded later or reused
+        # for future tasks (thumbnails, better image formats, etc.)
+        pdf_path = pdf_dir / f"source.pdf"
         form.local_file.data.save(pdf_path)
 
         task = project_tasks.create_project.delay(
