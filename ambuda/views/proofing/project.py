@@ -319,7 +319,7 @@ def batch_ocr_status(task_id):
             if current == total:
                 status = "SUCCESS"
             else:
-                status == "PROGRESS"
+                status = "PROGRESS"
         else:
             status = "FAILURE"
 
