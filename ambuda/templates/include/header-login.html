@@ -11,26 +11,26 @@
 <nav class="mb-4 border-b md:flex justify-between
     items-center a-hover-underline text-sky-900 bg-slate-100">
   <div class="flex justify-between items-center">
-    <a class="p-4 font-bold text-lg" href="{{ url_for('site.index') }}">Ambuda</a>
+    <a class="p-4 font-bold text-lg" href="{{ url_for('site.index') }}">{{ _('Ambuda') }}</a>
     <div class="block p-4 md:hidden">
       <button id="hamburger" type="button">{{ hamburger() }}</button>
     </div>
   </div>
   <ul id="navbar" class="hidden md:flex">
-    <li><a class="block p-4 py-2" href="{{ url_for('texts.index') }}">Texts</a></li>
-    <li><a class="block p-4 py-2" href="{{ url_for('dictionaries.index') }}">Dictionaries</a></li>
-    <li><a class="block p-4 py-2" href="{{ url_for('proofing.index') }}">Proofing</a></li>
-    <li><a class="block p-4 py-2" href="{{ url_for('about.index') }}">About</a></li>
+    <li><a class="block p-4 py-2" href="{{ url_for('texts.index') }}">{{ _('Texts') }}</a></li>
+    <li><a class="block p-4 py-2" href="{{ url_for('dictionaries.index') }}">{{ _('Dictionaries') }}</a></li>
+    <li><a class="block p-4 py-2" href="{{ url_for('proofing.index') }}">{{ _('Proofing') }}</a></li>
+    <li><a class="block p-4 py-2" href="{{ url_for('about.index') }}">{{ _('About') }}</a></li>
     {% if current_user.is_authenticated %}
     {% set name = current_user.username %}
     <li class="p-4 py-2">
       <a href="{{ url_for("proofing.user.summary", username=name) }}">{{ name }}</a> |
-      <a href="{{ url_for("auth.sign_out") }}">Sign out</a>
+      <a href="{{ url_for("auth.sign_out") }}">{{ ('Sign out') }}</a>
     </li>
     {% else %}
     <li class="p-4 py-2">
-      <a href="{{ url_for("auth.register") }}">Register</a> |
-      <a href="{{ url_for("auth.sign_in") }}">Sign in</a>
+      <a href="{{ url_for("auth.register") }}">{{ _('Register') }}</a> |
+      <a href="{{ url_for("auth.sign_in") }}">{{ _('Sign in') }}</a>
     </li>
     {% endif %}
   </ul>

@@ -10,6 +10,7 @@ import sys
 import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask
+from flask_babel import Babel
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy import exc
 
@@ -107,6 +108,8 @@ def create_app(config_env: str):
     _initialize_db_session(app, config_env)
 
     # Extensions
+    print("-" * 5, app.config["BABEL_DEFAULT_LOCALE"], flush=True)
+    babel = Babel(app)
     login_manager = auth_manager.create_login_manager()
     login_manager.init_app(app)
     mailer.init_app(app)

@@ -47,6 +47,9 @@ SQLALCHEMY_DATABASE_URI="sqlite:///database.db"
 
 AMBUDA_BOT_PASSWORD="insecure bot password"
 
+# Flask-Babel
+BABEL_DEFAULT_LOCALE="sa"
+
 GOOGLE_APPLICATION_CREDENTIALS="<Google API credentials>"
 EOF
 

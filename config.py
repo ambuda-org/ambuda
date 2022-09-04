@@ -87,6 +87,9 @@ class BaseConfig:
     # Extensions
     # ----------
 
+    # Flask-Babel
+    BABEL_DEFAULT_LOCALE = _env("BABEL_DEFAULT_LOCALE")
+
     # Flask-Mail
 
     #: URL for mail server.

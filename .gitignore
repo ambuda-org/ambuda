@@ -17,6 +17,10 @@ node_modules/
 # Development database
 *.db
 
+# i18n (regenerate these files with ./scripts/extract_i18n_text.sh
+messages.pot
+*.mo
+
 # Production config
 .env
 production/
