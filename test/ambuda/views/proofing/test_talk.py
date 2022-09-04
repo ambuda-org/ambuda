@@ -44,7 +44,7 @@ def test_create_post(rama_client):
     assert "Create post" in resp.text
 
 
-def test_create_post__good_project(rama_client):
+def test_create_post__valid_project(rama_client):
     resp = rama_client.get("/proofing/test-project/talk/1/create")
     assert resp.status_code == 200
 

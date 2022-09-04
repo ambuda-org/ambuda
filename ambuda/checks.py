@@ -106,7 +106,6 @@ def _check_app_schema_matches_db_schema(database_uri: str) -> list[str]:
 
 
 def _check_lookup_tables(database_uri: str) -> list[str]:
-    _ = create_engine(database_uri)
     session = q.get_session()
     lookups = [
         (enums.SitePageStatus, db.PageStatus),
