@@ -11,6 +11,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from ambuda.enums import SiteRole
 from ambuda.models.base import Base, pk, foreign_key
 from ambuda.utils.user_mixins import AmbudaUserMixin
 

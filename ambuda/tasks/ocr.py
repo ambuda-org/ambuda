@@ -1,5 +1,6 @@
 """Background tasks for proofing projects."""
 
+import time
 from typing import Optional
 
 from celery import group
@@ -9,6 +10,7 @@ from ambuda import consts
 from ambuda import database as db
 from ambuda.enums import SitePageStatus
 from ambuda.tasks import app
+from ambuda.tasks.utils import TaskStatus, CeleryTaskStatus
 from ambuda.utils import google_ocr
 from ambuda.utils.assets import get_page_image_filepath
 from ambuda.utils.revisions import add_revision
@@ -43,7 +45,7 @@ def _run_ocr_for_page_inner(
         session.add(page)
         session.commit()
 
-        summary = "Run OCR"
+        summary = f"Run OCR"
         try:
             return add_revision(
                 page=page,
