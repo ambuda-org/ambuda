@@ -72,31 +72,31 @@ msgstr "सम्पर्कः"
 
 #: ambuda/templates/include/footer.html:36
 msgid "Mission"
-msgstr ""
+msgstr "दौत्यम्"
 
 #: ambuda/templates/include/footer.html:37
 msgid "Values"
-msgstr ""
+msgstr "मान्यताः"
 
 #: ambuda/templates/include/footer.html:38
 msgid "Roadmap"
-msgstr ""
+msgstr "मार्गमापचित्रम्"
 
 #: ambuda/templates/include/footer.html:39
 msgid "People"
-msgstr ""
+msgstr "जनाः"
 
 #: ambuda/templates/include/footer.html:40
 msgid "Code and Data"
-msgstr ""
+msgstr "संहिता दत्तञ्च"
 
 #: ambuda/templates/include/footer.html:47
 msgid "Community"
-msgstr ""
+msgstr "जनसमूहः"
 
 #: ambuda/templates/include/header-login.html:28
 msgid "Sign out"
-msgstr ""
+msgstr "बहिर्गमनम्"
 
 #: ambuda/templates/include/header-login.html:32
 msgid "Register"
@@ -112,35 +112,35 @@ msgstr "अनुक्रमणिका"
 
 #: ambuda/templates/macros/library.html:6
 msgid "Resources"
-msgstr ""
+msgstr "उपायाः"
 
 #: ambuda/templates/macros/proofing.html:35
 msgid "Help"
-msgstr ""
+msgstr "साहाय्यम्"
 
 #: ambuda/templates/macros/proofing.html:37
 msgid "Beginner's guide"
-msgstr ""
+msgstr "आरब्दुर्नायकः"
 
 #: ambuda/templates/macros/proofing.html:38
 msgid "Complete guide"
-msgstr ""
+msgstr "सम्पूर्णो नायकः"
 
 #: ambuda/templates/macros/proofing.html:39
 msgid "Editor manual"
-msgstr ""
+msgstr "संपादकस्य सारग्रन्थः"
 
 #: ambuda/templates/macros/proofing.html:42
 msgid "Contribute"
-msgstr ""
+msgstr "योगदानम्"
 
 #: ambuda/templates/macros/proofing.html:44
 msgid "Ongoing projects"
-msgstr ""
+msgstr "चलमानाः परियोजनाः"
 
 #: ambuda/templates/macros/proofing.html:45
 msgid "Create project"
-msgstr ""
+msgstr "परियोजनां सृजतात्"
 
 #: ambuda/templates/macros/proofing.html:46
 msgid "Recent changes"
@@ -148,7 +148,7 @@ msgstr "सद्यपरिवर्तनानि"
 
 #: ambuda/templates/macros/proofing.html:47
 msgid "Tagging"
-msgstr ""
+msgstr "चिह्नीकरणम्"
 
 #: ambuda/templates/macros/proofing.html:48
 #: ambuda/templates/macros/proofing.html:59
@@ -157,27 +157,27 @@ msgstr "चर्चा"
 
 #: ambuda/templates/macros/proofing.html:57
 msgid "Summary"
-msgstr ""
+msgstr "सङ्क्षेपः"
 
 #: ambuda/templates/macros/proofing.html:58
 #: ambuda/templates/macros/proofing.html:75
 msgid "Activity"
-msgstr ""
+msgstr "सक्रियता"
 
 #: ambuda/templates/macros/proofing.html:60
 msgid "Edit"
-msgstr ""
+msgstr "सम्पादनं करोतु"
 
 #: ambuda/templates/macros/proofing.html:61
 msgid "Download"
-msgstr ""
+msgstr "अवाहर"
 
 #: ambuda/templates/macros/proofing.html:64
 #: ambuda/templates/macros/proofing.html:78
 msgid "Admin"
-msgstr ""
+msgstr "प्रशासक:"
 
 #: ambuda/templates/macros/proofing.html:74
 msgid "Overview"
-msgstr ""
+msgstr "परिदर्शनम्"
 
