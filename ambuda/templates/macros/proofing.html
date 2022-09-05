@@ -69,12 +69,12 @@
 
 
 {# User-level tabs. #}
-{% macro user_tabs(user, active, is_admin = false) %}
+{% macro user_tabs(user, active, is_mod = false) %}
 {% set routes = [
   ("about",    "Overview",  url_for("proofing.user.summary", username=user.username)),
   ("activity", "Activity",  url_for("proofing.user.activity", username=user.username)),
 ] %}
-{% if is_admin %}{% set routes = routes + [
+{% if is_mod %}{% set routes = routes + [
   ("admin",    "Admin",     url_for("proofing.user.admin", username=user.username)),
 ] %}{% endif %}
 

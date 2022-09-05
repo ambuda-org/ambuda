@@ -18,8 +18,9 @@ from wtforms.validators import DataRequired
 from ambuda import consts
 from ambuda import database as db
 from ambuda import queries as q
-from ambuda.enums import SitePageStatus
+from ambuda.enums import SiteRole, SitePageStatus
 from ambuda.tasks import projects as project_tasks
+from ambuda.views.proofing.decorators import p2_required
 
 
 bp = Blueprint("proofing", __name__)
@@ -113,7 +114,7 @@ def editor_guide():
 
 
 @bp.route("/create-project", methods=["GET", "POST"])
-@login_required
+@p2_required
 def create_project():
     form = CreateProjectWithPdfForm()
     if form.validate_on_submit():
