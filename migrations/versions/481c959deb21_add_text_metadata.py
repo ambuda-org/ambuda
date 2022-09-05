@@ -1,7 +1,7 @@
 """Add text metadata
 
 Revision ID: 481c959deb21
-Revises: None
+Revises:
 Create Date: 2022-07-17 14:31:01.779170
 
 """
