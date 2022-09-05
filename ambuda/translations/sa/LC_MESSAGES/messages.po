@@ -56,7 +56,7 @@ msgstr "गोपनीयतानीतिः"
 
 #: ambuda/templates/about/terms.html:9 ambuda/templates/include/footer.html:41
 msgid "Terms of Use"
-msgstr "उपयोगसंस्थितिः"
+msgstr "उपयोगनियमाः"
 
 #: ambuda/templates/include/footer.html:27
 msgid "Support"
@@ -72,31 +72,31 @@ msgstr "सम्पर्कः"
 
 #: ambuda/templates/include/footer.html:36
 msgid "Mission"
-msgstr ""
+msgstr "लक्ष्याणि"
 
 #: ambuda/templates/include/footer.html:37
 msgid "Values"
-msgstr ""
+msgstr "स्थूलध्येयानि"
 
 #: ambuda/templates/include/footer.html:38
 msgid "Roadmap"
-msgstr ""
+msgstr "कार्ययोजना"
 
 #: ambuda/templates/include/footer.html:39
 msgid "People"
-msgstr ""
+msgstr "अग्रण्यः"
 
 #: ambuda/templates/include/footer.html:40
 msgid "Code and Data"
-msgstr ""
+msgstr "पाठ-तन्त्र-मूलानि"
 
 #: ambuda/templates/include/footer.html:47
 msgid "Community"
-msgstr ""
+msgstr "समुदायः"
 
 #: ambuda/templates/include/header-login.html:28
 msgid "Sign out"
-msgstr ""
+msgstr "निर्गमः"
 
 #: ambuda/templates/include/header-login.html:32
 msgid "Register"
@@ -112,35 +112,35 @@ msgstr "अनुक्रमणिका"
 
 #: ambuda/templates/macros/library.html:6
 msgid "Resources"
-msgstr ""
+msgstr "पाठमूलानि"
 
 #: ambuda/templates/macros/proofing.html:35
 msgid "Help"
-msgstr ""
+msgstr "शोधसाहाय्यम्"
 
 #: ambuda/templates/macros/proofing.html:37
 msgid "Beginner's guide"
-msgstr ""
+msgstr "आरम्भसूचनाः"
 
 #: ambuda/templates/macros/proofing.html:38
 msgid "Complete guide"
-msgstr ""
+msgstr "पूर्णसूचनाः"
 
 #: ambuda/templates/macros/proofing.html:39
 msgid "Editor manual"
-msgstr ""
+msgstr "शोधकानुशाशनम्"
 
 #: ambuda/templates/macros/proofing.html:42
 msgid "Contribute"
-msgstr ""
+msgstr "योगदानम्"
 
 #: ambuda/templates/macros/proofing.html:44
 msgid "Ongoing projects"
-msgstr ""
+msgstr "सक्रियपरियोजनाः"
 
 #: ambuda/templates/macros/proofing.html:45
 msgid "Create project"
-msgstr ""
+msgstr "परियोजनास्थापनम्"
 
 #: ambuda/templates/macros/proofing.html:46
 msgid "Recent changes"
@@ -148,7 +148,7 @@ msgstr "सद्यपरिवर्तनानि"
 
 #: ambuda/templates/macros/proofing.html:47
 msgid "Tagging"
-msgstr ""
+msgstr "पदव्याख्यानम्"
 
 #: ambuda/templates/macros/proofing.html:48
 #: ambuda/templates/macros/proofing.html:59
@@ -157,27 +157,27 @@ msgstr "चर्चा"
 
 #: ambuda/templates/macros/proofing.html:57
 msgid "Summary"
-msgstr ""
+msgstr "सङ्क्षेपः"
 
 #: ambuda/templates/macros/proofing.html:58
 #: ambuda/templates/macros/proofing.html:75
 msgid "Activity"
-msgstr ""
+msgstr "इतिहासः"
 
 #: ambuda/templates/macros/proofing.html:60
 msgid "Edit"
-msgstr ""
+msgstr "सम्पादनम्"
 
 #: ambuda/templates/macros/proofing.html:61
 msgid "Download"
-msgstr ""
+msgstr "अवारोपणम्"
 
 #: ambuda/templates/macros/proofing.html:64
 #: ambuda/templates/macros/proofing.html:78
 msgid "Admin"
-msgstr ""
+msgstr "प्रशासनम्"
 
 #: ambuda/templates/macros/proofing.html:74
 msgid "Overview"
-msgstr ""
+msgstr "सङ्क्षेपः"
 

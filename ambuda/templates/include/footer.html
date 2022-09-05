@@ -19,7 +19,7 @@
 
   <div class="md:flex">
   <section class="mr-24 mt-4 md:mt-0">
-    <h3 class="font-bold mb-2">{{ _('Ambuda') }}</h3>
+    <h3 class="font-bold mb-2"><a href="{{ url_for('site.index') }}">{{ _('Ambuda') }}</a></h3>
     <ul>
       <li><a href="{{ url_for('texts.index') }}">{{ _('Texts') }}</a>
       <li><a href="{{ url_for('dictionaries.index') }}">{{ _('Dictionaries') }}</a>
