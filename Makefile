@@ -151,3 +151,23 @@ js-lint:
 # Check our JavaScript code for type consistency.
 js-check-types:
 	npx tsc ambuda/static/js/*.ts -noEmit
+
+
+# i18n and l10n commands
+# ===============================================
+
+# Extract all translatable text from the application.
+babel-extract:
+	pybabel extract --mapping babel.cfg --keywords _l --output-file messages.pot .
+
+# Create a new translation file from `messages.pot`.
+babel-init:
+	pybabel init -i messages.pot -d ambuda/translations --locale $(locale)
+
+# Update all translation files with new text from `messages.pot`
+babel-update:
+	pybabel update -i messages.pot -d ambuda/translations
+
+# Compile all translation files.
+babel-compile:
+	pybabel compile -d ambuda/translations

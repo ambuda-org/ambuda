@@ -48,17 +48,17 @@ translatable text in the application. This file is a template for our
 locale-specific translation data, and we can regenerate it directly from the
 application code::
 
-    pybabel extract --mapping babel.cfg --keywords _l --output-file messages.pot .
+    make babel-extract
 
 From this `.pot` file, we then create one `.po` (portable object) file for each
 locale we care about. These files contain locale-specific translation data, and
 we save them in version control::
 
     # Create a new locale file.
-    pybabel init --input-file messages.pot --output-dir ambuda/translations --locale "sa"
+    make babel-init locale=sa
 
     # Update existing locale files.
-    pybabel update --input-file messages.pot --output-dir ambuda/translations
+    make babel-update
 
 Third, we update the `.po` file with our translations. This is the most
 labor-intensive part of the i18n/l10n process.
@@ -67,7 +67,7 @@ Finally, we compile the locale-specific `.po` files into `.mo` (machine object)
 files, which are optimized for machine usage. These are the files that the
 Ambuda application uses::
 
-    pybabel compile --output-dir ambuda/translations
+    make babel-compile
 
 
 Exposing locale options
