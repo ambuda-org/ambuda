@@ -140,11 +140,11 @@ msgstr "सक्रियपरियोजनाः"
 
 #: ambuda/templates/macros/proofing.html:45
 msgid "Create project"
-msgstr "परियोजनास्थापनम्"
+msgstr "परियोजनासृष्टिः"
 
 #: ambuda/templates/macros/proofing.html:46
 msgid "Recent changes"
-msgstr "सद्यपरिवर्तनानि"
+msgstr "सद्यःपरिवर्तनानि"
 
 #: ambuda/templates/macros/proofing.html:47
 msgid "Tagging"
@@ -157,7 +157,7 @@ msgstr "चर्चा"
 
 #: ambuda/templates/macros/proofing.html:57
 msgid "Summary"
-msgstr "सङ्क्षेपः"
+msgstr "सारः"
 
 #: ambuda/templates/macros/proofing.html:58
 #: ambuda/templates/macros/proofing.html:75
