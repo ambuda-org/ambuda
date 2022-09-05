@@ -136,11 +136,11 @@ msgstr "योगदानम्"
 
 #: ambuda/templates/macros/proofing.html:44
 msgid "Ongoing projects"
-msgstr "सक्रियपरियोजनाः"
+msgstr "सक्रियप्रकल्पाः"
 
 #: ambuda/templates/macros/proofing.html:45
 msgid "Create project"
-msgstr "परियोजनासृष्टिः"
+msgstr "प्रकल्पसृष्टिः"
 
 #: ambuda/templates/macros/proofing.html:46
 msgid "Recent changes"
