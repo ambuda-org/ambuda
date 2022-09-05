@@ -179,7 +179,8 @@ export default () => ({
 
   // Generic click handler for multiple objects in the reader.
   async onClick(e) {
-    e.preventDefault();
+    // Don't run e.preventDefault by default, as the user might be clicking an
+    // actual link.
 
     // Parsed word: show details for this word.
     const $word = e.target.closest('s-w');
@@ -189,6 +190,7 @@ export default () => ({
     }
     // "Hide parse" link: hide the displayed parse.
     if (e.target.closest('.js--source')) {
+      e.preventDefault();
       const $block = e.target.closest('s-block');
       $block.classList.remove('show-parsed');
       return;
