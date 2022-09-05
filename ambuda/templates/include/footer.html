@@ -31,7 +31,7 @@
   </section>
 
   <section class="mr-24 mt-4 md:mt-0">
-    <h3 class="font-bold mb-2"><a href="{{ url_for('about.index') }}">About</a></h3>
+    <h3 class="font-bold mb-2"><a href="{{ url_for('about.index') }}">{{ _('About') }}</a></h3>
     <ul>
       <li><a href="{{ url_for('about.mission') }}">{{ _('Mission') }}</a>
       <li><a href="{{ url_for('about.values') }}">{{ _('Values') }}</a>
@@ -44,7 +44,7 @@
   </section>
 
   <section class="mt-4 md:mt-0">
-    <h3 class="font-bold mb-2">Community</h3>
+    <h3 class="font-bold mb-2">{{ _('Community') }}</h3>
     <ul>
       <li><a href="{{ discord }}">Discord</a>
       <li><a href="{{ github }}">GitHub</a>

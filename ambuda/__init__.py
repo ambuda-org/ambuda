@@ -10,7 +10,7 @@ import sys
 import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask, session
-from flask_babel import Babel
+from flask_babel import Babel, Domain
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy import exc
 
@@ -109,6 +109,7 @@ def create_app(config_env: str):
 
     # Extensions
     babel = Babel(app)
+    i18n_text = Domain(domain="text")
 
     @babel.localeselector
     def get_locale():
@@ -143,6 +144,11 @@ def create_app(config_env: str):
             "time_ago": filters.time_ago,
         }
     )
-    app.jinja_env.globals.update({"asset": assets.hashed_static})
+    app.jinja_env.globals.update(
+        {
+            "asset": assets.hashed_static,
+            "_t": i18n_text.gettext,
+        }
+    )
 
     return app

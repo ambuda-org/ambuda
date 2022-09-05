@@ -27,25 +27,25 @@
 {% macro main_nav(active = none) %}
 {% macro _link(label, route, text) -%}
 {% if active == label %}<li class="font-bold text-black">{% else %}<li>{% endif %}
-<a href="{{ url_for(route) }}">{{ text|safe }}</a>
+<a href="{{ url_for(route) }}">{{ text }}</a>
 </li>
 {%- endmacro %}
 
 <nav class="rounded bg-slate-100 text-slate-500 p-4 a-hover-underline text-sm">
-<h1 class="font-bold">Help</h1>
+<h1 class="font-bold">{{ _('Help') }}</h1>
 <ul class="list-disc pl-6">
-  {{ _link('beginners', "proofing.beginners_guide", "Beginner's guide") }}
-  {{ _link('complete', "proofing.complete_guide", "Complete guide") }}
-  {{ _link('manual', "proofing.editor_guide", "Editor manual") }}
+  {{ _link('beginners', "proofing.beginners_guide", _("Beginner's guide")) }}
+  {{ _link('complete', "proofing.complete_guide", _("Complete guide")) }}
+  {{ _link('manual', "proofing.editor_guide", _("Editor manual")) }}
 </ul>
 
-<h1 class="mt-2 font-bold">Contribute</h1>
+<h1 class="mt-2 font-bold">{{ _('Contribute') }}</h1>
 <ul class="list-disc pl-6">
-  {{ _link('projects', "proofing.index", "Ongoing projects") }}
-  {{ _link('create', "proofing.create_project", "Create project") }}
-  {{ _link('changes', "proofing.recent_changes", "Recent changes</a></li>") }}
-  {{ _link('tagging', "proofing.tagging.index", "Tagging</a></li>") }}
-  {{ _link('talk', "proofing.talk", "Talk") }}
+  {{ _link('projects', "proofing.index", _("Ongoing projects")) }}
+  {{ _link('create', "proofing.create_project", _("Create project")) }}
+  {{ _link('changes', "proofing.recent_changes", _("Recent changes")) }}
+  {{ _link('tagging', "proofing.tagging.index", _("Tagging")) }}
+  {{ _link('talk', "proofing.talk", _("Talk")) }}
 </ul>
 </nav>
 {% endmacro %}
@@ -54,14 +54,14 @@
 {# Project-level tabs. #}
 {% macro project_nav(project, active, is_admin = false) %}
 {% set routes = [
-  ("summary",  "Summary",  url_for("proofing.project.summary", slug=project.slug)),
-  ("activity", "Activity",  url_for("proofing.project.activity", slug=project.slug)),
-  ("talk",     "Talk",     url_for("proofing.talk.board", slug=project.slug)),
-  ("edit",     "Edit",     url_for("proofing.project.edit", slug=project.slug)),
-  ("download", "Download", url_for("proofing.project.download", slug=project.slug)),
+  ("summary",  _("Summary"),   url_for("proofing.project.summary", slug=project.slug)),
+  ("activity", _("Activity"),  url_for("proofing.project.activity", slug=project.slug)),
+  ("talk",     _("Talk"),      url_for("proofing.talk.board", slug=project.slug)),
+  ("edit",     _("Edit"),      url_for("proofing.project.edit", slug=project.slug)),
+  ("download", _("Download"),  url_for("proofing.project.download", slug=project.slug)),
 ] %}
 {% if is_admin %}{% set routes = routes + [
-  ("admin",    "Admin",    url_for("proofing.project.admin", slug=project.slug)),
+  ("admin",    _("Admin"),     url_for("proofing.project.admin", slug=project.slug)),
 ] %}{% endif %}
 
 {{ components.tabs(routes, active) }}
@@ -71,11 +71,11 @@
 {# User-level tabs. #}
 {% macro user_tabs(user, active, is_mod = false) %}
 {% set routes = [
-  ("about",    "Overview",  url_for("proofing.user.summary", username=user.username)),
-  ("activity", "Activity",  url_for("proofing.user.activity", username=user.username)),
+  ("about",    _("Overview"),  url_for("proofing.user.summary", username=user.username)),
+  ("activity", _("Activity"),  url_for("proofing.user.activity", username=user.username)),
 ] %}
 {% if is_mod %}{% set routes = routes + [
-  ("admin",    "Admin",     url_for("proofing.user.admin", username=user.username)),
+  ("admin",    _("Admin"),     url_for("proofing.user.admin", username=user.username)),
 ] %}{% endif %}
 
 {{ components.tabs(routes, active) }}

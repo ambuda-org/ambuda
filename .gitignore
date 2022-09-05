@@ -18,7 +18,7 @@ node_modules/
 *.db
 
 # i18n -- regenerate these files with `make babel-extract` and `make babel-compile`
-messages.pot
+*.pot
 *.mo
 
 # Production config

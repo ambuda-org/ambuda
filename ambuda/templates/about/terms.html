@@ -6,17 +6,23 @@
 {% block content %}
 {% set contact_url = url_for('about.contact') %}
 <div class="prose">
-<h1>Terms of Use</h1>
+<h1>{{ _('Terms of Use') }}</h1>
 
-<p>Welcome to Ambuda! To fulfill our mission of making the Sanskrit tradition radically accessible, Ambuda provides users with the ability to read traditional Sanskrit literature and collaborate on proofing those texts.</p>
+<p>Welcome to Ambuda! To fulfill our mission of making the Sanskrit tradition
+radically accessible, Ambuda provides users with the ability to read
+traditional Sanskrit literature and collaborate on proofing those texts.</p>
 
-<p>We encourage your participation in the Ambuda community. You may read and share texts on Ambuda, as well as contribute to adding, transcribing, and discussing texts through proofing, under the following conditions:</p>
+<p>We encourage your participation in the Ambuda community. You may read and
+share texts on Ambuda, as well as contribute to adding, transcribing, and
+discussing texts through proofing, under the following conditions:</p>
 
 <ul>
     <li>You are legally responsible for any content you contribute to Ambuda.</li>
-    <li>Be kind and respectful to others; do not harass, abuse, or violate the privacy of others.</li>
+    <li>Be kind and respectful to others; do not harass, abuse, or violate the
+        privacy of others.</li>
     <li>Do not violate the law, including appropriate copyright laws.</li>
-    <li>Do not engage in activity that can harm our technical infrastructure or disrupt the ability of other users to use Ambuda.</li>
+    <li>Do not engage in activity that can harm our technical infrastructure or
+        disrupt the ability of other users to use Ambuda.</li>
 </ul>
 
 <p>If you have any questions about these terms, please <a href="{{ contact_url }}">contact us</a>.</p>

@@ -160,15 +160,18 @@ js-check-types:
 # Extract all translatable text from the application.
 babel-extract: py-venv-check
 	pybabel extract --mapping babel.cfg --keywords _l --output-file messages.pot .
+	pybabel extract --mapping babel.cfg --keywords _t --no-default-keywords --output-file text.pot .
 
 # Create a new translation file from `messages.pot`.
 babel-init: py-venv-check
 	pybabel init -i messages.pot -d ambuda/translations --locale $(locale)
+	pybabel init -i text.pot -d ambuda/translations -D "text" --locale $(locale)
 
 # Update all translation files with new text from `messages.pot`
 babel-update: py-venv-check
 	pybabel update -i messages.pot -d ambuda/translations
+	pybabel update -i text.pot -d ambuda/translations -D "text"
 
 # Compile all translation files.
 babel-compile: py-venv-check
-	pybabel compile -d ambuda/translations
+	pybabel compile -d ambuda/translations -D "messages text"
