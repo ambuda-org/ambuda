@@ -1,3 +1,6 @@
+from pathlib import Path
+import tempfile
+
 from ambuda.utils import google_ocr
 
 
@@ -16,6 +19,15 @@ def test_post_process():
 "Hello world"
 'Hello world'"""
     )
+
+
+def test_prepare_image():
+    f = tempfile.NamedTemporaryFile(delete=False)
+    f.write(b"fake image data")
+    f.close()
+
+    res = google_ocr.prepare_image(Path(f.name))
+    assert res.content == b"fake image data"
 
 
 def test_serialize_bounding_boxes():
