@@ -4,8 +4,6 @@ from typing import Callable
 from flask import current_app
 from flask_login import current_user
 
-from ambuda.enums import SiteRole
-
 
 def admin_required(func: Callable):
     """Allow access only to administrators.
@@ -15,7 +13,7 @@ def admin_required(func: Callable):
 
     @wraps(func)
     def decorated_view(*args, **kwargs):
-        if not current_user.has_role(SiteRole.ADMIN):
+        if not current_user.is_admin:
             return current_app.login_manager.unauthorized()
         return current_app.ensure_sync(func)(*args, **kwargs)
 
