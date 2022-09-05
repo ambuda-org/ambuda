@@ -10,8 +10,9 @@ from sqlalchemy import orm
 from wtforms import FileField, StringField
 from wtforms.validators import DataRequired
 
-import ambuda.queries as q
+from ambuda import consts
 from ambuda import database as db
+from ambuda import queries as q
 from ambuda.enums import SitePageStatus
 from ambuda.tasks import projects as project_tasks
 
@@ -120,8 +121,7 @@ def create_project():
         pdf_dir.mkdir(parents=True, exist_ok=True)
         page_image_dir.mkdir(parents=True, exist_ok=True)
 
-        source_file = "source.pdf"
-        pdf_path = pdf_dir / f"{source_file}"
+        pdf_path = pdf_dir / "source.pdf"
         filename = form.file.raw_data[0].filename
         if not _is_allowed_document_file(filename):
             flash("Please upload a PDF.")
@@ -175,12 +175,19 @@ def create_project_status(task_id):
 @bp.route("/recent-changes")
 def recent_changes():
     """Show recent changes across all projects."""
+    num_per_page = 100
+
+    # Exclude bot edits, which overwhelm all other edits on the site.
+    bot_user = q.user(consts.BOT_USERNAME)
+    assert bot_user, "Bot user not defined"
+
     session = q.get_session()
     recent_revisions = (
         session.query(db.Revision)
         .options(orm.defer(db.Revision.content))
+        .filter(db.Revision.author_id != bot_user.id)
         .order_by(db.Revision.created.desc())
-        .limit(100)
+        .limit(num_per_page)
         .all()
     )
     recent_activity = [("revision", r.created, r) for r in recent_revisions]
@@ -188,12 +195,13 @@ def recent_changes():
     recent_projects = (
         session.query(db.Project)
         .order_by(db.Project.created_at.desc())
-        .limit(100)
+        .limit(num_per_page)
         .all()
     )
     recent_activity += [("project", p.created_at, p) for p in recent_projects]
 
     recent_activity.sort(key=lambda x: x[1], reverse=True)
+    recent_activity = recent_activity[:num_per_page]
     return render_template(
         "proofing/recent-changes.html", recent_activity=recent_activity
     )
