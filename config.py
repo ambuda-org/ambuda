@@ -88,7 +88,10 @@ class BaseConfig:
     # ----------
 
     # Flask-Babel
-    BABEL_DEFAULT_LOCALE = _env("BABEL_DEFAULT_LOCALE")
+
+    #: Default locale. This is "en" by default, but declare it here to be
+    #: explicit.
+    BABEL_DEFAULT_LOCALE = "en"
 
     # Flask-Mail
 
