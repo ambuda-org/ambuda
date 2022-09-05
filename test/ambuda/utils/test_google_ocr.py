@@ -1,5 +1,3 @@
-import pytest
-
 from ambuda.utils.google_ocr import post_process
 
 

@@ -3,7 +3,6 @@
 NOTE: run this script in the production environment.
 """
 
-import config
 from config import create_config_only_app
 
 # Fails if config is malformed.

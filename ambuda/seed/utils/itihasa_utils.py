@@ -78,7 +78,7 @@ def fetch_text(url: str) -> str:
     resp = requests.get(url)
     # When the response headers don't specify any encoding, `resp.text` decodes
     # the response as if it is in ISO-8859-1 encoding (following RFC 2616).
-    # This is usually incorrect, so we need to set `resp.encoding` to the 
+    # This is usually incorrect, so we need to set `resp.encoding` to the
     # actual encoding (guessed using `chardet`).
     resp.encoding = resp.apparent_encoding
     path.write_text(resp.text)
