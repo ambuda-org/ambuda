@@ -60,7 +60,7 @@ msgstr "उपयोगनियमाः"
 
 #: ambuda/templates/include/footer.html:27
 msgid "Support"
-msgstr "साहाय्यम्"
+msgstr "सहकारः"
 
 #: ambuda/templates/include/footer.html:28
 msgid "Donate"
