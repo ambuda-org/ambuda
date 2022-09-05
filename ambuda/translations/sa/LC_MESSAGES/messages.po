@@ -179,5 +179,5 @@ msgstr "प्रशासनम्"
 
 #: ambuda/templates/macros/proofing.html:74
 msgid "Overview"
-msgstr "सङ्क्षेपः"
+msgstr "सिंहावलोकनम्"
 
