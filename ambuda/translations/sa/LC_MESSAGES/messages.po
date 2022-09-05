@@ -1,0 +1,183 @@
+# Sanskrit translations for PROJECT.
+# Copyright (C) 2022 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2022-09-04 22:56-0700\n"
+"PO-Revision-Date: 2022-09-03 21:40-0700\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: sa\n"
+"Language-Team: sa <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.3\n"
+
+#: ambuda/templates/include/footer.html:22
+#: ambuda/templates/include/header-login.html:14
+#: ambuda/templates/include/header.html:16 ambuda/templates/index.html:38
+msgid "Ambuda"
+msgstr "अम्बुदः"
+
+#: ambuda/templates/include/footer.html:24
+#: ambuda/templates/include/header-login.html:20
+#: ambuda/templates/include/header.html:22 ambuda/templates/index.html:44
+#: ambuda/templates/texts/index.html:29
+msgid "Texts"
+msgstr "ग्रन्थाः"
+
+#: ambuda/templates/include/footer.html:25
+#: ambuda/templates/include/header-login.html:21
+#: ambuda/templates/include/header.html:23 ambuda/templates/index.html:45
+msgid "Dictionaries"
+msgstr "शब्दकोशाः"
+
+#: ambuda/templates/include/footer.html:26
+#: ambuda/templates/include/header-login.html:22
+#: ambuda/templates/include/header.html:24 ambuda/templates/index.html:46
+msgid "Proofing"
+msgstr "पाठशोधनम्"
+
+#: ambuda/templates/about/index.html:15 ambuda/templates/include/footer.html:34
+#: ambuda/templates/include/header-login.html:23
+#: ambuda/templates/include/header.html:25 ambuda/templates/index.html:47
+msgid "About"
+msgstr "अध्यम्बुदम्"
+
+#: ambuda/templates/about/privacy.html:10
+#: ambuda/templates/include/footer.html:42
+msgid "Privacy Policy"
+msgstr "गोपनीयतानीतिः"
+
+#: ambuda/templates/about/terms.html:9 ambuda/templates/include/footer.html:41
+msgid "Terms of Use"
+msgstr "उपयोगनियमाः"
+
+#: ambuda/templates/include/footer.html:27
+msgid "Support"
+msgstr "सहकारः"
+
+#: ambuda/templates/include/footer.html:28
+msgid "Donate"
+msgstr "दानम्"
+
+#: ambuda/templates/include/footer.html:29
+msgid "Contact"
+msgstr "सम्पर्कः"
+
+#: ambuda/templates/include/footer.html:36
+msgid "Mission"
+msgstr "लक्ष्याणि"
+
+#: ambuda/templates/include/footer.html:37
+msgid "Values"
+msgstr "स्थूलध्येयानि"
+
+#: ambuda/templates/include/footer.html:38
+msgid "Roadmap"
+msgstr "कार्ययोजना"
+
+#: ambuda/templates/include/footer.html:39
+msgid "People"
+msgstr "अग्रण्यः"
+
+#: ambuda/templates/include/footer.html:40
+msgid "Code and Data"
+msgstr "पाठ-तन्त्र-मूलानि"
+
+#: ambuda/templates/include/footer.html:47
+msgid "Community"
+msgstr "समुदायः"
+
+#: ambuda/templates/include/header-login.html:28
+msgid "Sign out"
+msgstr "निर्गमः"
+
+#: ambuda/templates/include/header-login.html:32
+msgid "Register"
+msgstr "पञ्जीकरणम्"
+
+#: ambuda/templates/include/header-login.html:33
+msgid "Sign in"
+msgstr "प्रवेशः"
+
+#: ambuda/templates/macros/library.html:5
+msgid "Contents"
+msgstr "अनुक्रमणिका"
+
+#: ambuda/templates/macros/library.html:6
+msgid "Resources"
+msgstr "पाठमूलानि"
+
+#: ambuda/templates/macros/proofing.html:35
+msgid "Help"
+msgstr "शोधसाहाय्यम्"
+
+#: ambuda/templates/macros/proofing.html:37
+msgid "Beginner's guide"
+msgstr "आरम्भसूचनाः"
+
+#: ambuda/templates/macros/proofing.html:38
+msgid "Complete guide"
+msgstr "पूर्णसूचनाः"
+
+#: ambuda/templates/macros/proofing.html:39
+msgid "Editor manual"
+msgstr "शोधकानुशाशनम्"
+
+#: ambuda/templates/macros/proofing.html:42
+msgid "Contribute"
+msgstr "योगदानम्"
+
+#: ambuda/templates/macros/proofing.html:44
+msgid "Ongoing projects"
+msgstr "सक्रियप्रकल्पाः"
+
+#: ambuda/templates/macros/proofing.html:45
+msgid "Create project"
+msgstr "प्रकल्पसृष्टिः"
+
+#: ambuda/templates/macros/proofing.html:46
+msgid "Recent changes"
+msgstr "सद्यःपरिवर्तनानि"
+
+#: ambuda/templates/macros/proofing.html:47
+msgid "Tagging"
+msgstr "पदव्याख्यानम्"
+
+#: ambuda/templates/macros/proofing.html:48
+#: ambuda/templates/macros/proofing.html:59
+msgid "Talk"
+msgstr "चर्चा"
+
+#: ambuda/templates/macros/proofing.html:57
+msgid "Summary"
+msgstr "सारः"
+
+#: ambuda/templates/macros/proofing.html:58
+#: ambuda/templates/macros/proofing.html:75
+msgid "Activity"
+msgstr "इतिहासः"
+
+#: ambuda/templates/macros/proofing.html:60
+msgid "Edit"
+msgstr "सम्पादनम्"
+
+#: ambuda/templates/macros/proofing.html:61
+msgid "Download"
+msgstr "अवारोपणम्"
+
+#: ambuda/templates/macros/proofing.html:64
+#: ambuda/templates/macros/proofing.html:78
+msgid "Admin"
+msgstr "प्रशासनम्"
+
+#: ambuda/templates/macros/proofing.html:74
+msgid "Overview"
+msgstr "सिंहावलोकनम्"
+
