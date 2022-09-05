@@ -4,22 +4,11 @@ from http import HTTPStatus
 from typing import Optional
 
 from flask import abort, redirect, request, url_for
-from flask_login import AnonymousUserMixin, LoginManager
+from flask_login import LoginManager
 
 from ambuda.database import User
 from ambuda.queries import get_session
-
-
-class AmbudaAnonymousUser(AnonymousUserMixin):
-    """An anonymous user with limited permissions."""
-
-    @property
-    def is_admin(self):
-        return False
-
-    @property
-    def is_proofreader(self):
-        return False
+from ambuda.utils.user_mixins import AmbudaAnonymousUser
 
 
 def _load_user(user_id: int) -> Optional[User]:

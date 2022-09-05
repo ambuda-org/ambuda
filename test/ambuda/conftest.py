@@ -74,21 +74,19 @@ def initialize_test_db():
     session.flush()
 
     # Roles
-    proofreader_role = db.Role(name=db.SiteRole.P1.value)
+    p1_role = db.Role(name=db.SiteRole.P1.value)
+    p2_role = db.Role(name=db.SiteRole.P2.value)
     admin_role = db.Role(name=db.SiteRole.ADMIN.value)
-    session.add(proofreader_role)
+    session.add(p1_role)
+    session.add(p2_role)
     session.add(admin_role)
     session.flush()
 
-    rama_role_proofreader = db.UserRoles(user_id=rama.id, role_id=proofreader_role.id)
-    akprasad_role_proofreader = db.UserRoles(
-        user_id=admin.id, role_id=proofreader_role.id
-    )
-    session.add(rama_role_proofreader)
-    session.add(akprasad_role_proofreader)
-
-    akprasad_role_admin = db.UserRoles(user_id=admin.id, role_id=admin_role.id)
-    session.add(akprasad_role_admin)
+    rama.roles = [p1_role, p2_role]
+    admin.roles = [p1_role, p2_role, admin_role]
+    session.add(rama)
+    session.add(admin)
+    session.flush()
 
     # Proofreading
     board = db.Board(title="board")
