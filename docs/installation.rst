@@ -74,7 +74,7 @@ Or the following commands for Python scripts:
 
 
 Docker setup (beta)
------------------
+-------------------
 
 This feature is still under development and may change. You can alternatively
 run a local development environment using Docker by running:
