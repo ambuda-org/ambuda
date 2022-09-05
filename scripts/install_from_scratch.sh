@@ -32,6 +32,9 @@ echo "Beginning clean install of Ambuda."
 make install-frontend
 make install-python
 
+# i18n/l10n setup
+make pybabel-compile
+
 # Confirm that the setup worked.
 make test
 

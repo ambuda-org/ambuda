@@ -33,6 +33,7 @@ upgrade:
 	make install-frontend install-python
 	. env/bin/activate; python -m ambuda.seed.lookup
 	. env/bin/activate; alembic upgrade head
+	make pybabel-compile
 
 # Seed the database with just enough data for the devserver to be interesting.
 db-seed-basic: py-venv-check
@@ -157,17 +158,17 @@ js-check-types:
 # ===============================================
 
 # Extract all translatable text from the application.
-babel-extract:
+babel-extract: py-venv-check
 	pybabel extract --mapping babel.cfg --keywords _l --output-file messages.pot .
 
 # Create a new translation file from `messages.pot`.
-babel-init:
+babel-init: py-venv-check
 	pybabel init -i messages.pot -d ambuda/translations --locale $(locale)
 
 # Update all translation files with new text from `messages.pot`
-babel-update:
+babel-update: py-venv-check
 	pybabel update -i messages.pot -d ambuda/translations
 
 # Compile all translation files.
-babel-compile:
+babel-compile: py-venv-check
 	pybabel compile -d ambuda/translations
