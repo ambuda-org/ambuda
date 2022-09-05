@@ -15,11 +15,11 @@ to learn more about how you can do so.</p>
 <p id="my-form-status" class="bg-red-100"></p>
 
 <form id="my-form" action="https://formspree.io/f/mqknookq" method="POST">
-  <label class="block mb-2 text-slate-600">Email</label>
+  <label class="block mb-2 text-slate-600">{{ _('Email address') }}</label>
   <input required type="email" name="email" class="bg-slate-100 p-2 rounded w-full"/>
-  <label class="block my-2 text-slate-600">Message</label>
+  <label class="block my-2 text-slate-600">{{ _('Message') }}</label>
   <textarea required name="message" class="bg-slate-100 p-2 rounded w-full h-48 mb-4"></textarea>
-  <button id="my-form-button" class="btn btn-submit">Send message</button>
+  <button id="my-form-button" class="btn btn-submit">{{ _('Send message') }}</button>
 </form>
 
 </div>

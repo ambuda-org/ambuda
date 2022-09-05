@@ -9,10 +9,10 @@
 
 {% macro status_legend() %}
 <ul class="text-xs bg-slate-100 my-4 grid grid-cols-2 md:flex">
-  <li class="p-2 flex items-center">{{ _badge("bg-red-200 border-red-400") }} Needs proofing</li>
-  <li class="p-2 flex items-center">{{ _badge("bg-yellow-200 border-yellow-400") }} Proofed once</li>
-  <li class="p-2 flex items-center">{{ _badge("bg-green-200 border-green-400") }} Proofed twice</li>
-  <li class="p-2 flex items-center">{{ _badge("bg-gray-200 border-gray-400") }} Not relevant</li>
+  <li class="p-2 flex items-center">{{ _badge("bg-red-200 border-red-400") }} {{ _('Needs more work') }}</li>
+  <li class="p-2 flex items-center">{{ _badge("bg-yellow-200 border-yellow-400") }} {{ _('Proofed once') }}</li>
+  <li class="p-2 flex items-center">{{ _badge("bg-green-200 border-green-400") }} {{ _('Proofed twice') }}</li>
+  <li class="p-2 flex items-center">{{ _badge("bg-gray-200 border-gray-400") }} {{ _('Not relevant') }}</li>
 </ul>
 {% endmacro %}
 

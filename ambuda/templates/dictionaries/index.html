@@ -12,7 +12,7 @@ different languages.
 
 
 {% block content %}
-<h1 class="text-xl font-bold my-4">Dictionary lookup</h1>
+<h1 class="text-xl font-bold my-4">{{ _('Dictionary lookup') }}</h1>
 
 <form
     id="dict--form"
@@ -28,7 +28,8 @@ different languages.
         x-model="query"
     >
     </input>
-    <input type="submit" value="Search" class="bg-zinc-800 text-white p-2 rounded-tr rounded-br"></input>
+    <input type="submit" value="{{ _('Search') }}"
+        class="cursor-pointer bg-zinc-800 text-white p-2 rounded-tr rounded-br"></input>
   </div>
   <select
       id="dict--version"
