@@ -27,7 +27,7 @@
 {% endmacro %}
 
 
-{% block title %}Ambuda{% endblock %}
+{% block title %}{{ _('Ambuda') }}{% endblock %}
 
 
 {% block header %}
@@ -49,15 +49,16 @@
   </nav>
 
   <div class="max-w-4xl mx-auto mt-28 mb-4 p-4">
-    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold">A breakthrough Sanskrit library</h1>
+    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold">{{ _('A breakthrough Sanskrit library') }}</h1>
     <p class="mx-auto text-lg mt-4 mb-4 max-w-2xl text-slate-400">Sanskrit
     literature with word-by-word analysis and integrated dictionaries.
     All in a free online library that works on all devices.</p>
   </div>
   <div>
     <a class="p-4 transition rounded btn border border-slate-500 text-slate-200
-       hover:bg-white hover:text-brand" href="{{ url_for("texts.index") }}"
-       >Explore the library</a>
+        hover:bg-white hover:text-brand" href="{{ url_for("texts.index") }}">
+        {{ _('Explore the library') }}
+    </a>
   </div>
 </header>
 {% endblock %}
@@ -130,8 +131,9 @@ mailing list</a> to receive regular updates on new content and features.</p>
   </div>
   <div>
     <a class="p-4 transition rounded btn border bg-brand text-white
-       hover:bg-white hover:text-brand" href="{{ url_for("texts.index") }}"
-       >Explore the library</a>
+        hover:bg-white hover:text-brand" href="{{ url_for("texts.index") }}">
+        {{ _('Explore the library') }}
+    </a>
   </div>
 </section>
 
