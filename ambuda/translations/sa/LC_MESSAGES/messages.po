@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-05 16:45-0700\n"
+"POT-Creation-Date: 2022-09-05 22:15-0700\n"
 "PO-Revision-Date: 2022-09-03 21:40-0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sa\n"
@@ -20,17 +20,19 @@ msgstr ""
 
 #: ambuda/templates/include/footer.html:22
 #: ambuda/templates/include/header-login.html:14
-#: ambuda/templates/include/header.html:13 ambuda/templates/index.html:38
+#: ambuda/templates/include/header.html:13 ambuda/templates/index.html:30
+#: ambuda/templates/index.html:38
 msgid "Ambuda"
 msgstr "अम्बुदः"
 
 #: ambuda/templates/include/footer.html:24
 #: ambuda/templates/include/header-login.html:20
 #: ambuda/templates/include/header.html:19 ambuda/templates/index.html:44
-#: ambuda/templates/texts/index.html:29
+#: ambuda/templates/texts/index.html:19 ambuda/templates/texts/index.html:29
 msgid "Texts"
 msgstr "ग्रन्थाः"
 
+#: ambuda/templates/dictionaries/index.html:5
 #: ambuda/templates/include/footer.html:25
 #: ambuda/templates/include/header-login.html:21
 #: ambuda/templates/include/header.html:20 ambuda/templates/index.html:45
@@ -43,7 +45,8 @@ msgstr "शब्दकोशाः"
 msgid "Proofing"
 msgstr "पाठशोधनम्"
 
-#: ambuda/templates/about/index.html:15 ambuda/templates/include/footer.html:34
+#: ambuda/templates/about/index.html:7 ambuda/templates/about/index.html:15
+#: ambuda/templates/include/footer.html:34
 #: ambuda/templates/include/header-login.html:23
 #: ambuda/templates/include/header.html:22 ambuda/templates/index.html:47
 msgid "About"
@@ -57,62 +60,84 @@ msgstr "आधुनिकः संस्कृतग्रन्थालय�
 msgid "Explore the library"
 msgstr "ग्रन्थालयः प्रविश्यताम्"
 
-#: ambuda/templates/include/footer.html:27 ambuda/templates/support.html:30
+#: ambuda/templates/include/footer.html:27 ambuda/templates/support.html:4
+#: ambuda/templates/support.html:32
 msgid "Support"
 msgstr "सहकारः"
 
-#: ambuda/templates/about/code-and-data.html:20
+#: ambuda/templates/about/code-and-data.html:4
+#: ambuda/templates/about/contact.html:4 ambuda/templates/about/index.html:7
+#: ambuda/templates/about/mission.html:4 ambuda/templates/about/our-name.html:4
+#: ambuda/templates/about/people.html:14 ambuda/templates/about/privacy.html:4
+#: ambuda/templates/about/roadmap.html:4 ambuda/templates/about/terms.html:4
+#: ambuda/templates/about/values.html:4
+#: ambuda/templates/dictionaries/index.html:5
+#: ambuda/templates/proofing/index.html:21 ambuda/templates/support.html:4
+#: ambuda/templates/texts/index.html:19
+#: ambuda/templates/texts/text-about.html:16
+#: ambuda/templates/texts/text-resources.html:5
+#: ambuda/templates/texts/text.html:16
+msgid "| Ambuda"
+msgstr "– अम्बुदः"
+
+#: ambuda/templates/about/code-and-data.html:4
+#: ambuda/templates/about/code-and-data.html:21
 #: ambuda/templates/about/index.html:32 ambuda/templates/include/footer.html:40
 msgid "Code and Data"
 msgstr "पाठ-तन्त्र-मूलानि"
 
-#: ambuda/templates/about/contact.html:9 ambuda/templates/about/index.html:34
-#: ambuda/templates/include/footer.html:29
+#: ambuda/templates/about/contact.html:4 ambuda/templates/about/contact.html:10
+#: ambuda/templates/about/index.html:34 ambuda/templates/include/footer.html:29
 msgid "Contact"
 msgstr "सम्पर्कः"
 
-#: ambuda/templates/about/contact.html:18
+#: ambuda/templates/about/contact.html:19
 msgid "Email address"
 msgstr "विपत्रसङ्केतः"
 
-#: ambuda/templates/about/contact.html:20
+#: ambuda/templates/about/contact.html:21
 msgid "Message"
 msgstr "सन्देशः"
 
-#: ambuda/templates/about/contact.html:22
+#: ambuda/templates/about/contact.html:23
 msgid "Send message"
 msgstr "सन्देशं प्रेषय"
 
-#: ambuda/templates/about/index.html:28 ambuda/templates/about/mission.html:12
+#: ambuda/templates/about/index.html:28 ambuda/templates/about/mission.html:4
+#: ambuda/templates/about/mission.html:15
 #: ambuda/templates/include/footer.html:36
 msgid "Mission"
 msgstr "लक्ष्याणि"
 
-#: ambuda/templates/about/index.html:29 ambuda/templates/about/values.html:7
-#: ambuda/templates/include/footer.html:37
+#: ambuda/templates/about/index.html:29 ambuda/templates/about/values.html:4
+#: ambuda/templates/about/values.html:9 ambuda/templates/include/footer.html:37
 msgid "Values"
 msgstr "स्थूलध्येयानि"
 
-#: ambuda/templates/about/index.html:30 ambuda/templates/about/roadmap.html:7
+#: ambuda/templates/about/index.html:30 ambuda/templates/about/roadmap.html:4
+#: ambuda/templates/about/roadmap.html:9
 #: ambuda/templates/include/footer.html:38
 msgid "Roadmap"
 msgstr "कार्ययोजना"
 
-#: ambuda/templates/about/index.html:31 ambuda/templates/about/people.html:19
+#: ambuda/templates/about/index.html:31 ambuda/templates/about/people.html:14
+#: ambuda/templates/about/people.html:19
 #: ambuda/templates/include/footer.html:39
 msgid "People"
 msgstr "अग्रण्यः"
 
-#: ambuda/templates/about/index.html:33
+#: ambuda/templates/about/index.html:33 ambuda/templates/about/our-name.html:4
+#: ambuda/templates/about/our-name.html:12
 msgid "Our Name"
 msgstr "नामसम्भवः"
 
-#: ambuda/templates/about/privacy.html:10
+#: ambuda/templates/about/privacy.html:4 ambuda/templates/about/privacy.html:10
 #: ambuda/templates/include/footer.html:42
 msgid "Privacy Policy"
 msgstr "गोपनीयतानीतिः"
 
-#: ambuda/templates/about/terms.html:9 ambuda/templates/include/footer.html:41
+#: ambuda/templates/about/terms.html:4 ambuda/templates/about/terms.html:10
+#: ambuda/templates/include/footer.html:41
 msgid "Terms of Use"
 msgstr "उपयोगनियमाः"
 
@@ -176,6 +201,7 @@ msgid "Contribute"
 msgstr "योगदानम्"
 
 #: ambuda/templates/macros/proofing.html:44
+#: ambuda/templates/proofing/index.html:21
 #: ambuda/templates/proofing/index.html:29
 msgid "Ongoing projects"
 msgstr "सक्रियप्रकल्पाः"
@@ -251,4 +277,8 @@ msgstr "उपेक्ष्यम्"
 #: ambuda/templates/proofing/pages/edit.html:51
 msgid "Publish changes"
 msgstr "शोधनानि प्रकाश्यन्ताम्"
+
+#: ambuda/templates/texts/text.html:28
+msgid "Show full text"
+msgstr "सकलग्रन्थं दर्शय"
 

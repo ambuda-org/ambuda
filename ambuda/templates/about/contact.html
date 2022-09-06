@@ -1,10 +1,11 @@
 {% extends 'base-text.html' %}
 
-{% block title %}Contact | Ambuda{% endblock %}
 
-{% set support = url_for('site.support') %}
+{% block title %}{{ _('Contact') }} {{ _('| Ambuda') }}{% endblock %}
+
 
 {% block content %}
+{% set support = url_for('site.support') %}
 <div class="prose">
 <h1>{{ _('Contact') }}</h1>
 

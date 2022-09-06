@@ -4,7 +4,7 @@
 {% set code_url = 'https://github.com/ambuda-org/ambuda' %}
 {% set contact_url = url_for('about.contact') %}
 
-{% block title %}About | Ambuda{% endblock %}
+{% block title %}{{ _('About') }} {{ _('| Ambuda') }}{% endblock %}
 
 {% macro link(route, title) %}
 <li><a href="{{ url_for(route) }}">{{ title }}</a></li>
