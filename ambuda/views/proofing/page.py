@@ -1,5 +1,6 @@
 from flask import render_template, flash, current_app, send_file, Blueprint
 from flask_login import login_required, current_user
+from flask_babel import lazy_gettext
 from flask_wtf import FlaskForm
 from werkzeug.exceptions import abort
 from wtforms import StringField, HiddenField, SelectField
@@ -25,10 +26,10 @@ class EditPageForm(FlaskForm):
     status = SelectField(
         "Status",
         choices=[
-            ("reviewed-0", "Needs more work"),
-            ("reviewed-1", "Proofread once"),
-            ("reviewed-2", "Proofread twice"),
-            ("skip", "No useful text"),
+            ("reviewed-0", lazy_gettext("Needs more work")),
+            ("reviewed-1", lazy_gettext("Proofed once")),
+            ("reviewed-2", lazy_gettext("Proofed twice")),
+            ("skip", lazy_gettext("Not relevant")),
         ],
     )
 

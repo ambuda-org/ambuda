@@ -231,24 +231,24 @@ msgstr "सिंहावलोकनम्"
 #: ambuda/templates/proofing/index.html:12
 #: ambuda/templates/proofing/pages/editor-components.html:28
 msgid "Needs more work"
-msgstr "परिष्करणीयम्"
+msgstr "अशोधितम्"
 
 #: ambuda/templates/proofing/index.html:13
 #: ambuda/templates/proofing/pages/editor-components.html:30
 msgid "Proofed once"
-msgstr "एकवारं परिष्कृतम्"
+msgstr "सकृत् शोधितम्"
 
 #: ambuda/templates/proofing/index.html:14
 #: ambuda/templates/proofing/pages/editor-components.html:32
 msgid "Proofed twice"
-msgstr "द्विवारं परिष्कृतम्"
+msgstr "द्विः शोधितम्"
 
 #: ambuda/templates/proofing/index.html:15
 #: ambuda/templates/proofing/pages/editor-components.html:34
 msgid "Not relevant"
-msgstr "लेखरहितम्"
+msgstr "उपेक्ष्यम्"
 
 #: ambuda/templates/proofing/pages/edit.html:51
 msgid "Publish changes"
-msgstr "परिवर्तनानि प्रकाश्यन्ताम्"
+msgstr "शोधनानि प्रकाश्यन्ताम्"
 
