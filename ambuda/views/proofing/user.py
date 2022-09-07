@@ -5,10 +5,11 @@ from sqlalchemy import orm
 from wtforms import BooleanField, StringField
 from wtforms.widgets import TextArea
 
-import ambuda.queries as q
 from ambuda import database as db
+from ambuda import queries as q
+from ambuda.enums import SiteRole
 from ambuda.utils import heatmap
-from ambuda.utils.auth import admin_required
+from ambuda.views.proofing.decorators import moderator_required
 
 bp = Blueprint("user", __name__)
 
@@ -43,9 +44,13 @@ def activity(username):
     session = q.get_session()
     recent_revisions = (
         session.query(db.Revision)
-        .options(orm.defer(db.Revision.content))
+        .options(
+            orm.defer(db.Revision.content),
+            orm.joinedload(db.Revision.page).load_only(db.Page.id, db.Page.slug),
+        )
         .filter_by(author_id=user_.id)
         .order_by(db.Revision.created.desc())
+        .limit(100)
         .all()
     )
     recent_projects = (
@@ -92,8 +97,9 @@ def edit(username):
 
 def _make_role_form(roles, user_):
     descriptions = {
-        "p1": "Proofreading 1 (can make pages yellow)",
-        "p2": "Proofreading 2 (can make pages green)",
+        SiteRole.P1: "Proofreading 1 (can make pages yellow)",
+        SiteRole.P2: "Proofreading 2 (can make pages green)",
+        SiteRole.MODERATOR: "Moderator",
     }
     # We're mutating a global object, but this is safe because we're doing so
     # in an idempotent way.
@@ -109,7 +115,7 @@ def _make_role_form(roles, user_):
 
 
 @bp.route("/<username>/admin", methods=["GET", "POST"])
-@admin_required
+@moderator_required
 def admin(username):
     """Adjust a user's roles."""
     user_ = q.user(username)

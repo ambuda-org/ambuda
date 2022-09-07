@@ -1,13 +1,15 @@
 from flask import Blueprint, current_app, flash, render_template, send_file
+from flask_babel import lazy_gettext
 from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from werkzeug.exceptions import abort
-from wtforms import HiddenField, SelectField, StringField
+from wtforms import HiddenField, RadioField, SelectField, StringField
 from wtforms.validators import DataRequired
 from wtforms.widgets import TextArea
 
 from ambuda import database as db
 from ambuda import queries as q
+from ambuda.enums import SitePageStatus
 from ambuda.utils import google_ocr
 from ambuda.utils.assets import get_page_image_filepath
 from ambuda.utils.diff import revision_diff
@@ -19,16 +21,16 @@ bp = Blueprint("page", __name__)
 
 
 class EditPageForm(FlaskForm):
-    summary = StringField("Summary of changes made")
+    summary = StringField("Edit summary (optional)")
     version = HiddenField("Page version")
     content = StringField("Content", widget=TextArea(), validators=[DataRequired()])
-    status = SelectField(
+    status = RadioField(
         "Status",
         choices=[
-            ("reviewed-0", "Needs more work"),
-            ("reviewed-1", "Proofread once"),
-            ("reviewed-2", "Proofread twice"),
-            ("skip", "No useful text"),
+            (SitePageStatus.R0.value, lazy_gettext("Needs more work")),
+            (SitePageStatus.R1.value, lazy_gettext("Proofed once")),
+            (SitePageStatus.R2.value, lazy_gettext("Proofed twice")),
+            (SitePageStatus.SKIP.value, lazy_gettext("Not relevant")),
         ],
     )
 
@@ -76,6 +78,8 @@ def edit(project_slug, page_slug):
         latest_revision = cur.revisions[-1]
         form.content.data = latest_revision.content
 
+    is_r0 = cur.status.name == SitePageStatus.R0
+
     return render_template(
         "proofing/pages/edit.html",
         form=form,
@@ -83,6 +87,7 @@ def edit(project_slug, page_slug):
         prev=prev,
         cur=cur,
         next=next,
+        is_r0=is_r0,
     )
 
 

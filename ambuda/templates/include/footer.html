@@ -4,42 +4,47 @@
 {% set paypal = "https://www.paypal.com/donate/?hosted_button_id=932UCTBER9RHA" %}
 {% set twitter = "https://twitter.com/ambuda_org" %}
 <footer class="bg-sky-100 text-slate-700 a-hover-underline text-sm p-4 md:p-12 md:flex justify-between border-t">
-  <div class="md:max-w-xs md:mr-8 prose">
+  <div class="md:max-w-xs md:mr-8">
   <p>Ambuda is run entirely by volunteers for the public
   benefit. Learn more about how you can <a href="{{ url_for('site.support') }}">
   help Ambuda grow</a>.</p>
 
-  <p>{{ 'satyaM vada dharmaM cara |'|devanagari }}</p>
+  <ul class="my-2 float list-disc ml-4">
+    <li><a href="{{ url_for('site.set_language', language='en') }}">English</a></li>
+    <li><a href="{{ url_for('site.set_language', language='sa') }}">{{ 'saMskRtam'|d }}</a></li>
+  </ul>
+
+  <p class="my-2">{{ 'satyaM vada dharmaM cara |'|devanagari }}</p>
   </div>
 
   <div class="md:flex">
   <section class="mr-24 mt-4 md:mt-0">
-    <h3 class="font-bold mb-2">Ambuda</h3>
+    <h3 class="font-bold mb-2"><a href="{{ url_for('site.index') }}">{{ _('Ambuda') }}</a></h3>
     <ul>
-      <li><a href="{{ url_for('texts.index') }}">Texts</a>
-      <li><a href="{{ url_for('dictionaries.index') }}">Dictionaries</a>
-      <li><a href="{{ url_for('proofing.index') }}">Proofing</a>
-      <li><a href="{{ url_for('site.support') }}">Support</a>
-      <li><a href="{{ paypal }}">Donate</a>
-      <li><a href="{{ url_for('about.contact') }}">Contact</a>
+      <li><a href="{{ url_for('texts.index') }}">{{ _('Texts') }}</a>
+      <li><a href="{{ url_for('dictionaries.index') }}">{{ _('Dictionaries') }}</a>
+      <li><a href="{{ url_for('proofing.index') }}">{{ _('Proofing') }}</a>
+      <li><a href="{{ url_for('site.support') }}">{{ _('Support') }}</a>
+      <li><a href="{{ paypal }}">{{ _('Donate') }}</a>
+      <li><a href="{{ url_for('about.contact') }}">{{ _('Contact') }}</a>
     </ul>
   </section>
 
   <section class="mr-24 mt-4 md:mt-0">
-    <h3 class="font-bold mb-2"><a href="{{ url_for('about.index') }}">About</a></h3>
+    <h3 class="font-bold mb-2"><a href="{{ url_for('about.index') }}">{{ _('About') }}</a></h3>
     <ul>
-      <li><a href="{{ url_for('about.mission') }}">Mission</a>
-      <li><a href="{{ url_for('about.values') }}">Values</a>
-      <li><a href="{{ url_for('about.roadmap') }}">Roadmap</a>
-      <li><a href="{{ url_for('about.people') }}">People</a>
-      <li><a href="{{ url_for('about.code_and_data') }}">Code and Data</a>
-      <li><a href="{{ url_for('about.terms') }}">Terms of Use</a>
-      <li><a href="{{ url_for('about.privacy') }}">Privacy Policy</a>
+      <li><a href="{{ url_for('about.mission') }}">{{ _('Mission') }}</a>
+      <li><a href="{{ url_for('about.values') }}">{{ _('Values') }}</a>
+      <li><a href="{{ url_for('about.roadmap') }}">{{ _('Roadmap') }}</a>
+      <li><a href="{{ url_for('about.people') }}">{{ _('People') }}</a>
+      <li><a href="{{ url_for('about.code_and_data') }}">{{ _('Code and Data') }}</a>
+      <li><a href="{{ url_for('about.terms') }}">{{ _('Terms of Use') }}</a>
+      <li><a href="{{ url_for('about.privacy') }}">{{ _('Privacy Policy') }}</a>
     </ul>
   </section>
 
   <section class="mt-4 md:mt-0">
-    <h3 class="font-bold mb-2">Community</h3>
+    <h3 class="font-bold mb-2">{{ _('Community') }}</h3>
     <ul>
       <li><a href="{{ discord }}">Discord</a>
       <li><a href="{{ github }}">GitHub</a>

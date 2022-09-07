@@ -25,13 +25,13 @@ these components in our help text and documentation.
 {# A small status badge we display in the page header. #}
 {% macro status_badge(status) %}
 {% if status == 'reviewed-0' %}
-<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">Needs more work</span>
+<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">{{ _('Needs more work') }}</span>
 {% elif status == 'reviewed-1' %}
-<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">Proofread once</span>
+<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">{{ _('Proofed once') }}</span>
 {% elif status == 'reviewed-2' %}
-<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">Proofread twice</span>
+<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">{{ _('Proofed twice') }}</span>
 {% elif status == 'skip' %}
-<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">Not relevant</span>
+<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">{{ _('Not relevant') }}</span>
 {% endif %}
 {% endmacro %}
 
@@ -127,18 +127,19 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
   <div x-data="{open: false}" class="relative" @click.outside="open=false">
     <button class="{{ button_css }}"
        @click.prevent="open=!open">Transliterator</button>
-    <div x-show="open" class="dropdown-pane w-64 p-2">
+    <div x-show="open" class="dropdown-pane w-80 p-2">
+      <label class="block">From:</label>
       <div class="mb-2 flex justify-between">
-        <label>From:</label>
-        <select x-model="fromScript">
-          <option value="hk">Harvard-Kyoto</option>
-          <option value="itrans">ITRANS</option>
+        <select class="p-1" x-model="fromScript">
+          <option value="hk">Harvard-Kyoto ("aGka" &rarr; {{ 'aGka'|d }})</option>
+          <option value="itrans">ITRANS ("a~Nka" &rarr; {{ 'aGka'|d }})</option>
+          <option value="optitrans">OPTITRANS ("anka" &rarr; {{ 'aGka'|d }})</option>
         </select>
       </div>
 
+      <label class="block">To:</label>
       <div class="mb-2 flex justify-between">
-        <label>To:</label>
-        <select x-model="toScript">
+        <select class="p-1" x-model="toScript">
           <option value="devanagari">Devanagari</option>
           <option value="iast">IAST</option>
         </select>

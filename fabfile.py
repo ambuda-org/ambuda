@@ -77,6 +77,10 @@ def deploy_to_commit(_, pointer: str):
         env_path = str(APP_DIRECTORY / ".env")
         c.put("production/prod-env", env_path)
 
+        # Build i18n and l10n files
+        with c.prefix("source env/bin/activate"):
+            c.run("make babel-compile")
+
         # Verify that the production setup is well-formed.
         with c.prefix("source env/bin/activate"):
             c.run("python -m scripts.check_prod_setup")

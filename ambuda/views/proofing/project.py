@@ -24,6 +24,7 @@ from ambuda.tasks import app as celery_app
 from ambuda.tasks import ocr as ocr_tasks
 from ambuda.utils import project_utils, proofing_utils
 from ambuda.utils.auth import admin_required
+from ambuda.views.proofing.decorators import p2_required
 
 bp = Blueprint("project", __name__)
 
@@ -273,7 +274,7 @@ def search(slug):
 
 
 @bp.route("/<slug>/batch-ocr", methods=["GET", "POST"])
-@login_required
+@p2_required
 def batch_ocr(slug):
     project_ = q.project(slug)
     if project_ is None:
@@ -318,7 +319,7 @@ def batch_ocr_status(task_id):
             if current == total:
                 status = "SUCCESS"
             else:
-                status == "PROGRESS"
+                status = "PROGRESS"
         else:
             status = "FAILURE"
 
