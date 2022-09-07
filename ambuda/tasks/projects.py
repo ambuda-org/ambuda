@@ -12,7 +12,7 @@ from slugify import slugify
 from ambuda import database as db
 from ambuda import queries as q
 from ambuda.tasks import app
-from ambuda.tasks.utils import TaskStatus, CeleryTaskStatus
+from ambuda.tasks.utils import CeleryTaskStatus, TaskStatus
 from config import create_config_only_app
 
 

@@ -1,6 +1,7 @@
 from sqlalchemy import update
 
-from ambuda import database as db, queries as q
+from ambuda import database as db
+from ambuda import queries as q
 
 
 class EditException(Exception):
