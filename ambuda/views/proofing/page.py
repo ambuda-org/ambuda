@@ -3,7 +3,7 @@ from flask_babel import lazy_gettext
 from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from werkzeug.exceptions import abort
-from wtforms import HiddenField, RadioField, SelectField, StringField
+from wtforms import HiddenField, RadioField, StringField
 from wtforms.validators import DataRequired
 from wtforms.widgets import TextArea
 
