@@ -31,6 +31,7 @@ fabric==2.7.0
 flake8==5.0.4
 Flask==2.1.2
 Flask-Admin==1.6.0
+Flask-Babel==2.0.0
 Flask-Bcrypt==1.0.1
 Flask-Login==0.6.1
 Flask-Mail==0.9.1

@@ -4,7 +4,7 @@
 {% set code_url = 'https://github.com/ambuda-org/ambuda' %}
 {% set contact_url = url_for('about.contact') %}
 
-{% block title %}About | Ambuda{% endblock %}
+{% block title %}{{ _('About') }} {{ _('| Ambuda') }}{% endblock %}
 
 {% macro link(route, title) %}
 <li><a href="{{ url_for(route) }}">{{ title }}</a></li>
@@ -12,7 +12,7 @@
 
 {% block content %}
 <div class="prose">
-<h1>About</h1>
+<h1>{{ _('About') }}</h1>
 
 <p>Ambuda's mission is to make the Sanskrit tradition radically accessible.
 Formal work on Ambuda began on 1 June 2022, but our team of volunteers has been
@@ -25,13 +25,13 @@ backgrounds. For all other inquiries, please <a href="{{ contact_url }}">reach
 out to us directly</a>.</p>
 
 <ul>
-  {{ link('about.mission', 'Mission') }}
-  {{ link('about.values', 'Values') }}
-  {{ link('about.roadmap', 'Roadmap') }}
-  {{ link('about.people', 'People') }}
-  {{ link('about.code_and_data', 'Code and Data') }}
-  {{ link('about.name', 'Our Name') }}
-  {{ link('about.contact', 'Contact Us') }}
+  {{ link('about.mission', _('Mission')) }}
+  {{ link('about.values', _('Values')) }}
+  {{ link('about.roadmap', _('Roadmap')) }}
+  {{ link('about.people', _('People')) }}
+  {{ link('about.code_and_data', _('Code and Data')) }}
+  {{ link('about.name', _('Our Name')) }}
+  {{ link('about.contact', _('Contact')) }}
 </ul>
 </div>
 {% endblock %}

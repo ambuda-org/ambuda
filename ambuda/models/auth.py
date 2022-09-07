@@ -1,4 +1,3 @@
-from flask_login import UserMixin
 from datetime import datetime
 from sqlalchemy import (
     Boolean,
@@ -14,9 +13,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from ambuda.enums import SiteRole
 from ambuda.models.base import Base, pk, foreign_key
+from ambuda.utils.user_mixins import AmbudaUserMixin
 
 
-class User(UserMixin, Base):
+class User(AmbudaUserMixin, Base):
     """A user."""
 
     __tablename__ = "users"
@@ -45,17 +45,6 @@ class User(UserMixin, Base):
     def check_password(self, raw_password: str) -> bool:
         """Check if the given password matches the user's hash."""
         return check_password_hash(self.password_hash, raw_password)
-
-    def has_role(self, role: SiteRole) -> bool:
-        return role.value in {r.name for r in self.roles}
-
-    @property
-    def is_admin(self) -> bool:
-        return self.has_role(SiteRole.ADMIN)
-
-    @property
-    def is_proofreader(self) -> bool:
-        return self.has_role(SiteRole.P1) or self.has_role(SiteRole.P2)
 
 
 class Role(Base):

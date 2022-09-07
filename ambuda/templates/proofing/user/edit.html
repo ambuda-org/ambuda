@@ -12,7 +12,7 @@
 {% block content %}
 {% set base = url_for("proofing.user.summary", username=user.username) %}
 {{ m.nested_header('Edit', user.username, base) }}
-{{ m.user_tabs(user=user, active='about', is_admin=current_user.is_admin) }}
+{{ m.user_tabs(user=user, active='about', is_mod=current_user.is_moderator) }}
 
 <form method="POST">
   {{ form.csrf_token }}

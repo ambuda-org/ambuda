@@ -6,6 +6,19 @@
 {% import "macros/forms.html" as mf %}
 
 
+{% macro step(n, text) %}
+<h2 class="text-2xl mt-8 mb-4 pb-2 border-b"><span class="font-bold">Step {{ n }}</span> &mdash; {{ text }}</h2>
+{% endmacro %}
+
+{% macro _radio2(field, model) %}
+<div class="flex items-center">
+  {{ field(**{"class_": "w-4 mr-2", "x-model": model}) }}
+  {{ field.label(class_="cursor-pointer text-lg") }}
+</div>
+{% endmacro %}
+
+
+
 {% block title %}Create project | Ambuda{% endblock %}
 
 
@@ -14,20 +27,127 @@
 
 {% block content %}
 {{ m.title_and_subtitle(
-    "Create a project",
+    _("Create project"),
     "Use our simple uploader to create a new proofing project.") }}
 
-<div class="prose">
-<p>Please upload a PDF file of the original text.</p>
-</div>
 
 {{ components.flash_messages() }}
 {{ mf.show_errors_if_any(form.errors) }}
 
-<form action="" class="p-4 bg-slate-100" method="POST" enctype="multipart/form-data">
-  {{ form.csrf_token }}
-  {{ mf.field(form.file) }}
-  {{ mf.field(form.title) }}
-  <input class="block btn btn-submit" type="submit" value="Upload PDF">
+
+<form action="" method="POST" enctype="multipart/form-data"
+  x-data="{ source: '{{ form.pdf_source.data }}',
+  license: '{{ form.license.data }}'}">
+{{ form.csrf_token }}
+
+
+{{ step(1, "Search") }}
+
+<div class="prose">
+<p>At Ambuda, we're interested in any book that has some connection to Sanskrit
+literature. This includes:</p>
+
+<ul>
+  <li>original texts</li>
+  <li>commentaries</li>
+  <li>translations</li>
+  <li>dictionaries</li>
+  <li>grammar books</li>
+</ul>
+
+<p>And anything else you think is relevant.</p>
+
+<p>To avoid duplicating effort, we suggest that you first check the Internet
+carefully to see if your book has been digitized elsewhere already. Try
+searching for exact words and phrases from the book.</p>
+</div>
+
+
+{{ step(2, "Upload") }}
+
+<div class="prose">
+<p>Right now, our uploader supports PDF documents only. Where is your PDF
+coming from?</p>
+</div>
+
+{% set radios = form.pdf_source|list %}
+<fieldset x-ref="source" class="p-4 bg-slate-100">
+  {# FIXME(arun): enable in a follow-up PR #}
+  {#
+  {{ _radio2(radios[0], "source") }}
+  <div class="ml-6 my-4" x-show="source === 'archive.org'">
+    <p>We'll fetch the PDF for you from archive.org. To do so, we need the
+    PDF's <dfn>identifier</dfn>, which is the short text ID that follows
+    <kbd>/details/</kbd> in the URL.</p>
+
+    <div class="my-4 bg-slate-100">
+    <kbd>https://archive.org/details/</kbd>
+    {{ form.archive_identifier(class_="rounded border p-1", placeholder="charucharya_hindi") }}
+    </div>
+  </div>
+  #}
+
+  {{ _radio2(radios[1], "source") }}
+  <div class="ml-6 my-4" x-show="source === 'local'">
+    <p>We'll copy the PDF from your computer. Please use the form below to find
+    a PDF on your computer:</p>
+
+    <div class="my-4 bg-slate-100">
+      {{ form.local_file }}
+    </div>
+
+    <p class="my-4">We also need a title for this PDF:</p>
+    {{ form.local_title(class_="p-2 block w-full", placeholder="My cool title") }}
+  </div>
+</fieldset>
+
+
+{{ step(3, "Verify") }}
+
+<div class="prose">
+<p>To the best of your knowledge, what is the license of this book?</p>
+</div>
+
+{% set radios = form.license|list %}
+<fieldset x-ref="license" class="p-4 bg-slate-100 my-4">
+  {{ _radio2(radios[0], "license") }}
+  <div class="prose ml-6 mt-4">
+  <p>Public domain books can be used by anyone for any purpose. The following
+  books are in the public domain by default:</p>
+
+  <ul>
+    <li>Books published in India on or before 1957.</li>
+    <li>Books published in the United States on or before 1927.</li>
+  </ul>
+  </div>
+
+  {{ _radio2(radios[1], "license") }}
+  <div class="prose ml-6 mt-4">
+    <p>Copyrighted books are owned by a specific person or group. We accept
+    copyrighted books under the following terms <strong>only</strong>:</p>
+
+  <ul>
+    <li><p>You are providing the book in good faith that its main text is out of
+        copyright. OR, you have received permission from the copyright
+        holder.</p></li>
+    <li><p>Ambuda will make the book available for personal and scholarly use
+        only. Those who wish to use the book beyond the scope of fair use are
+        responsible for any legal consequences and are encouraged to contact
+        the copyright holder directly.</p></li>
+    <li><p>Ambuda will remove the book immediately if the copyright holder
+        requests it.</p></li>
+  </ul>
+  </div>
+
+  {{ _radio2(radios[2], "license") }}
+  <div class="prose ml-6 mt-4" x-show="license === 'other'">
+  <p>If this project falls under some other license, please say more about that
+  license here:</p>
+
+  {{ form.custom_license(class_="block w-full h-32 rounded my-4 p-2") }}
+  </div>
+</fieldset>
+
+<input class="block btn btn-submit" type="submit" value="Create project">
 </form>
 {% endblock %}

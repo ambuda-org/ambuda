@@ -87,6 +87,12 @@ class BaseConfig:
     # Extensions
     # ----------
 
+    # Flask-Babel
+
+    #: Default locale. This is "en" by default, but declare it here to be
+    #: explicit.
+    BABEL_DEFAULT_LOCALE = "en"
+
     # Flask-Mail
 
     #: URL for mail server.
