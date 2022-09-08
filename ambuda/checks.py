@@ -1,12 +1,10 @@
 """Sanity checks that run on application startup."""
 
-
 import sys
 
 from click import style
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect
 from sqlalchemy.schema import Column
-from sqlalchemy import inspect
 
 from ambuda import consts
 from ambuda import database as db

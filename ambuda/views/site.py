@@ -2,7 +2,6 @@
 
 from flask import Blueprint, redirect, render_template, session, url_for
 
-
 bp = Blueprint("site", __name__)
 
 

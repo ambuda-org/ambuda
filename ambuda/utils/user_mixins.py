@@ -1,6 +1,7 @@
 from typing import Iterable
 
 from flask_login import AnonymousUserMixin, UserMixin
+
 from ambuda.enums import SiteRole
 
 

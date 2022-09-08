@@ -1,5 +1,6 @@
 import pytest
-from ambuda.utils.dict_utils import standardize_key, expand_apte_keys, expand_skd_keys
+
+from ambuda.utils.dict_utils import expand_apte_keys, expand_skd_keys, standardize_key
 
 
 @pytest.mark.parametrize(

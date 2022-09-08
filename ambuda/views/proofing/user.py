@@ -1,17 +1,8 @@
-from flask import (
-    Blueprint,
-    abort,
-    flash,
-    redirect,
-    render_template,
-    url_for,
-)
-
+from flask import Blueprint, abort, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from sqlalchemy import orm
-from wtforms import BooleanField
-from wtforms import StringField
+from wtforms import BooleanField, StringField
 from wtforms.widgets import TextArea
 
 from ambuda import database as db
@@ -19,7 +10,6 @@ from ambuda import queries as q
 from ambuda.enums import SiteRole
 from ambuda.utils import heatmap
 from ambuda.views.proofing.decorators import moderator_required
-
 
 bp = Blueprint("user", __name__)
 

@@ -9,15 +9,9 @@ from typing import Optional
 
 from flask import current_app
 from sqlalchemy import create_engine
-from sqlalchemy.orm import (
-    load_only,
-    selectinload,
-    scoped_session,
-    sessionmaker,
-)
+from sqlalchemy.orm import load_only, scoped_session, selectinload, sessionmaker
 
 import ambuda.database as db
-
 
 # NOTE: this logic is copied from Flask-SQLAlchemy. We avoid Flask-SQLAlchemy
 # because we also need to access the database from a non-Flask context when
