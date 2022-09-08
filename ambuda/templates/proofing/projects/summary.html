@@ -18,7 +18,7 @@
 
 {% if project.description %}
 <div class="prose">
-  <h2>Description</h2>
+  <h2>{{ _('Description') }}</h2>
   <blockquote>
   {{ project.description|markdown|safe }}
   </blockquote>
@@ -46,28 +46,28 @@
 <div class="bg-slate-100 p-4 w-2/3">
 <table class="w-full">
   <tr>
-    <th class="text-left">Title</th>
+    <th class="text-left">{{ _('Title') }}</th>
     <td class="text-right">{{ project.title or "(none)" }}</td>
   </tr>
   <tr>
-    <th class="text-left">Author</th>
+    <th class="text-left">{{ _('Author') }}</th>
     <td class="text-right">{{ project.author or "(none)" }}</td>
   </tr>
   <tr>
-    <th class="text-left">Editor</th>
+    <th class="text-left">{{ _('Editor') }}</th>
     <td class="text-right">{{ project.editor or "(none)" }}</td></tr>
   <tr>
-    <th class="text-left">Publisher</th>
+    <th class="text-left">{{ _('Publisher') }}</th>
     <td class="text-right">{{ project.publisher or "(none)" }}</td></tr>
   <tr>
-    <th class="text-left">Publication year</th>
+    <th class="text-left">{{ _('Publication year') }}</th>
     <td class="text-right">{{ project.publication_year or "(none)" }}</td>
   </tr>
 </table>
 </div>
 
 <div class="prose">
-  <h2>Recent discussion</h2>
+  <h2>{{ _('Recent discussion') }}</h2>
 </div>
 
 {% if project.board.threads[:3] %}
@@ -88,7 +88,7 @@
 {% if recent_revisions %}
 {{ m.revision_list(recent_revisions) }}
 {% else %}
-<p>This project doesn't have any edits yet.</p>
+<p>{{ _("This project doesn't have any edits yet.") }}</p>
 {% endif %}
 
 {% endblock %}

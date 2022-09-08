@@ -13,7 +13,7 @@
 {{ components.flash_messages() }}
 
 <form method="POST" class="bg-white rounded p-8">
-  <h1 class="text-2xl font-bold text-center mb-8">Sign in to Ambuda</h1>
+  <h1 class="text-2xl font-bold text-center mb-8">{{ _('Sign in to Ambuda') }}</h1>
 
   {{ form.csrf_token }}
   {{ mf.auth_field(form.username) }}
@@ -30,6 +30,6 @@
 </form>
 
 <p class="text-center text-md mt-4 a-hover-underline text-slate-600">
-  <a href="{{ url_for('auth.register') }}">Don't have an account? Click here to register.</a>
+  <a href="{{ url_for('auth.register') }}">{{ _("Don't have an account? Click here to register.") }}</a>
 </p>
 {% endblock %}

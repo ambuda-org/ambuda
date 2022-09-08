@@ -10,7 +10,9 @@
 {{ mf.show_errors_if_any(form.errors) }}
 
 <form method="POST" class="bg-white rounded p-8">
-  <h1 class="text-2xl font-bold text-center mb-8">Create an Ambuda account</h1>
+  <h1 class="text-2xl font-bold text-center mb-8">
+    {{ _('Create an Ambuda account') }}
+  </h1>
   {{ form.csrf_token }}
   {{ mf.auth_field(form.username) }}
   {{ mf.auth_field(form.password) }}
@@ -20,6 +22,6 @@
   {{ form.recaptcha }}
   </div>
 
-  {{ mf.auth_submit("Create account") }}
+  {{ mf.auth_submit(_("Create account")) }}
 </form>
 {% endblock %}

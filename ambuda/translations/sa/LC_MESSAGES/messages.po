@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-07 21:55-0700\n"
+"POT-Creation-Date: 2022-09-07 22:47-0700\n"
 "PO-Revision-Date: 2022-09-03 21:40-0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sa\n"
@@ -58,11 +58,8 @@ msgstr "आधुनिकः संस्कृतग्रन्थालय�
 
 #: ambuda/templates/index.html:53
 msgid ""
-"\n"
-"    Sanskrit literature with word-by-word analysis and integrated "
-"dictionaries.\n"
-"    All in a free online library that works on all devices.\n"
-"    "
+"Sanskrit literature with word-by-word analysis and integrated "
+"dictionaries. All in a free online library that works on all devices."
 msgstr ""
 
 #: ambuda/templates/index.html:61 ambuda/templates/index.html:158
@@ -75,21 +72,17 @@ msgstr ""
 
 #: ambuda/templates/index.html:82
 msgid ""
-"\n"
 "Sanskrit texts are scattered across dozens of websites, thousands of "
-"books, and\n"
-"millions of manuscripts. Their quality and ease of use vary widely, and "
-"there\n"
-"isn't an easy way to explore what Sanskrit has to offer.\n"
+"books, and millions of manuscripts. Their quality and ease of use vary "
+"widely, and there isn't an easy way to explore what Sanskrit has to "
+"offer."
 msgstr ""
 
 #: ambuda/templates/index.html:88
 msgid ""
-"\n"
-"That's why Ambuda is building a complete library of traditional Sanskrit\n"
+"That's why Ambuda is building a complete library of traditional Sanskrit "
 "literature. Our library is small now, but it's growing rapidly. Soon, it "
-"will\n"
-"be the largest Sanskrit library in the world.\n"
+"will be the largest Sanskrit library in the world."
 msgstr ""
 
 #: ambuda/templates/index.html:97
@@ -98,22 +91,16 @@ msgstr ""
 
 #: ambuda/templates/index.html:99
 msgid ""
-"\n"
 "What if you could read Sanskrit anywhere for free? What if reading "
-"Sanskrit\n"
-"online were delightful and beautiful? What if you could easily find "
-"Sanskrit\n"
-"resources in your native language?\n"
+"Sanskrit online were delightful and beautiful? What if you could easily "
+"find Sanskrit resources in your native language?"
 msgstr ""
 
 #: ambuda/templates/index.html:105
 msgid ""
-"\n"
 "We have a long way to go, but we want to make our library radically "
-"accessible\n"
-"to as many people as we can. For now, you can use our website on any "
-"device.\n"
-"Soon, we'll support other languages besides English.\n"
+"accessible to as many people as we can. For now, you can use our website "
+"on any device. Soon, we'll support other languages besides English."
 msgstr ""
 
 #: ambuda/templates/index.html:114
@@ -122,22 +109,17 @@ msgstr ""
 
 #: ambuda/templates/index.html:116
 msgid ""
-"\n"
 "Word-by-word analysis. Integrated dictionary support. Transliteration to "
-"a\n"
-"variety of different scripts. And so much more. Our intelligent library "
-"uses\n"
-"state-of-the-art technology to make Sanskrit more accessible than ever "
-"before.\n"
+"a variety of different scripts. And so much more. Our intelligent library"
+" uses state-of-the-art technology to make Sanskrit more accessible than "
+"ever before."
 msgstr ""
 
 #: ambuda/templates/index.html:122
 msgid ""
-"\n"
-"But our work is just beginning. We have so much planned for the future:\n"
+"But our work is just beginning. We have so much planned for the future: "
 "translations, commentaries, full-text search, and deeper hyperlinks "
-"across the\n"
-"entire corpus.\n"
+"across the entire corpus."
 msgstr ""
 
 #: ambuda/templates/index.html:131
@@ -147,21 +129,16 @@ msgstr ""
 #: ambuda/templates/index.html:134
 #, python-format
 msgid ""
-"\n"
 "Ambuda is run entirely by volunteers, and we would be thrilled to have "
-"your\n"
-"support in whatever form you can provide it. Learn more about how you can"
-" <a\n"
-"href=\"%(support_url)s\">help Ambuda grow</a>.\n"
+"your support in whatever form you can provide it. Learn more about how "
+"you can <a href=\"%(support_url)s\">help Ambuda grow</a>."
 msgstr ""
 
 #: ambuda/templates/index.html:140
 #, python-format
 msgid ""
-"\n"
 "Ambuda is growing rapidly. <a href=\"%(mailing_url)s\">Sign up for our "
-"mailing\n"
-"list</a> to receive regular updates on new content and features.\n"
+"mailing list</a> to receive regular updates on new content and features."
 msgstr ""
 
 #: ambuda/templates/index.html:149
@@ -248,8 +225,17 @@ msgstr "उपयोगनियमाः"
 
 #: ambuda/templates/auth/register.html:6
 #: ambuda/templates/include/header-login.html:32
+#: ambuda/templates/proofing/base-sidebar.html:30
 msgid "Register"
 msgstr "पञ्जीकरणम्"
+
+#: ambuda/templates/auth/register.html:14
+msgid "Create an Ambuda account"
+msgstr ""
+
+#: ambuda/templates/auth/register.html:25
+msgid "Create account"
+msgstr ""
 
 #: ambuda/templates/auth/reset-password.html:6
 #: ambuda/templates/auth/reset-password.html:15
@@ -267,11 +253,20 @@ msgstr ""
 
 #: ambuda/templates/auth/sign-in.html:6 ambuda/templates/auth/sign-in.html:29
 #: ambuda/templates/include/header-login.html:33
+#: ambuda/templates/proofing/base-sidebar.html:31
 msgid "Sign in"
 msgstr "प्रवेशः"
 
+#: ambuda/templates/auth/sign-in.html:16
+msgid "Sign in to Ambuda"
+msgstr ""
+
 #: ambuda/templates/auth/sign-in.html:24
 msgid "Forgot password?"
+msgstr ""
+
+#: ambuda/templates/auth/sign-in.html:33
+msgid "Don't have an account? Click here to register."
 msgstr ""
 
 #: ambuda/templates/dictionaries/index.html:16
@@ -282,14 +277,47 @@ msgstr "शब्दकोशान्वेषणम्"
 msgid "Search"
 msgstr "अन्विष्यताम्"
 
+#: ambuda/templates/include/dict-options.html:1
+msgid "Sanskrit-English"
+msgstr ""
+
+#: ambuda/templates/include/dict-options.html:2
+msgid "Apte (1890)"
+msgstr ""
+
+#: ambuda/templates/include/dict-options.html:3
+msgid "Monier-Williams (1899)"
+msgstr ""
+
+#: ambuda/templates/include/dict-options.html:4
+msgid "Shabdasagara (1900)"
+msgstr ""
+
+#: ambuda/templates/include/dict-options.html:6
+msgid "Sanskrit-Sanskrit"
+msgstr ""
+
+#: ambuda/templates/include/dict-options.html:7
+msgid "Vācaspatyam (1873)"
+msgstr ""
+
+#: ambuda/templates/include/dict-options.html:8
+msgid "Śabdakalpadrumaḥ (1886)"
+msgstr ""
+
+#: ambuda/templates/include/dict-options.html:10
+msgid "Sanskrit-Kannada"
+msgstr ""
+
+#: ambuda/templates/include/dict-options.html:11
+msgid "Shabdarthakaustubha"
+msgstr ""
+
 #: ambuda/templates/include/footer.html:9
 #, python-format
 msgid ""
-"\n"
-"  Ambuda is run entirely by volunteers for the public benefit. Learn more"
-"\n"
-"  about how you can <a href=\"%(support)s\"> help Ambuda grow</a>.\n"
-"  "
+"Ambuda is run entirely by volunteers for the public benefit. Learn more "
+"about how you can <a href=\"%(support)s\"> help Ambuda grow</a>."
 msgstr ""
 
 #: ambuda/templates/include/footer.html:31
@@ -320,6 +348,34 @@ msgstr ""
 #: ambuda/templates/include/header-login.html:28
 msgid "Sign out"
 msgstr "निर्गमः"
+
+#: ambuda/templates/include/script-options.html:1
+msgid "Devanagari"
+msgstr ""
+
+#: ambuda/templates/include/script-options.html:2
+msgid "Roman"
+msgstr ""
+
+#: ambuda/templates/include/script-options.html:3
+msgid "Gujarati"
+msgstr ""
+
+#: ambuda/templates/include/script-options.html:4
+msgid "Kannada"
+msgstr ""
+
+#: ambuda/templates/include/script-options.html:5
+msgid "Malayalam"
+msgstr ""
+
+#: ambuda/templates/include/script-options.html:6
+msgid "Oriya"
+msgstr ""
+
+#: ambuda/templates/include/script-options.html:7
+msgid "Telugu"
+msgstr ""
 
 #: ambuda/templates/macros/components.html:2
 msgid "{title} # Ambuda"
@@ -410,6 +466,12 @@ msgstr "प्रशासनम्"
 msgid "Overview"
 msgstr "सिंहावलोकनम्"
 
+#: ambuda/templates/proofing/base-sidebar.html:23
+msgid ""
+"Thousands of Sanskrit texts are available only in print. Join our global "
+"volunteer effort to digitize these texts and make them accessible to all."
+msgstr ""
+
 #: ambuda/templates/proofing/index.html:13
 #: ambuda/templates/proofing/pages/editor-components.html:28
 msgid "Needs more work"
@@ -434,7 +496,144 @@ msgstr "उपेक्ष्यम्"
 msgid "Publish changes"
 msgstr "शोधनानि प्रकाश्यन्ताम्"
 
+#: ambuda/templates/proofing/projects/summary.html:21
+msgid "Description"
+msgstr ""
+
+#: ambuda/templates/proofing/projects/summary.html:49
+msgid "Title"
+msgstr ""
+
+#: ambuda/templates/proofing/projects/summary.html:53
+msgid "Author"
+msgstr ""
+
+#: ambuda/templates/proofing/projects/summary.html:57
+#, fuzzy
+msgid "Editor"
+msgstr "सम्पादनम्"
+
+#: ambuda/templates/proofing/projects/summary.html:60
+msgid "Publisher"
+msgstr ""
+
+#: ambuda/templates/proofing/projects/summary.html:63
+msgid "Publication year"
+msgstr ""
+
+#: ambuda/templates/proofing/projects/summary.html:70
+msgid "Recent discussion"
+msgstr ""
+
+#: ambuda/templates/proofing/projects/summary.html:91
+msgid "This project doesn't have any edits yet."
+msgstr ""
+
 #: ambuda/templates/texts/text.html:28
 msgid "Show full text"
 msgstr "सकलग्रन्थं दर्शय"
+
+#~ msgid ""
+#~ "\n"
+#~ "    Sanskrit literature with word-by-"
+#~ "word analysis and integrated dictionaries."
+#~ "\n"
+#~ "    All in a free online library that works on all devices.\n"
+#~ "    "
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "Sanskrit texts are scattered across "
+#~ "dozens of websites, thousands of books,"
+#~ " and\n"
+#~ "millions of manuscripts. Their quality "
+#~ "and ease of use vary widely, and"
+#~ " there\n"
+#~ "isn't an easy way to explore what Sanskrit has to offer.\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "That's why Ambuda is building a "
+#~ "complete library of traditional Sanskrit\n"
+#~ ""
+#~ "literature. Our library is small now,"
+#~ " but it's growing rapidly. Soon, it"
+#~ " will\n"
+#~ "be the largest Sanskrit library in the world.\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "What if you could read Sanskrit "
+#~ "anywhere for free? What if reading "
+#~ "Sanskrit\n"
+#~ "online were delightful and beautiful? "
+#~ "What if you could easily find "
+#~ "Sanskrit\n"
+#~ "resources in your native language?\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "We have a long way to go, "
+#~ "but we want to make our library"
+#~ " radically accessible\n"
+#~ "to as many people as we can. "
+#~ "For now, you can use our website"
+#~ " on any device.\n"
+#~ "Soon, we'll support other languages besides English.\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "Word-by-word analysis. Integrated "
+#~ "dictionary support. Transliteration to a\n"
+#~ ""
+#~ "variety of different scripts. And so "
+#~ "much more. Our intelligent library uses"
+#~ "\n"
+#~ "state-of-the-art technology to "
+#~ "make Sanskrit more accessible than ever"
+#~ " before.\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "But our work is just beginning. We"
+#~ " have so much planned for the "
+#~ "future:\n"
+#~ "translations, commentaries, full-text search,"
+#~ " and deeper hyperlinks across the\n"
+#~ "entire corpus.\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "Ambuda is run entirely by volunteers,"
+#~ " and we would be thrilled to "
+#~ "have your\n"
+#~ "support in whatever form you can "
+#~ "provide it. Learn more about how "
+#~ "you can <a\n"
+#~ "href=\"%(support_url)s\">help Ambuda grow</a>.\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "Ambuda is growing rapidly. <a "
+#~ "href=\"%(mailing_url)s\">Sign up for our "
+#~ "mailing\n"
+#~ "list</a> to receive regular updates on new content and features.\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "  Ambuda is run entirely by "
+#~ "volunteers for the public benefit. Learn"
+#~ " more\n"
+#~ "  about how you can <a href=\"%(support)s\"> help Ambuda grow</a>.\n"
+#~ "  "
+#~ msgstr ""
 
