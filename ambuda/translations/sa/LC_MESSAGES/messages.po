@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-07 22:47-0700\n"
+"POT-Creation-Date: 2022-09-08 09:06-0700\n"
 "PO-Revision-Date: 2022-09-03 21:40-0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sa\n"
@@ -176,7 +176,8 @@ msgstr "सम्पर्कः"
 msgid "Email address"
 msgstr "विपत्रसङ्केतः"
 
-#: ambuda/templates/about/contact.html:22
+#: ambuda/templates/about/contact.html:22 ambuda/views/proofing/talk.py:19
+#: ambuda/views/proofing/talk.py:25 ambuda/views/proofing/talk.py:31
 msgid "Message"
 msgstr "सन्देशः"
 
@@ -381,13 +382,26 @@ msgstr ""
 msgid "{title} # Ambuda"
 msgstr ""
 
+#: ambuda/templates/macros/forms.html:35
+#, python-format
+msgid ""
+"You can format this text with Markdown. <a href=\"%(help_url)s\">Click "
+"here to learn more.</a>"
+msgstr ""
+
 #: ambuda/templates/macros/library.html:5
 msgid "Contents"
-msgstr "अनुक्रमणिका"
+msgstr ""
 
 #: ambuda/templates/macros/library.html:6
 msgid "Resources"
-msgstr "पाठमूलानि"
+msgstr ""
+
+#: ambuda/templates/macros/library.html:7
+#, fuzzy
+msgctxt "texts"
+msgid "About"
+msgstr "अध्यम्बुदम्"
 
 #: ambuda/templates/macros/proofing.html:35
 msgid "Help"
@@ -424,7 +438,6 @@ msgid "Create project"
 msgstr "प्रकल्पसृष्टिः"
 
 #: ambuda/templates/macros/proofing.html:46
-#: ambuda/templates/proofing/projects/summary.html:85
 #: ambuda/templates/proofing/recent-changes.html:13
 msgid "Recent changes"
 msgstr "सद्यःपरिवर्तनानि"
@@ -496,42 +509,176 @@ msgstr "उपेक्ष्यम्"
 msgid "Publish changes"
 msgstr "शोधनानि प्रकाश्यन्ताम्"
 
-#: ambuda/templates/proofing/projects/summary.html:21
-msgid "Description"
+#: ambuda/templates/proofing/projects/download.html:23
+msgid "Download as plain text"
 msgstr ""
 
-#: ambuda/templates/proofing/projects/summary.html:49
-msgid "Title"
+#: ambuda/templates/proofing/projects/download.html:26
+msgid "Download as TEI XML"
 msgstr ""
 
-#: ambuda/templates/proofing/projects/summary.html:53
-msgid "Author"
+#: ambuda/templates/proofing/talk/board.html:19
+msgid "Create thread"
 msgstr ""
 
-#: ambuda/templates/proofing/projects/summary.html:57
-#, fuzzy
-msgid "Editor"
-msgstr "सम्पादनम्"
-
-#: ambuda/templates/proofing/projects/summary.html:60
-msgid "Publisher"
+#: ambuda/templates/proofing/talk/thread.html:56
+msgid "Add a post"
 msgstr ""
 
-#: ambuda/templates/proofing/projects/summary.html:63
-msgid "Publication year"
+#: ambuda/templates/texts/index.html:33
+msgid "Upanishads"
 msgstr ""
 
-#: ambuda/templates/proofing/projects/summary.html:70
-msgid "Recent discussion"
+#: ambuda/templates/texts/index.html:34
+msgid "Itihasas"
 msgstr ""
 
-#: ambuda/templates/proofing/projects/summary.html:91
-msgid "This project doesn't have any edits yet."
+#: ambuda/templates/texts/index.html:35
+msgid "Kavyas"
+msgstr ""
+
+#: ambuda/templates/texts/index.html:36
+msgid "Other works"
+msgstr ""
+
+#: ambuda/templates/texts/section.html:31
+msgid "This text does not support clickable word meanings."
+msgstr ""
+
+#: ambuda/templates/texts/section.html:35
+msgid "Click on words to see what they mean."
+msgstr ""
+
+#: ambuda/templates/texts/section.html:58
+msgid "Font Size:"
+msgstr ""
+
+#: ambuda/templates/texts/section.html:60
+msgid "Tiny"
+msgstr ""
+
+#: ambuda/templates/texts/section.html:61
+msgid "Small"
+msgstr ""
+
+#: ambuda/templates/texts/section.html:62
+msgid "Medium"
+msgstr ""
+
+#: ambuda/templates/texts/section.html:63
+msgid "Large"
+msgstr ""
+
+#: ambuda/templates/texts/section.html:64
+msgid "X-Large"
+msgstr ""
+
+#: ambuda/templates/texts/section.html:68
+msgid "Script:"
+msgstr ""
+
+#: ambuda/templates/texts/section.html:75
+msgid "Parsed View:"
+msgstr ""
+
+#: ambuda/templates/texts/section.html:77
+msgid "In place"
+msgstr ""
+
+#: ambuda/templates/texts/section.html:78
+msgid "Side by side"
 msgstr ""
 
 #: ambuda/templates/texts/text.html:28
 msgid "Show full text"
 msgstr "सकलग्रन्थं दर्शय"
+
+#: ambuda/views/auth.py:84 ambuda/views/auth.py:106
+#, fuzzy
+msgid "Username"
+msgstr "नामसम्भवः"
+
+#: ambuda/views/auth.py:87 ambuda/views/auth.py:109 ambuda/views/auth.py:129
+msgid "Password"
+msgstr ""
+
+#: ambuda/views/auth.py:121
+msgid "Old password"
+msgstr ""
+
+#: ambuda/views/auth.py:124
+msgid "New password"
+msgstr ""
+
+#: ambuda/views/auth.py:131
+msgid "Confirm password"
+msgstr ""
+
+#: ambuda/views/auth.py:153
+msgid "Please click the reCAPTCHA box."
+msgstr ""
+
+#: ambuda/views/proofing/project.py:42
+msgid "Description (optional)"
+msgstr ""
+
+#: ambuda/views/proofing/project.py:45
+msgid "What is this book about? Why is this project interesting?"
+msgstr ""
+
+#: ambuda/views/proofing/project.py:49
+msgid "Page numbers (optional)"
+msgstr ""
+
+#: ambuda/views/proofing/project.py:58
+msgid "Author"
+msgstr ""
+
+#: ambuda/views/proofing/project.py:60
+msgid "The author of the original work, e.g. Kalidasa."
+msgstr ""
+
+#: ambuda/views/proofing/project.py:64
+#, fuzzy
+msgid "Editor"
+msgstr "सम्पादनम्"
+
+#: ambuda/views/proofing/project.py:66
+msgid "The person or organization that created this edition of the text."
+msgstr ""
+
+#: ambuda/views/proofing/project.py:70
+msgid "Publisher"
+msgstr ""
+
+#: ambuda/views/proofing/project.py:72
+msgid "The original publisher of this book, e.g. Nirnayasagar."
+msgstr ""
+
+#: ambuda/views/proofing/project.py:76
+msgid "Publication year"
+msgstr ""
+
+#: ambuda/views/proofing/project.py:78
+msgid "The year in which this specific edition was published."
+msgstr ""
+
+#: ambuda/views/proofing/project.py:87
+msgid "Query"
+msgstr ""
+
+#: ambuda/views/proofing/project.py:160
+#, fuzzy
+msgid "Saved changes."
+msgstr "सद्यःपरिवर्तनानि"
+
+#: ambuda/views/proofing/project.py:300
+msgid "All pages in this project have at least one edit already."
+msgstr ""
+
+#: ambuda/views/proofing/talk.py:17
+msgid "Title"
+msgstr ""
 
 #~ msgid ""
 #~ "\n"
@@ -635,5 +782,54 @@ msgstr "सकलग्रन्थं दर्शय"
 #~ " more\n"
 #~ "  about how you can <a href=\"%(support)s\"> help Ambuda grow</a>.\n"
 #~ "  "
+#~ msgstr ""
+
+#~ msgid "Contents"
+#~ msgstr "अनुक्रमणिका"
+
+#~ msgid "Resources"
+#~ msgstr "पाठमूलानि"
+
+#~ msgid "Username"
+#~ msgstr "नामसम्भवः"
+
+#~ msgid "Password"
+#~ msgstr ""
+
+#~ msgid "Old password"
+#~ msgstr ""
+
+#~ msgid "New password"
+#~ msgstr ""
+
+#~ msgid "Confirm password"
+#~ msgstr ""
+
+#~ msgid "Please click the reCAPTCHA box."
+#~ msgstr ""
+
+#~ msgid "texts"
+#~ msgstr "ग्रन्थाः"
+
+#~ msgid "Description"
+#~ msgstr ""
+
+#~ msgid "Pages"
+#~ msgstr ""
+
+#~ msgctxt "project"
+#~ msgid "About"
+#~ msgstr "अध्यम्बुदम्"
+
+#~ msgid "Recent discussion"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This project doesn't have any ongoing"
+#~ " discussion. <a href=\"%(new_thread_url)s\">Start "
+#~ "a new thread?</a>"
+#~ msgstr ""
+
+#~ msgid "This project doesn't have any edits yet."
 #~ msgstr ""
 

@@ -148,7 +148,7 @@ def create_app(config_env: str):
     app.jinja_env.globals.update(
         {
             "asset": assets.hashed_static,
-            "_t": i18n_text.gettext,
+            "pgettext": i18n_text.pgettext,
         }
     )
 

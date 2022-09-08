@@ -27,11 +27,13 @@ For the corresponding JavaScript bindings and logic, see `reader.js`.
   </div>
 
   {% if has_no_parse %}
-  <p lang="en" class="text-center text-xs text-zinc-400 mt-2 mb-4">This text
-  does not support clickable word meanings.</p>
+  <p lang="en" class="text-center text-xs text-zinc-400 mt-2 mb-4">
+    {{ _('This text does not support clickable word meanings.') }}
+  </p>
   {% else %}
-  <p lang="en" class="text-center text-xs text-zinc-400 mt-2 mb-4">Click on
-  words to see what they mean.</p>
+  <p lang="en" class="text-center text-xs text-zinc-400 mt-2 mb-4">
+    {{ _('Click on words to see what they mean.') }}
+  </p>
   {% endif %}
 </header>
 {% endmacro %}
@@ -53,27 +55,27 @@ For the corresponding JavaScript bindings and logic, see `reader.js`.
 or in their own modal window. #}
 {% macro settings() %}
   <div class="hidden md:inline text-sm border-r px-4">
-    <span>Font Size:</span>
+    <span>{{ _('Font Size:') }}</span>
     <select class="p-1" x-model="fontSize" @change="saveSettings">
-      <option value="md:text-base">Tiny</option>
-      <option value="md:text-lg">Small</option>
-      <option value="md:text-xl" selected>Medium</option>
-      <option value="md:text-2xl">Large</option>
-      <option value="md:text-3xl">X-Large</option>
+      <option value="md:text-base">{{ _('Tiny') }}</option>
+      <option value="md:text-lg">{{ _('Small') }}</option>
+      <option value="md:text-xl" selected>{{ _('Medium') }}</option>
+      <option value="md:text-2xl">{{ _('Large') }}</option>
+      <option value="md:text-3xl">{{ _('X-Large') }}</option>
     </select>
   </div>
   <div class="text-sm border-r px-4">
-    <span class="hidden md:inline">Script:</span>
+    <span class="hidden md:inline">{{ _('Script:') }}</span>
     <select id="switch-sa" class="p-1" @change="updateScript" x-model="uiScript">
       {% include 'include/script-options.html' %}
     </select>
   </div>
   {% if not has_no_parse %}
   <div class="hidden md:inline text-sm border-r px-4">
-    <span>Parsed View:</span>
+    <span>{{ _('Parsed View:') }}</span>
     <select id="switch-parse-options" class="p-1" x-model="parseLayout" @change="saveSettings">
-      <option value="in-place" selected>In place</option>
-      <option value="side-by-side">Side by side</option>
+      <option value="in-place" selected>{{ _('In place') }}</option>
+      <option value="side-by-side">{{ _('Side by side') }}</option>
     </select>
   </div>
   {% endif %}

@@ -26,7 +26,7 @@
 {% endif %}
 
 <div class="prose">
-  <h2>Pages</h2>
+  <h2>{{ _('Pages') }}</h2>
 </div>
 
 <ul class="grid grid-cols-5 md:grid-cols-10 gap-2 text-center">
@@ -40,28 +40,28 @@
 </ul>
 
 <div class="prose">
-  <h2>About</h2>
+  <h2>{{ pgettext("project", "About") }}</h2>
 </div>
 
 <div class="bg-slate-100 p-4 w-2/3">
 <table class="w-full">
   <tr>
     <th class="text-left">{{ _('Title') }}</th>
-    <td class="text-right">{{ project.title or "(none)" }}</td>
+    <td class="text-right">{{ project.title or _("(none)") }}</td>
   </tr>
   <tr>
     <th class="text-left">{{ _('Author') }}</th>
-    <td class="text-right">{{ project.author or "(none)" }}</td>
+    <td class="text-right">{{ project.author or _("(none)") }}</td>
   </tr>
   <tr>
     <th class="text-left">{{ _('Editor') }}</th>
-    <td class="text-right">{{ project.editor or "(none)" }}</td></tr>
+    <td class="text-right">{{ project.editor or _("(none)") }}</td></tr>
   <tr>
     <th class="text-left">{{ _('Publisher') }}</th>
-    <td class="text-right">{{ project.publisher or "(none)" }}</td></tr>
+    <td class="text-right">{{ project.publisher or "(none)") }}</td></tr>
   <tr>
     <th class="text-left">{{ _('Publication year') }}</th>
-    <td class="text-right">{{ project.publication_year or "(none)" }}</td>
+    <td class="text-right">{{ project.publication_year or _("(none)") }}</td>
   </tr>
 </table>
 </div>
@@ -73,11 +73,12 @@
 {% if project.board.threads[:3] %}
 {{ m_talk.thread_list(project.slug, project.board.threads) }}
 {% else %}
-{% set new_thread = url_for('proofing.talk.create_thread', slug=project.slug) %}
+{% set new_thread_url = url_for('proofing.talk.create_thread', slug=project.slug) %}
 <div class="prose">
-    <p>This project doesn't have any ongoing discussion.
-    <a href="{{ new_thread }}">Start a new thread?</a>
-    </p>
+  <p>{% trans %}
+  This project doesn't have any ongoing discussion.
+  <a href="{{ new_thread_url }}">Start a new thread?</a>
+  {% endtrans %}</p>
 </div>
 {% endif %}
 
