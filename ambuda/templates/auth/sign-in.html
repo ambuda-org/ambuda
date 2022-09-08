@@ -3,7 +3,7 @@
 {% import "macros/forms.html" as mf %}
 
 
-{% block title %}Sign in | Ambuda{% endblock %}
+{% block title %}{{ components.title(_('Sign in')) }}{% endblock %}
 
 
 {% set forgot = url_for('auth.get_reset_password_token') %}
@@ -21,12 +21,12 @@
   <div class="mb-4">
   <div class="flex justify-between items-center">
   {{ mf.auth_label(form.password) }}
-  <a class="hover:underline font-bold text-sm text-slate-500" href="{{ forgot }}">Forgot password?</a>
+  <a class="hover:underline font-bold text-sm text-slate-500" href="{{ forgot }}">{{ _('Forgot password?') }}</a>
   </div>
   {{ mf.auth_input(form.password) }}
   </div>
 
-  {{ mf.auth_submit("Sign in") }}
+  {{ mf.auth_submit(_("Sign in")) }}
 </form>
 
 <p class="text-center text-md mt-4 a-hover-underline text-slate-600">

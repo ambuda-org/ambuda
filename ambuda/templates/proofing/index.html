@@ -1,4 +1,5 @@
 {% extends 'proofing/base-sidebar.html' %}
+{% import "macros/components.html" as mc %}
 {% import "macros/proofing.html" as m %}
 
 
@@ -17,8 +18,7 @@
 {% endmacro %}
 
 
-
-{% block title %}{{ _('Ongoing projects') }} {{ _('| Ambuda') }}{% endblock %}
+{% block title %}{{ mc.title(_('Ongoing projects')) }}{% endblock %}
 
 
 {% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}

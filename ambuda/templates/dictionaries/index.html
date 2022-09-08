@@ -1,8 +1,9 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as mc %}
 {% import 'macros/dictionaries.html' as m %}
 
 
-{% block title %}{{ _('Dictionaries') }} {{ _('| Ambuda') }}{% endblock %}
+{% block title %}{{ mc.title(_('Dictionaries')) }}{% endblock %}
 
 
 {% block meta_description -%}

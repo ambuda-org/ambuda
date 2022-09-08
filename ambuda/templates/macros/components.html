@@ -1,3 +1,6 @@
+{# Page title template. #}
+{% macro title(text) %}{{ _('{title} # Ambuda').format(title=text) }}{% endmacro %}
+
 {# Small warning box, e.g. for form errors. #}
 {% macro p_warning() %}
 <p class="p-2 bg-red-100 text-red-900 rounded my-4">
@@ -12,8 +15,6 @@
   {{ caller() }}
 </div>
 {% endmacro %}
-
-
 
 
 {# Large notes box, e.g. for form info messages. #}

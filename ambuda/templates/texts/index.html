@@ -1,4 +1,5 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
 
 
 {% macro text_list(key, title) %}
@@ -16,7 +17,7 @@
 {% endmacro %}
 
 
-{% block title %}{{ _('Texts') }} {{ _('| Ambuda') }}{% endblock %}
+{% block title %}{{ m.title(_('Texts')) }}{% endblock %}
 
 
 {% block meta_description -%}Our breakthrough library features word-by-word

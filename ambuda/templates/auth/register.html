@@ -3,7 +3,8 @@
 {% import "macros/forms.html" as mf %}
 
 
-{% block title %}Register | Ambuda{% endblock %}
+{% block title %}{{ components.title(_('Register')) }}{% endblock %}
+
 
 {% block content %}
 {{ mf.show_errors_if_any(form.errors) }}

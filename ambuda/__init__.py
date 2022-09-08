@@ -132,6 +132,8 @@ def create_app(config_env: str):
     app.register_blueprint(site)
     app.register_blueprint(texts, url_prefix="/texts")
 
+    # i18n string trimming
+    app.jinja_env.policies["ext.i18n.trimmed"] = True
     # Template functions and filters
     app.jinja_env.filters.update(
         {
