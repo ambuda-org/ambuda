@@ -2,7 +2,7 @@
 
 
 {% macro text_list(key, title) %}
-<h2 class="font-bold text-2xl py-2 mt-8 mb-4 border-b">{{ title|devanagari }}</h2>
+<h2 class="font-bold text-2xl py-2 mt-8 mb-4 border-b">{{ title }}</h2>
 
 <ul>
 {% for slug in categories[key] if slug in texts %}
@@ -27,15 +27,11 @@ analysis and integrated dictionary support for a variety of Sanskrit works.
 {% block content %}
 <div class="prose">
   <h1>{{ _('Texts') }}</h1>
-
-  <p>Our main focus right now is on building out the core features of our
-  library. Once those features are in place, we will radically increase the
-  size and quality of our collection.</p>
 </div>
 
-{{ text_list('upanishat', 'upaniSadaH') }}
-{{ text_list('itihasa', 'itihAsAH') }}
-{{ text_list('kavya', 'kAvyAni') }}
-{{ text_list('anye', 'anye granthAH') }}
+{{ text_list('upanishat', _('Upanishads')) }}
+{{ text_list('itihasa', _('Itihasas')) }}
+{{ text_list('kavya', _('Kavyas')) }}
+{{ text_list('anye', _('Other works')) }}
 
 {% endblock %}
