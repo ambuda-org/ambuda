@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-08 19:45-0700\n"
+"POT-Creation-Date: 2022-09-08 20:14-0700\n"
 "PO-Revision-Date: 2022-09-03 21:40-0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sa\n"
@@ -17,6 +17,31 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.10.3\n"
+
+#: ambuda/templates/404.html:11
+msgid "Not Found (404)"
+msgstr ""
+
+#: ambuda/templates/404.html:13
+#, python-format
+msgid ""
+"Sorry! We couldn't find what you were looking for. If you think you've "
+"found a bug in our project, <a href=\"%(contact_url)s\">let us know</a> "
+"and we'll fix it as soon as we can."
+msgstr ""
+
+#: ambuda/templates/500.html:11
+msgid "Server Error (500)"
+msgstr ""
+
+#: ambuda/templates/500.html:13
+#, python-format
+msgid ""
+"Sorry, our site has encountered an unknown error. We will investigate the"
+" issue so that we can prevent it in the future. If you think you know "
+"what caused this issue, please <a href=\"%(contact_url)s\">let us "
+"know</a> and we'll fix it as soon as we can."
+msgstr ""
 
 #: ambuda/templates/include/footer.html:30
 #: ambuda/templates/include/header-login.html:14
@@ -99,6 +124,7 @@ msgid "By the public, for the public"
 msgstr ""
 
 #: ambuda/templates/index.html:114
+#, python-format
 msgid ""
 "Ambuda is run entirely by volunteers, and we would be thrilled to have "
 "your support in whatever form you can provide it. Learn more about how "
@@ -106,6 +132,7 @@ msgid ""
 msgstr ""
 
 #: ambuda/templates/index.html:120
+#, python-format
 msgid ""
 "Ambuda is growing rapidly. <a href=\"%(mailing_url)s\">Sign up for our "
 "mailing list</a> to receive regular updates on new content and features."
@@ -119,17 +146,9 @@ msgstr ""
 msgid "Our work is just beginning. Thank you for using Ambuda."
 msgstr ""
 
-#: ambuda/templates/include/footer.html:35 ambuda/templates/support.html:4
-#: ambuda/templates/support.html:32
+#: ambuda/templates/include/footer.html:35 ambuda/templates/support.html:33
 msgid "Support"
 msgstr "सहकारः"
-
-#: ambuda/templates/about/privacy.html:4 ambuda/templates/about/terms.html:4
-#: ambuda/templates/support.html:4 ambuda/templates/texts/text-about.html:16
-#: ambuda/templates/texts/text-resources.html:5
-#: ambuda/templates/texts/text.html:16
-msgid "| Ambuda"
-msgstr "– अम्बुदः"
 
 #: ambuda/templates/about/code-and-data.html:5
 #: ambuda/templates/about/code-and-data.html:22
@@ -143,6 +162,7 @@ msgid "Contact"
 msgstr "सम्पर्कः"
 
 #: ambuda/templates/about/contact.html:13
+#, python-format
 msgid ""
 "For comments, questions, and feedback on our work, please use the form "
 "below to email us. If you want to help Ambuda grow, <a "
@@ -178,6 +198,7 @@ msgid ""
 msgstr ""
 
 #: ambuda/templates/about/index.html:28
+#, python-format
 msgid ""
 "<a href=\"%(mailing_url)s\">Our mailing list</a> shares regular updates "
 "on Ambuda and our other Sanskrit projects. <a href=\"%(code_url)s\">Our "
@@ -220,6 +241,13 @@ msgstr "नामसम्भवः"
 msgid "Privacy Policy"
 msgstr "गोपनीयतानीतिः"
 
+#: ambuda/templates/about/privacy.html:4 ambuda/templates/about/terms.html:4
+#: ambuda/templates/texts/text-about.html:16
+#: ambuda/templates/texts/text-resources.html:5
+#: ambuda/templates/texts/text.html:16
+msgid "| Ambuda"
+msgstr "– अम्बुदः"
+
 #: ambuda/templates/about/terms.html:4 ambuda/templates/about/terms.html:10
 #: ambuda/templates/include/footer.html:49
 msgid "Terms of Use"
@@ -240,6 +268,7 @@ msgid "Create account"
 msgstr ""
 
 #: ambuda/templates/auth/reset-password-post.html:13
+#, python-format
 msgid ""
 "We've sent a recovery email to <kbd>%(email)s</kbd>. Check your email for"
 " a link to reset your password. If it doesn’t appear within a few "
@@ -335,6 +364,7 @@ msgid "Shabdarthakaustubha"
 msgstr ""
 
 #: ambuda/templates/include/footer.html:9
+#, python-format
 msgid ""
 "Ambuda is run entirely by volunteers for the public benefit. Learn more "
 "about how you can <a href=\"%(support)s\"> help Ambuda grow</a>."
@@ -410,10 +440,11 @@ msgid "Telugu"
 msgstr ""
 
 #: ambuda/templates/macros/components.html:2
-msgid "{title} # Ambuda"
+msgid "{title} | Ambuda"
 msgstr ""
 
 #: ambuda/templates/macros/forms.html:35
+#, python-format
 msgid ""
 "You can format this text with Markdown. <a href=\"%(help_url)s\">Click "
 "here to learn more.</a>"
@@ -433,6 +464,7 @@ msgid "About"
 msgstr "अध्यम्बुदम्"
 
 #: ambuda/templates/macros/proofing-talk.html:10
+#, python-format
 msgid "Created by <a href=\"%(author_url)s\">%(username)s</a>"
 msgstr ""
 
@@ -566,6 +598,7 @@ msgid "Descending"
 msgstr ""
 
 #: ambuda/templates/proofing/index.html:59
+#, python-format
 msgid "%(num)d page"
 msgid_plural "%(num)d pages"
 msgstr[0] ""
@@ -649,6 +682,7 @@ msgid "Recent discussion"
 msgstr ""
 
 #: ambuda/templates/proofing/projects/summary.html:78
+#, python-format
 msgid ""
 "This project doesn't have any ongoing discussion. <a "
 "href=\"%(new_thread_url)s\">Start a new thread?</a>"
@@ -798,3 +832,7 @@ msgstr "सद्यःपरिवर्तनानि"
 #: ambuda/views/proofing/project.py:306
 msgid "All pages in this project have at least one edit already."
 msgstr ""
+
+#~ msgid "{title} # Ambuda"
+#~ msgstr ""
+
