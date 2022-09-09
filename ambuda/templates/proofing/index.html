@@ -35,16 +35,16 @@
 <div x-data="sortableList('title')">
 
 <form class="border p-2 rounded text-sm">
-<label class="text-slate-500">Sort by:</label>
-<select class="bg-white" x-model="field" @change="sort">
-  <option value="title" selected>Title</option> 
-  <option value="created">Creation date</option> 
-  <option value="progress">Progress</option> 
-</select>
-<select class="bg-white" x-model="order" @change="sort">
-  <option value="asc" selected>Ascending</option> 
-  <option value="desc">Descending</option> 
-</select>
+  <label class="text-slate-500">{{ _('Sort by:') }}</label>
+  <select class="bg-white" x-model="field" @change="sort">
+    <option value="title" selected>{{ _('Title') }}</option> 
+    <option value="created">{{ _('Creation date') }}</option> 
+    <option value="progress">{{ _('Progress') }}</option> 
+  </select>
+  <select class="bg-white" x-model="order" @change="sort">
+    <option value="asc" selected>{{ _('Ascending') }}</option> 
+    <option value="desc">{{ _('Descending') }}</option> 
+  </select>
 </form>
 
 <ul x-ref="list">
