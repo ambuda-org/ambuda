@@ -84,7 +84,7 @@ class SignupForm(FlaskForm):
         _l("Username"), [val.Length(min=6, max=25), val.DataRequired()]
     )
     password = PasswordField(_l("Password"), [val.Length(min=8), val.DataRequired()])
-    email = StringField("Email", [val.DataRequired(), val.Email()])
+    email = StringField(_l("Email address"), [val.DataRequired(), val.Email()])
     recaptcha = RecaptchaField()
 
     def validate_username(self, username):

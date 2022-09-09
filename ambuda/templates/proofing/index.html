@@ -54,7 +54,10 @@
       data-progress="{{ progress_per_project[p.id] }}">
     <div class="mt-4 a-hover-underline flex justify-between items-baseline">
       <a href="{{ url_for("proofing.project.summary", slug=p.slug) }}">{{ p.title }}</a>
-      <span class="text-xs">{{ pages_per_project[p.id] }} pages</span>
+      {% set count = pages_per_project[p.id] %}
+      <span class="text-xs">
+        {{ ngettext('%(num)d page', '%(num)d pages', count) }}
+      </span>
     </div>
 
     <div class="flex">

@@ -4,10 +4,10 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
 #
 msgid ""
-msgstr "___"
+msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-08 09:19-0700\n"
+"POT-Creation-Date: 2022-09-08 19:41-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -18,59 +18,31 @@ msgstr "___"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.10.3\n"
 
-#: ambuda/templates/include/footer.html:25
+#: ambuda/templates/include/footer.html:31
 #: ambuda/templates/include/header-login.html:14
-#: ambuda/templates/include/header.html:13 ambuda/templates/index.html:30
-#: ambuda/templates/index.html:38
+#: ambuda/templates/include/header.html:13 ambuda/templates/index.html:20
 msgid "Ambuda"
 msgstr "___"
 
-#: ambuda/templates/include/footer.html:27
-#: ambuda/templates/include/header-login.html:20
-#: ambuda/templates/include/header.html:19 ambuda/templates/index.html:44
-#: ambuda/templates/texts/index.html:20 ambuda/templates/texts/index.html:30
-msgid "Texts"
-msgstr "___"
-
-#: ambuda/templates/dictionaries/index.html:6
-#: ambuda/templates/include/footer.html:28
-#: ambuda/templates/include/header-login.html:21
-#: ambuda/templates/include/header.html:20 ambuda/templates/index.html:45
-msgid "Dictionaries"
-msgstr "___"
-
-#: ambuda/templates/include/footer.html:29
-#: ambuda/templates/include/header-login.html:22
-#: ambuda/templates/include/header.html:21 ambuda/templates/index.html:46
-msgid "Proofing"
-msgstr "___"
-
-#: ambuda/templates/about/index.html:15 ambuda/templates/about/index.html:20
-#: ambuda/templates/include/footer.html:37
-#: ambuda/templates/include/header-login.html:23
-#: ambuda/templates/include/header.html:22 ambuda/templates/index.html:47
-msgid "About"
-msgstr "___"
-
-#: ambuda/templates/index.html:52
+#: ambuda/templates/index.html:31
 msgid "A breakthrough Sanskrit library"
 msgstr "___"
 
-#: ambuda/templates/index.html:53
+#: ambuda/templates/index.html:32
 msgid ""
 "Sanskrit literature with word-by-word analysis and integrated "
 "dictionaries. All in a free online library that works on all devices."
 msgstr "___"
 
-#: ambuda/templates/index.html:61 ambuda/templates/index.html:158
+#: ambuda/templates/index.html:40 ambuda/templates/index.html:138
 msgid "Explore the library"
 msgstr "___"
 
-#: ambuda/templates/index.html:80
+#: ambuda/templates/index.html:60
 msgid "Building the world's largest Sanskrit library"
 msgstr "___"
 
-#: ambuda/templates/index.html:82
+#: ambuda/templates/index.html:62
 msgid ""
 "Sanskrit texts are scattered across dozens of websites, thousands of "
 "books, and millions of manuscripts. Their quality and ease of use vary "
@@ -78,36 +50,36 @@ msgid ""
 "offer."
 msgstr "___"
 
-#: ambuda/templates/index.html:88
+#: ambuda/templates/index.html:68
 msgid ""
 "That's why Ambuda is building a complete library of traditional Sanskrit "
 "literature. Our library is small now, but it's growing rapidly. Soon, it "
 "will be the largest Sanskrit library in the world."
 msgstr "___"
 
-#: ambuda/templates/index.html:97
+#: ambuda/templates/index.html:77
 msgid "Open access for all"
 msgstr "___"
 
-#: ambuda/templates/index.html:99
+#: ambuda/templates/index.html:79
 msgid ""
 "What if you could read Sanskrit anywhere for free? What if reading "
 "Sanskrit online were delightful and beautiful? What if you could easily "
 "find Sanskrit resources in your native language?"
 msgstr "___"
 
-#: ambuda/templates/index.html:105
+#: ambuda/templates/index.html:85
 msgid ""
 "We have a long way to go, but we want to make our library radically "
 "accessible to as many people as we can. For now, you can use our website "
 "on any device. Soon, we'll support other languages besides English."
 msgstr "___"
 
-#: ambuda/templates/index.html:114
+#: ambuda/templates/index.html:94
 msgid "Intelligent technology"
 msgstr "___"
 
-#: ambuda/templates/index.html:116
+#: ambuda/templates/index.html:96
 msgid ""
 "Word-by-word analysis. Integrated dictionary support. Transliteration to "
 "a variety of different scripts. And so much more. Our intelligent library"
@@ -115,39 +87,41 @@ msgid ""
 "ever before."
 msgstr "___"
 
-#: ambuda/templates/index.html:122
+#: ambuda/templates/index.html:102
 msgid ""
 "But our work is just beginning. We have so much planned for the future: "
 "translations, commentaries, full-text search, and deeper hyperlinks "
 "across the entire corpus."
 msgstr "___"
 
-#: ambuda/templates/index.html:131
+#: ambuda/templates/index.html:111
 msgid "By the public, for the public"
 msgstr "___"
 
-#: ambuda/templates/index.html:134
+#: ambuda/templates/index.html:114
+#, python-format
 msgid ""
 "Ambuda is run entirely by volunteers, and we would be thrilled to have "
 "your support in whatever form you can provide it. Learn more about how "
 "you can <a href=\"%(support_url)s\">help Ambuda grow</a>."
 msgstr "___"
 
-#: ambuda/templates/index.html:140
+#: ambuda/templates/index.html:120
+#, python-format
 msgid ""
 "Ambuda is growing rapidly. <a href=\"%(mailing_url)s\">Sign up for our "
 "mailing list</a> to receive regular updates on new content and features."
 msgstr "___"
 
-#: ambuda/templates/index.html:149
+#: ambuda/templates/index.html:129
 msgid "Sanskrit at your fingertips"
 msgstr "___"
 
-#: ambuda/templates/index.html:152
+#: ambuda/templates/index.html:132
 msgid "Our work is just beginning. Thank you for using Ambuda."
 msgstr "___"
 
-#: ambuda/templates/include/footer.html:30 ambuda/templates/support.html:4
+#: ambuda/templates/include/footer.html:36 ambuda/templates/support.html:4
 #: ambuda/templates/support.html:32
 msgid "Support"
 msgstr "___"
@@ -161,16 +135,16 @@ msgstr "___"
 
 #: ambuda/templates/about/code-and-data.html:5
 #: ambuda/templates/about/code-and-data.html:22
-#: ambuda/templates/about/index.html:37 ambuda/templates/include/footer.html:43
+#: ambuda/templates/about/index.html:41 ambuda/templates/include/footer.html:49
 msgid "Code and Data"
 msgstr "___"
 
 #: ambuda/templates/about/contact.html:5 ambuda/templates/about/contact.html:11
-#: ambuda/templates/about/index.html:39 ambuda/templates/include/footer.html:32
+#: ambuda/templates/about/index.html:43 ambuda/templates/include/footer.html:38
 msgid "Contact"
 msgstr "___"
 
-#: ambuda/templates/about/contact.html:20
+#: ambuda/templates/about/contact.html:20 ambuda/views/auth.py:87
 msgid "Email address"
 msgstr "___"
 
@@ -183,42 +157,66 @@ msgstr "___"
 msgid "Send message"
 msgstr "___"
 
-#: ambuda/templates/about/index.html:33 ambuda/templates/about/mission.html:5
+#: ambuda/templates/about/index.html:15 ambuda/templates/about/index.html:20
+#: ambuda/templates/include/footer.html:43
+#: ambuda/templates/include/header-login.html:23
+#: ambuda/templates/include/header.html:22
+msgid "About"
+msgstr "___"
+
+#: ambuda/templates/about/index.html:22
+msgid ""
+"Ambuda's mission is to make the Sanskrit tradition radically accessible. "
+"Formal work on Ambuda began on 1 June 2022, but our team of volunteers "
+"has been dreaming of such a project for years."
+msgstr "___"
+
+#: ambuda/templates/about/index.html:28
+#, python-format
+msgid ""
+"<a href=\"%(mailing_url)s\">Our mailing list</a> shares regular updates "
+"on Ambuda and our other Sanskrit projects. <a href=\"%(code_url)s\">Our "
+"code</a> is all on GitHub, and we eagerly welcome contributors of all "
+"backgrounds. For all other inquiries, please <a "
+"href=\"%(contact_url)s\">reach out to us directly</a>."
+msgstr "___"
+
+#: ambuda/templates/about/index.html:37 ambuda/templates/about/mission.html:5
 #: ambuda/templates/about/mission.html:16
-#: ambuda/templates/include/footer.html:39
+#: ambuda/templates/include/footer.html:45
 msgid "Mission"
 msgstr "___"
 
-#: ambuda/templates/about/index.html:34 ambuda/templates/about/values.html:5
+#: ambuda/templates/about/index.html:38 ambuda/templates/about/values.html:5
 #: ambuda/templates/about/values.html:10
-#: ambuda/templates/include/footer.html:40
+#: ambuda/templates/include/footer.html:46
 msgid "Values"
 msgstr "___"
 
-#: ambuda/templates/about/index.html:35 ambuda/templates/about/roadmap.html:5
+#: ambuda/templates/about/index.html:39 ambuda/templates/about/roadmap.html:5
 #: ambuda/templates/about/roadmap.html:10
-#: ambuda/templates/include/footer.html:41
+#: ambuda/templates/include/footer.html:47
 msgid "Roadmap"
 msgstr "___"
 
-#: ambuda/templates/about/index.html:36 ambuda/templates/about/people.html:15
+#: ambuda/templates/about/index.html:40 ambuda/templates/about/people.html:15
 #: ambuda/templates/about/people.html:20
-#: ambuda/templates/include/footer.html:42
+#: ambuda/templates/include/footer.html:48
 msgid "People"
 msgstr "___"
 
-#: ambuda/templates/about/index.html:38 ambuda/templates/about/our-name.html:5
+#: ambuda/templates/about/index.html:42 ambuda/templates/about/our-name.html:5
 #: ambuda/templates/about/our-name.html:13
 msgid "Our Name"
 msgstr "___"
 
 #: ambuda/templates/about/privacy.html:4 ambuda/templates/about/privacy.html:10
-#: ambuda/templates/include/footer.html:45
+#: ambuda/templates/include/footer.html:51
 msgid "Privacy Policy"
 msgstr "___"
 
 #: ambuda/templates/about/terms.html:4 ambuda/templates/about/terms.html:10
-#: ambuda/templates/include/footer.html:44
+#: ambuda/templates/include/footer.html:50
 msgid "Terms of Use"
 msgstr "___"
 
@@ -267,6 +265,13 @@ msgstr "___"
 msgid "Don't have an account? Click here to register."
 msgstr "___"
 
+#: ambuda/templates/dictionaries/index.html:6
+#: ambuda/templates/include/footer.html:34
+#: ambuda/templates/include/header-login.html:21
+#: ambuda/templates/include/header.html:20
+msgid "Dictionaries"
+msgstr "___"
+
 #: ambuda/templates/dictionaries/index.html:16
 msgid "Dictionary lookup"
 msgstr "___"
@@ -312,32 +317,46 @@ msgid "Shabdarthakaustubha"
 msgstr "___"
 
 #: ambuda/templates/include/footer.html:9
+#, python-format
 msgid ""
 "Ambuda is run entirely by volunteers for the public benefit. Learn more "
 "about how you can <a href=\"%(support)s\"> help Ambuda grow</a>."
 msgstr "___"
 
-#: ambuda/templates/include/footer.html:31
+#: ambuda/templates/include/footer.html:33
+#: ambuda/templates/include/header-login.html:20
+#: ambuda/templates/include/header.html:19 ambuda/templates/texts/index.html:20
+#: ambuda/templates/texts/index.html:30
+msgid "Texts"
+msgstr "___"
+
+#: ambuda/templates/include/footer.html:35
+#: ambuda/templates/include/header-login.html:22
+#: ambuda/templates/include/header.html:21
+msgid "Proofing"
+msgstr "___"
+
+#: ambuda/templates/include/footer.html:37
 msgid "Donate"
 msgstr "___"
 
-#: ambuda/templates/include/footer.html:50
+#: ambuda/templates/include/footer.html:56
 msgid "Community"
 msgstr "___"
 
-#: ambuda/templates/include/footer.html:52
+#: ambuda/templates/include/footer.html:58
 msgid "Discord"
 msgstr "___"
 
-#: ambuda/templates/include/footer.html:53
+#: ambuda/templates/include/footer.html:59
 msgid "GitHub"
 msgstr "___"
 
-#: ambuda/templates/include/footer.html:54
+#: ambuda/templates/include/footer.html:60
 msgid "Reddit"
 msgstr "___"
 
-#: ambuda/templates/include/footer.html:55
+#: ambuda/templates/include/footer.html:61
 msgid "Twitter"
 msgstr "___"
 
@@ -511,7 +530,7 @@ msgstr "___"
 
 #: ambuda/templates/proofing/index.html:40
 #: ambuda/templates/proofing/projects/summary.html:49
-#: ambuda/views/proofing/talk.py:17
+#: ambuda/views/proofing/project.py:58 ambuda/views/proofing/talk.py:17
 msgid "Title"
 msgstr "___"
 
@@ -531,16 +550,43 @@ msgstr "___"
 msgid "Descending"
 msgstr "___"
 
+#: ambuda/templates/proofing/index.html:59
+#, python-format
+msgid "%(num)d page"
+msgid_plural "%(num)d pages"
+msgstr[0] "___"
+msgstr[1] "___"
+
 #: ambuda/templates/proofing/pages/edit.html:76
 msgid "Publish changes"
 msgstr "___"
 
-#: ambuda/templates/proofing/projects/download.html:23
+#: ambuda/templates/proofing/projects/download.html:16
+msgid ""
+"You can use these links to download the latest version of the transcribed"
+" project. To save these files to your local machine, right-click and "
+"click <kbd>Save As &hellip;</kbd> or whatever similar option your "
+"computer gives you."
+msgstr "___"
+
+#: ambuda/templates/proofing/projects/download.html:24
 msgid "Download as plain text"
 msgstr "___"
 
-#: ambuda/templates/proofing/projects/download.html:26
+#: ambuda/templates/proofing/projects/download.html:27
 msgid "Download as TEI XML"
+msgstr "___"
+
+#: ambuda/templates/proofing/projects/edit.html:22
+msgid "Search the project"
+msgstr "___"
+
+#: ambuda/templates/proofing/projects/edit.html:23
+msgid "Run batch OCR"
+msgstr "___"
+
+#: ambuda/templates/proofing/projects/edit.html:39
+msgid "Save changes"
 msgstr "___"
 
 #: ambuda/templates/proofing/projects/summary.html:21
@@ -600,6 +646,7 @@ msgid "This project doesn't have any edits yet."
 msgstr "___"
 
 #: ambuda/templates/proofing/talk/board.html:19
+#: ambuda/templates/proofing/talk/create-thread.html:25
 msgid "Create thread"
 msgstr "___"
 
@@ -738,48 +785,4 @@ msgstr "___"
 #: ambuda/views/proofing/project.py:306
 msgid "All pages in this project have at least one edit already."
 msgstr "___"
-
-# Spanish translations for PROJECT.
-# Copyright (C) 2022 ORGANIZATION
-# This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
-#~ msgid "___"
-#~ msgstr "___"
-#~ "_________Project-Id-Version: PROJECT VERSION\n"
-#~ "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-#~ "POT-Creation-Date: 2022-09-08 08:45-0700\n"
-#~ "PO-Revision-Date: 2022-09-07 22:37-0700\n"
-#~ "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-#~ "Language: es\n"
-#~ "Language-Team: es <LL@li.org>\n"
-#~ "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-#~ "MIME-Version: 1.0\n"
-#~ "Content-Type: text/plain; charset=utf-8\n"
-#~ "Content-Transfer-Encoding: 8bit\n"
-#~ "Generated-By: Babel 2.10.3\n"
-
-#~ msgid "texts"
-#~ msgstr "___"
-
-#~ msgid "Description"
-#~ msgstr "___"
-
-#~ msgid "Pages"
-#~ msgstr "___"
-
-#~ msgctxt "project"
-#~ msgid "About"
-#~ msgstr "___"
-
-#~ msgid "Recent discussion"
-#~ msgstr "___"
-
-#~ msgid ""
-#~ "This project doesn't have any ongoing"
-#~ " discussion. <a href=\"%(new_thread_url)s\">Start "
-#~ "a new thread?</a>"
-#~ msgstr "___"
-
-#~ msgid "This project doesn't have any edits yet."
-#~ msgstr "___"
 

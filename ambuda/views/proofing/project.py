@@ -55,7 +55,7 @@ class EditMetadataForm(FlaskForm):
             "placeholder": "Coming soon.",
         },
     )
-    title = StringField("Title", validators=[DataRequired()])
+    title = StringField(_l("Title"), validators=[DataRequired()])
     author = StringField(
         _l("Author"),
         render_kw={

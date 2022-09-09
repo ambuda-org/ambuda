@@ -11,7 +11,7 @@ import sys
 import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask, session
-from flask_babel import Babel, Domain
+from flask_babel import Babel, Domain, pgettext
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy import exc
 
@@ -108,7 +108,6 @@ def create_app(config_env: str):
 
     # Extensions
     babel = Babel(app)
-    i18n_text = Domain(domain="text")
 
     @babel.localeselector
     def get_locale():
@@ -148,7 +147,7 @@ def create_app(config_env: str):
     app.jinja_env.globals.update(
         {
             "asset": assets.hashed_static,
-            "pgettext": i18n_text.pgettext,
+            "pgettext": pgettext,
         }
     )
 
