@@ -1,4 +1,4 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/proofing.html" as m %}
 {% from "macros/forms.html" import field, show_errors_if_any %}
 
@@ -9,7 +9,7 @@
   {% set username = post.author.username %}
   <div class="text-sm mb-2 text-slate-500 a-hover-underline flex justify-between">
     <div>
-      <a class="font-bold" href="{{ url_for("proofing.users.user", username=username) }}">{{ username }}</a>
+      <a class="font-bold" href="{{ url_for("proofing.user.summary", username=username) }}">{{ username }}</a>
       &#xb7; {{ post.created_at|time_ago }}
       {% if (post.updated_at - post.created_at).seconds > 600 %}
       <span class="italic">(edited {{ post.updated_at|time_ago }})</span>
@@ -31,6 +31,9 @@
 
 
 {% block title %}{{ thread.title }} | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
 
 
 {% block content %}

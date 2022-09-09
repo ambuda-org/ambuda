@@ -1,0 +1,23 @@
+{% extends 'proofing/base-sidebar.html' %}
+{% import "macros/components.html" as components %}
+{% import "macros/proofing.html" as m %}
+{% import "macros/forms.html" as mf %}
+
+{% block title %}Edit: {{ user.username }} | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
+
+
+{% block content %}
+{% set base = url_for("proofing.user.summary", username=user.username) %}
+{{ m.nested_header('Edit', user.username, base) }}
+{{ m.user_tabs(user=user, active='about', is_mod=current_user.is_moderator) }}
+
+<form method="POST">
+  {{ form.csrf_token }}
+  {{ mf.markdown_field(form.description) }}
+  <input class="btn btn-submit" type="submit" value="Save changes">
+</form>
+{% endblock %}
+

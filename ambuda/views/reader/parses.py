@@ -1,10 +1,9 @@
-from flask import Blueprint, render_template, abort
+from flask import Blueprint, abort, render_template
 
 import ambuda.queries as q
-from ambuda.utils import cheda as parse_utils
+from ambuda.utils import word_parses as parse_utils
 from ambuda.utils.parse_alignment import align_text_with_parse
 from ambuda.views.api import bp as api
-
 
 bp = Blueprint("parses", __name__)
 
@@ -25,7 +24,7 @@ def block(text_slug, block_slug):
         abort(404)
 
     tokens = parse_utils.extract_tokens(parse.data)
-    aligned = align_text_with_parse(block.xml, tokens, text_slug, block_slug)
+    aligned = align_text_with_parse(block.xml, tokens)
     return render_template("texts/block-parse.html", aligned=aligned)
 
 
@@ -44,7 +43,7 @@ def block_parse_htmx(text_slug, block_slug):
         abort(404)
 
     tokens = parse_utils.extract_tokens(parse.data)
-    aligned = align_text_with_parse(block.xml, tokens, text_slug, block_slug)
+    aligned = align_text_with_parse(block.xml, tokens)
     return render_template(
         "htmx/parsed-tokens.html",
         text_slug=text_slug,

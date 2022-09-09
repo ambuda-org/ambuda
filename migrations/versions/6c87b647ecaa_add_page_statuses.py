@@ -6,15 +6,13 @@ Create Date: 2022-07-18 20:45:22.600084
 
 """
 
+import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
 import ambuda.seed.lookup.page_status
 from ambuda.seed.utils.itihasa_utils import create_db
-
-from alembic import op
-import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
 revision = "6c87b647ecaa"

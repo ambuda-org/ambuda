@@ -3,3 +3,6 @@ omit = [
     "ambuda/scripts/*",
     "ambuda/seed/**",
 ]
+
+[tool.isort]
+profile = "black"

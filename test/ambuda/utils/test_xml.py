@@ -1,6 +1,6 @@
 from xml.etree import ElementTree as ET
 
-import ambuda.xml as x
+import ambuda.utils.xml as x
 
 
 def test_delete():

@@ -1,25 +1,37 @@
-from flask import render_template, flash, url_for, make_response, request, Blueprint
+from celery.result import GroupResult
+from flask import (
+    Blueprint,
+    current_app,
+    flash,
+    make_response,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import login_required
 from flask_wtf import FlaskForm
-from markupsafe import escape, Markup
+from markupsafe import Markup, escape
+from sqlalchemy import orm
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 from wtforms import StringField
 from wtforms.validators import DataRequired, ValidationError
 from wtforms.widgets import TextArea
 
-from ambuda import queries as q, database as db
+from ambuda import database as db
+from ambuda import queries as q
+from ambuda.tasks import app as celery_app
+from ambuda.tasks import ocr as ocr_tasks
+from ambuda.utils import project_utils, proofing_utils
 from ambuda.utils.auth import admin_required
-from ambuda.utils import project_utils
-from ambuda.utils import proofing_utils
-
+from ambuda.views.proofing.decorators import p2_required
 
 bp = Blueprint("project", __name__)
 
 
-def _is_valid_page_number_spec(form, field):
+def _is_valid_page_number_spec(_, field):
     try:
-        parse = project_utils.parse_page_number_spec(field.data)
+        _ = project_utils.parse_page_number_spec(field.data)
     except Exception:
         raise ValidationError("The page number spec isn't valid.")
 
@@ -101,6 +113,32 @@ def summary(slug):
         project=project_,
         pages=zip(page_titles, project_.pages),
         recent_revisions=recent_revisions,
+    )
+
+
+@bp.route("/<slug>/activity")
+def activity(slug):
+    """Show recent activity on this project."""
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    session = q.get_session()
+    recent_revisions = (
+        session.query(db.Revision)
+        .options(orm.defer(db.Revision.content))
+        .filter_by(project_id=project_.id)
+        .order_by(db.Revision.created.desc())
+        .limit(100)
+        .all()
+    )
+    recent_activity = [("revision", r.created, r) for r in recent_revisions]
+    recent_activity.append(("project", project_.created_at, project_))
+
+    return render_template(
+        "proofing/projects/activity.html",
+        project=project_,
+        recent_activity=recent_activity,
     )
 
 
@@ -232,6 +270,76 @@ def search(slug):
         form=form,
         query=query,
         results=results,
+    )
+
+
+@bp.route("/<slug>/batch-ocr", methods=["GET", "POST"])
+@p2_required
+def batch_ocr(slug):
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    if request.method == "POST":
+        task = ocr_tasks.run_ocr_for_project(
+            app_env=current_app.config["AMBUDA_ENVIRONMENT"],
+            project=project_,
+        )
+        if task:
+            return render_template(
+                "proofing/projects/batch-ocr-post.html",
+                project=project_,
+                status="PENDING",
+                current=0,
+                total=0,
+                percent=0,
+                task_id=task.id,
+            )
+        else:
+            flash("All pages in this project have at least one edit already.")
+
+    return render_template(
+        "proofing/projects/batch-ocr.html",
+        project=project_,
+    )
+
+
+@bp.route("/batch-ocr-status/<task_id>")
+def batch_ocr_status(task_id):
+    r = GroupResult.restore(task_id, app=celery_app)
+    assert r, task_id
+
+    if r.results:
+        current = r.completed_count()
+        total = len(r.results)
+        percent = current / total
+
+        status = None
+        if total:
+            if current == total:
+                status = "SUCCESS"
+            else:
+                status = "PROGRESS"
+        else:
+            status = "FAILURE"
+
+        data = {
+            "status": status,
+            "current": current,
+            "total": total,
+            "percent": percent,
+        }
+    else:
+        data = {
+            "status": "PENDING",
+            "current": 0,
+            "total": 0,
+            "percent": 0,
+        }
+
+    return render_template(
+        "include/ocr-progress.html",
+        **data,
     )
 
 

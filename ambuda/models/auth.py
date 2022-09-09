@@ -1,21 +1,15 @@
-from flask_login import UserMixin
 from datetime import datetime
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    String,
-)
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Text as Text_
 from sqlalchemy.orm import relationship
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from ambuda.enums import SiteRole
-from ambuda.models.base import Base, pk, foreign_key
+from ambuda.models.base import Base, foreign_key, pk
+from ambuda.utils.user_mixins import AmbudaUserMixin
 
 
-class User(UserMixin, Base):
+class User(AmbudaUserMixin, Base):
     """A user."""
 
     __tablename__ = "users"
@@ -31,6 +25,9 @@ class User(UserMixin, Base):
     #: Timestamp at which this user record was created.
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
+    #: The user's self-description.
+    description = Column(Text_, nullable=False, default="")
+
     #: All roles available for this user.
     roles = relationship("Role", secondary="user_roles")
 
@@ -42,21 +39,13 @@ class User(UserMixin, Base):
         """Check if the given password matches the user's hash."""
         return check_password_hash(self.password_hash, raw_password)
 
-    def has_role(self, role: SiteRole) -> bool:
-        return role.value in {r.name for r in self.roles}
-
-    @property
-    def is_admin(self) -> bool:
-        return self.has_role(SiteRole.ADMIN)
-
-    @property
-    def is_proofreader(self) -> bool:
-        return self.has_role(SiteRole.P1) or self.has_role(SiteRole.P2)
-
 
 class Role(Base):
 
-    """A role"""
+    """A role.
+
+    Roles are how we model fine-grained permissions on Ambuda.
+    """
 
     __tablename__ = "roles"
 

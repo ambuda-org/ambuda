@@ -104,7 +104,8 @@ export default () => ({
           this.layout = LAYOUT_SIDE_BY_SIDE;
         }
       } catch (error) {
-        console.error(error);
+        // Old settings are invalid -- rewrite with valid values.
+        this.saveSettings();
       }
     }
   },
@@ -140,7 +141,7 @@ export default () => ({
         }
         return '(server error)';
       });
-    $('[name=content]').value = content;
+    $('#content').value = content;
 
     this.isRunningOCR = false;
   },

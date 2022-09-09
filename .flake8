@@ -1,0 +1,10 @@
+# flake8 configuration file
+[flake8]
+max-line-length = 240
+ignore =
+    # --- ignore these warnings.
+    W503  # line break after binary operator
+    W605  # invalid escape sequence '\w'
+    
+    E203  # whitespace before ':'
+    

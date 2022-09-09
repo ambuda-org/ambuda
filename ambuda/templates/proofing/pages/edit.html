@@ -4,6 +4,19 @@
 {% import "proofing/pages/editor-components.html" as editor %}
 
 
+{# Render a radiobutton as a clickable button. #}
+{% macro _status(field, peer_classes) %}
+{# Use wrapping div so that we can use the Tailwind "peer" class. #}
+<div>
+  {{ field(class_="hidden peer") }}
+  {{ field.label(class_="block border rounded p-2 mr-4
+  text-slate-700 border-slate-300 hover:bg-slate-300 "
+  + peer_classes
+  + " peer-checked:font-bold cursor-pointer") }}
+</div>
+{% endmacro %}
+
+
 {% block title %}Edit: {{ project.title }}/{{ cur.slug }} | Ambuda{% endblock %}
 
 
@@ -35,12 +48,24 @@
       {{ editor.image_box() }}
     </div>
 
-    <div class="p-4 mt-4 bg-slate-200">
+    <div class="mt-8 p-4 border bg-slate-200">
       {{ form.summary.label(class_="text-slate-600 mb-2 block") }}
-      {{ form.summary(class_="block rounded bg-white w-full mb-4 p-2") }}
+      {{ form.summary(class_="block rounded bg-white w-full mb-4 p-2", placeholder="Fixed various OCR errors") }}
 
-      {{ form.status.label(class_="text-slate-600 mb-2 block") }}
-      {{ form.status(class_="block rounded bg-white w-full mb-4 p-2") }}
+      {{ form.status.label(class_="block") }}
+      {% set radios = form.status|list %}
+      <div class="flex my-4">
+        {{ _status(radios[0],
+        "peer-checked:bg-red-200 peer-checked:text-red-800 peer-checked:border-red-300") }}
+        {{ _status(radios[1],
+        "peer-checked:bg-yellow-200 peer-checked:text-yellow-800 peer-checked:border-yellow-300") }}
+        {% if not is_r0 %}
+        {{ _status(radios[2],
+        "peer-checked:bg-green-200 peer-checked:text-green-800 peer-checked:border-green-300") }}
+        {% endif %}
+        {{ _status(radios[3],
+        "peer-checked:bg-slate-100 peer-checked:text-gray-800 peer-checked:border-gray-300") }}
+      </div>
 
       {% set cc0 = "https://creativecommons.org/publicdomain/zero/1.0/" %}
       <p class="my-4 text-sm">By saving your changes, you agree to release your
@@ -48,7 +73,7 @@
       domain) license</a>.</p>
       <input class="btn btn-submit"
              type="submit"
-             value="Publish changes"
+             value="{{ _('Publish changes') }}"
              @click="hasUnsavedChanges = false">
     </div>
   </form>

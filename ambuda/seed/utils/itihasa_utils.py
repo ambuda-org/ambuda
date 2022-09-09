@@ -5,9 +5,9 @@
 import hashlib
 import io
 import os
+import zipfile
 from dataclasses import dataclass
 from pathlib import Path
-import zipfile
 from typing import Iterator
 
 import requests
@@ -16,9 +16,8 @@ from indic_transliteration import sanscript
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-import config
 import ambuda.database as db
-
+import config
 
 load_dotenv()
 PROJECT_DIR = Path(__file__).parent.parent.parent
@@ -76,6 +75,11 @@ def fetch_text(url: str) -> str:
     path = CACHE_DIR / code
 
     resp = requests.get(url)
+    # When the response headers don't specify any encoding, `resp.text` decodes
+    # the response as if it is in ISO-8859-1 encoding (following RFC 2616).
+    # This is usually incorrect, so we need to set `resp.encoding` to the
+    # actual encoding (guessed using `chardet`).
+    resp.encoding = resp.apparent_encoding
     path.write_text(resp.text)
     return resp.text
 

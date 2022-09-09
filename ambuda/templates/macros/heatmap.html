@@ -1,0 +1,61 @@
+{% macro color(count) -%}
+  {%- if count == 0 -%}l1
+  {%- elif count == 1 -%}l2
+  {%- elif count <= 5 -%}l3
+  {%- else %}l4
+  {%- endif -%}
+{%- endmacro %}
+
+
+{# Display a heatmap as an SVG.
+
+HTML tables are inflexible and hard to style, and HTML elements with `grid`
+are finicky and difficult to style precisely. Creating an SVG directly was
+the most straightforward way to implement this logic.
+#}
+{% macro show_heatmap(heatmap) %}
+{% set box_width = 12 %}
+{% set box_gap = 2 %}
+{% set box_total = box_width + box_gap %}
+{% set day_margin = 30 %}
+{% set month_margin = 20 %}
+{% set width = day_margin + box_total * (heatmap.weeks|length + 1) %}
+{% set height = month_margin + box_total * 7 %}
+<svg class="heatmap" width="{{ width }}" height="{{ height }}">
+
+  {# Boxes #}
+  <g transform="translate({{ day_margin }}, {{ month_margin }})">
+    {% for week in heatmap.weeks %}
+    {% set i_week = loop.index0 %}
+    <g transform="translate({{ i_week * box_total }}, 0)">
+      {% for date in week %}
+      {% set count = heatmap.counts.get(date, 0) %}
+      <g>
+        <title>{{ count }} edit{% if count != 1 %}s{% endif %} on {{ date }}</title>
+        <rect class="{{ color(count) }}"
+              width="{{ box_width }}" height="{{ box_width }}"
+              x="0" y="{{ loop.index0 * box_total }}"
+              rx="2" ry="2"></rect>
+      </g>
+      {% endfor %}
+    </g>
+    {% endfor %}
+  </g>
+
+  {# Months #}
+  <g transform="translate({{ day_margin }}, 0)">
+    {% for month in heatmap.month_labels %}
+    {% set offset_x = month.offset * box_total %}
+    <text x="{{ offset_x }}" y="{{ month_margin - 4 }}">{{ month.name }}</text>
+    {% endfor %}
+  </g>
+
+  {# Days of the week #}
+  <g>
+    {% for day in ['Sun', '', 'Tue', '', 'Thu', '', 'Sat'] %}
+    <text x="0" y="{{ month_margin + loop.index * box_total - 4 }}">{{ day }}</text>
+    {% endfor %}
+  </g>
+</svg>
+{% endmacro %}
+

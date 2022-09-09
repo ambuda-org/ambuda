@@ -1,5 +1,6 @@
-{% extends 'base-text.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/components.html" as components %}
+{% import "macros/proofing.html" as m %}
 
 
 {% set contents = {
@@ -74,13 +75,19 @@
 {% endmacro %}
 
 
-{% block title %}Proofing guidelines | Ambuda{% endblock %}
+{% block title %}Complete guide to proofing | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('complete') }}{% endblock %}
 
 
 {% block content %}
-<div class="prose">
-<h1>Proofing guidelines</h1>
+{{ m.title_and_subtitle(
+    _("Complete guide"),
+    "Comprehensive guidelines for proofing a text. And when in doubt:
+    don't change what the page says!") }}
 
+<div class="prose">
 <p>This document defines the proofreading guidelines we use on Ambuda.
 Generally, these guidelines apply to all of the projects we proof.
 

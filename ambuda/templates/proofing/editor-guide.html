@@ -1,5 +1,7 @@
-{% extends 'base-text.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/components.html" as components %}
+{% import "macros/proofing.html" as m %}
+{% import "macros/proofing-guides.html" as m_guide %}
 {% import "proofing/pages/editor-components.html" as editor %}
 
 
@@ -7,30 +9,24 @@
 {% macro _button(text) %}<span class="p-1 bg-slate-200">{{ text|safe }}</span>{% endmacro %}
 
 
-{# Embed an HTML widget as a figure. #}
-{% macro html_figure(caption) %}
-<figure class="my-12">
-  <div class="border p-4">
-    {{ caller() }}
-  </div>
-  <figcaption class="text-sm text-slate-600 mt-2 text-center">{{ caption }}</figcaption>
-</figure>
-{% endmacro %}
+{% block title %}Editor manual| Ambuda{% endblock %}
 
 
-{% block title %}How to use the page editor | Ambuda{% endblock %}
+{% block sidebar %}{{ m.main_nav('manual') }}{% endblock %}
 
 
 {% block content %}
-<div class="prose">
-<h1>How to use the page editor</h1>
+{{ m.title_and_subtitle(
+    _("Editor manual"),
+    "Detailed notes (if you want them) on how to use our page editor") }}
 
+<div class="prose">
 <p>Our simple and powerful <dfn>page editor</dfn> makes it easy to proofread a
 printed page. This document describes how to use our page editor.</p>
 
 <p>If you instead want to learn more about our proofing work and how you can
 get started, see our <a href="{{ url_for('proofing.beginners_guide')
-}}">beginner's guide to proofing</a>.</p>
+}}">beginner's guide</a>.</p>
 
 
 <h2>The navigation bar</h2>
@@ -39,7 +35,7 @@ get started, see our <a href="{{ url_for('proofing.beginners_guide')
 can see below:</p>
 </div>
 
-{% call html_figure('The navigation bar for a sample project.') %}
+{% call m_guide.html_figure('The navigation bar for a sample project.') %}
 {{ editor.navigation_bar(
     project={ "title": "madhurAvijayam"|d },
     cur={ "slug": "14", "status": { "name": "reviewed-1" }},
@@ -68,7 +64,7 @@ this page and judged that its transcription was accurate.</p>
 below:</p>
 </div>
 
-{% call html_figure('A menu bar with multiple options available.') %}
+{% call m_guide.html_figure('A menu bar with multiple options available.') %}
 {% set button_css = "block p-2 hover:bg-slate-100 cursor-pointer" %}
 <nav class="border my-2 rounded flex">
   <span class="{{ button_css }}">Layout</span>
@@ -138,7 +134,7 @@ few special Devanagari symbols.</p>
 <p>Next is the <dfn>text editor</dfn>, which you can see below:</p>
 </div>
 
-{% call html_figure('A text editor with multiple options.') %}
+{% call m_guide.html_figure('A text editor with multiple options.') %}
 <div class="border">
   <div class="bg-slate-200 flex justify-between">
     <div>
@@ -176,7 +172,7 @@ let you change the text size, in case you find it hard to read.</p>
 <p>Next we have the <dfn>image viewer</dfn>, which you can see below:</p>
 </div>
 
-{% call html_figure('An image viewer with various options. No image is displayed.') %}
+{% call m_guide.html_figure('An image viewer with various options. No image is displayed.') %}
 <div class="flex flex-col flex-1 border bg-slate-100 border">
   <div class="bg-slate-200">
     {{ editor.alpine_button("&#x1f50d;<sup>+</sup>", "") }}
@@ -216,7 +212,7 @@ comfortably and clearly.</p>
 below:</p>
 </div>
 
-{% call html_figure('The submission form.') %}
+{% call m_guide.html_figure('The submission form.') %}
 <div class="p-4 mt-4 bg-slate-200">
   <label class="text-slate-600 mb-2 block">Summary of changes made</label>
   <input type="text" class="block rounded bg-white w-full mb-4 p-2"></input>

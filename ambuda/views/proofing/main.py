@@ -2,22 +2,21 @@
 
 from pathlib import Path
 
-from flask import (
-    Blueprint,
-    current_app,
-    flash,
-    render_template,
-)
-from flask_login import current_user, login_required
+from flask import Blueprint, current_app, flash, render_template
+from flask_login import current_user
 from flask_wtf import FlaskForm
 from slugify import slugify
-from wtforms import StringField, FileField
-from wtforms.validators import DataRequired
+from sqlalchemy import orm
+from wtforms import FileField, RadioField, StringField
+from wtforms.validators import DataRequired, ValidationError
+from wtforms.widgets import TextArea
 
-import ambuda.queries as q
+from ambuda import consts
 from ambuda import database as db
+from ambuda import queries as q
+from ambuda.enums import SitePageStatus
 from ambuda.tasks import projects as project_tasks
-
+from ambuda.views.proofing.decorators import p2_required
 
 bp = Blueprint("proofing", __name__)
 
@@ -27,45 +26,123 @@ def _is_allowed_document_file(filename: str) -> bool:
     return Path(filename).suffix == ".pdf"
 
 
-class CreateProjectWithPdfForm(FlaskForm):
-    file = FileField("PDF file", validators=[DataRequired()])
-    title = StringField(
-        "Title of the book (you can change this later)", validators=[DataRequired()]
+def _required_if_archive(message: str):
+    def fn(form, field):
+        source = form.pdf_source.data
+        if source == "archive.org" and not field.data:
+            raise ValidationError(message)
+
+    return fn
+
+
+def _required_if_local(message: str):
+    def fn(form, field):
+        source = form.pdf_source.data
+        if source == "local" and not field.data:
+            raise ValidationError(message)
+
+    return fn
+
+
+class CreateProjectForm(FlaskForm):
+    pdf_source = RadioField(
+        "Source",
+        choices=[
+            ("archive.org", "From archive.org"),
+            ("local", "From my computer"),
+        ],
+        validators=[DataRequired()],
+    )
+    archive_identifier = StringField(
+        "archive.org identifier",
+        validators=[
+            _required_if_archive("Please provide a valid archive.org identifier.")
+        ],
+    )
+    local_file = FileField(
+        "PDF file", validators=[_required_if_local("Please provide a PDF file.")]
+    )
+    local_title = StringField(
+        "Title of the book (you can change this later)",
+        validators=[
+            _required_if_local(
+                "Please provide a title for your PDF.",
+            )
+        ],
+    )
+
+    license = RadioField(
+        "License",
+        choices=[
+            ("public", "Public domain"),
+            ("copyrighted", "Copyrighted"),
+            ("other", "Other"),
+        ],
+        validators=[DataRequired()],
+    )
+    custom_license = StringField(
+        "License",
+        widget=TextArea(),
+        render_kw={
+            "placeholder": "Please tell us about this book's license.",
+        },
     )
 
 
 @bp.route("/")
 def index():
     """List all available proofing projects."""
-    projects = q.projects()
 
-    all_counts = {}
-    all_page_counts = {}
+    # Fetch all project data in a single query for better performance.
+    session = q.get_session()
+    projects = (
+        session.query(db.Project)
+        .options(
+            orm.joinedload(db.Project.pages)
+            .load_only(db.Page.id)
+            .joinedload(db.Page.status)
+        )
+        .all()
+    )
+    status_classes = {
+        SitePageStatus.R2: "bg-green-200",
+        SitePageStatus.R1: "bg-yellow-200",
+        SitePageStatus.R0: "bg-red-300",
+        SitePageStatus.SKIP: "bg-slate-100",
+    }
+
+    projects = q.projects()
+    statuses_per_project = {}
+    progress_per_project = {}
+    pages_per_project = {}
     for project in projects:
         page_statuses = [p.status.name for p in project.pages]
 
         # FIXME(arun): catch this properly, prevent prod issues
         if not page_statuses:
-            all_counts[project.slug] = {}
-            all_page_counts[project.slug] = 0
+            statuses_per_project[project.id] = {}
+            pages_per_project[project.id] = 0
             continue
 
         num_pages = len(page_statuses)
-        project_counts = {
-            "bg-green-200": page_statuses.count("reviewed-2") / num_pages,
-            "bg-yellow-200": page_statuses.count("reviewed-1") / num_pages,
-            "bg-red-300": page_statuses.count("reviewed-0") / num_pages,
-            "bg-slate-100": page_statuses.count("skip") / num_pages,
-        }
+        project_counts = {}
+        for enum_value, class_ in status_classes.items():
+            fraction = page_statuses.count(enum_value) / num_pages
+            project_counts[class_] = fraction
+            if enum_value == SitePageStatus.R0:
+                # The more red pages there are, the lower progress is.
+                progress_per_project[project.id] = 1 - fraction
 
-        all_counts[project.slug] = project_counts
-        all_page_counts[project.slug] = num_pages
+        statuses_per_project[project.id] = project_counts
+        pages_per_project[project.id] = num_pages
 
+    projects.sort(key=lambda x: x.title)
     return render_template(
         "proofing/index.html",
         projects=projects,
-        all_counts=all_counts,
-        all_page_counts=all_page_counts,
+        statuses_per_project=statuses_per_project,
+        progress_per_project=progress_per_project,
+        pages_per_project=pages_per_project,
     )
 
 
@@ -78,7 +155,7 @@ def beginners_guide():
 @bp.route("/help/complete-guide")
 def complete_guide():
     """Display our complete proofing guidelines."""
-    return render_template("proofing/complete-guidelines.html")
+    return render_template("proofing/complete-guide.html")
 
 
 @bp.route("/help/editor-guide")
@@ -88,29 +165,37 @@ def editor_guide():
 
 
 @bp.route("/create-project", methods=["GET", "POST"])
-@login_required
+@p2_required
 def create_project():
-    form = CreateProjectWithPdfForm()
+    form = CreateProjectForm()
     if form.validate_on_submit():
-        # TODO: timestamp slug?
-        slug = slugify(form.title.data)
-        project_dir = Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / slug
+        title = form.local_title.data
 
-        pdf_dir = project_dir / "pdf"
-        page_image_dir = project_dir / "pages"
+        # TODO: add timestamp to slug for extra uniqueness?
+        slug = slugify(title)
 
-        pdf_dir.mkdir(parents=True, exist_ok=True)
-        page_image_dir.mkdir(parents=True, exist_ok=True)
-
-        pdf_path = pdf_dir / f"source.pdf"
-        filename = form.file.raw_data[0].filename
+        # We accept only PDFs, so validate that the user hasn't uploaded some
+        # other kind of document format.
+        filename = form.local_file.raw_data[0].filename
         if not _is_allowed_document_file(filename):
             flash("Please upload a PDF.")
             return render_template("proofing/create-project.html", form=form)
-        form.file.data.save(pdf_path)
+
+        # Create all directories for this project ahead of time.
+        # FIXME(arun): push this further into the Celery task.
+        project_dir = Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / slug
+        pdf_dir = project_dir / "pdf"
+        page_image_dir = project_dir / "pages"
+        pdf_dir.mkdir(parents=True, exist_ok=True)
+        page_image_dir.mkdir(parents=True, exist_ok=True)
+
+        # Save the original PDF so that it can be downloaded later or reused
+        # for future tasks (thumbnails, better image formats, etc.)
+        pdf_path = pdf_dir / "source.pdf"
+        form.local_file.data.save(pdf_path)
 
         task = project_tasks.create_project.delay(
-            title=form.title.data,
+            title=title,
             pdf_path=str(pdf_path),
             output_dir=str(page_image_dir),
             app_environment=current_app.config["AMBUDA_ENVIRONMENT"],
@@ -137,7 +222,6 @@ def create_project_status(task_id):
     if isinstance(info, Exception):
         current = total = percent = 0
         slug = None
-        status = r.status
     else:
         current = info.get("current", 100)
         total = info.get("total", 100)
@@ -157,17 +241,41 @@ def create_project_status(task_id):
 @bp.route("/recent-changes")
 def recent_changes():
     """Show recent changes across all projects."""
+    num_per_page = 100
+
+    # Exclude bot edits, which overwhelm all other edits on the site.
+    bot_user = q.user(consts.BOT_USERNAME)
+    assert bot_user, "Bot user not defined"
+
     session = q.get_session()
     recent_revisions = (
-        session.query(db.Revision).order_by(db.Revision.created.desc()).limit(100).all()
+        session.query(db.Revision)
+        .options(orm.defer(db.Revision.content))
+        .filter(db.Revision.author_id != bot_user.id)
+        .order_by(db.Revision.created.desc())
+        .limit(num_per_page)
+        .all()
     )
-    return render_template("proofing/recent-changes.html", revisions=recent_revisions)
+    recent_activity = [("revision", r.created, r) for r in recent_revisions]
+
+    recent_projects = (
+        session.query(db.Project)
+        .order_by(db.Project.created_at.desc())
+        .limit(num_per_page)
+        .all()
+    )
+    recent_activity += [("project", p.created_at, p) for p in recent_projects]
+
+    recent_activity.sort(key=lambda x: x[1], reverse=True)
+    recent_activity = recent_activity[:num_per_page]
+    return render_template(
+        "proofing/recent-changes.html", recent_activity=recent_activity
+    )
 
 
 @bp.route("/talk")
 def talk():
     """Show discussion across all projects."""
-    session = q.get_session()
     projects = q.projects()
 
     # FIXME: optimize this once we have a higher thread volume.

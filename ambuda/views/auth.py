@@ -14,16 +14,15 @@ import secrets
 from datetime import datetime, timedelta
 from typing import Optional
 
-from flask import Blueprint, flash, render_template, redirect, url_for
-from flask_login import current_user, login_user, logout_user, login_required
+from flask import Blueprint, flash, redirect, render_template, url_for
+from flask_login import current_user, login_required, login_user, logout_user
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, PasswordField, EmailField
+from wtforms import EmailField, PasswordField, StringField
 from wtforms import validators as val
 
 import ambuda.queries as q
 from ambuda import database as db
 from ambuda import mail
-
 
 bp = Blueprint("auth", __name__)
 

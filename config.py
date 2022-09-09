@@ -15,13 +15,13 @@ package: From the Flask docs (emphasis added):
     *ideally located outside the actual application package*.
 """
 
+import logging
 import os
 from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
 from flask import Flask
-
 
 # Load dotenv early so that `_env` will work in the class definitions below.
 load_dotenv()
@@ -80,8 +80,17 @@ class BaseConfig:
     #: Where to store user uploads (PDFs, images, etc.).
     UPLOAD_FOLDER = _env("FLASK_UPLOAD_FOLDER")
 
+    #: Logger setup
+    LOG_LEVEL = logging.INFO
+
     # Extensions
     # ----------
+
+    # Flask-Babel
+
+    #: Default locale. This is "en" by default, but declare it here to be
+    #: explicit.
+    BABEL_DEFAULT_LOCALE = "en"
 
     # Flask-Mail
 
@@ -117,10 +126,6 @@ class BaseConfig:
     #: We use Sentry to get notifications about server errors.
     SENTRY_DSN = _env("SENTRY_DSN")
 
-    # We need GOOGLE_APPLICATION_CREDENTIALS for the Google Vision API,
-    # but these credentials are fetched by the Google API implicitly,
-    # so we don't need to define it on the Config object here.
-
     # Test-only
     # ---------
 
@@ -129,6 +134,17 @@ class BaseConfig:
 
     #: If ``True``, enable testing mode.
     TESTING = False
+
+    # Environment variables
+    # ---------------------
+
+    # AMBUDA_BOT_PASSWORD is the password we use for the "ambuda-bot" account.
+    # We set this account as an envvar because we need to create this user as
+    # part of database seeding.
+
+    # GOOGLE_APPLICATION_CREDENTIALS contains credentials for the Google Vision
+    # API, but these credentials are fetched by the Google API implicitly,
+    # so we don't need to define it on the Config object here.
 
 
 class UnitTestConfig(BaseConfig):
@@ -139,6 +155,9 @@ class UnitTestConfig(BaseConfig):
     SECRET_KEY = "insecure unit test secret"
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     UPLOAD_FOLDER = _make_path(Path(__file__).parent / "data" / "file-uploads")
+
+    #: Logger setup
+    LOG_LEVEL = logging.DEBUG
 
     #: Disable CSRF protection for unit tests, since the Flask test runner
     #: doesn't have good support for it.
@@ -154,11 +173,17 @@ class DevelopmentConfig(BaseConfig):
     AMBUDA_ENVIRONMENT = DEVELOPMENT
     DEBUG = True
 
+    #: Logger setup
+    LOG_LEVEL = logging.INFO
+
 
 class ProductionConfig(BaseConfig):
     """For production."""
 
     AMBUDA_ENVIRONMENT = PRODUCTION
+
+    #: Logger setup
+    LOG_LEVEL = logging.INFO
 
     # Deployment credentials
     # ----------------------

@@ -1,48 +1,36 @@
-import difflib
-from pathlib import Path
-
-from flask import render_template, flash, current_app, send_file, Blueprint
-from flask_login import login_required, current_user
+from flask import Blueprint, current_app, flash, render_template, send_file
+from flask_babel import lazy_gettext
+from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
-from markupsafe import escape, Markup
-from sqlalchemy import update
 from werkzeug.exceptions import abort
-from wtforms import StringField, HiddenField, SelectField
+from wtforms import HiddenField, RadioField, StringField
 from wtforms.validators import DataRequired
 from wtforms.widgets import TextArea
 
-from ambuda import database as db, queries as q
+from ambuda import database as db
+from ambuda import queries as q
+from ambuda.enums import SitePageStatus
 from ambuda.utils import google_ocr
+from ambuda.utils.assets import get_page_image_filepath
+from ambuda.utils.diff import revision_diff
+from ambuda.utils.revisions import EditException, add_revision
 from ambuda.views.api import bp as api
 from ambuda.views.site import bp as site
-
 
 bp = Blueprint("page", __name__)
 
 
-def _get_image_filesystem_path(project_slug: str, page_slug: str) -> Path:
-    """Get the location of the given image on disk."""
-    image_dir = Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / project_slug
-    return image_dir / "pages" / f"{page_slug}.jpg"
-
-
-class EditException(Exception):
-    """Raised if a user's attempt to edit a page fails."""
-
-    pass
-
-
 class EditPageForm(FlaskForm):
-    summary = StringField("Summary of changes made")
+    summary = StringField("Edit summary (optional)")
     version = HiddenField("Page version")
     content = StringField("Content", widget=TextArea(), validators=[DataRequired()])
-    status = SelectField(
+    status = RadioField(
         "Status",
         choices=[
-            ("reviewed-0", "Needs more work"),
-            ("reviewed-1", "Proofread once"),
-            ("reviewed-2", "Proofread twice"),
-            ("skip", "No useful text"),
+            (SitePageStatus.R0.value, lazy_gettext("Needs more work")),
+            (SitePageStatus.R1.value, lazy_gettext("Proofed once")),
+            (SitePageStatus.R2.value, lazy_gettext("Proofed twice")),
+            (SitePageStatus.SKIP.value, lazy_gettext("Not relevant")),
         ],
     )
 
@@ -69,89 +57,6 @@ def _prev_cur_next(pages: list[db.Page], slug: str) -> tuple[db.Page, db.Page, d
     return prev, cur, next
 
 
-def add_revision(
-    page: db.Page, summary: str, content: str, status: str, version: int, author_id: int
-) -> int:
-    """Add a new revision for a page."""
-    # If this doesn't update any rows, there's an edit conflict.
-    # Details: https://gist.github.com/shreevatsa/237bd6592771caadecc68c9515403bc3
-    # FIXME: rather than do this on the application side, do an `exists` query
-    # FIXME: instead? Not sure if this is a clear win, but worth thinking about.
-
-    # FIXME: Check for `proofreading` user permission before allowing changes
-    session = q.get_session()
-    status_ids = {s.name: s.id for s in q.page_statuses()}
-    new_version = version + 1
-    result = session.execute(
-        update(db.Page)
-        .where((db.Page.id == page.id) & (db.Page.version == version))
-        .values(version=new_version, status_id=status_ids[status])
-    )
-    session.commit()
-
-    num_rows_changed = result.rowcount
-    if num_rows_changed == 0:
-        raise EditException("Edit conflict")
-
-    # Must be 1 since there's exactly one page with the given page ID.
-    # If this fails, the application data is in a weird state.
-    assert num_rows_changed == 1
-
-    revision_ = db.Revision(
-        project_id=page.project_id,
-        page_id=page.id,
-        summary=summary,
-        content=content,
-        author_id=author_id,
-        status_id=status_ids[status],
-    )
-    session.add(revision_)
-    session.commit()
-    return new_version
-
-
-def _revision_diff(old: str, new: str) -> str:
-    matcher = difflib.SequenceMatcher(a=old, b=new)
-    output = []
-    for opcode, a0, a1, b0, b1 in matcher.get_opcodes():
-        if opcode == "equal":
-            output.append(escape(matcher.a[a0:a1]))
-        elif opcode == "insert":
-            output.extend(
-                [
-                    Markup("<ins>"),
-                    escape(matcher.b[b0:b1]),
-                    Markup("</ins>"),
-                ]
-            )
-        elif opcode == "delete":
-            output.extend(
-                [
-                    Markup("<del>"),
-                    escape(matcher.a[a0:a1]),
-                    Markup("</del>"),
-                ]
-            )
-        elif opcode == "replace":
-            output.extend(
-                [
-                    Markup("<del>"),
-                    escape(matcher.a[a0:a1]),
-                    Markup("</del>"),
-                ]
-            )
-            output.extend(
-                [
-                    Markup("<ins>"),
-                    escape(matcher.b[b0:b1]),
-                    Markup("</ins>"),
-                ]
-            )
-        else:
-            raise RuntimeError(f"Unexpected opcode {opcode}")
-    return "".join(output)
-
-
 @bp.route("/<project_slug>/<page_slug>/")
 def edit(project_slug, page_slug):
     project_ = q.project(project_slug)
@@ -173,6 +78,8 @@ def edit(project_slug, page_slug):
         latest_revision = cur.revisions[-1]
         form.content.data = latest_revision.content
 
+    is_r0 = cur.status.name == SitePageStatus.R0
+
     return render_template(
         "proofing/pages/edit.html",
         form=form,
@@ -180,6 +87,7 @@ def edit(project_slug, page_slug):
         prev=prev,
         cur=cur,
         next=next,
+        is_r0=is_r0,
     )
 
 
@@ -232,7 +140,7 @@ def edit_post(project_slug, page_slug):
 def page_image(project_slug, page_slug):
     # In production, serve this directly via nginx.
     assert current_app.debug
-    image_path = _get_image_filesystem_path(project_slug, page_slug)
+    image_path = get_page_image_filepath(project_slug, page_slug)
     return send_file(image_path)
 
 
@@ -276,9 +184,9 @@ def revision(project_slug, page_slug, revision_id):
         abort(404)
 
     if prev_revision:
-        diff = _revision_diff(prev_revision.content, cur_revision.content)
+        diff = revision_diff(prev_revision.content, cur_revision.content)
     else:
-        diff = _revision_diff("", cur_revision.content)
+        diff = revision_diff("", cur_revision.content)
 
     return render_template(
         "proofing/pages/revision.html",
@@ -305,6 +213,6 @@ def ocr(project_slug, page_slug):
     if not page_:
         abort(404)
 
-    image_path = _get_image_filesystem_path(project_slug, page_slug)
-    result = google_ocr.full_text_annotation(image_path)
-    return result
+    image_path = get_page_image_filepath(project_slug, page_slug)
+    ocr_response = google_ocr.run(image_path)
+    return ocr_response.text_content

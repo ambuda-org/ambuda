@@ -34,6 +34,9 @@
   .btn-submit {
     @apply bg-brand text-white hover:bg-slate-200 hover:text-black transition;
   }
+  ::file-selector-button {
+    @apply border-0 p-2 rounded bg-slate-600 text-white cursor-pointer mr-4 hover:bg-black;
+  }
 
   /* Dropdowns (e.g. in proofing editor) */
   .dropdown-pane {
@@ -152,5 +155,12 @@
   .mw-entry [lang=sa] {
     @apply text-green-600;
   }
+
+  /* heatmap */
+  .heatmap text { @apply text-xs; }
+  .heatmap rect.l1 { @apply fill-slate-100; }
+  .heatmap rect.l2 { @apply fill-sky-100; }
+  .heatmap rect.l3 { @apply fill-sky-200; }
+  .heatmap rect.l4 { @apply fill-sky-300; }
 }
 

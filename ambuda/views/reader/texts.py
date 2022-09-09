@@ -1,14 +1,13 @@
 """Views related to texts: title pages, sections, verses, etc."""
 
-from flask import Blueprint, render_template, abort
+from flask import Blueprint, abort, render_template
 from indic_transliteration import sanscript
 
 import ambuda.database as db
 import ambuda.queries as q
-from ambuda import xml
 from ambuda.consts import TEXT_CATEGORIES
+from ambuda.utils import xml
 from ambuda.views.api import bp as api
-
 
 bp = Blueprint("texts", __name__)
 
@@ -18,6 +17,8 @@ HAS_NO_PARSE = {
     "bhattikavyam",
     "shatakatrayam",
     "shishupalavadham",
+    "shivopanishat",
+    "catuhshloki",
 }
 
 
@@ -122,7 +123,7 @@ def section(text_slug, section_slug):
     # Fetch with content blocks
     cur = q.text_section(text.id, section_slug)
 
-    with q.get_session() as sess:
+    with q.get_session() as _:
         html_blocks = [xml.transform_text_block(b.xml) for b in cur.blocks]
 
     has_no_parse = text.slug in HAS_NO_PARSE

@@ -1,11 +1,9 @@
 """Models for parse data."""
 
-from sqlalchemy import (
-    Column,
-    Text as _Text,
-)
+from sqlalchemy import Column
+from sqlalchemy import Text as _Text
 
-from ambuda.models.base import Base, pk, foreign_key
+from ambuda.models.base import Base, foreign_key, pk
 
 
 class BlockParse(Base):

@@ -1,9 +1,9 @@
 module.exports = {
   content: [
-    './ambuda/templates/**/*.html',
     './ambuda/static/js/*.js',
+    './ambuda/templates/**/*.html',
     './ambuda/utils/parse_alignment.py',
-    './ambuda/views/proofing.py',
-    './ambuda/xml.py',
+    './ambuda/utils/xml.py',
+    './ambuda/views/proofing/main.py',
   ],
 }

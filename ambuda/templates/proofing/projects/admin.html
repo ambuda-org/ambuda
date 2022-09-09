@@ -1,9 +1,14 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/components.html" as components %}
 {% import "macros/forms.html" as mf %}
 {% import "macros/proofing.html" as m %}
 
+
 {% block title %}Admin: {{ project.title }} | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}
+
 
 {% block content %}
 {{ m.project_header_nested("Admin", project) }}
@@ -14,7 +19,7 @@
 <h2>Summary</h2>
 
 {% if project.creator %}
-{% set user_link = url_for('proofing.users.user', username=project.creator.username) %}
+{% set user_link = url_for('proofing.user.summary', username=project.creator.username) %}
 <p>Created by <a href="{{ user_link }}">{{ project.creator.username }}</a>
 {{ project.created_at|time_ago }}.</p>
 {% else %}

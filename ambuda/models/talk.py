@@ -2,17 +2,11 @@
 
 from datetime import datetime
 
-from sqlalchemy import (
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    String,
-    Text as _Text,
-)
+from sqlalchemy import Column, DateTime, String
+from sqlalchemy import Text as _Text
 from sqlalchemy.orm import relationship
 
-from ambuda.models.base import Base, pk, foreign_key, same_as
+from ambuda.models.base import Base, foreign_key, pk, same_as
 
 
 def string():
