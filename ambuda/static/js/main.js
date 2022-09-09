@@ -6,7 +6,6 @@ import HamburgerButton from './hamburger-button';
 import HTMLPoller from './html-poller';
 import Reader from './reader';
 import Proofer from './proofer';
-import HamburgerButton from './hamburger-button';
 import SortableList from './sortable-list';
 
 window.addEventListener('alpine:init', () => {
