@@ -99,7 +99,6 @@ msgid "By the public, for the public"
 msgstr ""
 
 #: ambuda/templates/index.html:114
-#, python-format
 msgid ""
 "Ambuda is run entirely by volunteers, and we would be thrilled to have "
 "your support in whatever form you can provide it. Learn more about how "
@@ -107,7 +106,6 @@ msgid ""
 msgstr ""
 
 #: ambuda/templates/index.html:120
-#, python-format
 msgid ""
 "Ambuda is growing rapidly. <a href=\"%(mailing_url)s\">Sign up for our "
 "mailing list</a> to receive regular updates on new content and features."
@@ -145,7 +143,6 @@ msgid "Contact"
 msgstr "सम्पर्कः"
 
 #: ambuda/templates/about/contact.html:13
-#, python-format
 msgid ""
 "For comments, questions, and feedback on our work, please use the form "
 "below to email us. If you want to help Ambuda grow, <a "
@@ -181,7 +178,6 @@ msgid ""
 msgstr ""
 
 #: ambuda/templates/about/index.html:28
-#, python-format
 msgid ""
 "<a href=\"%(mailing_url)s\">Our mailing list</a> shares regular updates "
 "on Ambuda and our other Sanskrit projects. <a href=\"%(code_url)s\">Our "
@@ -244,7 +240,6 @@ msgid "Create account"
 msgstr ""
 
 #: ambuda/templates/auth/reset-password-post.html:13
-#, python-format
 msgid ""
 "We've sent a recovery email to <kbd>%(email)s</kbd>. Check your email for"
 " a link to reset your password. If it doesn’t appear within a few "
@@ -263,9 +258,8 @@ msgid ""
 msgstr ""
 
 #: ambuda/templates/auth/reset-password.html:24
-#, fuzzy
 msgid "Enter your email address"
-msgstr "विपत्रसङ्केतः"
+msgstr ""
 
 #: ambuda/templates/auth/reset-password.html:29
 msgid "Send password reset email"
@@ -279,7 +273,7 @@ msgstr "प्रवेशः"
 
 #: ambuda/templates/auth/sign-in.html:16
 msgid "Sign in to Ambuda"
-msgstr ""
+msgstr "अम्बुदः प्रविश्यताम्"
 
 #: ambuda/templates/auth/sign-in.html:24
 msgid "Forgot password?"
@@ -322,11 +316,11 @@ msgstr ""
 
 #: ambuda/templates/include/dict-options.html:6
 msgid "Sanskrit-Sanskrit"
-msgstr ""
+msgstr "संस्कृतम्-संस्कृतम्"
 
 #: ambuda/templates/include/dict-options.html:7
 msgid "Vācaspatyam (1873)"
-msgstr ""
+msgstr "वाचस्पत्यम्"
 
 #: ambuda/templates/include/dict-options.html:8
 msgid "Śabdakalpadrumaḥ (1886)"
@@ -341,7 +335,6 @@ msgid "Shabdarthakaustubha"
 msgstr ""
 
 #: ambuda/templates/include/footer.html:9
-#, python-format
 msgid ""
 "Ambuda is run entirely by volunteers for the public benefit. Learn more "
 "about how you can <a href=\"%(support)s\"> help Ambuda grow</a>."
@@ -377,9 +370,8 @@ msgid "GitHub"
 msgstr ""
 
 #: ambuda/templates/include/footer.html:59
-#, fuzzy
 msgid "Reddit"
-msgstr "सम्पादनम्"
+msgstr ""
 
 #: ambuda/templates/include/footer.html:60
 msgid "Twitter"
@@ -391,7 +383,7 @@ msgstr "निर्गमः"
 
 #: ambuda/templates/include/script-options.html:1
 msgid "Devanagari"
-msgstr ""
+msgstr "देवनागरी"
 
 #: ambuda/templates/include/script-options.html:2
 msgid "Roman"
@@ -422,7 +414,6 @@ msgid "{title} # Ambuda"
 msgstr ""
 
 #: ambuda/templates/macros/forms.html:35
-#, python-format
 msgid ""
 "You can format this text with Markdown. <a href=\"%(help_url)s\">Click "
 "here to learn more.</a>"
@@ -437,13 +428,11 @@ msgid "Resources"
 msgstr ""
 
 #: ambuda/templates/macros/library.html:7
-#, fuzzy
 msgctxt "texts"
 msgid "About"
 msgstr "अध्यम्बुदम्"
 
 #: ambuda/templates/macros/proofing-talk.html:10
-#, python-format
 msgid "Created by <a href=\"%(author_url)s\">%(username)s</a>"
 msgstr ""
 
@@ -577,7 +566,6 @@ msgid "Descending"
 msgstr ""
 
 #: ambuda/templates/proofing/index.html:59
-#, python-format
 msgid "%(num)d page"
 msgid_plural "%(num)d pages"
 msgstr[0] ""
@@ -604,7 +592,6 @@ msgid "Download as TEI XML"
 msgstr ""
 
 #: ambuda/templates/proofing/projects/edit.html:22
-#, fuzzy
 msgid "Search the project"
 msgstr "प्रकल्पसृष्टिः"
 
@@ -613,7 +600,6 @@ msgid "Run batch OCR"
 msgstr ""
 
 #: ambuda/templates/proofing/projects/edit.html:39
-#, fuzzy
 msgid "Save changes"
 msgstr "सद्यःपरिवर्तनानि"
 
@@ -626,7 +612,6 @@ msgid "Pages"
 msgstr ""
 
 #: ambuda/templates/proofing/projects/summary.html:43
-#, fuzzy
 msgctxt "project"
 msgid "About"
 msgstr "अध्यम्बुदम्"
@@ -646,7 +631,6 @@ msgstr ""
 
 #: ambuda/templates/proofing/projects/summary.html:57
 #: ambuda/views/proofing/project.py:66
-#, fuzzy
 msgid "Editor"
 msgstr "सम्पादनम्"
 
@@ -665,7 +649,6 @@ msgid "Recent discussion"
 msgstr ""
 
 #: ambuda/templates/proofing/projects/summary.html:78
-#, python-format
 msgid ""
 "This project doesn't have any ongoing discussion. <a "
 "href=\"%(new_thread_url)s\">Start a new thread?</a>"
@@ -686,19 +669,19 @@ msgstr ""
 
 #: ambuda/templates/texts/index.html:33
 msgid "Upanishads"
-msgstr ""
+msgstr "उपनिषदः"
 
 #: ambuda/templates/texts/index.html:34
 msgid "Itihasas"
-msgstr ""
+msgstr "इतिहासाः"
 
 #: ambuda/templates/texts/index.html:35
 msgid "Kavyas"
-msgstr ""
+msgstr "काव्यानि"
 
 #: ambuda/templates/texts/index.html:36
 msgid "Other works"
-msgstr ""
+msgstr "अन्ये ग्रन्थाः"
 
 #: ambuda/templates/texts/section.html:31
 msgid "This text does not support clickable word meanings."
@@ -753,7 +736,6 @@ msgid "Show full text"
 msgstr "सकलग्रन्थं दर्शय"
 
 #: ambuda/views/auth.py:84 ambuda/views/auth.py:104
-#, fuzzy
 msgid "Username"
 msgstr "नामसम्भवः"
 
@@ -810,164 +792,9 @@ msgid "Query"
 msgstr ""
 
 #: ambuda/views/proofing/project.py:166
-#, fuzzy
 msgid "Saved changes."
 msgstr "सद्यःपरिवर्तनानि"
 
 #: ambuda/views/proofing/project.py:306
 msgid "All pages in this project have at least one edit already."
 msgstr ""
-
-#~ msgid ""
-#~ "\n"
-#~ "    Sanskrit literature with word-by-"
-#~ "word analysis and integrated dictionaries."
-#~ "\n"
-#~ "    All in a free online library that works on all devices.\n"
-#~ "    "
-#~ msgstr ""
-
-#~ msgid ""
-#~ "\n"
-#~ "Sanskrit texts are scattered across "
-#~ "dozens of websites, thousands of books,"
-#~ " and\n"
-#~ "millions of manuscripts. Their quality "
-#~ "and ease of use vary widely, and"
-#~ " there\n"
-#~ "isn't an easy way to explore what Sanskrit has to offer.\n"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "\n"
-#~ "That's why Ambuda is building a "
-#~ "complete library of traditional Sanskrit\n"
-#~ ""
-#~ "literature. Our library is small now,"
-#~ " but it's growing rapidly. Soon, it"
-#~ " will\n"
-#~ "be the largest Sanskrit library in the world.\n"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "\n"
-#~ "What if you could read Sanskrit "
-#~ "anywhere for free? What if reading "
-#~ "Sanskrit\n"
-#~ "online were delightful and beautiful? "
-#~ "What if you could easily find "
-#~ "Sanskrit\n"
-#~ "resources in your native language?\n"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "\n"
-#~ "We have a long way to go, "
-#~ "but we want to make our library"
-#~ " radically accessible\n"
-#~ "to as many people as we can. "
-#~ "For now, you can use our website"
-#~ " on any device.\n"
-#~ "Soon, we'll support other languages besides English.\n"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "\n"
-#~ "Word-by-word analysis. Integrated "
-#~ "dictionary support. Transliteration to a\n"
-#~ ""
-#~ "variety of different scripts. And so "
-#~ "much more. Our intelligent library uses"
-#~ "\n"
-#~ "state-of-the-art technology to "
-#~ "make Sanskrit more accessible than ever"
-#~ " before.\n"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "\n"
-#~ "But our work is just beginning. We"
-#~ " have so much planned for the "
-#~ "future:\n"
-#~ "translations, commentaries, full-text search,"
-#~ " and deeper hyperlinks across the\n"
-#~ "entire corpus.\n"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "\n"
-#~ "Ambuda is run entirely by volunteers,"
-#~ " and we would be thrilled to "
-#~ "have your\n"
-#~ "support in whatever form you can "
-#~ "provide it. Learn more about how "
-#~ "you can <a\n"
-#~ "href=\"%(support_url)s\">help Ambuda grow</a>.\n"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "\n"
-#~ "Ambuda is growing rapidly. <a "
-#~ "href=\"%(mailing_url)s\">Sign up for our "
-#~ "mailing\n"
-#~ "list</a> to receive regular updates on new content and features.\n"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "\n"
-#~ "  Ambuda is run entirely by "
-#~ "volunteers for the public benefit. Learn"
-#~ " more\n"
-#~ "  about how you can <a href=\"%(support)s\"> help Ambuda grow</a>.\n"
-#~ "  "
-#~ msgstr ""
-
-#~ msgid "Contents"
-#~ msgstr "अनुक्रमणिका"
-
-#~ msgid "Resources"
-#~ msgstr "पाठमूलानि"
-
-#~ msgid "Username"
-#~ msgstr "नामसम्भवः"
-
-#~ msgid "Password"
-#~ msgstr ""
-
-#~ msgid "Old password"
-#~ msgstr ""
-
-#~ msgid "New password"
-#~ msgstr ""
-
-#~ msgid "Confirm password"
-#~ msgstr ""
-
-#~ msgid "Please click the reCAPTCHA box."
-#~ msgstr ""
-
-#~ msgid "texts"
-#~ msgstr "ग्रन्थाः"
-
-#~ msgid "Description"
-#~ msgstr ""
-
-#~ msgid "Pages"
-#~ msgstr ""
-
-#~ msgctxt "project"
-#~ msgid "About"
-#~ msgstr "अध्यम्बुदम्"
-
-#~ msgid "Recent discussion"
-#~ msgstr ""
-
-#~ msgid ""
-#~ "This project doesn't have any ongoing"
-#~ " discussion. <a href=\"%(new_thread_url)s\">Start "
-#~ "a new thread?</a>"
-#~ msgstr ""
-
-#~ msgid "This project doesn't have any edits yet."
-#~ msgstr ""
-

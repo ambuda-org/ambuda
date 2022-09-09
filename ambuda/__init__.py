@@ -11,7 +11,7 @@ import sys
 import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask, session
-from flask_babel import Babel, Domain, pgettext
+from flask_babel import Babel, pgettext
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy import exc
 
