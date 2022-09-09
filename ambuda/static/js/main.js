@@ -7,7 +7,6 @@ import HTMLPoller from './html-poller';
 import Reader from './reader';
 import Proofer from './proofer';
 import HamburgerButton from './hamburger-button';
-import ProofingCreatePoll from './proofing-create-poll';
 import SortableList from './sortable-list';
 
 window.addEventListener('alpine:init', () => {
@@ -20,5 +19,4 @@ window.addEventListener('alpine:init', () => {
 
 (() => {
   HamburgerButton.init();
-  ProofingCreatePoll.init();
 })();
