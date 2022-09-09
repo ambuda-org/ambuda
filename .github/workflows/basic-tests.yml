@@ -61,7 +61,7 @@ jobs:
           WAIT_FOR_VERSION: 4df3f9262d84cab0039c07bf861045fbb3c20ab7 # v2.2.3
 
       - name: Check that site is running
-        run: curl --fail-with-body localhost:5000
+        run: sleep 20 && curl --fail-with-body localhost:5000
         
       - name: Show logs on fail
         if: ${{ failure() }}
