@@ -833,6 +833,3 @@ msgstr "सद्यःपरिवर्तनानि"
 msgid "All pages in this project have at least one edit already."
 msgstr ""
 
-#~ msgid "{title} # Ambuda"
-#~ msgstr ""
-
