@@ -16,6 +16,7 @@ services:
       - GOOGLE_APPLICATION_CREDENTIALS=<Google API credentials>
       - REDIS_URL=redis://redis:6379/0
       - VIRTUAL_ENV=.
+      - AMBUDA_BOT_PASSWORD=insecure bot password
 
   celery:
     build: .
