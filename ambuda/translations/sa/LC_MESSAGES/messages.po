@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-08 19:44-0700\n"
+"POT-Creation-Date: 2022-09-08 19:45-0700\n"
 "PO-Revision-Date: 2022-09-03 21:40-0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sa\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.10.3\n"
 
-#: ambuda/templates/include/footer.html:31
+#: ambuda/templates/include/footer.html:30
 #: ambuda/templates/include/header-login.html:14
 #: ambuda/templates/include/header.html:13 ambuda/templates/index.html:20
 msgid "Ambuda"
@@ -121,7 +121,7 @@ msgstr ""
 msgid "Our work is just beginning. Thank you for using Ambuda."
 msgstr ""
 
-#: ambuda/templates/include/footer.html:36 ambuda/templates/support.html:4
+#: ambuda/templates/include/footer.html:35 ambuda/templates/support.html:4
 #: ambuda/templates/support.html:32
 msgid "Support"
 msgstr "सहकारः"
@@ -135,12 +135,12 @@ msgstr "– अम्बुदः"
 
 #: ambuda/templates/about/code-and-data.html:5
 #: ambuda/templates/about/code-and-data.html:22
-#: ambuda/templates/about/index.html:41 ambuda/templates/include/footer.html:49
+#: ambuda/templates/about/index.html:41 ambuda/templates/include/footer.html:48
 msgid "Code and Data"
 msgstr "पाठ-तन्त्र-मूलानि"
 
 #: ambuda/templates/about/contact.html:5 ambuda/templates/about/contact.html:11
-#: ambuda/templates/about/index.html:43 ambuda/templates/include/footer.html:38
+#: ambuda/templates/about/index.html:43 ambuda/templates/include/footer.html:37
 msgid "Contact"
 msgstr "सम्पर्कः"
 
@@ -167,7 +167,7 @@ msgid "Send message"
 msgstr "सन्देशं प्रेषय"
 
 #: ambuda/templates/about/index.html:15 ambuda/templates/about/index.html:20
-#: ambuda/templates/include/footer.html:43
+#: ambuda/templates/include/footer.html:42
 #: ambuda/templates/include/header-login.html:23
 #: ambuda/templates/include/header.html:22
 msgid "About"
@@ -192,25 +192,25 @@ msgstr ""
 
 #: ambuda/templates/about/index.html:37 ambuda/templates/about/mission.html:5
 #: ambuda/templates/about/mission.html:16
-#: ambuda/templates/include/footer.html:45
+#: ambuda/templates/include/footer.html:44
 msgid "Mission"
 msgstr "लक्ष्याणि"
 
 #: ambuda/templates/about/index.html:38 ambuda/templates/about/values.html:5
 #: ambuda/templates/about/values.html:10
-#: ambuda/templates/include/footer.html:46
+#: ambuda/templates/include/footer.html:45
 msgid "Values"
 msgstr "स्थूलध्येयानि"
 
 #: ambuda/templates/about/index.html:39 ambuda/templates/about/roadmap.html:5
 #: ambuda/templates/about/roadmap.html:10
-#: ambuda/templates/include/footer.html:47
+#: ambuda/templates/include/footer.html:46
 msgid "Roadmap"
 msgstr "कार्ययोजना"
 
 #: ambuda/templates/about/index.html:40 ambuda/templates/about/people.html:15
 #: ambuda/templates/about/people.html:20
-#: ambuda/templates/include/footer.html:48
+#: ambuda/templates/include/footer.html:47
 msgid "People"
 msgstr "अग्रण्यः"
 
@@ -220,12 +220,12 @@ msgid "Our Name"
 msgstr "नामसम्भवः"
 
 #: ambuda/templates/about/privacy.html:4 ambuda/templates/about/privacy.html:10
-#: ambuda/templates/include/footer.html:51
+#: ambuda/templates/include/footer.html:50
 msgid "Privacy Policy"
 msgstr "गोपनीयतानीतिः"
 
 #: ambuda/templates/about/terms.html:4 ambuda/templates/about/terms.html:10
-#: ambuda/templates/include/footer.html:50
+#: ambuda/templates/include/footer.html:49
 msgid "Terms of Use"
 msgstr "उपयोगनियमाः"
 
@@ -290,7 +290,7 @@ msgid "Don't have an account? Click here to register."
 msgstr ""
 
 #: ambuda/templates/dictionaries/index.html:6
-#: ambuda/templates/include/footer.html:34
+#: ambuda/templates/include/footer.html:33
 #: ambuda/templates/include/header-login.html:21
 #: ambuda/templates/include/header.html:20
 msgid "Dictionaries"
@@ -347,41 +347,41 @@ msgid ""
 "about how you can <a href=\"%(support)s\"> help Ambuda grow</a>."
 msgstr ""
 
-#: ambuda/templates/include/footer.html:33
+#: ambuda/templates/include/footer.html:32
 #: ambuda/templates/include/header-login.html:20
 #: ambuda/templates/include/header.html:19 ambuda/templates/texts/index.html:20
 #: ambuda/templates/texts/index.html:30
 msgid "Texts"
 msgstr "ग्रन्थाः"
 
-#: ambuda/templates/include/footer.html:35
+#: ambuda/templates/include/footer.html:34
 #: ambuda/templates/include/header-login.html:22
 #: ambuda/templates/include/header.html:21
 msgid "Proofing"
 msgstr "पाठशोधनम्"
 
-#: ambuda/templates/include/footer.html:37
+#: ambuda/templates/include/footer.html:36
 msgid "Donate"
 msgstr "दानम्"
 
-#: ambuda/templates/include/footer.html:56
+#: ambuda/templates/include/footer.html:55
 msgid "Community"
 msgstr "समुदायः"
 
-#: ambuda/templates/include/footer.html:58
+#: ambuda/templates/include/footer.html:57
 msgid "Discord"
 msgstr ""
 
-#: ambuda/templates/include/footer.html:59
+#: ambuda/templates/include/footer.html:58
 msgid "GitHub"
 msgstr ""
 
-#: ambuda/templates/include/footer.html:60
+#: ambuda/templates/include/footer.html:59
 #, fuzzy
 msgid "Reddit"
 msgstr "सम्पादनम्"
 
-#: ambuda/templates/include/footer.html:61
+#: ambuda/templates/include/footer.html:60
 msgid "Twitter"
 msgstr ""
 
