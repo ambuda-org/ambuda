@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-08 19:41-0700\n"
+"POT-Creation-Date: 2022-09-08 19:44-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -144,16 +144,25 @@ msgstr "___"
 msgid "Contact"
 msgstr "___"
 
-#: ambuda/templates/about/contact.html:20 ambuda/views/auth.py:87
+#: ambuda/templates/about/contact.html:13
+#, python-format
+msgid ""
+"For comments, questions, and feedback on our work, please use the form "
+"below to email us. If you want to help Ambuda grow, <a "
+"href=\"%(support)s\">click here</a> to learn more about how you can do "
+"so."
+msgstr ""
+
+#: ambuda/templates/about/contact.html:22 ambuda/views/auth.py:87
 msgid "Email address"
 msgstr "___"
 
-#: ambuda/templates/about/contact.html:22 ambuda/views/proofing/talk.py:19
+#: ambuda/templates/about/contact.html:24 ambuda/views/proofing/talk.py:19
 #: ambuda/views/proofing/talk.py:25 ambuda/views/proofing/talk.py:31
 msgid "Message"
 msgstr "___"
 
-#: ambuda/templates/about/contact.html:24
+#: ambuda/templates/about/contact.html:26
 msgid "Send message"
 msgstr "___"
 
@@ -234,16 +243,30 @@ msgstr "___"
 msgid "Create account"
 msgstr "___"
 
+#: ambuda/templates/auth/reset-password-post.html:13
+#, python-format
+msgid ""
+"We've sent a recovery email to <kbd>%(email)s</kbd>. Check your email for"
+" a link to reset your password. If it doesn’t appear within a few "
+"minutes, check your spam folder."
+msgstr ""
+
 #: ambuda/templates/auth/reset-password.html:6
 #: ambuda/templates/auth/reset-password.html:15
 msgid "Reset your password"
 msgstr "___"
 
-#: ambuda/templates/auth/reset-password.html:22
+#: ambuda/templates/auth/reset-password.html:17
+msgid ""
+"Enter the email address that you used when you signed up for Ambuda. "
+"We'll send you an email with a password reset link."
+msgstr ""
+
+#: ambuda/templates/auth/reset-password.html:24
 msgid "Enter your email address"
 msgstr "___"
 
-#: ambuda/templates/auth/reset-password.html:27
+#: ambuda/templates/auth/reset-password.html:29
 msgid "Send password reset email"
 msgstr "___"
 
