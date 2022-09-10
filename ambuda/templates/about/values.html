@@ -1,7 +1,8 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
 
 
-{% block title %}{{ _('Values') }} {{ _('| Ambuda') }}{% endblock %}
+{% block title %}{{ m.title(_('Values')) }}{% endblock %}
 
 
 {% block content %}

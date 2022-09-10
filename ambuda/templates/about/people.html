@@ -1,4 +1,5 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
 
 
 {% macro bio(name, resp, desc) %}
@@ -11,7 +12,7 @@
 {% endmacro %}
 
 
-{% block title %}{{ _('People') }} {{ _('| Ambuda') }}{% endblock %}
+{% block title %}{{ m.title(_('People')) }}{% endblock %}
 
 
 {% block content %}

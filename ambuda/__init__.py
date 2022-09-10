@@ -11,7 +11,7 @@ import sys
 import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask, session
-from flask_babel import Babel, Domain
+from flask_babel import Babel, pgettext
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy import exc
 
@@ -108,7 +108,6 @@ def create_app(config_env: str):
 
     # Extensions
     babel = Babel(app)
-    i18n_text = Domain(domain="text")
 
     @babel.localeselector
     def get_locale():
@@ -132,6 +131,8 @@ def create_app(config_env: str):
     app.register_blueprint(site)
     app.register_blueprint(texts, url_prefix="/texts")
 
+    # i18n string trimming
+    app.jinja_env.policies["ext.i18n.trimmed"] = True
     # Template functions and filters
     app.jinja_env.filters.update(
         {
@@ -146,7 +147,7 @@ def create_app(config_env: str):
     app.jinja_env.globals.update(
         {
             "asset": assets.hashed_static,
-            "_t": i18n_text.gettext,
+            "pgettext": pgettext,
         }
     )
 

@@ -13,14 +13,19 @@
 {{ m.project_nav(project=project, active='download', is_admin=current_user.is_admin) }}
 
 <div class="prose">
-  <p>You can use these links to download the latest version of the transcribed
-  proect. To save these files to your local machine, right-click and click
+  <p>{% trans %}
+  You can use these links to download the latest version of the transcribed
+  project. To save these files to your local machine, right-click and click
   <kbd>Save As &hellip;</kbd> or whatever similar option your computer gives
-  you.</p>
+  you.{% endtrans %}</p>
 
 <ul class="my-4 pb-4">
-  <li><a href="{{ url_for("proofing.project.download_as_text", slug=project.slug) }}">Download as plain text</a></li>
-  <li><a href="{{ url_for("proofing.project.download_as_xml", slug=project.slug) }}">Download as TEI XML</a></li>
+  <li><a href="{{ url_for("proofing.project.download_as_text", slug=project.slug) }}">
+    {{ _('Download as plain text') }}
+  </a></li>
+  <li><a href="{{ url_for("proofing.project.download_as_xml", slug=project.slug) }}">
+    {{ _('Download as TEI XML') }}
+  </a></li>
 </ul>
 
 </div>

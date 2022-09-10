@@ -52,7 +52,7 @@ def test_is_valid_reset_token():
 def test_register__unauth(client):
     r = client.get("/register")
     assert r.status_code == 200
-    assert ">Create an Ambuda account<" in r.text
+    assert "Create an Ambuda account" in r.text
 
 
 def test_register__unauth_post__ok(client):

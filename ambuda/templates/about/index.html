@@ -1,28 +1,37 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
+
 
 {% set mailing_url = 'https://groups.google.com/g/learnsanskrit-announce' %}
 {% set code_url = 'https://github.com/ambuda-org/ambuda' %}
 {% set contact_url = url_for('about.contact') %}
 
-{% block title %}{{ _('About') }} {{ _('| Ambuda') }}{% endblock %}
 
 {% macro link(route, title) %}
 <li><a href="{{ url_for(route) }}">{{ title }}</a></li>
 {% endmacro %} 
 
+
+{% block title %}{{ m.title(_('About')) }}{% endblock %}
+
+
 {% block content %}
 <div class="prose">
 <h1>{{ _('About') }}</h1>
 
-<p>Ambuda's mission is to make the Sanskrit tradition radically accessible.
-Formal work on Ambuda began on 1 June 2022, but our team of volunteers has been
+<p>{% trans %}
+Ambuda's mission is to make the Sanskrit tradition radically accessible. Formal
+work on Ambuda began on 1 June 2022, but our team of volunteers has been
 dreaming of such a project for years.
+{% endtrans %}</p>
 
-<p><a href="{{ mailing_url }}">Our mailing list</a> shares regular updates
-on Ambuda and our other Sanskrit projects. <a href="{{ code_url }}">Our
-code</a> is all on GitHub, and we eagerly welcome contributors of all
-backgrounds. For all other inquiries, please <a href="{{ contact_url }}">reach
-out to us directly</a>.</p>
+<p>{% trans %}
+<a href="{{ mailing_url }}">Our mailing list</a> shares regular updates on
+Ambuda and our other Sanskrit projects. <a href="{{ code_url }}">Our code</a>
+is all on GitHub, and we eagerly welcome contributors of all backgrounds. For
+all other inquiries, please <a href="{{ contact_url }}">reach out to us
+directly</a>.
+{% endtrans %}</p>
 
 <ul>
   {{ link('about.mission', _('Mission')) }}
