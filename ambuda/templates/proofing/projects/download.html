@@ -10,7 +10,7 @@
 
 {% block content %}
 {{ m.project_header_nested('Download', project) }}
-{{ m.project_nav(project=project, active='download', is_admin=current_user.is_admin) }}
+{{ m.project_nav(project=project, active='download', is_mod=current_user.is_moderator) }}
 
 <div class="prose">
   <p>{% trans %}

@@ -12,7 +12,8 @@ import ambuda
 from ambuda import database as db
 from ambuda import queries as q
 from ambuda.seed.utils.itihasa_utils import create_db
-from ambuda.tasks.projects import LocalTaskStatus, _create_project_inner
+from ambuda.tasks.projects import _create_project_inner
+from ambuda.tasks.utils import LocalTaskStatus
 
 engine = create_db()
 
