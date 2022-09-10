@@ -14,6 +14,8 @@ RUN pip install -r requirements.txt
 COPY ./package* ./
 RUN npm ci
 
-RUN ls ./node_modules/.bin
+RUN ls ./node_modules/.bin && echo hi
+
+RUN exit 1
 
 CMD ["./scripts/run_devserver_docker.sh"]
