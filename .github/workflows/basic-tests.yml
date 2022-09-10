@@ -56,11 +56,11 @@ jobs:
         run: docker-compose up --build --force-recreate -d
 
       - name: Check that site is running
-        run: timeout 5m bash -c 'until curl --fail-with-body localhost:5000; do sleep 10; done'
+        run: timeout 2m bash -c 'until curl --fail-with-body localhost:5000; do sleep 10; done'
         
       - name: Show logs on fail
         if: ${{ failure() }}
-        run: docker logs ambuda_app_1
+        run: docker logs -t ambuda_app_1
 
   run-py-tests:
     runs-on: ubuntu-22.04
