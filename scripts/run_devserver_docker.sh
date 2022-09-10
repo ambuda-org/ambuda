@@ -28,6 +28,11 @@ if [ ! -f $DB_FILE_PATH ]; then
 
 fi
 
+pwd
+ls .
+ls ./node_modules
+ls ./node_modules/.bin
+
 # Run the devserver, and live reload our CSS and JS.
 # "npx concurrently" does not work on Docker, but ./node_modules/.bin/concurrently does.
 # We also need to add "--host=0.0.0.0" to "flask run" to allow the host to access the
