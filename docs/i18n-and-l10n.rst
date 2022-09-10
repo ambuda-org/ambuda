@@ -1,23 +1,32 @@
 Internationalization and Localization
 =====================================
 
+.. note::
+    This doc is for software engineers wwo want to add new translation files to
+    the Ambuda application. If you want to help translate but aren't interested
+    in the technical details, join our translation effort here:
+
+    https://www.transifex.com/ambuda/ambuda
+
+
 Internationalization and localization, or **i18n and l10n** for short, are how
 we prepare a website for multiple regions and languages. We use i18n and l10n
-to present Ambuda's interface in multiple languages. As of this document, we
-have default support for English and limited support for Sanskrit.
+to present Ambuda's interface in multiple languages. 
 
 This doc describes our i18n and l10n process so that you can maintain existing
 i18n/l10n logic and add a new locale to the site.
 
-Roughly, our process has three steps:
+Roughly, our process has five steps:
 
-1. First, we annotate all translatable text in the application.
-2. Next, we create translation files for each locale we care about.
-3. Finally, we expose these locale options to the end user.
+1. Annotate all translatable text in the app.
+2. Create translation files for each locale we care about.
+3. Translate text from English to the locale of interest. 
+4. Add these translations to the app.
+5. Update the app UI.
 
 
-Annotating translatable text
-----------------------------
+1. Annotate translatable text
+-----------------------------
 
 We manage i18n and l10n through the `Flask-Babel`_ extension, which we
 initialize
@@ -33,44 +42,90 @@ template context. For example::
     # some-file.html
     {{ _('Texts') }}
 
+If a translation varies based on some number, you can use `ngettext`::
+
+    # texts.html
+    {{ ngettext('%(num)d page', '%(num)d pages', count) }}
+
+If a translation depends on some specific context, you can use `pgettext`
+instead::
+
+    # texts.html
+    {{ pgettext('texts', 'About') }}
+
+    # project.html
+    {{ pgettext('projects', 'About') }}
+
+    # user.html
+    {{ pgettext('users', 'About') }}
+
+
 .. _`Flask-Babel`: https://python-babel.github.io/flask-babel/
 .. _Jinja: https://jinja.palletsprojects.com/en/3.1.x/
 
 
-Creating translation files
---------------------------
+2. Create translation files
+---------------------------
 
-All of our translations are stored in translation files. To create these
-translation files, we follow a simple four-step process.
+All of our translations are stored in `.po` (portable object) files, a simple
+plain-text file format that is the standard for translatino files.
 
-We first create a `.pot` (portable object template) file that extracts all
-translatable text in the application. This file is a template for our
-locale-specific translation data, and we can regenerate it directly from the
-application code::
+To create these `.po` files, we first create a `.pot` (portable object
+template) file that extracts all translatable text in the application. This
+file is a template for our locale-specific translation data, and we can
+regenerate it directly from the application code at any time::
 
+    # Generates a `.pot` file.
     make babel-extract
 
-From this `.pot` file, we then create one `.po` (portable object) file for each
-locale we care about. These files contain locale-specific translation data, and
-we save them in version control::
+From this `.pot` file, we then create one `.po` file for each locale we care
+about. These files contain locale-specific translation data, and we can save
+them in version control::
 
-    # Create a new locale file.
+    # Create a new locale file from `messages.pot`.
     make babel-init locale=sa
 
     # Update existing locale files.
     make babel-update
 
-Third, we update the `.po` file with our translations. This is the most
-labor-intensive part of the i18n/l10n process.
 
-Finally, we compile the locale-specific `.po` files into `.mo` (machine object)
-files, which are optimized for machine usage. These are the files that the
-Ambuda application uses::
+3. Translate text
+-----------------
+
+We do our translation work through `Transifex`_, a user-friendly UI for
+managing translation projects. You can find our translation project `here`_.
+
+.. _`Transifex`: https://www.transifex.com/
+.. _`here`: https://www.transifex.com/ambuda/ambuda
+
+
+On Transifex, you can upload a `.pot` file as a template for the entire
+project, and you can also upload `.po` files per locale.
+
+
+4. Add translations to the app
+------------------------------
+
+Finally, we download the `.po` files created by Transifex and add them to the
+`ambuda` repo. All of our translation files should be named with this
+convention::
+
+    ambuda/translations/<locale>/LC_MESSAGES/messages.po
+
+where `<locale>` is a short locale code like `sa`.
+
+The Ambuda application cannot use these files directly. Instead, we must first
+compile these `.po` files into `.mo` (machine object) files, which are
+optimized for machine usage. You can do so with::
 
     make babel-compile
 
 
-Exposing locale options
------------------------
+5. Update the app UI
+--------------------
 
-Once we have `.mo` files, we can expose locale options in our UI.
+Finally, we update the app UI so that our new locale is available to the end
+user.
+
+As of 10 September 2022, our UI is a simple list of links in the Ambuda footer.
+Just update the footer and verify that everything works on your dev server.
