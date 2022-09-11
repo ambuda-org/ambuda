@@ -2,7 +2,7 @@ Internationalization and Localization
 =====================================
 
 .. note::
-    This doc is for software engineers wwo want to add new translation files to
+    This doc is for software engineers who want to add new translation files to
     the Ambuda application. If you want to help translate but aren't interested
     in the technical details, join our translation effort here:
 
@@ -68,7 +68,7 @@ instead::
 ---------------------------
 
 All of our translations are stored in `.po` (portable object) files, a simple
-plain-text file format that is the standard for translatino files.
+plain-text file format that is the standard for translation files.
 
 To create these `.po` files, we first create a `.pot` (portable object
 template) file that extracts all translatable text in the application. This
