@@ -22,7 +22,7 @@ click-plugins==1.1.1
 click-repl==0.2.0
 conllu==4.5.2
 coverage==6.4.1
-cryptography==37.0.2
+cryptography==38.0.1
 Deprecated==1.2.13
 dnspython==2.2.1
 docutils==0.17.1
