@@ -73,6 +73,19 @@ def initialize_test_db():
     session.add(admin)
     session.flush()
 
+    # Deleted and Banned
+    deleted_admin = db.User(username="sandrocottus-deleted", email="cgm@ambuda.org")
+    deleted_admin.set_password("maurya")
+    deleted_admin.set_is_deleted(True)
+
+    banned = db.User(username="sikander-banned", email="alex@ambuda.org")
+    banned.set_password("onesicritus")
+    banned.set_is_banned(True)
+
+    session.add(deleted_admin)
+    session.add(banned)
+    session.flush()
+
     # Roles
     p1_role = db.Role(name=db.SiteRole.P1.value)
     p2_role = db.Role(name=db.SiteRole.P2.value)
@@ -84,8 +97,12 @@ def initialize_test_db():
 
     rama.roles = [p1_role, p2_role]
     admin.roles = [p1_role, p2_role, admin_role]
+    deleted_admin.roles = [p1_role, p2_role, admin_role]
+    banned.roles = [p1_role]
     session.add(rama)
     session.add(admin)
+    session.add(deleted_admin)
+    session.add(banned)
     session.flush()
 
     # Proofreading
@@ -151,4 +168,18 @@ def rama_client(flask_app):
 def admin_client(flask_app):
     session = get_session()
     user = session.query(db.User).filter_by(username="akprasad").first()
+    return flask_app.test_client(user=user)
+
+
+@pytest.fixture()
+def deleted_client(flask_app):
+    session = get_session()
+    user = session.query(db.User).filter_by(username="sandrocottus-deleted").first()
+    return flask_app.test_client(user=user)
+
+
+@pytest.fixture()
+def banned_client(flask_app):
+    session = get_session()
+    user = session.query(db.User).filter_by(username="sikander-banned").first()
     return flask_app.test_client(user=user)
