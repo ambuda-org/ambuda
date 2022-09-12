@@ -13,11 +13,6 @@ def test_values(client):
     assert "<h1>Values</h1>" in resp.text
 
 
-def test_roadmap(client):
-    resp = client.get("/about/roadmap")
-    assert "<h1>Roadmap</h1>" in resp.text
-
-
 def test_people(client):
     resp = client.get("/about/people")
     assert "<h1>People</h1>" in resp.text

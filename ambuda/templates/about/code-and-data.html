@@ -21,23 +21,29 @@
 <div class="prose">
 <h1>{{ _('Code and Data') }}</h1>
 
-<p>All of our code is available <a href="{{ code_url }}">on GitHub</a>. We use
+<p>{% trans %}
+All of our code is available <a href="{{ code_url }}">on GitHub</a>. We use
 Python (Flask) for the backend, Tailwind for CSS, and native JavaScript for the
-rest. Our site is hosted <a href="{{ host_url }}">on DigitalOcean</a>.</p>
+rest. Our site is hosted <a href="{{ host_url }}">on DigitalOcean</a>.
+{% endtrans %}</p>
 
-<p>Almost all of Ambuda's data comes from other projects.</p>
+<p>{% trans %}
+Much of our text data comes from <a href="{{ gretil }}">GRETIL</a>.
+For the <cite>Ramayana</cite> and <cite>Mahabharata</cite> specifically, we
+instead use the "official" electronic versions hosted on <a href="{{ smith
+}}">John D. Smith's website</a>. As our project grows, we will include other
+sources of textual data and even generate texts on our own.
+{% endtrans %}</p>
 
-<p>Text data mostly comes from <a href="{{ gretil }}">GRETIL</a>. For the
-<cite>Ramayana</cite> and <cite>Mahabharata</cite> specifically, we instead use
-the "official" electronic versions hosted on <a href="{{ smith }}">John D.
-    Smith's website</a>. As our project grows, we will include other sources
-of textual data and even generate texts on our own.</p>
+<p>{% trans %}
+Dictionary data comes from the <a href="{{ cdsl }}">Cologne Digital Sanskrit
+Lexicons</a> (CDSL) project.
+{% endtrans %}</p>
 
-<p>Dictionary data comes from the <a href="{{ cdsl }}">Cologne Digital Sanskrit
-Lexicons</a> (CDSL) project.</p>
-
-<p>Parse data comes from the <a href="{{ dcs }}">Digital Corpus of Sanskrit</a>
-(DCS) project.</p>
+<p>{% trans %}
+Parse data comes from the <a href="{{ dcs }}">Digital Corpus of Sanskrit</a>
+(DCS) project.
+{% endtrans %}</p>
 
 </div>
 {% endblock %}
