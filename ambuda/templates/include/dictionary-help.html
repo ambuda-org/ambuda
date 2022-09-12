@@ -1,10 +1,12 @@
 <div class="prose">
-<p>This simple and fast lookup tool includes five popular dictionaries. It
+<p>{% trans %}
+This simple and fast lookup tool includes several popular dictionaries. It
 auto-detects the common input schemes, including Devanagari, IAST,
 Harvard-Kyoto, and SLP1. It also supports regional scripts like Kannada and
-Telugu.</p>
+Telugu.
+{% endtrans %}</p>
 
-<p>Notes on specific dictionaries:</p>
+<p>{% trans %}Notes on specific dictionaries:{% endtrans %}</p>
 
 <ul>
   <li><p>The Apte dictionary uses special conventions so that its entries
@@ -25,6 +27,6 @@ Telugu.</p>
       'car'|d }} and {{ 'sah'|d }}).</p></li>
 </ul>
 
-<p>For data sources, see our <a href="{{ url_for('about.index') }}">About</a>
-page.</p>
+{% set about = url_for('about.index') %}
+<p>{% trans %}For data sources, see our <a href="{{ about }}">About</a> page.{% endtrans %}</p>
 </div>
