@@ -9,24 +9,28 @@ Telugu.
 <p>{% trans %}Notes on specific dictionaries:{% endtrans %}</p>
 
 <ul>
-  <li><p>The Apte dictionary uses special conventions so that its entries
-      take up less space on a printed page (e.g. {{ 'paMktiH'|d }} and {{
-      'vanaM'|d }} instead of {{ 'paGkti'|d }} and {{ 'vana'|d }}). Our
-      dictionary optionally supports these conventions: you are free to
-      follow or ignore them as you wish.</p>
+<li><p>{% trans %}
+The Apte dictionary uses special conventions so that its entries take up less
+space on a printed page (e.g. पंक्तिः and वनम् instead of पङ्क्ति and वन. Our
+dictionary optionally supports these conventions: you are free to follow or
+ignore them as you wish.
+{% endtrans %}</p>
 
-  <li><p>The {{ 'zabdakalpadrumaH'|d }} generally expects that nominals
-      are given in their {{ 'prathamA-ekavacanam'|d }} form instead of their
-      {{ 'prAtipadika'|d }} form ({{ 'naraH'|d }} and {{ 'rAjA'| d }} instead
-      of {{ 'nara'|d }} and {{ 'rAjan'|d }}) and that roots are stated in
-      their Paninian form ({{ 'cara'|d }} and {{ 'Saha'|d }} instead of {{
-      'car'|d }} and {{ 'sah'|d }}).</p></li>
+<li><p>{% trans %}
+The शब्दकल्पद्रुमः generally expects that nominals are given in their
+प्रथमा-एकवचनम् form instead of their प्रातिपदिक form (नरः and राजा instead
+of नर and राजन्) and that roots are stated in their Paninian form (चर and षह
+instead of चर् and सह्).
+{% endtrans %}</p></li>
 
-  <li><p>The {{ 'vAcaspatyam'|d }} generally expects that roots are stated in
-      their Paninian form ({{ 'cara'|d }} and {{ 'Saha'|d }} instead of {{
-      'car'|d }} and {{ 'sah'|d }}).</p></li>
+<li><p>{% trans %}
+The वाचस्पत्यम् generally expects that roots are stated in their Paninian form
+(चर and षह instead of चर् and सह्).
+{% endtrans %}</p></li>
 </ul>
 
 {% set about = url_for('about.index') %}
-<p>{% trans %}For data sources, see our <a href="{{ about }}">About</a> page.{% endtrans %}</p>
+<p>{% trans %}
+For data sources, see our <a href="{{ about }}">About</a> page.
+{% endtrans %}</p>
 </div>
