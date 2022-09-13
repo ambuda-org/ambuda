@@ -1,0 +1,1572 @@
+# Translations template for PROJECT.
+# Copyright (C) 2022 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2022.
+#
+# Translators:
+# Arun Prasad, 2022
+# Andrew Ollett, 2022
+# Suhas Mahesh, 2022
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+"POT-Creation-Date: 2022-09-08 20:14-0700\n"
+"PO-Revision-Date: 2022-09-09 03:16+0000\n"
+"Last-Translator: Suhas Mahesh, 2022\n"
+"Language-Team: Sanskrit (https://www.transifex.com/ambuda/teams/151973/sa/)\n"
+=======
+"POT-Creation-Date: 2022-09-11 20:17-0700\n"
+=======
+"POT-Creation-Date: 2022-09-11 21:59-0700\n"
+>>>>>>> Dictionary index
+=======
+"POT-Creation-Date: 2022-09-11 22:33-0700\n"
+>>>>>>> WIP
+"PO-Revision-Date: 2022-09-03 21:40-0700\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: sa\n"
+"Language-Team: sa <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+>>>>>>> Add more text
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.10.3\n"
+"Language: sa\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n==2 ? 1:2);\n"
+
+#: ambuda/templates/404.html:11
+msgid "Not Found (404)"
+msgstr "नोपलभ्यते (४०४)"
+
+#: ambuda/templates/404.html:13
+msgid ""
+"Sorry! We couldn't find what you were looking for. If you think you've found"
+" a bug in our project, <a href=\"%(contact_url)s\">let us know</a> and we'll"
+" fix it as soon as we can."
+msgstr ""
+"क्षम्यताम् । अन्विष्टं न लब्धम् । दोषाः लक्षिताः चेत् <a "
+"href=\"%(contact_url)s\">निश्शङ्कं सूच्यन्ताम्</a> । तान् निवारयितुं यतामहे "
+"।   "
+
+#: ambuda/templates/500.html:11
+msgid "Server Error (500)"
+msgstr "वितरक-दोषः (५००)"
+
+#: ambuda/templates/500.html:13
+msgid ""
+"Sorry, our site has encountered an unknown error. We will investigate the "
+"issue so that we can prevent it in the future. If you think you know what "
+"caused this issue, please <a href=\"%(contact_url)s\">let us know</a> and "
+"we'll fix it as soon as we can."
+msgstr ""
+"क्षम्यताम् । अज्ञात-हेतुः विघ्नः समापतितः । विचार्य तं निवारयिष्यामः । "
+"विघ्न-हेतुः ज्ञायते चेत् <a href=\"%(contact_url)s\">सूच्यताम्</a>  ।  "
+
+#: ambuda/templates/include/footer.html:31
+#: ambuda/templates/include/header-login.html:14
+#: ambuda/templates/include/header.html:13 ambuda/templates/index.html:20
+msgid "Ambuda"
+msgstr "अम्बुदः"
+
+#: ambuda/templates/index.html:31
+msgid "A breakthrough Sanskrit library"
+msgstr "आधुनिकः संस्कृतग्रन्थालयः"
+
+#: ambuda/templates/index.html:32
+msgid ""
+"Sanskrit literature with word-by-word analysis and integrated dictionaries. "
+"All in a free online library that works on all devices."
+msgstr ""
+"प्रतिपदं व्याख्यातो, नाना-शब्द-कोशैश्च सनाथीकृतः । सर्वेषु यन्त्रेषु "
+"निश्शुल्कं प्रयोक्तुं शक्यः ।"
+
+#: ambuda/templates/index.html:40 ambuda/templates/index.html:138
+msgid "Explore the library"
+msgstr "ग्रन्थालयः प्रविश्यताम्"
+
+#: ambuda/templates/index.html:60
+msgid "Building the world's largest Sanskrit library"
+msgstr "महत्तमं संस्कृत-ग्रन्थ-सङ्ग्रहं रचयामः"
+
+#: ambuda/templates/index.html:62
+msgid ""
+"Sanskrit texts are scattered across dozens of websites, thousands of books, "
+"and millions of manuscripts. Their quality and ease of use vary widely, and "
+"there isn't an easy way to explore what Sanskrit has to offer."
+msgstr ""
+"अल्प-ज्ञातेषु जालक्षेत्रेषु, विस्मृत-प्रायेषु ग्रन्थेषु, जीर्ण-जीर्णासु "
+"मातृकासु च पारे-लक्षं ग्रन्थाः उच्चावचं तिष्ठन्ति । तेषु केचत् प्रसिद्धाः, "
+"केचद् अप्रसिद्धाः, केचन सुबोधाः, केचन दुर्बोधाश्च । तान् एतान् अध्येतुम् "
+"इच्छतां नास्ति निष्कण्टको मार्गः ।"
+
+#: ambuda/templates/index.html:68
+msgid ""
+"That's why Ambuda is building a complete library of traditional Sanskrit "
+"literature. Our library is small now, but it's growing rapidly. Soon, it "
+"will be the largest Sanskrit library in the world."
+msgstr ""
+"अतः कारणाद्, अम्बुद-नामधेयो ऽयं सर्वव्यापी ग्रन्थालयो र्निर्मीयते । अधुना "
+"अल्पीयानपि, क्षिप्रं वर्धिष्णुः अचिरादेव महीयते ।"
+
+#: ambuda/templates/index.html:77
+msgid "Open access for all"
+msgstr "सार्वजनिकः प्रवेशः"
+
+#: ambuda/templates/index.html:79
+msgid ""
+"What if you could read Sanskrit anywhere for free? What if reading Sanskrit "
+"online were delightful and beautiful? What if you could easily find Sanskrit"
+" resources in your native language?"
+msgstr ""
+"सद्मनि वा वर्त्मनि वा यत्र कुत्रचिद् ग्रन्थान् निश्शुल्कं पठितुमर्हसि । अत्र"
+" ग्रन्थ-प्रस्तुतिः सुबोधा मनोहारिणी च । नाना-देश-भाषा-निबद्धाः "
+"व्याकरण-कोशादि-विचाराः चोपलभ्यन्ते । "
+
+#: ambuda/templates/index.html:85
+msgid ""
+"We have a long way to go, but we want to make our library radically "
+"accessible to as many people as we can. For now, you can use our website on "
+"any device. Soon, we'll support other languages besides English."
+msgstr ""
+"दीर्घो ऽयं पन्थाः इति विदितम् एव । भारते ऽपरत्र वा, निर्धनो धनाढ्यो वा, बालः"
+" पण्डितो वा सर्वो ऽपि जनो जालक्षेत्रम् एतद् विशृङ्खलं प्रयुञ्जीत । यस्मिन् "
+"कस्मिन्नपि यन्त्रे जालक्षेत्रम् एतत् प्रयोक्तुमर्हसि । अचिराद् एव "
+"हिन्दी-कार्णाटी-द्राविडी-प्रभृतिभिः भाषाभिश्च व्यवहारः शक्ष्यते ।"
+
+#: ambuda/templates/index.html:94
+msgid "Intelligent technology"
+msgstr "चतुराणि यन्त्राणि"
+
+#: ambuda/templates/index.html:96
+msgid ""
+"Word-by-word analysis. Integrated dictionary support. Transliteration to a "
+"variety of different scripts. And so much more. Our intelligent library uses"
+" state-of-the-art technology to make Sanskrit more accessible than ever "
+"before."
+msgstr ""
+"पद-च्छेदो, विग्रहः, पदार्थोक्तिः, लिपि-परिवर्तनम् इत्यादयो "
+"गुरु-मुख-ग्राह्याः व्याख्या-गातश्च विषयाः अत्र प्रस्तूयन्ते "
+"तन्त्रांश-साहाय्येन । केनापि इन्द्रजालेन यन्त्रान्तर्गमितः पण्डित इव "
+"तन्त्रांशो ऽयं सर्वमपि जनं ग्रन्थ-पठने समर्थतां नयेत् ।"
+
+#: ambuda/templates/index.html:102
+msgid ""
+"But our work is just beginning. We have so much planned for the future: "
+"translations, commentaries, full-text search, and deeper hyperlinks across "
+"the entire corpus."
+msgstr ""
+"अधुना दिङ्मात्रं दर्शितमत्र । कर्तव्यम् अस्ति महत् । अनुवादाः, "
+"प्रचीन-व्याख्याः, इष्ट-पदान्वेषणम्, उल्लेख-प्राप्ति-सौकर्यम् इत्यादि "
+"प्राकाश्यं नेष्यते ।"
+
+#: ambuda/templates/index.html:111
+msgid "By the public, for the public"
+msgstr "लोकेन कृतं लोकस्य कृते"
+
+#: ambuda/templates/index.html:114
+msgid ""
+"Ambuda is run entirely by volunteers, and we would be thrilled to have your "
+"support in whatever form you can provide it. Learn more about how you can <a"
+" href=\"%(support_url)s\">help Ambuda grow</a>."
+msgstr ""
+"भवादृशाः अगृहीत-वेतनाः सुरभारती-समाराधका एवास्य जालक्षेत्रस्य धुरं वहन्ति । "
+"भवता यथाशक्ति कृतं साहाय्यम् अल्पमपि बहुलायते । <a "
+"href=\"%(support_url)s\">कथम् अम्बुदं पुष्णीयामिति ज्ञायताम्</a> ।"
+
+#: ambuda/templates/index.html:120
+msgid ""
+"Ambuda is growing rapidly. <a href=\"%(mailing_url)s\">Sign up for our "
+"mailing list</a> to receive regular updates on new content and features."
+msgstr ""
+"अम्बुदः क्षिप्रं वर्धते । अस्माकं विद्युत्पत्त्र-सूच्यां <a "
+"href=\"%(mailing_url)s\">निज-सङ्केतं स्थापयत</a>, येन "
+"नूत्न-ग्रन्थ-कोश-तन्त्रांशादि-वर्ता ज्ञायते । "
+
+#: ambuda/templates/index.html:129
+msgid "Sanskrit at your fingertips"
+msgstr "करबदरसदृशं संस्कृतम् "
+
+#: ambuda/templates/index.html:132
+msgid "Our work is just beginning. Thank you for using Ambuda."
+msgstr "दीर्घे पथि प्रथमं पदम् एतत् । भवतो ऽभ्यागमनेन अनुगृहीताः स्मः ।"
+
+#: ambuda/templates/support.html:11 ambuda/templates/support.html:70
+#, fuzzy
+msgid "Donate to Ambuda"
+msgstr "अम्बुदः प्रविश्यताम्"
+
+#: ambuda/templates/support.html:12
+msgid "Use and share Ambuda"
+msgstr ""
+
+#: ambuda/templates/support.html:13
+msgid "Transcribe and proofread texts"
+msgstr ""
+
+#: ambuda/templates/support.html:14
+#, fuzzy
+msgid "Contribute a text"
+msgstr "योगदानम्"
+
+#: ambuda/templates/support.html:15
+msgid "Tag and annotate sentences"
+msgstr ""
+
+#: ambuda/templates/support.html:16
+msgid "Build our technical platform"
+msgstr ""
+
+#: ambuda/templates/support.html:17
+msgid "Other open problems"
+msgstr ""
+
+#: ambuda/templates/include/footer.html:36 ambuda/templates/support.html:35
+msgid "Support"
+msgstr "साहाय्यं कुरु"
+
+#: ambuda/templates/support.html:37
+msgid ""
+"Ambuda is building a complete archive of traditional Sanskrit literature."
+" This is a massive undertaking on an urgent timeline: Sanskrit "
+"manuscripts don't last forever, and there is no guarantee that the future"
+" will be as peaceful as it is now."
+msgstr ""
+
+#: ambuda/templates/support.html:44
+msgid ""
+"We need to build the capacity and the capital for such an effort before "
+"it is too late. <strong>We can do so only with your help.</strong>"
+msgstr ""
+
+#: ambuda/templates/support.html:49
+msgid "Here is how you can help Ambuda grow:"
+msgstr ""
+
+#: ambuda/templates/support.html:63
+msgid ""
+"Ambuda is a free project run for the public benefit. Please help pay for "
+"our hosting costs with a small donation:"
+msgstr ""
+
+#: ambuda/templates/support.html:74
+msgid ""
+"More money means more security for the project and a greater ability for "
+"us to try ambitious new projects."
+msgstr ""
+
+#: ambuda/templates/support.html:83
+msgid ""
+"If you're short on time, using Ambuda and sharing it with others is the "
+"easiest way to help our project."
+msgstr ""
+
+#: ambuda/templates/support.html:88
+#, python-format
+msgid ""
+"<a href=\"%(contact)s\">Let us know</a> how Ambuda has benefited you, and"
+" let us know about any issues or errors you encounter as well. Please "
+"also share Ambuda with others who might feel the same way as you."
+msgstr ""
+
+#: ambuda/templates/support.html:94
+msgid ""
+"Seeing others use and enjoy our work boosts team morale, and it also "
+"helps us recruit more volunteers. Every little bit helps!"
+msgstr ""
+
+#: ambuda/templates/support.html:108 ambuda/templates/support.html:206
+msgid "How to get started:"
+msgstr ""
+
+#: ambuda/templates/support.html:110
+msgid "<a href=\"{{ register }}\">Create</a> a proofing account."
+msgstr ""
+
+#: ambuda/templates/support.html:111
+msgid "Read our <a href=\"{{ beginners }}\">beginner's guide</a>."
+msgstr ""
+
+#: ambuda/templates/support.html:112
+#, fuzzy
+msgid "Start proofing!"
+msgstr "पाठशोधनम्"
+
+#: ambuda/templates/support.html:117
+#, python-format
+msgid ""
+"As we grow and scale, we will need to transcribe thousands of texts, both"
+" in Sanskrit and in translation. We're looking for volunteers to use <a "
+"href=\"%(url)s\">our new proofreading tool</a> to transcribe and "
+"proofread these texts."
+msgstr ""
+
+#: ambuda/templates/support.html:124 ambuda/templates/support.html:175
+msgid "Basic work includes:"
+msgstr ""
+
+#: ambuda/templates/support.html:127
+#, python-format
+msgid ""
+"Transcribing and proofreading existing projects with the help of "
+"automatic transcription tools (<a href=\"%(ocr)s\">OCR</a>).</li>"
+msgstr ""
+
+#: ambuda/templates/support.html:131
+msgid "Raising issues or problems to more senior proofreaders."
+msgstr ""
+
+#: ambuda/templates/support.html:134 ambuda/templates/support.html:182
+msgid "Intermediate work includes:"
+msgstr ""
+
+#: ambuda/templates/support.html:137
+msgid "Finding Sanskrit texts and translations that haven't been transcribed."
+msgstr ""
+
+#: ambuda/templates/support.html:138
+msgid "Supporting new proofreaders by giving advice and reviewing their work."
+msgstr ""
+
+#: ambuda/templates/support.html:139
+msgid "Making suggestions and feature requests for our proofreading interface."
+msgstr ""
+
+#: ambuda/templates/support.html:142 ambuda/templates/support.html:190
+msgid "Advanced work includes:"
+msgstr ""
+
+#: ambuda/templates/support.html:145
+msgid ""
+"Developing and enforcing proofreading guidelines across all of our "
+"projects."
+msgstr ""
+
+#: ambuda/templates/support.html:146
+msgid "Supporting and moderating our proofreading community as a whole."
+msgstr ""
+
+#: ambuda/templates/support.html:152
+#, python-format
+msgid ""
+"Do you have an out-of-copyright work you want to contribute to our "
+"library? Or are you a publisher, translator or author interested in "
+"contributing a major work to Ambuda?  That's a wonderful way to "
+"contribute to the popularity of Sanskrit literature.  Please <a "
+"href=\"%(contact)s\">contact us!</a>"
+msgstr ""
+
+#: ambuda/templates/support.html:169
+msgid ""
+"Our analysis tools can generate a word-by-word analysis automatically for"
+" many Sanskrit texts. But, these tools still produce many errors, and "
+"they need manual correction before we can show them to a user."
+msgstr ""
+
+#: ambuda/templates/support.html:185
+msgid "Annotating compounds."
+msgstr ""
+
+#: ambuda/templates/support.html:186
+msgid "Creating <i>anvaya</i>s."
+msgstr ""
+
+#: ambuda/templates/support.html:187
+msgid "Reviewing errors reported by readers."
+msgstr ""
+
+#: ambuda/templates/support.html:193
+msgid ""
+"Developing and enforcing annotation guidelines across all of our tagged "
+"data."
+msgstr ""
+
+#: ambuda/templates/support.html:215
+msgid ""
+"Ambuda's technical work is massive and unending, and it touches basically"
+" every part of the stack: frontend, backend, infra, storage, databases, "
+"security, OCR &amp; NLP, UX and user research, and many more."
+msgstr ""
+
+#: ambuda/templates/support.html:248
+msgid ""
+"There are dozens of other important problems that we need to solve for "
+"Ambuda to grow properly: community management, fundraising, outreach and "
+"marketing, writing blog posts and documentation, sourcing texts, "
+"coordination with universities and governments …"
+msgstr ""
+
+#: ambuda/templates/support.html:258
+msgid "Final thoughts"
+msgstr ""
+
+#: ambuda/templates/support.html:260
+msgid ""
+"If Ambuda succeeds, it will fundamentally change how people read and "
+"learn Sanskrit. Please help us make this audaciously ambitious project a "
+"reality."
+msgstr ""
+
+#: ambuda/templates/about/code-and-data.html:5
+#: ambuda/templates/about/code-and-data.html:22
+<<<<<<< HEAD
+<<<<<<< HEAD
+#: ambuda/templates/about/index.html:41
+#: ambuda/templates/include/footer.html:48
+=======
+#: ambuda/templates/about/index.html:40 ambuda/templates/include/footer.html:49
+>>>>>>> Add more text
+=======
+#: ambuda/templates/about/index.html:40 ambuda/templates/include/footer.html:48
+>>>>>>> Dictionary index
+msgid "Code and Data"
+msgstr "ग्रन्थपाठाः तन्त्रांशश्च"
+
+<<<<<<< HEAD
+#: ambuda/templates/about/contact.html:5
+#: ambuda/templates/about/contact.html:11 ambuda/templates/about/index.html:43
+#: ambuda/templates/include/footer.html:37
+=======
+#: ambuda/templates/about/code-and-data.html:24
+#, python-format
+msgid ""
+"All of our code is available <a href=\"%(code_url)s\">on GitHub</a>. We "
+"use Python (Flask) for the backend, Tailwind for CSS, and native "
+"JavaScript for the rest. Our site is hosted <a href=\"%(host_url)s\">on "
+"DigitalOcean</a>."
+msgstr ""
+
+#: ambuda/templates/about/code-and-data.html:30
+#, python-format
+msgid ""
+"Much of our text data comes from <a href=\"%(gretil)s\">GRETIL</a>. For "
+"the <cite>Ramayana</cite> and <cite>Mahabharata</cite> specifically, we "
+"instead use the \"official\" electronic versions hosted on <a "
+"href=\"%(smith)s\">John D. Smith's website</a>. As our project grows, we "
+"will include other sources of textual data and even generate texts on our"
+" own."
+msgstr ""
+
+#: ambuda/templates/about/code-and-data.html:38
+#, python-format
+msgid ""
+"Dictionary data comes from the <a href=\"%(cdsl)s\">Cologne Digital "
+"Sanskrit Lexicons</a> (CDSL) project."
+msgstr ""
+
+#: ambuda/templates/about/code-and-data.html:43
+#, python-format
+msgid ""
+"Parse data comes from the <a href=\"%(dcs)s\">Digital Corpus of "
+"Sanskrit</a> (DCS) project."
+msgstr ""
+
+#: ambuda/templates/about/contact.html:5 ambuda/templates/about/contact.html:11
+#: ambuda/templates/about/index.html:42 ambuda/templates/include/footer.html:38
+>>>>>>> Add more text
+msgid "Contact"
+msgstr "सम्पर्कः"
+
+#: ambuda/templates/about/contact.html:13
+msgid ""
+"For comments, questions, and feedback on our work, please use the form below"
+" to email us. If you want to help Ambuda grow, <a href=\"%(support)s\">click"
+" here</a> to learn more about how you can do so."
+msgstr ""
+"गुण-दोषा-विचारणा प्रश्नाश्च अधो-दत्ते पट्टके लिख्यन्ताम् । कथम् अम्बुदं "
+"पुष्णीयाम् <a href=\"%(support)s\">इत्यत्र ज्ञायताम्</a>   ।"
+
+#: ambuda/templates/about/contact.html:22 ambuda/views/auth.py:87
+msgid "Email address"
+msgstr "विद्युत्पत्त्र-सङ्केतः"
+
+#: ambuda/templates/about/contact.html:24 ambuda/views/proofing/talk.py:19
+#: ambuda/views/proofing/talk.py:25 ambuda/views/proofing/talk.py:31
+msgid "Message"
+msgstr "सन्देशः"
+
+#: ambuda/templates/about/contact.html:26
+msgid "Send message"
+msgstr "सन्देशं प्रेषय"
+
+#: ambuda/templates/about/index.html:15 ambuda/templates/about/index.html:20
+#: ambuda/templates/include/footer.html:43
+#: ambuda/templates/include/header-login.html:23
+#: ambuda/templates/include/header.html:22
+msgid "About"
+msgstr "परिचयः"
+
+#: ambuda/templates/about/index.html:22
+msgid ""
+"Ambuda's mission is to make the Sanskrit tradition radically accessible. "
+"Formal work on Ambuda began on 1 June 2022, but our team of volunteers has "
+"been dreaming of such a project for years."
+msgstr ""
+"संस्कृत-वाङ्मयं न कस्यचिद् दुर्ग्राह्यम् अग्राह्यं वा भवेदिति अम्बुदस्य "
+"चिकीर्षितम् । नैकान् वर्षान् हृदये एव लालितः सन् शुभकृत्संवत्सरे "
+"ज्येष्ठ-शुक्ल-द्वीतीयायाम् अम्बुदः मूर्तं रूपम् अभजत् ।"
+
+#: ambuda/templates/about/index.html:28
+msgid ""
+"<a href=\"%(mailing_url)s\">Our mailing list</a> shares regular updates on "
+"Ambuda and our other Sanskrit projects. <a href=\"%(code_url)s\">Our "
+"code</a> is all on GitHub, and we eagerly welcome contributors of all "
+"backgrounds. For all other inquiries, please <a "
+"href=\"%(contact_url)s\">reach out to us directly</a>."
+msgstr ""
+"<a href=\"%(mailing_url)s\">अस्माकं विद्युत्पत्त्र-सूची-द्वारा</a> काले काले"
+" वर्ता प्रसार्यते । <a href=\"%(code_url)s\">निश्शेषो ऽपि तन्त्रांश-विधिः "
+"गिट्हब-जालक्षेत्रे</a> तिष्ठति । सर्वेभ्यः साहाय्य-कर्तृभ्यो निष्पक्षपातं "
+"स्वागतं व्याहरामः । अन्यत् किञ्चित् प्रष्टव्यं चेद् <a "
+"href=\"%(contact_url)s\">अत्र सन्देशो लिख्यताम् </a> ।   "
+
+#: ambuda/templates/about/index.html:37 ambuda/templates/about/mission.html:5
+#: ambuda/templates/about/mission.html:16
+#: ambuda/templates/include/footer.html:45
+msgid "Mission"
+msgstr "लक्ष्याणि"
+
+#: ambuda/templates/about/index.html:38 ambuda/templates/about/values.html:5
+#: ambuda/templates/about/values.html:10
+#: ambuda/templates/include/footer.html:46
+msgid "Values"
+msgstr "स्थूलध्येयानि"
+
+#: ambuda/templates/about/index.html:39 ambuda/templates/about/people.html:15
+#: ambuda/templates/about/people.html:20
+#: ambuda/templates/include/footer.html:47
+msgid "People"
+msgstr "अग्रण्यः"
+
+#: ambuda/templates/about/index.html:41 ambuda/templates/about/our-name.html:5
+#: ambuda/templates/about/our-name.html:13
+msgid "Our Name"
+msgstr "अम्बुद इति नाम"
+
+<<<<<<< HEAD
+#: ambuda/templates/about/privacy.html:4
+#: ambuda/templates/about/privacy.html:10
+#: ambuda/templates/include/footer.html:50
+=======
+#: ambuda/templates/about/mission.html:18
+msgid ""
+"Ambuda's mission is to make the Sanskrit tradition radically accessible. "
+"Specifically, we have three goals:"
+msgstr ""
+
+#: ambuda/templates/about/mission.html:24
+msgid ""
+"Create <strong>a complete archive</strong> of traditional Sanskrit "
+"literature"
+msgstr ""
+
+#: ambuda/templates/about/mission.html:28
+msgid "Publish this archive in <strong>an open format</strong>."
+msgstr ""
+
+#: ambuda/templates/about/mission.html:32
+msgid ""
+"Integrate this archive with <strong>intelligent tools</strong> for "
+"students and scholars."
+msgstr ""
+
+#: ambuda/templates/about/mission.html:38
+#, fuzzy
+msgid "A complete archive"
+msgstr "पूर्णसूचनाः"
+
+#: ambuda/templates/about/mission.html:40
+msgid ""
+"The Sanskrit corpus is vast. Conservative estimates suggest that there at"
+" least 30 million surviving Sanskrit manuscripts. While many of these "
+"manuscripts are near-duplicates of each other, they still imply a "
+"literature that is rich and overflowing."
+msgstr ""
+
+#: ambuda/templates/about/mission.html:47
+msgid ""
+"Of these manuscripts, only a few are available as published books. Of "
+"these books, only a few are available as digital scans. Of these scans, "
+"only a few are available as machine-readable text files. And of these "
+"files, only a few are reliable and error-free."
+msgstr ""
+
+#: ambuda/templates/about/mission.html:54
+msgid ""
+"There are dozens of online Sanskrit archives that have made sincere "
+"efforts to preserve and display some of this vast literature. We are "
+"deeply grateful to our predecessors and their work. But sadly, creating a"
+" complete archive is a massive and multidisciplinary project, and it "
+"requires resources that most projects lack."
+msgstr ""
+
+#: ambuda/templates/about/mission.html:62
+msgid ""
+"We believe that our collective engineering skill can drastically cut the "
+"cost of publishing these texts. By doing so, we hope to succeed at this "
+"massive task and build an archive that is as complete as possible."
+msgstr ""
+
+#: ambuda/templates/about/mission.html:69
+msgid "An open format"
+msgstr ""
+
+#: ambuda/templates/about/mission.html:71
+msgid ""
+"A complete archive is of no use if it is difficult to access. We must "
+"publish this archive as openly as we can and remove the tedious barriers "
+"that impede access to Sanskrit literature."
+msgstr ""
+
+#: ambuda/templates/about/mission.html:77
+msgid ""
+"More concretely, we publish our texts on a free and public website under "
+"permissive licensing. We ensure that our texts are delightfully readable "
+"on a variety of devices. We share our work freely so that users can take "
+"what we produce and use it for their own needs, whatever they might be."
+msgstr ""
+
+#: ambuda/templates/about/mission.html:84
+msgid ""
+"Soon, our website will be available in multiple languages. That way, "
+"every reader can access and enjoy our collection in their native "
+"language."
+msgstr ""
+
+#: ambuda/templates/about/mission.html:90
+msgid "Intelligent tools"
+msgstr ""
+
+#: ambuda/templates/about/mission.html:92
+msgid ""
+"Intelligent tools can remove much of the pointless toil that Sanskrit "
+"readers often endure and thereby make the archive more accessible to all."
+msgstr ""
+
+#: ambuda/templates/about/mission.html:97
+msgid ""
+"For curious beginners, our support for side-by-side translations will "
+"make it easy to follow along with a Sanskrit text and appreciate the "
+"literature."
+msgstr ""
+
+#: ambuda/templates/about/mission.html:102
+msgid ""
+"For Sanskrit learners, our tools will automatically produce a word-by-"
+"word analysis for every text in our collection. Integrated dictionary "
+"support will allow readers to look up words in their favorite dictionary "
+"in less than a second. Sophisticated analysis tools will provide "
+"contextual grammar explanations that make paper grammar books almost "
+"obsolete."
+msgstr ""
+
+#: ambuda/templates/about/mission.html:110
+msgid ""
+"For more advanced readers, our richly hyperlinked corpus will make it "
+"easy to explore connections between different texts and traditions. Full-"
+"text search and other dynamic features will give readers powerful tools "
+"for exploring all of Sanskrit literature."
+msgstr ""
+
+#: ambuda/templates/about/our-name.html:15
+msgid ""
+"In July 2013, we prototyped a website where people could collaboratively "
+"transcribe Sanskrit texts. Since the platform would store texts in a "
+"digital cloud and create texts from a metaphorical cloud of human "
+"activity, we called the project \"Ambuda,\" which is one of the many "
+"Sanskrit words for \"cloud.\""
+msgstr ""
+
+#: ambuda/templates/about/our-name.html:22
+msgid ""
+"Work ended on that prototype two weeks later, and little of it survives "
+"today. But when we started work on the project you see before you now, we"
+" needed a name, and we were happy to reuse the name \"Ambuda\" and move "
+"on."
+msgstr ""
+
+#: ambuda/templates/about/our-name.html:28
+msgid ""
+"Although we chose this name purely out of convenience, it has an "
+"unexpected resonance that makes it well-suited to this project."
+msgstr ""
+
+#: ambuda/templates/about/our-name.html:33
+msgid ""
+"As a practical name, \"Ambuda\" is short and memorable, and it was "
+"available as a domain name. It is non-sectarian and easy for people "
+"around the world to say and spell correctly. On these grounds alone, it "
+"is a fine name."
+msgstr ""
+
+#: ambuda/templates/about/our-name.html:39
+msgid ""
+"As a Sanskrit word, it is simple and delightful to the ear. As Krishna "
+"says in the <cite>Bhagavad Gita</cite>, <q>Of sounds, I am <i>a</i>.</q> "
+"Thus Ambuda starts auspiciously from its very first sound."
+msgstr ""
+
+#: ambuda/templates/about/our-name.html:45
+msgid ""
+"As a poetic symbol, the cloud is rich and evocative. The clouds mark the "
+"beginning of the monsoon season and bring life-giving rain to the parched"
+" land. In the Vedas, the cloud is the vehicle of Indra, the king of the "
+"devas. In the epics, Krishna is said to be as dark as the clouds."
+msgstr ""
+
+#: ambuda/templates/about/people.html:26
+#, python-format
+msgid ""
+"Ambuda receives contributions from dozens of volunteer <a "
+"href=\"%(proofers_url)s\">proofers</a>, <a "
+"href=\"%(translators_url)s\">translators</a>, and <a "
+"href=\"%(coders_url)s\">programmers</a> who are passionate about making "
+"Sanskrit accessible to all."
+msgstr ""
+
+#: ambuda/templates/about/people.html:32
+msgid "Our core team builds and maintains the overall project:"
+msgstr ""
+
+#: ambuda/templates/about/people.html:40
+msgid "Arun Prasad"
+msgstr ""
+
+#: ambuda/templates/about/people.html:40
+msgid "Founder and Project Lead"
+msgstr ""
+
+#: ambuda/templates/about/people.html:43
+#, python-format
+msgid ""
+"Arun is the creator of <a href=\"%(lso)s\">learnsanskrit.org</a> and the "
+"Sanskrit short story project <a href=\"%(amarahasa)s\">Amarahasa</a>. "
+"Broadly, his work explores how software and digital tools can make "
+"Sanskrit literature radically accessible. Arun has an MS in Computer "
+"Science and a minor in Classics with a focus on Homeric Greek, both from "
+"Stanford University. By profession, he is a former Google Research "
+"engineer that works in climate fintech."
+msgstr ""
+
+#: ambuda/templates/about/people.html:55
+msgid "Ashwin Ramaswami"
+msgstr ""
+
+#: ambuda/templates/about/people.html:55
+msgid "Core Engineering"
+msgstr ""
+
+#: ambuda/templates/about/people.html:56
+msgid ""
+"Ashwin has worked on a variety of projects around open source software "
+"development, digital humanities, cloud infrastructure and architecture, "
+"and cybersecurity. His interests in Sanskrit include Vedic texts and "
+"Vedantic commentaries. Ashwin holds a B.S. in Computer Science in "
+"Stanford University and is currently pursuing a J.D. degree at Georgetown"
+" University Law Center, where he works on technology law and policy."
+msgstr ""
+
+#: ambuda/templates/about/people.html:70
+msgid "Suhas Mahesh"
+msgstr ""
+
+#: ambuda/templates/about/people.html:70
+msgid "Text Curation and Sourcing"
+msgstr ""
+
+#: ambuda/templates/about/people.html:71
+#, python-format
+msgid ""
+"Suhas Mahesh is a <a href=\"%(schmidt)s\">Schmidt Science Fellow</a> at "
+"the University of Toronto, where his research explores building bespoke "
+"materials for a low-carbon future. Suhas has a PhD in physics from the "
+"University of Oxford, where he was a <a href=\"%(rhodes)s\">Rhodes "
+"scholar</a>. Suhas is a expert on Sanskrit and Prakrit literature, and "
+"his current projects include an anthology of Sanskrit and Prakrit love "
+"poetry in translation (HarperCollins 2023), and a translation of the "
+"<cite>Nilakantha-vijaya-champu</cite>, an ornate retelling of the myth of"
+" the churning of the ocean (Murty Classical Library of India)."
+msgstr ""
+
+#: ambuda/templates/about/privacy.html:4 ambuda/templates/about/privacy.html:10
+<<<<<<< HEAD
+#: ambuda/templates/include/footer.html:51
+>>>>>>> Add more text
+=======
+#: ambuda/templates/include/footer.html:50
+>>>>>>> Dictionary index
+msgid "Privacy Policy"
+msgstr "गोपनीयता-नीतिः"
+
+#: ambuda/templates/about/terms.html:4 ambuda/templates/about/terms.html:10
+#: ambuda/templates/include/footer.html:49
+msgid "Terms of Use"
+msgstr "उपयोग-नियमाः"
+
+#: ambuda/templates/about/values.html:12
+msgid ""
+"Ambuda's mission is to make the Sanskrit tradition radically accessible. "
+"This simple mission flows naturally from our values."
+msgstr ""
+
+#: ambuda/templates/about/values.html:18
+msgid "Sanskrit as human heritage"
+msgstr ""
+
+#: ambuda/templates/about/values.html:20
+msgid ""
+"Sanskrit literature is part of our collective human heritage, and we want"
+" to make it accessible to as many people as we can."
+msgstr ""
+
+#: ambuda/templates/about/values.html:25
+msgid ""
+"We release the texts in our archive under permissive licenses, with a "
+"public domain license being ideal. Our texts are available in open file "
+"formats that any computer can use and understand. Our code and our data "
+"are likewise available under permissive licenses, so that anyone can "
+"build on our work."
+msgstr ""
+
+#: ambuda/templates/about/values.html:32
+msgid ""
+"Further, we use technology to reduce or remove as many barriers to access"
+" as we can. We make it easy to find texts and commentaries, analyze "
+"grammar, define words, and explore connections between different works. "
+"We will pave a royal road straight to the heart of the tradition, so that"
+" anyone can access and appreciate it."
+msgstr ""
+
+#: ambuda/templates/about/values.html:40
+msgid ""
+"As much as possible, we make our team's work transparent to the public. "
+"Our team discussion and planning documents are freely available to all, "
+"and everyone is welcome to join our team and contribute to our mission. "
+"We are grateful to all who do."
+msgstr ""
+
+#: ambuda/templates/about/values.html:48
+msgid "Audacious ambition"
+msgstr ""
+
+#: ambuda/templates/about/values.html:50
+msgid "In every aspect of our work, we will aim as high as we possibly can."
+msgstr ""
+
+#: ambuda/templates/about/values.html:54
+msgid ""
+"We aim to become the largest and most reliable Sanskrit archive in the "
+"world. We aim to set the standard for digital humanities projects "
+"everywhere. We aim to build a service so outstanding that it "
+"fundamentally changes how people read ancient literature. In short, we "
+"aim to build something worthy of Sanskrit itself."
+msgstr ""
+
+#: ambuda/templates/about/values.html:64
+msgid "Incremental effort"
+msgstr ""
+
+#: ambuda/templates/about/values.html:66
+msgid ""
+"Great ambition is pointless if it never touches reality. Rather than aim "
+"for perfection, we simply focus on taking the next step."
+msgstr ""
+
+#: ambuda/templates/about/values.html:71
+msgid ""
+"Along the way, we might make mistakes and false steps. Our first efforts "
+"might be crude and disappointing. But bit by bit, we continue on."
+msgstr ""
+
+#: ambuda/templates/auth/register.html:6
+#: ambuda/templates/include/header-login.html:32
+#: ambuda/templates/proofing/base-sidebar.html:30
+msgid "Register"
+msgstr "पञ्जीकरणम्"
+
+#: ambuda/templates/auth/register.html:14
+msgid "Create an Ambuda account"
+msgstr "अम्बुदे सदस्यत्वं गृहाण"
+
+#: ambuda/templates/auth/register.html:25
+msgid "Create account"
+msgstr "सदस्यत्वं गृहाण"
+
+#: ambuda/templates/auth/reset-password-post.html:13
+msgid ""
+"We've sent a recovery email to <kbd>%(email)s</kbd>. Check your email for a "
+"link to reset your password. If it doesn’t appear within a few minutes, "
+"check your spam folder."
+msgstr ""
+"कूट-शब्दस्य नवीकरणार्थं <kbd>%(email)s</kbd> प्रति विद्युत्पत्त्रं प्रेषितम्"
+" । कतिपयैः निमेषैरपि न लब्धश्चेत्, फल्गुपत्त्राणि परिशील्यन्ताम् । "
+
+#: ambuda/templates/auth/reset-password.html:6
+#: ambuda/templates/auth/reset-password.html:15
+msgid "Reset your password"
+msgstr "कूट-शब्दं नवीकुरु"
+
+#: ambuda/templates/auth/reset-password.html:17
+msgid ""
+"Enter the email address that you used when you signed up for Ambuda. We'll "
+"send you an email with a password reset link."
+msgstr ""
+"सदस्यत्व-ग्रहणार्थं प्रयुक्तो विद्युत्पत्त्र-सङ्केतो लिख्यताम् । कूट-शब्दस्य"
+" नवीकरणार्थं शृङ्खला तत्र प्रेष्यते ।"
+
+#: ambuda/templates/auth/reset-password.html:24
+msgid "Enter your email address"
+msgstr "विद्युत्पत्त्र-सङ्केतो लिख्यताम्"
+
+#: ambuda/templates/auth/reset-password.html:29
+msgid "Send password reset email"
+msgstr "कूट-शब्दस्य नवीकरणार्थं विद्युत्पत्त्रं प्रेषय"
+
+#: ambuda/templates/auth/sign-in.html:6 ambuda/templates/auth/sign-in.html:29
+#: ambuda/templates/include/header-login.html:33
+#: ambuda/templates/proofing/base-sidebar.html:31
+msgid "Sign in"
+msgstr "प्रवेशः"
+
+#: ambuda/templates/auth/sign-in.html:16
+msgid "Sign in to Ambuda"
+msgstr "अम्बुदः प्रविश्यताम्"
+
+#: ambuda/templates/auth/sign-in.html:24
+msgid "Forgot password?"
+msgstr "कूट-शब्दो विस्मृतः?"
+
+#: ambuda/templates/auth/sign-in.html:33
+msgid "Don't have an account? Click here to register."
+msgstr "नास्ति सदस्यत्वम्? प्राप्तुमत्र गम्यताम् ।  "
+
+#: ambuda/templates/dictionaries/index.html:6
+#: ambuda/templates/include/footer.html:34
+#: ambuda/templates/include/header-login.html:21
+#: ambuda/templates/include/header.html:20
+msgid "Dictionaries"
+msgstr "शब्दकोशाः"
+
+#: ambuda/templates/dictionaries/index.html:16
+msgid "Dictionary lookup"
+msgstr "शब्दकोशे पदान्वेषणम्"
+
+#: ambuda/templates/dictionaries/index.html:27
+msgid "राम, ರಾಮ, rāma, rAma, ..."
+msgstr ""
+
+#: ambuda/templates/dictionaries/index.html:32
+#: ambuda/templates/texts/section.html:136
+msgid "Search"
+msgstr "अन्विष्यताम्"
+
+#: ambuda/templates/htmx/dictionary-results.html:8
+#, python-format
+msgid ""
+"No results found for query \"<kbd>%(query)s</kbd>\". We suggest trying a "
+"different dictionary, since not all dictionaries have the same words."
+msgstr ""
+
+#: ambuda/templates/include/dict-options.html:1
+msgid "Sanskrit-English"
+msgstr "संस्कृतम्-English   "
+
+#: ambuda/templates/include/dict-options.html:2
+msgid "Apte (1890)"
+msgstr "आप्टे (ईस॰ १८९०)"
+
+#: ambuda/templates/include/dict-options.html:3
+msgid "Monier-Williams (1899)"
+msgstr "मोनीयर्-विल्यंस् (ईस॰ १८९९)"
+
+#: ambuda/templates/include/dict-options.html:4
+msgid "Shabdasagara (1900)"
+msgstr "शब्दसागरः (ईस॰ १९००)"
+
+#: ambuda/templates/include/dict-options.html:6
+msgid "Sanskrit-Sanskrit"
+msgstr "संस्कृतम्-संस्कृतम्"
+
+#: ambuda/templates/include/dict-options.html:7
+msgid "Vācaspatyam (1873)"
+msgstr "वाचस्पत्यम् (ईस॰ १८७३)"
+
+#: ambuda/templates/include/dict-options.html:8
+msgid "Śabdakalpadrumaḥ (1886)"
+msgstr "शब्दकल्पद्रुमः (ईस॰ १८८६)"
+
+#: ambuda/templates/include/dict-options.html:10
+msgid "Sanskrit-Kannada"
+msgstr "संस्कृतम्-ಕನ್ನಡ"
+
+#: ambuda/templates/include/dict-options.html:11
+msgid "Shabdarthakaustubha"
+msgstr "शब्दार्थकौस्तुभः"
+
+#: ambuda/templates/include/dictionary-help.html:2
+msgid ""
+"This simple and fast lookup tool includes several popular dictionaries. "
+"It auto-detects the common input schemes, including Devanagari, IAST, "
+"Harvard-Kyoto, and SLP1. It also supports regional scripts like Kannada "
+"and Telugu."
+msgstr ""
+
+#: ambuda/templates/include/dictionary-help.html:9
+msgid "Notes on specific dictionaries:"
+msgstr ""
+
+#: ambuda/templates/include/dictionary-help.html:12
+msgid ""
+"The Apte dictionary uses special conventions so that its entries take up "
+"less space on a printed page (e.g. पंक्तिः and वनम् instead of पङ्क्ति "
+"and वन. Our dictionary optionally supports these conventions: you are "
+"free to follow or ignore them as you wish."
+msgstr ""
+
+#: ambuda/templates/include/dictionary-help.html:19
+msgid ""
+"The शब्दकल्पद्रुमः generally expects that nominals are given in their "
+"प्रथमा-एकवचनम् form instead of their प्रातिपदिक form (नरः and राजा "
+"instead of नर and राजन्) and that roots are stated in their Paninian form"
+" (चर and षह instead of चर् and सह्)."
+msgstr ""
+
+#: ambuda/templates/include/dictionary-help.html:26
+msgid ""
+"The वाचस्पत्यम् generally expects that roots are stated in their Paninian"
+" form (चर and षह instead of चर् and सह्)."
+msgstr ""
+
+#: ambuda/templates/include/dictionary-help.html:33
+#, python-format
+msgid "For data sources, see our <a href=\"%(about)s\">About</a> page."
+msgstr ""
+
+#: ambuda/templates/include/footer.html:9
+msgid ""
+"Ambuda is run entirely by volunteers for the public benefit. Learn more "
+"about how you can <a href=\"%(support)s\"> help Ambuda grow</a>."
+msgstr ""
+"लोक-हितं पुरस्कृत्य अगृहीत-वेतनाः कार्यकर्तारः एव अम्बुदं निर्वाहयन्ति । <a "
+"href=\"%(support)s\">कथम् अम्बुदं पुष्णीयामिति ज्ञायताम्</a> ।"
+
+#: ambuda/templates/include/footer.html:33
+#: ambuda/templates/include/header-login.html:20
+#: ambuda/templates/include/header.html:19
+#: ambuda/templates/texts/index.html:20 ambuda/templates/texts/index.html:30
+msgid "Texts"
+msgstr "ग्रन्थाः"
+
+#: ambuda/templates/include/footer.html:35
+#: ambuda/templates/include/header-login.html:22
+#: ambuda/templates/include/header.html:21
+msgid "Proofing"
+msgstr "पाठशोधनम्"
+
+#: ambuda/templates/include/footer.html:37
+msgid "Donate"
+msgstr "दानम्"
+
+#: ambuda/templates/include/footer.html:55
+msgid "Community"
+msgstr "समुदायः"
+
+#: ambuda/templates/include/footer.html:57
+msgid "Discord"
+msgstr "Discord"
+
+#: ambuda/templates/include/footer.html:58
+msgid "GitHub"
+msgstr "GitHub"
+
+#: ambuda/templates/include/footer.html:59
+msgid "Reddit"
+msgstr "Reddit"
+
+#: ambuda/templates/include/footer.html:60
+msgid "Twitter"
+msgstr "Twitter"
+
+#: ambuda/templates/include/header-login.html:28
+msgid "Sign out"
+msgstr "निर्गमः"
+
+#: ambuda/templates/include/script-options.html:1
+msgid "Devanagari"
+msgstr "देवनागरी"
+
+#: ambuda/templates/include/script-options.html:2
+msgid "Roman"
+msgstr "Roman"
+
+#: ambuda/templates/include/script-options.html:3
+msgid "Gujarati"
+msgstr "ગુજરાતી"
+
+#: ambuda/templates/include/script-options.html:4
+msgid "Kannada"
+msgstr "ಕನ್ನಡ"
+
+#: ambuda/templates/include/script-options.html:5
+msgid "Malayalam"
+msgstr "മലയാളം"
+
+#: ambuda/templates/include/script-options.html:6
+msgid "Oriya"
+msgstr "ଓଡ଼ିଆ"
+
+#: ambuda/templates/include/script-options.html:7
+msgid "Telugu"
+msgstr "తెలుగు"
+
+#: ambuda/templates/macros/components.html:2
+msgid "%(title)s | Ambuda"
+msgstr "%(title)s — अम्बुदः"
+
+#: ambuda/templates/macros/forms.html:35
+msgid ""
+"You can format this text with Markdown. <a href=\"%(help_url)s\">Click here "
+"to learn more.</a>"
+msgstr ""
+"लेखे ऽस्मिन् मार्कडौन-विन्यासः कर्तुं शक्यः । अधिकं <a "
+"href=\"%(help_url)s\">ज्ञातुमत्र गम्यताम्</a> ।  "
+
+#: ambuda/templates/macros/library.html:5
+msgid "Contents"
+msgstr "ग्रन्थपाठः"
+
+#: ambuda/templates/macros/library.html:6
+msgid "Resources"
+msgstr "उपायाः"
+
+#: ambuda/templates/macros/library.html:7
+msgctxt "texts"
+msgid "About"
+msgstr "परिचयः"
+
+#: ambuda/templates/macros/proofing-talk.html:10
+#, python-format
+msgid "Created by <a href=\"%(author_url)s\">%(username)s</a>"
+msgstr "<a href=\"%(author_url)s\">%(username)s</a>द्वारा स्थापितम्"
+
+#: ambuda/templates/macros/proofing.html:35
+msgid "Help"
+msgstr "सूचनाः"
+
+#: ambuda/templates/macros/proofing.html:37
+#: ambuda/templates/proofing/beginners-guide.html:35
+msgid "Beginner's guide"
+msgstr "संक्षिप्ताः सूचनाः"
+
+#: ambuda/templates/macros/proofing.html:38
+#: ambuda/templates/proofing/complete-guide.html:86
+msgid "Complete guide"
+msgstr "पूर्णाः सूचनाः"
+
+#: ambuda/templates/macros/proofing.html:39
+#: ambuda/templates/proofing/editor-guide.html:20
+msgid "Editor manual"
+msgstr "शोधकानां दिग्दर्शकः"
+
+#: ambuda/templates/macros/proofing.html:42
+msgid "Contribute"
+msgstr "योगदानम्"
+
+#: ambuda/templates/macros/proofing.html:44
+#: ambuda/templates/proofing/index.html:21
+#: ambuda/templates/proofing/index.html:29
+msgid "Ongoing projects"
+msgstr "शोध्यमानाः ग्रन्थाः"
+
+#: ambuda/templates/macros/proofing.html:45
+#: ambuda/templates/proofing/create-project.html:30
+msgid "Create project"
+msgstr "ग्रन्थं योजय"
+
+#: ambuda/templates/macros/proofing.html:46
+#: ambuda/templates/proofing/projects/summary.html:86
+#: ambuda/templates/proofing/recent-changes.html:13
+msgid "Recent changes"
+msgstr "सद्यःपरिवर्तनानि"
+
+#: ambuda/templates/macros/proofing.html:47
+#: ambuda/templates/proofing/tagging/index.html:11
+msgid "Tagging"
+msgstr "प्रतिपदं व्याख्यानम्"
+
+#: ambuda/templates/macros/proofing.html:48
+#: ambuda/templates/macros/proofing.html:59
+#: ambuda/templates/proofing/talk.html:14
+msgid "Talk"
+msgstr "चर्चा"
+
+#: ambuda/templates/macros/proofing.html:57
+msgid "Summary"
+msgstr "सिंहावलोकनम् "
+
+#: ambuda/templates/macros/proofing.html:58
+#: ambuda/templates/macros/proofing.html:75
+msgid "Activity"
+msgstr "इतिहासः"
+
+#: ambuda/templates/macros/proofing.html:60
+msgid "Edit"
+msgstr "परिचयः"
+
+#: ambuda/templates/macros/proofing.html:61
+msgid "Download"
+msgstr "अवरोपणम्"
+
+#: ambuda/templates/macros/proofing.html:64
+#: ambuda/templates/macros/proofing.html:78
+msgid "Admin"
+msgstr "प्रशासनम्"
+
+#: ambuda/templates/macros/proofing.html:74
+msgid "Overview"
+msgstr "परिचयः"
+
+#: ambuda/templates/proofing/base-sidebar.html:23
+msgid ""
+"Thousands of Sanskrit texts are available only in print. Join our global "
+"volunteer effort to digitize these texts and make them accessible to all."
+msgstr ""
+"सहस्रशः संस्कृत-ग्रन्थाः केवलं मुद्रितेषु पुस्तकेषु स्थिताः । वयं तान् "
+"यन्त्र-गतान् कुर्मो यथा सर्वेषां सुलभ्याः सुख-ग्राह्याश्च स्युः । अस्माकं "
+"कार्यकर्तृ-गणः प्रविश्यताम् ।  "
+
+#: ambuda/templates/proofing/index.html:13
+#: ambuda/templates/proofing/pages/editor-components.html:28
+msgid "Needs more work"
+msgstr "अशोधितम्"
+
+#: ambuda/templates/proofing/index.html:14
+#: ambuda/templates/proofing/pages/editor-components.html:30
+msgid "Proofed once"
+msgstr "सकृत् शोधितम्"
+
+#: ambuda/templates/proofing/index.html:15
+#: ambuda/templates/proofing/pages/editor-components.html:32
+msgid "Proofed twice"
+msgstr "द्विः शोधितम्"
+
+#: ambuda/templates/proofing/index.html:16
+#: ambuda/templates/proofing/pages/editor-components.html:34
+msgid "Not relevant"
+msgstr "उपेक्षणीयम् "
+
+#: ambuda/templates/proofing/index.html:38
+msgid "Sort by:"
+msgstr "दर्शन-क्रमः"
+
+#: ambuda/templates/proofing/index.html:40
+#: ambuda/templates/proofing/projects/summary.html:49
+#: ambuda/views/proofing/project.py:58 ambuda/views/proofing/talk.py:17
+msgid "Title"
+msgstr "शीर्षकम्  "
+
+#: ambuda/templates/proofing/index.html:41
+msgid "Creation date"
+msgstr "निर्माण-समयः"
+
+#: ambuda/templates/proofing/index.html:42
+msgid "Progress"
+msgstr "कार्याभिवृद्धिः"
+
+#: ambuda/templates/proofing/index.html:45
+msgid "Ascending"
+msgstr "अनुलोमः"
+
+#: ambuda/templates/proofing/index.html:46
+msgid "Descending"
+msgstr "प्रतिलोमः"
+
+#: ambuda/templates/proofing/index.html:59
+#, python-format
+msgid "%(num)d page"
+msgid_plural "%(num)d pages"
+msgstr[0] "%(num)d पृष्ठम् "
+msgstr[1] "%(num)d पृष्ठे"
+msgstr[2] "%(num)d पृष्ठानि"
+
+#: ambuda/templates/proofing/pages/edit.html:76
+msgid "Publish changes"
+msgstr "शोधनानि प्रकाश्यन्ताम्"
+
+#: ambuda/templates/proofing/projects/download.html:16
+msgid ""
+"You can use these links to download the latest version of the transcribed "
+"project. To save these files to your local machine, right-click and click "
+"<kbd>Save As &hellip;</kbd> or whatever similar option your computer gives "
+"you."
+msgstr ""
+"एताः शृङ्खलाः प्रयुज्य नवीनतमः शोधित-पाठः अवरोपयितुं शक्यः । तं निज-यन्त्रे "
+"रक्षितुं दक्षिणतः तुद,  <kbd>Save As &hellip;</kbd> इत्येतत् चिनु ।"
+
+#: ambuda/templates/proofing/projects/download.html:24
+msgid "Download as plain text"
+msgstr "plain text इति रूपेण अवरोपय"
+
+#: ambuda/templates/proofing/projects/download.html:27
+msgid "Download as TEI XML"
+msgstr "TEI XML इति रूपेण अवरोपय"
+
+#: ambuda/templates/proofing/projects/edit.html:22
+msgid "Search the project"
+msgstr "ग्रन्थे पदादिकम् अन्विष्यताम्  "
+
+#: ambuda/templates/proofing/projects/edit.html:23
+msgid "Run batch OCR"
+msgstr "सामूहिकं लिपि-प्रत्यभिज्ञानं कुरु"
+
+#: ambuda/templates/proofing/projects/edit.html:39
+msgid "Save changes"
+msgstr "परिवर्तनानि रक्ष्यन्ताम् "
+
+#: ambuda/templates/proofing/projects/summary.html:21
+msgid "Description"
+msgstr "परिचयः"
+
+#: ambuda/templates/proofing/projects/summary.html:29
+msgid "Pages"
+msgstr "पृष्ठानि"
+
+#: ambuda/templates/proofing/projects/summary.html:43
+msgctxt "project"
+msgid "About"
+msgstr "परिचयः"
+
+#: ambuda/templates/proofing/projects/summary.html:50
+#: ambuda/templates/proofing/projects/summary.html:54
+#: ambuda/templates/proofing/projects/summary.html:58
+#: ambuda/templates/proofing/projects/summary.html:61
+#: ambuda/templates/proofing/projects/summary.html:64
+msgid "(none)"
+msgstr "(शून्यम्) "
+
+#: ambuda/templates/proofing/projects/summary.html:53
+#: ambuda/views/proofing/project.py:60
+msgid "Author"
+msgstr "कर्ता"
+
+#: ambuda/templates/proofing/projects/summary.html:57
+#: ambuda/views/proofing/project.py:66
+msgid "Editor"
+msgstr "सम्पादकः"
+
+#: ambuda/templates/proofing/projects/summary.html:60
+#: ambuda/views/proofing/project.py:74
+msgid "Publisher"
+msgstr "प्रकाशकः"
+
+#: ambuda/templates/proofing/projects/summary.html:63
+#: ambuda/views/proofing/project.py:82
+msgid "Publication year"
+msgstr "प्रकाशनवर्षः"
+
+#: ambuda/templates/proofing/projects/summary.html:70
+msgid "Recent discussion"
+msgstr "सद्यस्का चर्चा"
+
+#: ambuda/templates/proofing/projects/summary.html:78
+#, python-format
+msgid ""
+"This project doesn't have any ongoing discussion. <a "
+"href=\"%(new_thread_url)s\">Start a new thread?</a>"
+msgstr ""
+"ग्रन्थमेनम् अधिकृत्य पूर्वं चर्चा न कृता । <a "
+"href=\"%(new_thread_url)s\">चर्चा क्रियताम्?</a>"
+
+#: ambuda/templates/proofing/projects/summary.html:92
+msgid "This project doesn't have any edits yet."
+msgstr "अद्यावधि शोधनं न कृतम् ।"
+
+#: ambuda/templates/proofing/talk/board.html:19
+#: ambuda/templates/proofing/talk/create-thread.html:25
+msgid "Create thread"
+msgstr "चर्चा-सरणिः निर्मीयताम् "
+
+#: ambuda/templates/proofing/talk/thread.html:56
+msgid "Add a post"
+msgstr "लेखं योजय"
+
+#: ambuda/templates/texts/index.html:33
+msgid "Upanishads"
+msgstr "उपनिषदः"
+
+#: ambuda/templates/texts/index.html:34
+msgid "Itihasas"
+msgstr "इतिहासाः"
+
+#: ambuda/templates/texts/index.html:35
+msgid "Kavyas"
+msgstr "काव्यानि"
+
+#: ambuda/templates/texts/index.html:36
+msgid "Other works"
+msgstr "अन्ये ग्रन्थाः"
+
+#: ambuda/templates/texts/section.html:31
+msgid "This text does not support clickable word meanings."
+msgstr "अस्य ग्रन्थस्य प्रतिपदार्थो नाद्यापि संयोजितः ।"
+
+#: ambuda/templates/texts/section.html:35
+msgid "Click on words to see what they mean."
+msgstr "अर्थं ज्ञातुम् इष्टं पदं तुद ।"
+
+#: ambuda/templates/texts/section.html:58
+msgid "Font Size:"
+msgstr "लिपि-गरिमा"
+
+#: ambuda/templates/texts/section.html:60
+msgid "Tiny"
+msgstr "अल्पीयान् "
+
+#: ambuda/templates/texts/section.html:61
+msgid "Small"
+msgstr "अल्पः"
+
+#: ambuda/templates/texts/section.html:62
+msgid "Medium"
+msgstr "मध्यमः"
+
+#: ambuda/templates/texts/section.html:63
+msgid "Large"
+msgstr "गुरुः"
+
+#: ambuda/templates/texts/section.html:64
+msgid "X-Large"
+msgstr "गरीयान्  "
+
+#: ambuda/templates/texts/section.html:68
+msgid "Script:"
+msgstr "लिपिः"
+
+#: ambuda/templates/texts/section.html:75
+msgid "Parsed View:"
+msgstr "पदच्छेदः"
+
+#: ambuda/templates/texts/section.html:77
+msgid "In place"
+msgstr "तत्रैव"
+
+#: ambuda/templates/texts/section.html:78
+msgid "Side by side"
+msgstr "पार्श्वतः"
+
+#: ambuda/templates/texts/text.html:28
+msgid "Show full text"
+msgstr "सकलं ग्रन्थं दर्शय"
+
+#: ambuda/views/auth.py:84 ambuda/views/auth.py:104
+msgid "Username"
+msgstr "सदस्यस्य नाम"
+
+#: ambuda/views/auth.py:86 ambuda/views/auth.py:106 ambuda/views/auth.py:125
+msgid "Password"
+msgstr "कूट-शब्दः"
+
+#: ambuda/views/auth.py:117
+msgid "Old password"
+msgstr "पुरातनः कूट-शब्दः"
+
+#: ambuda/views/auth.py:120
+msgid "New password"
+msgstr "नूतनः कूट-शब्दः"
+
+#: ambuda/views/auth.py:126
+msgid "Confirm password"
+msgstr "कूट-शब्दः पुनर्लिख्यताम् "
+
+#: ambuda/views/auth.py:147
+msgid "Please click the reCAPTCHA box."
+msgstr "reCAPTCHA इति पट्टकं तुद ।"
+
+#: ambuda/views/proofing/project.py:42
+msgid "Description (optional)"
+msgstr "ग्रन्थ-परिचयः (वैकल्पिकः)"
+
+#: ambuda/views/proofing/project.py:45
+msgid "What is this book about? Why is this project interesting?"
+msgstr "कं विषयम् आश्रयति ग्रन्थः? कुतः तत्र जनो रुचिं वहेत्? "
+
+#: ambuda/views/proofing/project.py:51
+msgid "Page numbers (optional)"
+msgstr "पृष्ठ-सङ्ख्याः (वैकल्पिक्यः)"
+
+#: ambuda/views/proofing/project.py:62
+msgid "The author of the original work, e.g. Kalidasa."
+msgstr "ग्रन्थ-कर्ता (यथा कालिदासः)"
+
+#: ambuda/views/proofing/project.py:68
+msgid "The person or organization that created this edition of the text."
+msgstr "ग्रन्थ-सम्पादकः (यथा चारुदेव-शास्त्री, वैदिक-संशोधन-मण्डली वा)"
+
+#: ambuda/views/proofing/project.py:76
+msgid "The original publisher of this book, e.g. Nirnayasagar."
+msgstr "ग्रन्थ-प्रकाशकः (यथा निर्णय-सागर-मुद्रणालयः)"
+
+#: ambuda/views/proofing/project.py:84
+msgid "The year in which this specific edition was published."
+msgstr "कस्मिन् ख्रिस्ताब्दे प्रकाशितो ऽयं ग्रन्थः? "
+
+#: ambuda/views/proofing/project.py:93
+msgid "Query"
+msgstr "प्रश्नः"
+
+#: ambuda/views/proofing/project.py:166
+msgid "Saved changes."
+msgstr "रक्षितानि परिवर्तनानि"
+
+#: ambuda/views/proofing/project.py:306
+msgid "All pages in this project have at least one edit already."
+<<<<<<< HEAD
+msgstr "सर्वेषु पृष्ठेषु कनिष्ठ-पक्षे एकं शोधनं कृतम् ।"
+=======
+msgstr ""
+
+#~ msgid ""
+#~ "Create <strong>a complete archive</strong> of traditional Sanskrit\n"
+#~ "      literature."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Integrate this archive with <strong>intelligent tools</strong> for\n"
+#~ "      students and scholars."
+#~ msgstr ""
+
+#~ msgid ""
+#~ "Ambuda is run by volunteers who "
+#~ "are passionate about making Sanskrit "
+#~ "accessible to all. Our project is "
+#~ "the work of dozens of <a "
+#~ "href=\"%(proofers_url)s\">proofers</a>, <a "
+#~ "href=\"%(translators_url)s\">translators</a>, and <a "
+#~ "href=\"%(coders_url)s\">programmers</a>"
+#~ msgstr ""
+
+<<<<<<< HEAD
+>>>>>>> Add more text
+=======
+#~ msgid "Roadmap"
+#~ msgstr "कार्ययोजना"
+
+<<<<<<< HEAD
+>>>>>>> Dictionary index
+=======
+#~ msgid ""
+#~ "Ambuda has received contributions from "
+#~ "of dozens of volunteer <a "
+#~ "href=\"%(proofers_url)s\">proofers</a>, <a "
+#~ "href=\"%(translators_url)s\">translators</a>, and <a "
+#~ "href=\"%(coders_url)s\">programmers</a> who are "
+#~ "passionate about making Sanskrit accessible"
+#~ " to all."
+#~ msgstr ""
+
+>>>>>>> WIP
