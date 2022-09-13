@@ -68,7 +68,7 @@ def initialize_test_db():
     session.flush()
 
     # Admin
-    admin = db.User(username="akprasad", email="arun@ambuda.org")
+    admin = db.User(username="u-admin", email="admin@ambuda.org")
     admin.set_password("secret password")
     session.add(admin)
     session.flush()
@@ -150,5 +150,5 @@ def rama_client(flask_app):
 @pytest.fixture()
 def admin_client(flask_app):
     session = get_session()
-    user = session.query(db.User).filter_by(username="akprasad").first()
+    user = session.query(db.User).filter_by(username="u-admin").first()
     return flask_app.test_client(user=user)

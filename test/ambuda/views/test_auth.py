@@ -136,18 +136,18 @@ def test_get_reset_password_token__get(client):
 
 def test_reset_password_from_token(client):
     with client:
-        user = q.user("akprasad")
+        user = q.user("u-admin")
 
     user_id = user.id
     raw_token = auth._create_reset_token(user_id)
 
-    r = client.get("/reset-password/akprasad/bad_token")
+    r = client.get("/reset-password/u-admin/bad_token")
     assert r.status_code == 302
 
     r = client.get(f"/reset-password/bad-user/{raw_token}")
     assert r.status_code == 302
 
-    r = client.get(f"/reset-password/akprasad/{raw_token}")
+    r = client.get(f"/reset-password/u-admin/{raw_token}")
     assert "Change password for" in r.text
 
 
