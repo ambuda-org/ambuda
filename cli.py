@@ -12,7 +12,7 @@ import ambuda
 from ambuda import database as db
 from ambuda import queries as q
 from ambuda.seed.utils.itihasa_utils import create_db
-from ambuda.tasks.projects import _create_project_inner
+from ambuda.tasks.projects import create_project_inner
 from ambuda.tasks.utils import LocalTaskStatus
 
 engine = create_db()
@@ -97,7 +97,7 @@ def create_project(title, pdf_path):
             Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / slug / "pages"
         )
         page_image_dir.mkdir(parents=True, exist_ok=True)
-        _create_project_inner(
+        create_project_inner(
             title=title,
             pdf_path=pdf_path,
             output_dir=str(page_image_dir),
