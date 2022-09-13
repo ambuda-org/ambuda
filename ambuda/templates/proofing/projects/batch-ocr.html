@@ -11,7 +11,7 @@
 {{ components.flash_messages() }}
 
 {{ m.project_header_nested('OCR', project) }}
-{{ m.project_nav(project=project, active='edit', is_admin=current_user.is_admin) }}
+{{ m.project_nav(project=project, active='edit', is_mod=current_user.is_moderator) }}
 
 <div class="prose">
   <p>Click the button below to run OCR on every unedited page.</p>

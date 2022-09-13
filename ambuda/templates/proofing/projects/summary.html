@@ -14,7 +14,7 @@
 {{ components.flash_messages() }}
 
 <h1 class="font-bold text-3xl mb-4">{{ project.title }}</h1>
-{{ m.project_nav(project=project, active='summary', is_admin=current_user.is_admin) }}
+{{ m.project_nav(project=project, active='summary', is_mod=current_user.is_moderator) }}
 
 {% if project.description %}
 <div class="prose">

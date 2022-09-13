@@ -25,7 +25,7 @@ def test_create_project_inner(flask_app):
         f = tempfile.NamedTemporaryFile()
         _create_sample_pdf(f.name, num_pages=10)
 
-        projects._create_project_inner(
+        projects.create_project_inner(
             title="Cool project",
             pdf_path=f.name,
             output_dir=flask_app.config["UPLOAD_FOLDER"],

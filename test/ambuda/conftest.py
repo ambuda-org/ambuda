@@ -67,6 +67,12 @@ def initialize_test_db():
     session.add(rama)
     session.flush()
 
+    # Moderator
+    moderator = db.User(username="user-mod", email="mod@ambuda.org")
+    moderator.set_password("secret password")
+    session.add(moderator)
+    session.flush()
+
     # Admin
     admin = db.User(username="akprasad", email="arun@ambuda.org")
     admin.set_password("secret password")
@@ -76,15 +82,19 @@ def initialize_test_db():
     # Roles
     p1_role = db.Role(name=db.SiteRole.P1.value)
     p2_role = db.Role(name=db.SiteRole.P2.value)
+    moderator_role = db.Role(name=db.SiteRole.MODERATOR.value)
     admin_role = db.Role(name=db.SiteRole.ADMIN.value)
     session.add(p1_role)
     session.add(p2_role)
+    session.add(moderator_role)
     session.add(admin_role)
     session.flush()
 
     rama.roles = [p1_role, p2_role]
+    moderator.roles = [p1_role, p2_role, moderator_role]
     admin.roles = [p1_role, p2_role, admin_role]
     session.add(rama)
+    session.add(moderator)
     session.add(admin)
     session.flush()
 
@@ -145,6 +155,13 @@ def rama_client(flask_app):
     session = get_session()
     user = session.query(db.User).filter_by(username="ramacandra").first()
     return flask_app.test_client(user=user)
+
+
+@pytest.fixture()
+def moderator_client(flask_app):
+    session = get_session()
+    moderator = session.query(db.User).filter_by(username="user-mod").first()
+    return flask_app.test_client(user=moderator)
 
 
 @pytest.fixture()

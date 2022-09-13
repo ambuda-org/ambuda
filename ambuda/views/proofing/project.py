@@ -24,8 +24,7 @@ from ambuda import queries as q
 from ambuda.tasks import app as celery_app
 from ambuda.tasks import ocr as ocr_tasks
 from ambuda.utils import project_utils, proofing_utils
-from ambuda.utils.auth import admin_required
-from ambuda.views.proofing.decorators import p2_required
+from ambuda.views.proofing.decorators import moderator_required, p2_required
 
 bp = Blueprint("project", __name__)
 
@@ -351,7 +350,7 @@ def batch_ocr_status(task_id):
 
 
 @bp.route("/<slug>/admin", methods=["GET", "POST"])
-@admin_required
+@moderator_required
 def admin(slug):
     """View admin controls for the project.
 
