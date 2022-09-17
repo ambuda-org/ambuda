@@ -7,7 +7,7 @@ msgid ""
 msgstr "___"
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-11 22:33-0700\n"
+"POT-Creation-Date: 2022-09-17 13:27-0700\n"
 "PO-Revision-Date: 2022-09-10 21:34-0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -49,25 +49,25 @@ msgstr "___"
 msgid "Ambuda"
 msgstr "___"
 
-#: ambuda/templates/index.html:31
+#: ambuda/templates/index.html:32
 msgid "A breakthrough Sanskrit library"
 msgstr "___"
 
-#: ambuda/templates/index.html:32
+#: ambuda/templates/index.html:33
 msgid ""
 "Sanskrit literature with word-by-word analysis and integrated "
 "dictionaries. All in a free online library that works on all devices."
 msgstr "___"
 
-#: ambuda/templates/index.html:40 ambuda/templates/index.html:138
+#: ambuda/templates/index.html:41 ambuda/templates/index.html:150
 msgid "Explore the library"
 msgstr "___"
 
-#: ambuda/templates/index.html:60
+#: ambuda/templates/index.html:72
 msgid "Building the world's largest Sanskrit library"
 msgstr "___"
 
-#: ambuda/templates/index.html:62
+#: ambuda/templates/index.html:74
 msgid ""
 "Sanskrit texts are scattered across dozens of websites, thousands of "
 "books, and millions of manuscripts. Their quality and ease of use vary "
@@ -75,36 +75,36 @@ msgid ""
 "offer."
 msgstr "___"
 
-#: ambuda/templates/index.html:68
+#: ambuda/templates/index.html:80
 msgid ""
 "That's why Ambuda is building a complete library of traditional Sanskrit "
 "literature. Our library is small now, but it's growing rapidly. Soon, it "
 "will be the largest Sanskrit library in the world."
 msgstr "___"
 
-#: ambuda/templates/index.html:77
+#: ambuda/templates/index.html:89
 msgid "Open access for all"
 msgstr "___"
 
-#: ambuda/templates/index.html:79
+#: ambuda/templates/index.html:91
 msgid ""
 "What if you could read Sanskrit anywhere for free? What if reading "
 "Sanskrit online were delightful and beautiful? What if you could easily "
 "find Sanskrit resources in your native language?"
 msgstr "___"
 
-#: ambuda/templates/index.html:85
+#: ambuda/templates/index.html:97
 msgid ""
 "We have a long way to go, but we want to make our library radically "
 "accessible to as many people as we can. For now, you can use our website "
 "on any device. Soon, we'll support other languages besides English."
 msgstr "___"
 
-#: ambuda/templates/index.html:94
+#: ambuda/templates/index.html:106
 msgid "Intelligent technology"
 msgstr "___"
 
-#: ambuda/templates/index.html:96
+#: ambuda/templates/index.html:108
 msgid ""
 "Word-by-word analysis. Integrated dictionary support. Transliteration to "
 "a variety of different scripts. And so much more. Our intelligent library"
@@ -112,18 +112,18 @@ msgid ""
 "ever before."
 msgstr "___"
 
-#: ambuda/templates/index.html:102
+#: ambuda/templates/index.html:114
 msgid ""
 "But our work is just beginning. We have so much planned for the future: "
 "translations, commentaries, full-text search, and deeper hyperlinks "
 "across the entire corpus."
 msgstr "___"
 
-#: ambuda/templates/index.html:111
+#: ambuda/templates/index.html:123
 msgid "By the public, for the public"
 msgstr "___"
 
-#: ambuda/templates/index.html:114
+#: ambuda/templates/index.html:126
 #, python-format
 msgid ""
 "Ambuda is run entirely by volunteers, and we would be thrilled to have "
@@ -131,23 +131,22 @@ msgid ""
 "you can <a href=\"%(support_url)s\">help Ambuda grow</a>."
 msgstr "___"
 
-#: ambuda/templates/index.html:120
+#: ambuda/templates/index.html:132
 #, python-format
 msgid ""
 "Ambuda is growing rapidly. <a href=\"%(mailing_url)s\">Sign up for our "
 "mailing list</a> to receive regular updates on new content and features."
 msgstr "___"
 
-#: ambuda/templates/index.html:129
+#: ambuda/templates/index.html:141
 msgid "Sanskrit at your fingertips"
 msgstr "___"
 
-#: ambuda/templates/index.html:132
+#: ambuda/templates/index.html:144
 msgid "Our work is just beginning. Thank you for using Ambuda."
 msgstr "___"
 
 #: ambuda/templates/support.html:11 ambuda/templates/support.html:70
-#, fuzzy
 msgid "Donate to Ambuda"
 msgstr "___"
 
@@ -160,7 +159,6 @@ msgid "Transcribe and proofread texts"
 msgstr "___"
 
 #: ambuda/templates/support.html:14
-#, fuzzy
 msgid "Contribute a text"
 msgstr "___"
 
@@ -243,7 +241,6 @@ msgid "Read our <a href=\"{{ beginners }}\">beginner's guide</a>."
 msgstr "___"
 
 #: ambuda/templates/support.html:112
-#, fuzzy
 msgid "Start proofing!"
 msgstr "___"
 
@@ -369,7 +366,7 @@ msgid "Code and Data"
 msgstr "___"
 
 #: ambuda/templates/about/code-and-data.html:24
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "All of our code is available <a href=\"%(code_url)s\">on GitHub</a>. We "
 "use Python (Flask) for the backend, Tailwind for CSS, and native "
@@ -642,7 +639,7 @@ msgid ""
 msgstr "___"
 
 #: ambuda/templates/about/people.html:26
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Ambuda receives contributions from dozens of volunteer <a "
 "href=\"%(proofers_url)s\">proofers</a>, <a "
@@ -1017,6 +1014,7 @@ msgid "Sign out"
 msgstr "___"
 
 #: ambuda/templates/include/script-options.html:1
+#: ambuda/templates/proofing/pages/editor-components.html:145
 msgid "Devanagari"
 msgstr "___"
 
@@ -1045,7 +1043,8 @@ msgid "Telugu"
 msgstr "___"
 
 #: ambuda/templates/macros/components.html:2
-msgid "{title} | Ambuda"
+#, fuzzy, python-format
+msgid "%(title)s | Ambuda"
 msgstr "___"
 
 #: ambuda/templates/macros/forms.html:35
@@ -1158,21 +1157,25 @@ msgstr "___"
 
 #: ambuda/templates/proofing/index.html:13
 #: ambuda/templates/proofing/pages/editor-components.html:28
+#: ambuda/views/proofing/page.py:30
 msgid "Needs more work"
 msgstr "___"
 
 #: ambuda/templates/proofing/index.html:14
 #: ambuda/templates/proofing/pages/editor-components.html:30
+#: ambuda/views/proofing/page.py:31
 msgid "Proofed once"
 msgstr "___"
 
 #: ambuda/templates/proofing/index.html:15
 #: ambuda/templates/proofing/pages/editor-components.html:32
+#: ambuda/views/proofing/page.py:32
 msgid "Proofed twice"
 msgstr "___"
 
 #: ambuda/templates/proofing/index.html:16
 #: ambuda/templates/proofing/pages/editor-components.html:34
+#: ambuda/views/proofing/page.py:33
 msgid "Not relevant"
 msgstr "___"
 
@@ -1182,7 +1185,7 @@ msgstr "___"
 
 #: ambuda/templates/proofing/index.html:40
 #: ambuda/templates/proofing/projects/summary.html:49
-#: ambuda/views/proofing/project.py:58 ambuda/views/proofing/talk.py:17
+#: ambuda/views/proofing/project.py:57 ambuda/views/proofing/talk.py:17
 msgid "Title"
 msgstr "___"
 
@@ -1206,11 +1209,112 @@ msgstr "___"
 #, python-format
 msgid "%(num)d page"
 msgid_plural "%(num)d pages"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "___"
+msgstr[1] "___"
 
-#: ambuda/templates/proofing/pages/edit.html:76
+#: ambuda/templates/proofing/pages/edit.html:27
+#, python-format
+msgid ""
+"Since you are not logged in, some functions (such as the OCR button) have"
+" been disabled. To use all website features, please <a "
+"class=\"underline\" href=\"%(url)s\">create an account</a>."
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/edit.html:54
+msgid "Fixed various OCR errors"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/edit.html:72
+#, python-format
+msgid ""
+"By saving your changes, you agree to release your contribution under the "
+"<a class=\"underline\" href=\"%(cc0)s\">CC0 (public domain) license</a>."
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/edit.html:78
 msgid "Publish changes"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:52
+#, fuzzy
+msgid "History"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:104
+msgid "Layout"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:107
+msgid "Image right, text left"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:108
+msgid "Image above, text below"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:116
+msgid "Markup"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:119
+msgid "Mark as error"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:120
+msgid "Mark as fix"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:121
+msgid "Mark as unclear"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:122
+msgid "Mark as footnote number"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:129
+msgid "Transliterator"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:132
+msgctxt "editor"
+msgid "From:"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:142
+msgctxt "editor"
+msgid "To:"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:146
+msgid "IAST"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:153
+msgid "Transliterate selected text"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:162
+msgctxt "editor"
+msgid "Characters"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:164
+msgid "Click a character to copy it."
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:184
+msgctxt "editor"
+msgid "Help"
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:201
+msgid "Running OCR ..."
+msgstr "___"
+
+#: ambuda/templates/proofing/pages/editor-components.html:201
+#: ambuda/templates/proofing/pages/editor-components.html:202
+msgid "Run OCR"
 msgstr "___"
 
 #: ambuda/templates/proofing/projects/download.html:16
@@ -1229,15 +1333,15 @@ msgstr "___"
 msgid "Download as TEI XML"
 msgstr "___"
 
-#: ambuda/templates/proofing/projects/edit.html:22
+#: ambuda/templates/proofing/projects/edit.html:23
 msgid "Search the project"
 msgstr "___"
 
-#: ambuda/templates/proofing/projects/edit.html:23
+#: ambuda/templates/proofing/projects/edit.html:24
 msgid "Run batch OCR"
 msgstr "___"
 
-#: ambuda/templates/proofing/projects/edit.html:39
+#: ambuda/templates/proofing/projects/edit.html:40
 msgid "Save changes"
 msgstr "___"
 
@@ -1263,22 +1367,22 @@ msgid "(none)"
 msgstr "___"
 
 #: ambuda/templates/proofing/projects/summary.html:53
-#: ambuda/views/proofing/project.py:60
+#: ambuda/views/proofing/project.py:59
 msgid "Author"
 msgstr "___"
 
 #: ambuda/templates/proofing/projects/summary.html:57
-#: ambuda/views/proofing/project.py:66
+#: ambuda/views/proofing/project.py:65
 msgid "Editor"
 msgstr "___"
 
 #: ambuda/templates/proofing/projects/summary.html:60
-#: ambuda/views/proofing/project.py:74
+#: ambuda/views/proofing/project.py:73
 msgid "Publisher"
 msgstr "___"
 
 #: ambuda/templates/proofing/projects/summary.html:63
-#: ambuda/views/proofing/project.py:82
+#: ambuda/views/proofing/project.py:81
 msgid "Publication year"
 msgstr "___"
 
@@ -1398,43 +1502,59 @@ msgstr "___"
 msgid "Please click the reCAPTCHA box."
 msgstr "___"
 
-#: ambuda/views/proofing/project.py:42
+#: ambuda/views/proofing/page.py:24
+msgid "Edit summary (optional)"
+msgstr "___"
+
+#: ambuda/views/proofing/page.py:25
+msgid "Page version"
+msgstr "___"
+
+#: ambuda/views/proofing/page.py:26
+msgid "Page content"
+msgstr "___"
+
+#: ambuda/views/proofing/page.py:28
+msgid "Status"
+msgstr "___"
+
+#: ambuda/views/proofing/project.py:41
 msgid "Description (optional)"
 msgstr "___"
 
-#: ambuda/views/proofing/project.py:45
+#: ambuda/views/proofing/project.py:44
 msgid "What is this book about? Why is this project interesting?"
 msgstr "___"
 
-#: ambuda/views/proofing/project.py:51
+#: ambuda/views/proofing/project.py:50
 msgid "Page numbers (optional)"
 msgstr "___"
 
-#: ambuda/views/proofing/project.py:62
+#: ambuda/views/proofing/project.py:61
 msgid "The author of the original work, e.g. Kalidasa."
 msgstr "___"
 
-#: ambuda/views/proofing/project.py:68
+#: ambuda/views/proofing/project.py:67
 msgid "The person or organization that created this edition of the text."
 msgstr "___"
 
-#: ambuda/views/proofing/project.py:76
+#: ambuda/views/proofing/project.py:75
 msgid "The original publisher of this book, e.g. Nirnayasagar."
 msgstr "___"
 
-#: ambuda/views/proofing/project.py:84
+#: ambuda/views/proofing/project.py:83
 msgid "The year in which this specific edition was published."
 msgstr "___"
 
-#: ambuda/views/proofing/project.py:93
+#: ambuda/views/proofing/project.py:92
 msgid "Query"
 msgstr "___"
 
-#: ambuda/views/proofing/project.py:166
+#: ambuda/views/proofing/project.py:165
 msgid "Saved changes."
 msgstr "___"
 
-#: ambuda/views/proofing/project.py:306
+#: ambuda/views/proofing/project.py:305
 msgid "All pages in this project have at least one edit already."
 msgstr "___"
 
