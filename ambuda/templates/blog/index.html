@@ -1,0 +1,39 @@
+{% extends 'blog/base.html' %}
+{% import "macros/components.html" as m %}
+
+
+{% block title %}{{ m.title(_('Blog')) }}{% endblock %}
+
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+
+<header class="text-center my-8">
+  <h1 class="font-bold text-4xl mb-4">Ambuda blog</h1>
+  <p>Ongoing updates about our project</p>
+</header>
+
+{% if current_user.is_moderator %}
+<div class="border border-slate-300 rounded p-4">
+  <h1 class="text-slate-500 font-bold uppercase mb-4">Admin</h1>
+  <a href="{{ url_for('blog.create_post') }}">Create post</a>
+</div>
+{% endif %}
+
+<div class="mt-8">
+{% for post in posts %}
+<section class="border-t border-slate-300 py-8">
+  <h1 class="font-bold text-2xl mb-2">
+    <a class="hover:underline" href="{{ url_for('blog.post', slug=post.slug) }}">
+      {{ post.title }}
+    </a>
+  </h1>
+  <div class="prose">
+    {{ post.content }}
+  </div>
+</section>
+{% endfor %}
+</div>
+
+</div>
+{% endblock %}

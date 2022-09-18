@@ -1,0 +1,10 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<a href="{{ url_for('blog.index') }}">&larr; All posts</a>
+<article>
+  <h1>{{ post.title }}</h1>
+  {{ post.content }}
+</article>
+{% endblock %}
+

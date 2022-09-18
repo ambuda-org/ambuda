@@ -126,6 +126,7 @@ def create_app(config_env: str):
     app.register_blueprint(about, url_prefix="/about")
     app.register_blueprint(api, url_prefix="/api")
     app.register_blueprint(auth)
+    app.register_blueprint(blog, url_prefix="/blog")
     app.register_blueprint(dictionaries, url_prefix="/tools/dictionaries")
     app.register_blueprint(parses, url_prefix="/parses")
     app.register_blueprint(proofing, url_prefix="/proofing")

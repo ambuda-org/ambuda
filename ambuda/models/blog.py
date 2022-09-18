@@ -23,8 +23,12 @@ class BlogPost(Base):
     #: Timestamp at which this post was updated (e.g. during an edit).
     updated_at = Column(DateTime, default=same_as("created_at"), nullable=False)
 
+    #: The post title.
+    title = Column(String, nullable=False)
+    #: The post slug.
+    slug = Column(String, unique=True, nullable=False)
     #: The post content.
-    content = Column(_Text, nullable=False)
+    content = Column(Text_, nullable=False)
 
     #: The author of this post.
     author = relationship("User")

@@ -232,4 +232,5 @@ def blog_post(slug: str) -> Optional[db.BlogPost]:
 
 def blog_posts() -> list[db.BlogPost]:
     """Fetch all blog posts."""
-    return []
+    session = get_session()
+    return session.query(db.BlogPost).order_by(db.BlogPost.created_at.desc()).all()
