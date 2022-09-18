@@ -98,7 +98,17 @@ def initialize_test_db():
     session.add(admin)
     session.flush()
 
-    # Proofreading
+    # Blog
+    post = db.BlogPost(
+        title="Sample post",
+        slug="sample-post",
+        content="This is a sample post.",
+        author_id=admin.id,
+    )
+    session.add(post)
+    session.commit()
+
+    # Proofing
     board = db.Board(title="board")
     session.add(board)
     session.flush()

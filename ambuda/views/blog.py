@@ -93,9 +93,9 @@ def edit_post(slug):
     return render_template("blog/edit-post.html", post=post_, form=form)
 
 
-@bp.route("/p/<slug>/delete")
+@bp.route("/p/<slug>/delete", methods=["GET", "POST"])
 @admin_required
-def delete_post(slug, methods=["GET", "POST"]):
+def delete_post(slug):
     """Edit an existing post."""
     post_ = q.blog_post(slug)
     if post_ is None:

@@ -1,3 +1,4 @@
+{% set blog = url_for('blog.index') %}
 {% set discord = "https://discord.gg/7rGdTyWY7Z" %}
 {% set github = "https://github.com/ambuda-org/ambuda" %}
 {% set reddit = "https://reddit.com/u/learnsanskrit-org" %}
@@ -54,6 +55,7 @@
   <section class="mt-4 md:mt-0">
     <h3 class="font-bold mb-2">{{ _('Community') }}</h3>
     <ul>
+      <li><a href="{{ blog }}">{{ _('Blog') }}</a>
       <li><a href="{{ discord }}">{{ _('Discord') }}</a>
       <li><a href="{{ github }}">{{ _('GitHub') }}</a>
       <li><a href="{{ reddit }}">{{ _('Reddit') }}</a>
