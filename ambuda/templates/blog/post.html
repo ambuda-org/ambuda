@@ -1,10 +1,28 @@
 {% extends 'blog/base.html' %}
 
+
 {% block content %}
-<a href="{{ url_for('blog.index') }}">&larr; All posts</a>
-<article>
-  <h1>{{ post.title }}</h1>
-  {{ post.content }}
-</article>
+<div class="max-w-3xl mx-auto">
+
+<div class="mt-12">
+  <a class="block uppercase font-bold text-slate-500"
+    href="{{ url_for('blog.index') }}">&larr; All posts</a>
+
+  <header class="mt-4 mb-8">
+    <h1 class="font-bold text-4xl">{{ post.title }}</h1>
+    <p class="text-slate-500">
+      Created {{ post.created_at|time_ago }}
+      {% if current_user.is_moderator %}
+      | <a href="{{ url_for('blog.edit_post', slug=post.slug) }}">Edit</a>
+      {% endif %}
+    </p>
+  </header>
+
+  <div class="prose">
+    {{ post.content }}
+  </div>
+</div>
+
+</div>
 {% endblock %}
 

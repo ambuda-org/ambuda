@@ -32,16 +32,6 @@ def index():
     return render_template("blog/index.html", posts=posts)
 
 
-@bp.route("/<slug>")
-def post(slug):
-    """A single post."""
-    post = q.blog_post(slug)
-    if post is None:
-        abort(404)
-
-    return render_template("blog/post.html", post=post)
-
-
 @bp.route("/create", methods=["GET", "POST"])
 @moderator_required
 def create_post():
@@ -66,8 +56,32 @@ def create_post():
     return render_template("blog/create-post.html", form=form)
 
 
-@bp.route("/edit/<slug>")
+@bp.route("/p/<slug>")
+def post(slug):
+    """A single post."""
+    post = q.blog_post(slug)
+    if post is None:
+        abort(404)
+
+    return render_template("blog/post.html", post=post)
+
+
+@bp.route("/p/<slug>/edit")
 def edit_post(slug, methods=["GET", "POST"]):
+    """Edit an existing post."""
+    post = q.blog_post(slug)
+    if post is None:
+        abort(404)
+
+    form = EditPostForm()
+    if form.validate_on_submit():
+        return "OK"
+
+    return render_template("blog/edit-post.html", form=form)
+
+
+@bp.route("/p/<slug>/delete")
+def delete_post(slug, methods=["GET", "POST"]):
     """Edit an existing post."""
     post = q.blog_post(slug)
     if post is None:

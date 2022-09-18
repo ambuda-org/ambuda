@@ -227,7 +227,8 @@ def create_user(*, username: str, email: str, raw_password: str) -> db.User:
 
 def blog_post(slug: str) -> Optional[db.BlogPost]:
     """Fetch the given blog post."""
-    return None
+    session = get_session()
+    return session.query(db.BlogPost).filter_by(slug=slug).first()
 
 
 def blog_posts() -> list[db.BlogPost]:
