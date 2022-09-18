@@ -5,7 +5,7 @@ from flask_login import current_user
 from flask_wtf import FlaskForm
 from slugify import slugify
 from wtforms import StringField
-from wtforms.validators import DataRequired, ValidationError
+from wtforms.validators import DataRequired
 from wtforms.widgets import TextArea
 
 from ambuda import database as db
