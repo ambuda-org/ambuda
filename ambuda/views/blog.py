@@ -10,7 +10,7 @@ from wtforms.widgets import TextArea
 
 from ambuda import database as db
 from ambuda import queries as q
-from ambuda.views.proofing.decorators import moderator_required
+from ambuda.utils.auth import admin_required
 
 bp = Blueprint("blog", __name__)
 
@@ -22,7 +22,12 @@ class CreatePostForm(FlaskForm):
 
 class EditPostForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
+    slug = StringField("Slug", validators=[DataRequired()])
     content = StringField("Content", widget=TextArea(), validators=[DataRequired()])
+
+
+class DeletePostForm(FlaskForm):
+    slug = StringField("Slug", validators=[DataRequired()])
 
 
 @bp.route("/")
@@ -43,7 +48,7 @@ def post(slug):
 
 
 @bp.route("/create", methods=["GET", "POST"])
-@moderator_required
+@admin_required
 def create_post():
     """Create a new post."""
     form = CreatePostForm()
@@ -69,7 +74,7 @@ def create_post():
 
 
 @bp.route("/p/<slug>/edit", methods=["GET", "POST"])
-@moderator_required
+@admin_required
 def edit_post(slug):
     """Edit an existing post."""
     post_ = q.blog_post(slug)
@@ -85,20 +90,27 @@ def edit_post(slug):
         flash("Edited post.")
         return redirect(url_for("blog.index"))
 
-    return render_template("blog/edit-post.html", form=form)
+    return render_template("blog/edit-post.html", post=post_, form=form)
 
 
 @bp.route("/p/<slug>/delete")
-@moderator_required
+@admin_required
 def delete_post(slug, methods=["GET", "POST"]):
     """Edit an existing post."""
     post_ = q.blog_post(slug)
     if post_ is None:
         abort(404)
 
-    form = EditPostForm()
+    form = DeletePostForm()
     if form.validate_on_submit():
-        flash("Deleted post.")
-        return "OK"
+        if form.slug.data == slug:
+            session = q.get_session()
+            session.delete(post_)
+            session.commit()
 
-    return render_template("blog/edit-post.html", form=form)
+            flash(f"Deleted post {slug}")
+            return redirect(url_for("blog.index"))
+        else:
+            form.slug.errors.append("Mismatch with project slug.")
+
+    return render_template("blog/delete-post.html", post=post_, form=form)

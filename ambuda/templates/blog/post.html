@@ -13,6 +13,7 @@
       Created {{ post.created_at|time_ago }}
       {% if current_user.is_moderator %}
       | <a href="{{ url_for('blog.edit_post', slug=post.slug) }}">Edit</a>
+      | <a href="{{ url_for('blog.delete_post', slug=post.slug) }}">Delete</a>
       {% endif %}
     </p>
   </header>

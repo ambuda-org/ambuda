@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="prose">
-  <h1>Edit posto</h1>
+  <h1>Edit post: "{{ post.title }}"</h1>
 </div>
 
 <form action="" method="POST" class="bg-slate-100 p-4">
@@ -11,8 +11,11 @@
 {{ form.csrf_token }}
 {{ mf.field(form.title) }}
 {{ mf.markdown_field(form.content) }}
+{{ mf.field(form.slug) }}
 
-<input class="btn btn-submit" type="submit" value="Save changes">
+<div class="mt-4">
+  <input class="btn btn-submit" type="submit" value="Save changes">
+</div>
 </form>
 
 {% endblock %}
