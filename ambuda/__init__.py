@@ -24,6 +24,7 @@ from ambuda.utils import assets
 from ambuda.views.about import bp as about
 from ambuda.views.api import bp as api
 from ambuda.views.auth import bp as auth
+from ambuda.views.blog import bp as blog
 from ambuda.views.dictionaries import bp as dictionaries
 from ambuda.views.proofing import bp as proofing
 from ambuda.views.reader.parses import bp as parses

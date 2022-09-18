@@ -223,3 +223,13 @@ def create_user(*, username: str, email: str, raw_password: str) -> db.User:
 
     session.commit()
     return user
+
+
+def blog_post(slug: str) -> Optional[db.BlogPost]:
+    """Fetch the given blog post."""
+    return None
+
+
+def blog_posts() -> list[db.BlogPost]:
+    """Fetch all blog posts."""
+    return []
