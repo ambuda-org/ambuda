@@ -2,9 +2,8 @@
 
 
 {% block content %}
-<div class="max-w-3xl mx-auto">
+<div class="max-w-xl mx-auto mt-24">
 
-<div class="mt-12">
   <a class="block uppercase font-bold text-slate-500"
     href="{{ url_for('blog.index') }}">&larr; All posts</a>
 
@@ -21,7 +20,6 @@
   <div class="prose">
     {{ post.content }}
   </div>
-</div>
 
 </div>
 {% endblock %}

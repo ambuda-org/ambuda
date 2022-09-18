@@ -1,6 +1,6 @@
 """General information about Ambuda."""
 
-from flask import Blueprint, abort, redirect, render_template, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, url_for
 from flask_login import current_user
 from flask_wtf import FlaskForm
 from slugify import slugify
@@ -32,6 +32,16 @@ def index():
     return render_template("blog/index.html", posts=posts)
 
 
+@bp.route("/p/<slug>")
+def post(slug):
+    """A single post."""
+    post = q.blog_post(slug)
+    if post is None:
+        abort(404)
+
+    return render_template("blog/post.html", post=post)
+
+
 @bp.route("/create", methods=["GET", "POST"])
 @moderator_required
 def create_post():
@@ -51,44 +61,44 @@ def create_post():
         session = q.get_session()
         session.add(post)
         session.commit()
+
+        flash("Created post.")
         return redirect(url_for("blog.index"))
 
     return render_template("blog/create-post.html", form=form)
 
 
-@bp.route("/p/<slug>")
-def post(slug):
-    """A single post."""
-    post = q.blog_post(slug)
-    if post is None:
-        abort(404)
-
-    return render_template("blog/post.html", post=post)
-
-
-@bp.route("/p/<slug>/edit")
-def edit_post(slug, methods=["GET", "POST"]):
+@bp.route("/p/<slug>/edit", methods=["GET", "POST"])
+@moderator_required
+def edit_post(slug):
     """Edit an existing post."""
-    post = q.blog_post(slug)
-    if post is None:
+    post_ = q.blog_post(slug)
+    if post_ is None:
         abort(404)
 
-    form = EditPostForm()
+    form = EditPostForm(obj=post_)
     if form.validate_on_submit():
-        return "OK"
+        session = q.get_session()
+        form.populate_obj(post_)
+        session.commit()
+
+        flash("Edited post.")
+        return redirect(url_for("blog.index"))
 
     return render_template("blog/edit-post.html", form=form)
 
 
 @bp.route("/p/<slug>/delete")
+@moderator_required
 def delete_post(slug, methods=["GET", "POST"]):
     """Edit an existing post."""
-    post = q.blog_post(slug)
-    if post is None:
+    post_ = q.blog_post(slug)
+    if post_ is None:
         abort(404)
 
     form = EditPostForm()
     if form.validate_on_submit():
+        flash("Deleted post.")
         return "OK"
 
     return render_template("blog/edit-post.html", form=form)
