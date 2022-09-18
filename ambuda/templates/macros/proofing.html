@@ -28,7 +28,7 @@
 
 
 {# Main-level sidebar. #}
-{% macro main_nav(active = none) %}
+{% macro main_nav(active = none, is_mod = false) %}
 {% macro _link(label, route, text) -%}
 {% if active == label %}<li class="font-bold text-black">{% else %}<li>{% endif %}
 <a href="{{ url_for(route) }}">{{ text }}</a>
@@ -51,6 +51,13 @@
   {{ _link('tagging', "proofing.tagging.index", _("Tagging")) }}
   {{ _link('talk', "proofing.talk", _("Talk")) }}
 </ul>
+
+{% if is_mod %}
+<h1 class="mt-2 font-bold">{{ _('Moderation') }}</h1>
+<ul class="list-disc pl-6">
+  {{ _link('stats', "proofing.stats", _("Statistics")) }}
+</ul>
+{% endif %}
 </nav>
 {% endmacro %}
 
