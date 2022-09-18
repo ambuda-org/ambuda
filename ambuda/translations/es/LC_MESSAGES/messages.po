@@ -7,7 +7,7 @@ msgid ""
 msgstr "___"
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-09-17 13:27-0700\n"
+"POT-Creation-Date: 2022-09-17 18:57-0700\n"
 "PO-Revision-Date: 2022-09-10 21:34-0700\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -1043,12 +1043,10 @@ msgid "Telugu"
 msgstr "___"
 
 #: ambuda/templates/macros/components.html:2
-#, fuzzy, python-format
 msgid "%(title)s | Ambuda"
 msgstr "___"
 
 #: ambuda/templates/macros/forms.html:35
-#, python-format
 msgid ""
 "You can format this text with Markdown. <a href=\"%(help_url)s\">Click "
 "here to learn more.</a>"
@@ -1068,85 +1066,98 @@ msgid "About"
 msgstr "___"
 
 #: ambuda/templates/macros/proofing-talk.html:10
-#, python-format
 msgid "Created by <a href=\"%(author_url)s\">%(username)s</a>"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:35
+#: ambuda/templates/macros/proofing.html:23
+msgid "%(label)s: <a class=\"%(css)s\" href=\"%(url)s\">%(title)s</a>"
+msgstr "___"
+
+#: ambuda/templates/macros/proofing.html:39
 msgid "Help"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:37
+#: ambuda/templates/macros/proofing.html:41
 #: ambuda/templates/proofing/beginners-guide.html:35
 msgid "Beginner's guide"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:38
+#: ambuda/templates/macros/proofing.html:42
 #: ambuda/templates/proofing/complete-guide.html:86
 msgid "Complete guide"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:39
+#: ambuda/templates/macros/proofing.html:43
 #: ambuda/templates/proofing/editor-guide.html:20
 msgid "Editor manual"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:42
+#: ambuda/templates/macros/proofing.html:46
 msgid "Contribute"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:44
+#: ambuda/templates/macros/proofing.html:48
 #: ambuda/templates/proofing/index.html:21
 #: ambuda/templates/proofing/index.html:29
 msgid "Ongoing projects"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:45
+#: ambuda/templates/macros/proofing.html:49
 #: ambuda/templates/proofing/create-project.html:30
 msgid "Create project"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:46
+#: ambuda/templates/macros/proofing.html:50
 #: ambuda/templates/proofing/projects/summary.html:86
 #: ambuda/templates/proofing/recent-changes.html:13
 msgid "Recent changes"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:47
+#: ambuda/templates/macros/proofing.html:51
 #: ambuda/templates/proofing/tagging/index.html:11
 msgid "Tagging"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:48
-#: ambuda/templates/macros/proofing.html:59
+#: ambuda/templates/macros/proofing.html:52
+#: ambuda/templates/macros/proofing.html:63
 #: ambuda/templates/proofing/talk.html:14
 msgid "Talk"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:57
+#: ambuda/templates/macros/proofing.html:61
 msgid "Summary"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:58
-#: ambuda/templates/macros/proofing.html:75
+#: ambuda/templates/macros/proofing.html:62
+#: ambuda/templates/macros/proofing.html:79
 msgid "Activity"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:60
+#: ambuda/templates/macros/proofing.html:64
 msgid "Edit"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:61
+#: ambuda/templates/macros/proofing.html:65
 msgid "Download"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:64
-#: ambuda/templates/macros/proofing.html:78
+#: ambuda/templates/macros/proofing.html:68
+#: ambuda/templates/macros/proofing.html:82
 msgid "Admin"
 msgstr "___"
 
-#: ambuda/templates/macros/proofing.html:74
+#: ambuda/templates/macros/proofing.html:78
 msgid "Overview"
+msgstr "___"
+
+#: ambuda/templates/macros/proofing.html:138
+msgid ""
+"<a href=\"%(page_url)s\">%(page_title)s</a> by <a "
+"href=\"%(author_url)s\">%(author)s</a>"
+msgstr "___"
+
+#: ambuda/templates/macros/proofing.html:156
+msgid "%(title)s created by <a href=\"%(creator_url)s\">%(creator)s</a>"
 msgstr "___"
 
 #: ambuda/templates/proofing/base-sidebar.html:23
@@ -1157,25 +1168,25 @@ msgstr "___"
 
 #: ambuda/templates/proofing/index.html:13
 #: ambuda/templates/proofing/pages/editor-components.html:28
-#: ambuda/views/proofing/page.py:30
+#: ambuda/views/proofing/page.py:32
 msgid "Needs more work"
 msgstr "___"
 
 #: ambuda/templates/proofing/index.html:14
 #: ambuda/templates/proofing/pages/editor-components.html:30
-#: ambuda/views/proofing/page.py:31
+#: ambuda/views/proofing/page.py:33
 msgid "Proofed once"
 msgstr "___"
 
 #: ambuda/templates/proofing/index.html:15
 #: ambuda/templates/proofing/pages/editor-components.html:32
-#: ambuda/views/proofing/page.py:32
+#: ambuda/views/proofing/page.py:34
 msgid "Proofed twice"
 msgstr "___"
 
 #: ambuda/templates/proofing/index.html:16
 #: ambuda/templates/proofing/pages/editor-components.html:34
-#: ambuda/views/proofing/page.py:33
+#: ambuda/views/proofing/page.py:35
 msgid "Not relevant"
 msgstr "___"
 
@@ -1236,7 +1247,6 @@ msgid "Publish changes"
 msgstr "___"
 
 #: ambuda/templates/proofing/pages/editor-components.html:52
-#, fuzzy
 msgid "History"
 msgstr "___"
 
@@ -1510,11 +1520,11 @@ msgstr "___"
 msgid "Page version"
 msgstr "___"
 
-#: ambuda/views/proofing/page.py:26
+#: ambuda/views/proofing/page.py:27
 msgid "Page content"
 msgstr "___"
 
-#: ambuda/views/proofing/page.py:28
+#: ambuda/views/proofing/page.py:30
 msgid "Status"
 msgstr "___"
 
