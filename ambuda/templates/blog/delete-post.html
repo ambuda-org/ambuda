@@ -1,0 +1,23 @@
+{% extends 'blog/base.html' %}
+{% import 'macros/forms.html' as mf %}
+
+{% block content %}
+<div class="prose">
+  <h1>Delete post: "{{ post.title }}"</h1>
+</div>
+
+<form method="POST" class="border border-red-500 rounded p-4 my-4">
+
+{{ form.csrf_token }}
+
+<p>To confirm this decision, enter <kbd>{{ post.slug }}</kbd> in the field below.</p>
+{{ form.slug(class_="p-2 block w-full my-4 border") }}
+
+
+<div class="mt-4">
+  <input class="btn btn-submit" type="submit" value="Delete post">
+</div>
+</form>
+
+{% endblock %}
+
