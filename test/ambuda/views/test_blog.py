@@ -11,6 +11,7 @@ def test_post(client):
 
 
 def test_create_post(admin_client):
+    # Test that the "create post" page loads for admin users.
     resp = admin_client.get("/blog/create")
     assert resp.status_code == 200
 
@@ -26,6 +27,7 @@ def test_delete_post(admin_client):
 
 
 def test_create_post__non_admin(moderator_client):
+    # Test that the "create post" page loads fails for non-admin users.
     resp = moderator_client.get("/blog/create")
     assert resp.status_code == 302
 
