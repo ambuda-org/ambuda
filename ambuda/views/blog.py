@@ -1,4 +1,9 @@
-"""General information about Ambuda."""
+"""Various endpoints for the Ambuda blog.
+
+The blog is a work in progress and doesn't have a defined voice, level of
+formality, etc. For now, we use it for any text content that it doesn't make
+sense to check into version control.
+"""
 
 from flask import Blueprint, abort, flash, redirect, render_template, url_for
 from flask_login import current_user
