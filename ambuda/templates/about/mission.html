@@ -1,15 +1,19 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
 
-{% block title %}Mission | Ambuda{% endblock %}
+
+{% block title %}{{ m.title(_('Mission')) }}{% endblock %}
+
 
 {% block meta_description -%}
 Ambuda's mission is to make the Sanskrit tradition radically accessible. Learn
 more about what this means specifically.
 {%- endblock %}
 
+
 {% block content %}
 <div class="prose">
-<h1>Mission</h1>
+<h1>{{ _('Mission') }}</h1>
 
 <p>Ambuda's mission is to make the Sanskrit tradition radically accessible.
 

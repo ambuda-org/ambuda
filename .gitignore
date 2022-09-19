@@ -17,6 +17,10 @@ node_modules/
 # Development database
 *.db
 
+# i18n -- regenerate these files with `make babel-extract` and `make babel-compile`
+*.pot
+*.mo
+
 # Production config
 .env
 production/

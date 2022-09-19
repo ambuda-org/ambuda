@@ -1,0 +1,18 @@
+{% extends 'header-main-footer.html' %}
+
+
+{% block meta_description -%}
+Follow along with the latest updates on Ambuda.
+{%- endblock %}
+
+
+{% block header %}
+{% include "include/header-login.html" %}
+{% endblock %}
+
+
+{% block main %}
+  <article class="p-4 xl:p-0 max-w-4xl mx-auto mb-24">
+  {% block content %}{% endblock %}
+  </article>
+{% endblock %}

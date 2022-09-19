@@ -1,0 +1,225 @@
+{# Components of the page editor.
+
+We use these macros both to keep `pages/edit` readable and so that we can embed
+these components in our help text and documentation.
+#}
+
+{% import "macros/proofing.html" as m %}
+
+
+{# Button for specific OpenSeadragon (OSD) functions. #}
+{# FIXME: migrate all of these buttons to `alpine_button`. #}
+{% macro osd_button(id, text) %}
+<button type="button" id="{{ id }}" class="p-2 hover:bg-slate-300">{{ text|safe }}</button>
+{% endmacro %}
+
+
+{# A generic application button. #}
+{% macro alpine_button(text, click) %}
+<button type="button" class="p-2 hover:bg-slate-300" @click="{{ click }}">
+  {{ text|safe }}
+</button>
+{% endmacro %}
+
+
+{# A small status badge we display in the page header. #}
+{% macro status_badge(status) %}
+{% if status == 'reviewed-0' %}
+<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">{{ _('Needs more work') }}</span>
+{% elif status == 'reviewed-1' %}
+<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">{{ _('Proofed once') }}</span>
+{% elif status == 'reviewed-2' %}
+<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">{{ _('Proofed twice') }}</span>
+{% elif status == 'skip' %}
+<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">{{ _('Not relevant') }}</span>
+{% endif %}
+{% endmacro %}
+
+
+{# Page information and navigation options. #}
+{% macro navigation_bar(project, cur, prev, next) %}
+<header class="py-2 a-hover-underline">
+  <div class="flex justify-between items-center">
+  <h1 class="text pr-4">
+    <a class="text-black font-bold"
+        href="{{ url_for("proofing.project.summary", slug=project.slug) }}">
+       {{ project.title }}</a>
+    / {{ cur.slug }}
+  </h1>
+
+  {% set history_url = url_for("proofing.page.history", project_slug=project.slug, page_slug=cur.slug) %}
+  <nav class="flex text-slate-700 text-md">
+    <a class="block p-2" href="{{ history_url }}">History</a>
+    {% set prev_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=prev.slug) %}
+    {% set next_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=next.slug) %}
+    <a class="block p-2" href="{{ prev_url }}">&larr;</a>
+    <a class="block p-2" href="{{ next_url }}">&rarr;</a>
+  </nav>
+  </div>
+  {{ status_badge(cur.status.name) }}
+</header>
+{% endmacro %}
+
+
+{# Defines an item in a dropdown menu. #}
+{% macro _dropdown_item(fn, text) %}
+<li>
+  <button class="dropdown-item" @click.prevent="{{ fn }}">{{ text|safe }}</button>
+</li>
+{% endmacro %}
+
+
+{#
+Print a row of Latin characters.
+Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
+{% macro _latin_char_row(chars, class) %}
+<div class="grid {{ class }}">
+{% for char in chars.split() %}
+  <button class="hover:bg-slate-100 rounded p-1">{{ char.upper()|safe }}</button>
+  <button class="hover:bg-slate-100 rounded p-1">{{ char|safe }}</button>
+{% endfor %}
+</div>
+{% endmacro %}
+
+
+{#
+Print a row of Devanagari characters.
+Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
+{% macro _devanagari_char_row(chars, class) %}
+<div class="text-xl grid {{ class }}">
+{% for char in chars.split() %}
+  <button class="hover:bg-slate-100 rounded p-1">{{ char|safe }}</button>
+{% endfor %}
+</div>
+{% endmacro %}
+
+
+{# Toolbar with various options and dropdowns. #}
+{% macro menu_bar() %}
+{% set button_css = "block p-2 hover:bg-slate-100" %}
+<nav class="border my-2 rounded flex">
+  <div x-data="{open: false}" class="relative">
+    <button class="{{ button_css }}"
+       @click.prevent="open=!open"
+       @click.outside="open=false">Layout</button>
+    <div x-show="open" class="dropdown-pane w-48">
+      <ul class="text-sm" @click.prevent="open=false">
+        {{ _dropdown_item('displaySideBySide', 'Image right, text left') }}
+        {{ _dropdown_item('displayTopAndBottom', 'Image above, text below') }}
+      </ul>
+    </div>
+  </div>
+
+  <div x-data="{open: false}" class="relative">
+    <button class="{{ button_css }}"
+       @click.prevent="open=!open"
+       @click.outside="open=false">Markup</button>
+    <div x-show="open" class="dropdown-pane w-48">
+      <ul class="text-sm" @click.prevent="open=false">
+        {{ _dropdown_item('markAsError', 'Mark as error') }}
+        {{ _dropdown_item('markAsFix', 'Mark as fix') }}
+        {{ _dropdown_item('markAsUnclear', 'Mark as unclear') }}
+        {{ _dropdown_item('markAsFootnoteNumber', 'Mark as footnote number') }}
+      </ul>
+    </div>
+  </div>
+
+  <div x-data="{open: false}" class="relative" @click.outside="open=false">
+    <button class="{{ button_css }}"
+       @click.prevent="open=!open">Transliterator</button>
+    <div x-show="open" class="dropdown-pane w-80 p-2">
+      <label class="block">From:</label>
+      <div class="mb-2 flex justify-between">
+        <select class="p-1" x-model="fromScript">
+          <option value="hk">Harvard-Kyoto ("aGka" &rarr; {{ 'aGka'|d }})</option>
+          <option value="itrans">ITRANS ("a~Nka" &rarr; {{ 'aGka'|d }})</option>
+          <option value="optitrans">OPTITRANS ("anka" &rarr; {{ 'aGka'|d }})</option>
+        </select>
+      </div>
+
+      <label class="block">To:</label>
+      <div class="mb-2 flex justify-between">
+        <select class="p-1" x-model="toScript">
+          <option value="devanagari">Devanagari</option>
+          <option value="iast">IAST</option>
+        </select>
+      </div>
+
+      <button class="mt-4 btn btn-basic block w-full"
+          @click.prevent="transliterate; open=false">
+          Transliterate selected text
+      </button>
+    </div>
+  </div>
+
+  <div x-data="{open: false}" class="relative">
+    <button class="{{ button_css }}"
+       @click.prevent="open=!open"
+       @click.outside="open=false">Characters</button>
+    <div x-show="open" class="p-2 dropdown-pane w-60" @click.prevent="copyCharacter">
+      <p class="text-xs text-center mb-2">Click a character to copy it.</p>
+      <ul class="text-center">
+        {{ _latin_char_row('ā á â à', 'grid-cols-8') }}
+        {{ _latin_char_row('ī í î ì', 'grid-cols-8') }}
+        {{ _latin_char_row('ū ú û ù', 'grid-cols-8') }}
+        {{ _latin_char_row('ṛ ṝ ḷ ḹ', 'grid-cols-8') }}
+        {{ _latin_char_row('ē é ê è', 'grid-cols-8') }}
+        {{ _latin_char_row('ō ó ô ò', 'grid-cols-8') }}
+        {{ _latin_char_row('ḥ ṁ ṃ', 'grid-cols-6') }}
+        {{ _latin_char_row('ṅ ñ ṇ', 'grid-cols-6') }}
+        {{ _latin_char_row('ṭ ḍ ś ṣ ç', 'grid-cols-10') }}
+        {{ _devanagari_char_row('&#x0964; &#x0965; &#x093d; &#x0970; &#xa8f2; &#xa8f3;',
+            'grid-cols-6') }}
+      </ul>
+    </div>
+  </div>
+
+  <a class="{{ button_css }}"
+      href="{{ url_for('proofing.editor_guide') }}" target="_blank">Help</a> 
+</nav>
+{% endmacro %}
+
+
+{# Plain text box #}
+{% macro text_box(data) %}
+<div class="flex flex-col flex-1 border border-r-slate-400">
+  <div class="bg-slate-200 flex justify-between">
+    <div>
+      <button
+          type="button"
+          class="btn bg-sky-700 text-white m-2 hover:bg-sky-900"
+          @click="runOCR"
+          :disabled="isRunningOCR"
+          x-text="isRunningOCR ? 'Running ...' : 'Run OCR'">
+        Run OCR
+      </button>
+    </div>
+    <div>
+      {{ alpine_button("A<sup>+</sup>", "increaseTextSize") }}
+      {{ alpine_button("A<sup>-</sup>", "decreaseTextSize") }}
+    </div>
+  </div>
+  <textarea id="content" name="content" required=""
+    class="grow p-2 md:p-4 w-full resize-none"
+    :style="`font-size: ${textZoom}rem`"
+    @keydown="hasUnsavedChanges = true" spellcheck="false">{{ data }}</textarea>
+</div>
+{% endmacro %}
+
+
+{# Raw image viewer #}
+{% macro image_box() %}
+<div class="flex flex-col flex-1 border bg-slate-100">
+  <div class="bg-slate-200">
+    {{ alpine_button("&#x1f50d;<sup>+</sup>", "increaseImageZoom") }}
+    {{ alpine_button("&#x1f50d;&#x00b0;", "resetImageZoom") }}
+    {{ alpine_button("&#x1f50d;<sup>-</sup>", "decreaseImageZoom") }}
+    {{ osd_button("osd-rotate-left", "&#x27f2;") }}
+    {{ osd_button("osd-rotate-right", "&#x27f3;") }}
+  </div>
+
+  <div id="osd-image" class="grow">
+  </div>
+</div>
+{% endmacro %}
+

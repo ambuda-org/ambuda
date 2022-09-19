@@ -3,7 +3,7 @@ from flask_login import FlaskLoginClient
 
 import ambuda.database as db
 from ambuda import create_app
-from ambuda.consts import TEXT_CATEGORIES
+from ambuda.consts import BOT_USERNAME, TEXT_CATEGORIES
 from ambuda.queries import get_engine, get_session
 
 
@@ -55,36 +55,60 @@ def initialize_test_db():
     )
     session.add(dictionary_entry)
 
+    # Bot
+    bot = db.User(username=BOT_USERNAME, email="ambuda-bot@ambuda.org")
+    bot.set_password("password")
+    session.add(bot)
+    session.flush()
+
     # Auth
     rama = db.User(username="ramacandra", email="rama@ayodhya.com")
     rama.set_password("maithili")
     session.add(rama)
     session.flush()
 
+    # Moderator
+    moderator = db.User(username="user-mod", email="mod@ambuda.org")
+    moderator.set_password("secret password")
+    session.add(moderator)
+    session.flush()
+
     # Admin
-    admin = db.User(username="akprasad", email="arun@ambuda.org")
+    admin = db.User(username="u-admin", email="admin@ambuda.org")
     admin.set_password("secret password")
     session.add(admin)
     session.flush()
 
     # Roles
-    proofreader_role = db.Role(name=db.SiteRole.P1.value)
+    p1_role = db.Role(name=db.SiteRole.P1.value)
+    p2_role = db.Role(name=db.SiteRole.P2.value)
+    moderator_role = db.Role(name=db.SiteRole.MODERATOR.value)
     admin_role = db.Role(name=db.SiteRole.ADMIN.value)
-    session.add(proofreader_role)
+    session.add(p1_role)
+    session.add(p2_role)
+    session.add(moderator_role)
     session.add(admin_role)
     session.flush()
 
-    rama_role_proofreader = db.UserRoles(user_id=rama.id, role_id=proofreader_role.id)
-    akprasad_role_proofreader = db.UserRoles(
-        user_id=admin.id, role_id=proofreader_role.id
+    rama.roles = [p1_role, p2_role]
+    moderator.roles = [p1_role, p2_role, moderator_role]
+    admin.roles = [p1_role, p2_role, admin_role]
+    session.add(rama)
+    session.add(moderator)
+    session.add(admin)
+    session.flush()
+
+    # Blog
+    post = db.BlogPost(
+        title="Sample post",
+        slug="sample-post",
+        content="This is a sample post.",
+        author_id=admin.id,
     )
-    session.add(rama_role_proofreader)
-    session.add(akprasad_role_proofreader)
+    session.add(post)
+    session.commit()
 
-    akprasad_role_admin = db.UserRoles(user_id=admin.id, role_id=admin_role.id)
-    session.add(akprasad_role_admin)
-
-    # Proofreading
+    # Proofing
     board = db.Board(title="board")
     session.add(board)
     session.flush()
@@ -144,7 +168,14 @@ def rama_client(flask_app):
 
 
 @pytest.fixture()
+def moderator_client(flask_app):
+    session = get_session()
+    moderator = session.query(db.User).filter_by(username="user-mod").first()
+    return flask_app.test_client(user=moderator)
+
+
+@pytest.fixture()
 def admin_client(flask_app):
     session = get_session()
-    user = session.query(db.User).filter_by(username="akprasad").first()
+    user = session.query(db.User).filter_by(username="u-admin").first()
     return flask_app.test_client(user=user)

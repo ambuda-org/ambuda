@@ -30,7 +30,6 @@ from xml.etree import ElementTree as ET
 
 from indic_transliteration import sanscript
 
-
 Attributes = NewType("Attributes", dict[str, str])
 
 
@@ -45,9 +44,9 @@ class Rule:
     #: desired format.
     attrib_fn: Callable
     #: Text to insert before this element's `text` field.
-    text_before: str
+    text_before: str = ""
     #: Text to insert after this element's `tail` field.
-    text_after: str
+    text_after: str = ""
 
     def __call__(self, el: ET.Element):
         el.tag = self.tag
@@ -242,6 +241,7 @@ tei_header_xml = {
     "publisher": None,
     "bibl": elem("p"),
     "licence": elem("p"),
+    "ref": Rule("a", _rename({"target": "href"})),
 }
 
 

@@ -1,6 +1,15 @@
 {% import 'macros/components.html' as components %}
 
 
+{# Display a title+subtitle pair. #}
+{% macro title_and_subtitle(title, subtitle = none) %}
+<header class="mb-4">
+  <h1 class="font-bold text-4xl">{{ title|safe }}</h1>
+  {% if subtitle %}<p class="mt-1 text-lg text-slate-500">{{ subtitle|safe }}</p>{% endif %}
+</header>
+{% endmacro %}
+
+
 {% macro project_header_nested(label, project) %}
 {% set url = url_for("proofing.project.summary", slug=project.slug) %}
 {{ nested_header(label, project.title, url) }}
@@ -8,22 +17,51 @@
 
 
 {% macro nested_header(label, title, url) %}
-<header class="a-hover-underline font-bold text-3xl my-4">
+<header class="a-hover-underline font-bold text-3xl mb-4">
   <h1>{{ label }}: <a class="text-slate-400" href="{{ url }}">{{ title }}</a></h1>
 </header>
 {% endmacro %}
 
 
+{# Main-level sidebar. #}
+{% macro main_nav(active = none) %}
+{% macro _link(label, route, text) -%}
+{% if active == label %}<li class="font-bold text-black">{% else %}<li>{% endif %}
+<a href="{{ url_for(route) }}">{{ text }}</a>
+</li>
+{%- endmacro %}
+
+<nav class="rounded bg-slate-100 text-slate-500 p-4 a-hover-underline text-sm">
+<h1 class="font-bold">{{ _('Help') }}</h1>
+<ul class="list-disc pl-6">
+  {{ _link('beginners', "proofing.beginners_guide", _("Beginner's guide")) }}
+  {{ _link('complete', "proofing.complete_guide", _("Complete guide")) }}
+  {{ _link('manual', "proofing.editor_guide", _("Editor manual")) }}
+</ul>
+
+<h1 class="mt-2 font-bold">{{ _('Contribute') }}</h1>
+<ul class="list-disc pl-6">
+  {{ _link('projects', "proofing.index", _("Ongoing projects")) }}
+  {{ _link('create', "proofing.create_project", _("Create project")) }}
+  {{ _link('changes', "proofing.recent_changes", _("Recent changes")) }}
+  {{ _link('tagging', "proofing.tagging.index", _("Tagging")) }}
+  {{ _link('talk', "proofing.talk", _("Talk")) }}
+</ul>
+</nav>
+{% endmacro %}
+
+
 {# Project-level tabs. #}
-{% macro project_nav(project, active, is_admin = false) %}
+{% macro project_nav(project, active, is_mod = false) %}
 {% set routes = [
-  ("summary",  "Summary",  url_for("proofing.project.summary", slug=project.slug)),
-  ("talk",     "Talk",     url_for("proofing.talk.board", slug=project.slug)),
-  ("edit",     "Edit",     url_for("proofing.project.edit", slug=project.slug)),
-  ("download", "Download", url_for("proofing.project.download", slug=project.slug)),
+  ("summary",  _("Summary"),   url_for("proofing.project.summary", slug=project.slug)),
+  ("activity", _("Activity"),  url_for("proofing.project.activity", slug=project.slug)),
+  ("talk",     _("Talk"),      url_for("proofing.talk.board", slug=project.slug)),
+  ("edit",     _("Edit"),      url_for("proofing.project.edit", slug=project.slug)),
+  ("download", _("Download"),  url_for("proofing.project.download", slug=project.slug)),
 ] %}
-{% if is_admin %}{% set routes = routes + [
-  ("admin",    "Admin",    url_for("proofing.project.admin", slug=project.slug)),
+{% if is_mod %}{% set routes = routes + [
+  ("admin",    _("Admin"),     url_for("proofing.project.admin", slug=project.slug)),
 ] %}{% endif %}
 
 {{ components.tabs(routes, active) }}
@@ -31,13 +69,13 @@
 
 
 {# User-level tabs. #}
-{% macro user_tabs(user, active, is_admin = false) %}
+{% macro user_tabs(user, active, is_mod = false) %}
 {% set routes = [
-  ("about", "About", url_for("proofing.users.user", username=user.username)),
-  ("edits", "Edits", url_for("proofing.users.user_edits", username=user.username)),
+  ("about",    _("Overview"),  url_for("proofing.user.summary", username=user.username)),
+  ("activity", _("Activity"),  url_for("proofing.user.activity", username=user.username)),
 ] %}
-{% if is_admin %}{% set routes = routes + [
-  ("admin", "Admin", url_for("proofing.users.user_admin", username=user.username)),
+{% if is_mod %}{% set routes = routes + [
+  ("admin",    _("Admin"),     url_for("proofing.user.admin", username=user.username)),
 ] %}{% endif %}
 
 {{ components.tabs(routes, active) }}
@@ -78,28 +116,59 @@
 {% endmacro %}
 
 
+{# A revision in an activity log. #}
+{% macro revision_li(r) %}
+<li class="my-2">
+  {% set revision_url = url_for('proofing.page.revision',
+      project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
+  {% set page_url = url_for('proofing.page.edit',
+      project_slug=r.project.slug, page_slug=r.page.slug) %}
+  {% set author_url = url_for('proofing.user.summary',
+      username=r.author.username) %}
+  {% set page_title = r.project.title + "/" + r.page.slug %}
+  {% set author = r.author.username %}
+
+  <span class="{{ revision_colors(r.status.name) }} inline-block w-2 h-2 mr-0.5 rounded-sm"></span>
+  <a class="text-slate-400 text-sm p-0.5 rounded"
+      href="{{ revision_url }}">{{ r.created.strftime("%Y-%m-%d %H:%M") }}</a>
+  <a href="{{ page_url }}">{{ page_title }}</a>
+  by <a href="{{ author_url }}">{{ author }}</a>
+  {% if r.summary %}<i>({{ r.summary }})</i>{% endif %}
+</li>
+{% endmacro %}
+
+
+{# A project in an activity log #}
+{% macro project_li(p) %}
+<li class="my-2 flex justify-between">
+  {% set project_url = url_for('proofing.project.summary', slug=p.slug) %}
+  {% set creator = p.creator.username %}
+  {% set creator_url = url_for('proofing.user.summary', username=creator) %}
+  <div>
+    <span class="border border-slate-500 inline-block w-2 h-2 mr-0.5 rounded-sm"></span>
+    <a class="text-slate-400 text-sm p-0.5 rounded"
+        href="{{ project_url }}">{{ p.created_at.strftime("%Y-%m-%d %H:%M") }}</a>
+    {{ p.title }} created by <a href="{{ creator_url }}">{{ creator }}</a>
+</li>
+{% endmacro %}
+
+
+{# List various activity (edits, new projects, etc.) #}
+{% macro activity_log(activity) %}
+<ul class="a-hover-underline">
+{% for type_, _, obj in activity %}
+  {% if type_ == 'revision' %}{{ revision_li(obj) }}
+  {% elif type_ == 'project' %}{{ project_li(obj) }}
+  {% endif %}
+{% endfor %}
+</ul>
+{% endmacro %}
+
+
 {# List the given revisions. Revisions might correspond to multiple pages. #}
 {% macro revision_list(revisions) %}
 <ul class="a-hover-underline">
-  {% for r in revisions %}
-  <li class="my-2">
-    {% set revision_url = url_for('proofing.page.revision',
-        project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
-    {% set page_url = url_for('proofing.page.edit',
-        project_slug=r.project.slug, page_slug=r.page.slug) %}
-    {% set author_url = url_for('proofing.users.user',
-        username=r.author.username) %}
-    {% set page_title = r.project.title + "/" + r.page.slug %}
-    {% set author = r.author.username %}
-
-    <span class="{{ revision_colors(r.status.name) }} inline-block w-2 h-2 mr-0.5 rounded-full"></span>
-    <a class="text-slate-400 text-sm p-0.5 rounded"
-        href="{{ revision_url }}">{{ r.created.strftime("%Y-%m-%d %H:%M") }}</a>
-    <a href="{{ page_url }}">{{ page_title }}</a>
-    by <a href="{{ author_url }}">{{ author }}</a>
-    {% if r.summary %}<i>({{ r.summary }})</i>{% endif %}
-  </li>
-  {% endfor %}
+  {% for r in revisions %}{{ revision_li(r) }}{% endfor %}
 </ul>
 {% endmacro %}
 
@@ -113,7 +182,7 @@
         project_slug=r.project.slug, page_slug=r.page.slug, revision_id=r.id) %}
     {% set page_url = url_for('proofing.page.edit',
         project_slug=r.project.slug, page_slug=r.page.slug) %}
-    {% set author_url = url_for('proofing.users.user',
+    {% set author_url = url_for('proofing.user.summary',
         username=r.author.username) %}
     {% set page_title = r.project.title + "/" + r.page.slug %}
     {% set author = r.author.username %}

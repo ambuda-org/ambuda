@@ -1,4 +1,4 @@
-"""Utilities for working with parse data.
+"""Utilities for interpreting parsed words.
 
 This module is quite sloppy and will likely change in the future.
 """
@@ -60,7 +60,9 @@ LAKARAS = {
     "lrt": "simple future",
     "lot": "imperative",
     "lan": "imperfect",
+    "lan_unaug": "imperfect (unaugmented)",
     "vidhilin": "optative",
+    "ashirlin": "benedictive",
     "lun": "aorist",
     "lun_unaug": "aorist (unaugmented)",
     "lrn": "conditional",

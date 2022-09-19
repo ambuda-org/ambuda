@@ -9,10 +9,9 @@ Create Date: 2022-07-22 00:20:54.155505
 from datetime import datetime
 from enum import Enum
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy import orm
-
 
 # revision identifiers, used by Alembic.
 revision = "0d3fce7c5341"

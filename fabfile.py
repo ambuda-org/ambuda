@@ -4,7 +4,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fabric import Connection, task
 
-
 load_dotenv()
 APP_DIRECTORY = Path(os.environ["SERVER_APP_DIRECTORY"])
 UPLOADS_DIRECTORY = Path(os.environ["SERVER_UPLOADS_DIRECTORY"])
@@ -50,7 +49,7 @@ def init_repo(_):
     url = "https://github.com/ambuda-org/ambuda.git"
     with c.cd(APP_DIRECTORY):
         c.run("git init .")
-        c.run(f"git remote add origin https://github.com/ambuda-org/ambuda.git")
+        c.run(f"git remote add origin {url}")
     deploy(c)
 
 
@@ -67,13 +66,8 @@ def deploy_to_commit(_, pointer: str):
 
         # Install project requirements.
         c.run("python3.10 -m venv env")
-        with c.prefix("source env/bin/activate"):
-            c.run("pip install -r requirements.txt")
-
-        # Build production frontend assets.
-        c.run("npm install")
-        c.run("make css-prod")
-        c.run("make js-prod")
+        c.run("make install-python")
+        c.run("make install-frontend")
 
         # Verify that unit tests pass on prod.
         with c.prefix("source env/bin/activate"):
@@ -83,6 +77,10 @@ def deploy_to_commit(_, pointer: str):
         env_path = str(APP_DIRECTORY / ".env")
         c.put("production/prod-env", env_path)
 
+        # Build i18n and l10n files
+        with c.prefix("source env/bin/activate"):
+            c.run("make babel-compile")
+
         # Verify that the production setup is well-formed.
         with c.prefix("source env/bin/activate"):
             c.run("python -m scripts.check_prod_setup")
@@ -91,7 +89,7 @@ def deploy_to_commit(_, pointer: str):
         # fails, we'll affect the production application.
         # FIXME: but, what if we upgrade then app restart fails? Should we stop
         # the prod server first? Surely there's a saner way to manage this.
-        upgrade_db(_)
+        c.run("make upgrade")
 
     print("Restarting application ...")
     restart_application(_)
@@ -99,7 +97,8 @@ def deploy_to_commit(_, pointer: str):
     print("Restarting Celery task runner ...")
     restart_celery(_)
 
-    print("Complete.")
+    c.local("python test_prod.py")
+    print("Deploy complete")
 
 
 @task
@@ -115,12 +114,6 @@ def rollback(_, commit):
     :param commit: the commit SHA to roll back to.
     """
     deploy_to_commit(_, commit)
-
-
-def upgrade_db(_):
-    """Upgrade to the latest database migration."""
-    with c.prefix("source env/bin/activate"):
-        c.run("alembic upgrade head")
 
 
 @task

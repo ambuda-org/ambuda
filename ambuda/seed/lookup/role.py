@@ -1,12 +1,10 @@
+import logging
+
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
 from ambuda.enums import SiteRole
 from ambuda.seed.utils.itihasa_utils import create_db
-
-
-def log(*a):
-    print(*a)
 
 
 def run():
@@ -25,13 +23,13 @@ def run():
             for name in new_names:
                 status = db.Role(name=name)
                 session.add(status)
-                log(f"Created role: {name}")
+                logging.debug(f"Created role: {name}")
             session.commit()
 
-    log("Done. The following roles are defined:")
+    logging.debug("Done. The following roles are defined:")
     with Session(engine) as session:
         for r in session.query(db.Role).all():
-            print(f"- {r.name}")
+            logging.debug(f"- {r.name}")
 
 
 if __name__ == "__main__":

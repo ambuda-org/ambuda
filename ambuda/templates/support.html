@@ -1,6 +1,9 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
 
-{% block title %}Support | Ambuda{% endblock %}
+
+{% block title %}{{ m.title('Support') }}{% endblock %}
+
 
 {% block meta_description -%}
 Learn more about all the ways you can help Ambuda grow.
@@ -27,7 +30,7 @@ Learn more about all the ways you can help Ambuda grow.
 
 {% block content %}
 <div class="prose">
-<h1>Support</h1>
+<h1>{{ _('Support') }}</h1>
 
 <p>Ambuda is building a complete archive of traditional Sanskrit literature.
 This is a massive undertaking on an urgent timeline: Sanskrit manuscripts don't
@@ -119,8 +122,6 @@ url }}">our new proofreading tool</a> to transcribe and proofread these texts.
   <li>Supporting and moderating our proofreading community as a whole.</li>
 </ul>
 
-  
-</div>
 
 {{ _h('contribute_text') }}
 <div class="prose">
@@ -133,6 +134,8 @@ url }}">our new proofreading tool</a> to transcribe and proofread these texts.
 
 
 {{ _h('tagging') }}
+</div>
+
 <section class="p-4 my-4 bg-slate-100 a-underline">
 <p>We're still setting up the workflow here. Please check back soon.</p>
 </section>

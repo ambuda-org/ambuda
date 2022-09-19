@@ -1,0 +1,20 @@
+{% extends 'proofing/base-sidebar.html' %}
+{% import "macros/components.html" as components %}
+{% import "macros/forms.html" as mf %}
+{% import "macros/proofing.html" as m %}
+
+
+{% block title %}Activity: {{ project.title }} | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}
+
+
+{% block content %}
+{{ m.project_header_nested('Activity', project) }}
+{{ m.project_nav(project=project, active='activity', is_mod=current_user.is_moderator) }}
+{% set search_url = url_for("proofing.project.search", slug=project.slug)  %}
+
+{{ m.activity_log(recent_activity) }}
+
+{% endblock %}

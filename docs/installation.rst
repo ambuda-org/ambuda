@@ -73,6 +73,15 @@ Or the following commands for Python scripts:
     load_dotenv(".env")
 
 
+Docker setup (beta)
+-------------------
+
+This feature is still under development and may change. You can alternatively
+run a local development environment using Docker by running:
+
+    make start-docker
+
+
 Data dependencies
 -----------------
 

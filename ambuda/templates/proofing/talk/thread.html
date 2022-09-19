@@ -1,4 +1,5 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
+{% import "macros/components.html" as mc %}
 {% import "macros/proofing.html" as m %}
 {% from "macros/forms.html" import field, show_errors_if_any %}
 
@@ -9,7 +10,7 @@
   {% set username = post.author.username %}
   <div class="text-sm mb-2 text-slate-500 a-hover-underline flex justify-between">
     <div>
-      <a class="font-bold" href="{{ url_for("proofing.users.user", username=username) }}">{{ username }}</a>
+      <a class="font-bold" href="{{ url_for("proofing.user.summary", username=username) }}">{{ username }}</a>
       &#xb7; {{ post.created_at|time_ago }}
       {% if (post.updated_at - post.created_at).seconds > 600 %}
       <span class="italic">(edited {{ post.updated_at|time_ago }})</span>
@@ -30,12 +31,15 @@
 {% endmacro %}
 
 
-{% block title %}{{ thread.title }} | Ambuda{% endblock %}
+{% block title %}{{ mc.title(thread.title) }}{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
 
 
 {% block content %}
 {{ m.project_header_nested("Talk", project) }}
-{{ m.project_nav(project=project, active='talk', is_admin=current_user.is_admin) }}
+{{ m.project_nav(project=project, active='talk', is_mod=current_user.is_moderator) }}
 
 <header class="flex justify-between items-center bg-slate-100 p-4">
   <h1 class="text-xl font-bold">{{ thread.title }}</h1>
@@ -49,7 +53,7 @@
 </div>
 
 <div class="mt-8 ml-4">
-<a href="{{ url_for('proofing.talk.create_post', project_slug=project.slug, thread_id=thread.id) }}" class="btn btn-submit">Add a post</a>
+<a href="{{ url_for('proofing.talk.create_post', project_slug=project.slug, thread_id=thread.id) }}" class="btn btn-submit">{{ _('Add a post') }}</a>
 </div>
 
 {% endblock %}

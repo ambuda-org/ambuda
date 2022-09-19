@@ -1,9 +1,17 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
+
+{% import "macros/proofing.html" as m %}
+
+
+{% block sidebar %}{{ m.main_nav('tagging') }}{% endblock %}
+
 
 {% block content %}
-<div class="prose">
-<h1>Tagging</h1>
+{{ m.title_and_subtitle(
+    _("Tagging"),
+    "(coming soon) Tools for tagging and parsing Sanskrit texts.") }}
 
+<div class="prose">
 <p class="p-1 bg-yellow-200">These pages are a work in progress.</p>
 
 <p>We aim to have a full word-by-word analysis for all texts in our library.</p>

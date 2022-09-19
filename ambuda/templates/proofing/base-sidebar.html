@@ -1,0 +1,46 @@
+{% extends 'header-main-footer.html' %}
+
+{% import "macros/components.html" as components %}
+
+
+{% block meta_description -%}
+A state-of-the-art Sanskrit proofreading platform with best-in-class OCR. Join today!
+{%- endblock %}
+
+
+{% block header %}
+<div class="text-sky-900 bg-slate-100 border-b mb-4">
+  {% include "include/header-login.html" %}
+</div>
+{% endblock %}
+
+
+{% block main %}
+<article class="p-4 xl:p-0 max-w-6xl mx-auto mb-24">
+
+{{ components.flash_messages() }}
+
+{% if not current_user.is_authenticated %}
+<div class="bg-slate-100 p-4 pb-8 mb-8">
+  <p class="mb-4">{% trans %}
+  Thousands of Sanskrit texts are available only in print. Join our global
+  volunteer effort to digitize these texts and make them accessible to all.
+  {% endtrans %}</p>
+
+  <nav>
+  <a class="btn p-2 bg-black border border-black text-white transition
+  hover:bg-white hover:text-black" href="{{ url_for('auth.register') }}">{{ _('Register') }}</a>
+  <a class="btn p-2 border border-slate-400" href="{{ url_for('auth.sign_in') }}">{{ _('Sign in') }}</a>
+  </nav>
+</div>
+{% endif %}
+
+<div class="md:flex md:mt-8">
+  <div class="md:mr-8 md:min-w-[16rem]">{% block sidebar %}{% endblock %}</div>
+  <div class="grow mt-8 md:mt-0">
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+</article>
+{% endblock %}

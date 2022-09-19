@@ -1,7 +1,8 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
 
 
-{% block title %}Code and Data | Ambuda{% endblock %}
+{% block title %}{{ m.title(_('Code and Data')) }}{% endblock %}
 
 
 {% block meta_description %}All of the resources we used to build Ambuda.{% endblock %}
@@ -15,9 +16,10 @@
 {% set cdsl = "https://www.sanskrit-lexicon.uni-koeln.de" %}
 {% set dcs = "http://sanskrit-linguistics.org/dcs/" %}
 
+
 {% block content %}
 <div class="prose">
-<h1>Code and Data</h1>
+<h1>{{ _('Code and Data') }}</h1>
 
 <p>All of our code is available <a href="{{ code_url }}">on GitHub</a>. We use
 Python (Flask) for the backend, Tailwind for CSS, and native JavaScript for the

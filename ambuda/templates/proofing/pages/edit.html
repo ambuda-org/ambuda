@@ -1,79 +1,19 @@
 {% extends 'proofing/base.html' %}
 {% import "macros/proofing.html" as m %}
-{% import "macros/components.html" as components %}
+{% import "macros/components.html" as site_components %}
+{% import "proofing/pages/editor-components.html" as editor %}
 
 
-{% macro osd_button(id, text) %}
-<button type="button" id="{{ id }}" class="p-2 hover:bg-slate-300">{{ text|safe }}</button>
-{% endmacro %}
-
-
-{% macro alpine_button(text, click) %}
-<button type="button" class="p-2 hover:bg-slate-300" @click="{{ click }}">
-  {{ text|safe }}
-</button>
-{% endmacro %}
-
-
-{# Page information and navigation options. #}
-{% macro small_header(project, cur, prev, next) %}
-<header class="border-b py-2 flex justify-between items-center mb-4 a-hover-underline">
-  <h1 class="text">
-    <a class="text-black font-bold"
-        href="{{ url_for("proofing.project.summary", slug=project.slug) }}">
-       {{ project.title }}</a>
-    / {{ cur.slug }}
-  </h1>
-  {% set edit_url = url_for("proofing.page.edit", project_slug=project.slug, page_slug=cur.slug) %}
-  {% set history_url = url_for("proofing.page.history", project_slug=project.slug, page_slug=cur.slug) %}
-  <nav class="flex text-slate-700 text-md">
-    <a class="block p-2" href="{{ edit_url }}">Edit</a>
-    <a class="block p-2" href="{{ history_url }}">History</a>
-    {% set prev_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=prev.slug) %}
-    {% set next_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=next.slug) %}
-    <a class="block p-2" href="{{ prev_url }}">&larr;</a>
-    <a class="block p-2" href="{{ next_url }}">&rarr;</a>
-  </nav>
-</header>
-{% endmacro %}
-
-
-{% macro dropdown_item(fn, text) %}
-<li>
-  <button class="dropdown-item" @click.prevent="{{ fn }}">{{ text }}</button>
-</li>
-{% endmacro %}
-
-
-{# Editing toolbar. #}
-{% macro toolbar() %}
-<nav class="border my-2 rounded flex">
-  <div x-data="{open: false}" class="relative">
-    <button class="block p-2 hover:bg-slate-100"
-       @click.prevent="open=!open"
-       @click.outside="open=false">Layout</button>
-    <div x-show="open" class="dropdown-pane">
-      <ul class="text-sm" @click.prevent="open=false">
-        {{ dropdown_item('displaySideBySide', 'Image right, text left') }}
-        {{ dropdown_item('displayTopAndBottom', 'Image above, text below') }}
-      </ul>
-    </div>
-  </div>
-
-  <div x-data="{open: false}" class="relative">
-    <button class="block p-2 hover:bg-slate-100"
-       @click.prevent="open=!open"
-       @click.outside="open=false">Mark text</button>
-    <div x-show="open" class="dropdown-pane">
-      <ul class="text-sm" @click.prevent="open=false">
-        {{ dropdown_item('markAsError', 'Mark as error') }}
-        {{ dropdown_item('markAsFix', 'Mark as fix') }}
-        {{ dropdown_item('markAsUnclear', 'Mark as unclear') }}
-        {{ dropdown_item('markAsFootnoteNumber', 'Mark as footnote number') }}
-      </ul>
-    </div>
-  </div>
-</nav>
+{# Render a radiobutton as a clickable button. #}
+{% macro _status(field, peer_classes) %}
+{# Use wrapping div so that we can use the Tailwind "peer" class. #}
+<div>
+  {{ field(class_="hidden peer") }}
+  {{ field.label(class_="block border rounded p-2 mr-4
+  text-slate-700 border-slate-300 hover:bg-slate-300 "
+  + peer_classes
+  + " peer-checked:font-bold cursor-pointer") }}
+</div>
 {% endmacro %}
 
 
@@ -83,7 +23,7 @@
 {% block main %}
 <article class="p-4">
   {% if not current_user.is_authenticated %}
-  {% call components.p_warning() %}
+  {% call site_components.p_warning() %}
   {% set url = url_for('auth.register') %}
   Since you are not logged in, some functions (such as the OCR button) have
   been disabled. To use all website features, please <a class="underline"
@@ -91,9 +31,8 @@
   {% endcall %}
   {% endif %}
 
-  {{ small_header(project, cur=cur, prev=prev, next=next) }}
-  {{ m.page_status(cur.status.name) }}
-  {{ components.flash_messages() }}
+  {{ editor.navigation_bar(project, cur=cur, prev=prev, next=next) }}
+  {{ site_components.flash_messages() }}
 
   {% if conflict %}
   <pre class="p-2 bg-slate-100 my-4">{{ conflict.content }}</pre>
@@ -103,53 +42,30 @@
     {{ form.csrf_token }}
     {{ form.version }}
 
-    {{ toolbar() }}
+    {{ editor.menu_bar() }}
     <div :class="layoutClasses">
-      {# Text box #}
-      <div class="flex flex-col flex-1 border border-r-slate-400">
-        <div class="bg-slate-200 flex justify-between">
-          <div>
-            <button
-                type="button"
-                class="btn bg-sky-700 text-white m-2 hover:bg-sky-900"
-                @click="runOCR"
-                :disabled="isRunningOCR"
-                x-text="isRunningOCR ? 'Running ...' : 'Run OCR'">
-              Run OCR
-            </button>
-          </div>
-          <div>
-            {{ alpine_button("A<sup>+</sup>", "increaseTextSize") }}
-            {{ alpine_button("A<sup>-</sup>", "decreaseTextSize") }}
-          </div>
-        </div>
-        <textarea id="content" name="content" required=""
-          class="grow p-2 md:p-4 w-full resize-none"
-          :style="`font-size: ${textZoom}rem`"
-          @change="hasUnsavedChanges = true">{{ form.content.data or "" }}</textarea>
-      </div>
-
-      {# Raw image. #}
-      <div class="flex flex-col flex-1 border bg-slate-100">
-        <div class="bg-slate-200">
-          {{ alpine_button("&#x1f50d;<sup>+</sup>", "increaseImageZoom") }}
-          {{ alpine_button("&#x1f50d;&#x00b0;", "resetImageZoom") }}
-          {{ alpine_button("&#x1f50d;<sup>-</sup>", "decreaseImageZoom") }}
-          {{ osd_button("osd-rotate-left", "&#x27f2;") }}
-          {{ osd_button("osd-rotate-right", "&#x27f3;") }}
-        </div>
-
-        <div id="osd-image" class="grow">
-        </div>
-      </div>
+      {{ editor.text_box(form.content.data or "") }}
+      {{ editor.image_box() }}
     </div>
 
-    <div class="p-4 mt-4 bg-slate-200">
+    <div class="mt-8 p-4 border bg-slate-200">
       {{ form.summary.label(class_="text-slate-600 mb-2 block") }}
-      {{ form.summary(class_="block rounded bg-white w-full mb-4 p-2") }}
+      {{ form.summary(class_="block rounded bg-white w-full mb-4 p-2", placeholder="Fixed various OCR errors") }}
 
-      {{ form.status.label(class_="text-slate-600 mb-2 block") }}
-      {{ form.status(class_="block rounded bg-white w-full mb-4 p-2") }}
+      {{ form.status.label(class_="block") }}
+      {% set radios = form.status|list %}
+      <div class="flex my-4">
+        {{ _status(radios[0],
+        "peer-checked:bg-red-200 peer-checked:text-red-800 peer-checked:border-red-300") }}
+        {{ _status(radios[1],
+        "peer-checked:bg-yellow-200 peer-checked:text-yellow-800 peer-checked:border-yellow-300") }}
+        {% if not is_r0 %}
+        {{ _status(radios[2],
+        "peer-checked:bg-green-200 peer-checked:text-green-800 peer-checked:border-green-300") }}
+        {% endif %}
+        {{ _status(radios[3],
+        "peer-checked:bg-slate-100 peer-checked:text-gray-800 peer-checked:border-gray-300") }}
+      </div>
 
       {% set cc0 = "https://creativecommons.org/publicdomain/zero/1.0/" %}
       <p class="my-4 text-sm">By saving your changes, you agree to release your
@@ -157,7 +73,7 @@
       domain) license</a>.</p>
       <input class="btn btn-submit"
              type="submit"
-             value="Publish changes"
+             value="{{ _('Publish changes') }}"
              @click="hasUnsavedChanges = false">
     </div>
   </form>

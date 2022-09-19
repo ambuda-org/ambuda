@@ -46,7 +46,24 @@ jobs:
       - name: Build docs
         run: make docs
 
-  run-tests:
+  docker-setup:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Build and run Docker images
+        run: docker-compose up --build --force-recreate -d
+
+# TODO: fix
+#       - name: Check that site is running
+#         run: curl --fail-with-body localhost:5000
+        
+      - name: Show logs on fail
+        if: ${{ failure() }}
+        run: docker logs ambuda_app_1
+
+  run-py-tests:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -66,3 +83,21 @@ jobs:
       
       - name: Check coverage
         run: coverage report --fail-under=80
+
+  run-js-tests:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+      
+      - name: Run tests and check coverage
+        run: make js-coverage

@@ -1,0 +1,27 @@
+{% extends 'blog/base.html' %}
+
+
+{% block content %}
+<div class="max-w-xl mx-auto mt-24">
+
+  <a class="block uppercase font-bold text-slate-500"
+    href="{{ url_for('blog.index') }}">&larr; All posts</a>
+
+  <header class="mt-4 mb-8">
+    <h1 class="font-bold text-4xl">{{ post.title }}</h1>
+    <p class="text-slate-500">
+      Created {{ post.created_at|time_ago }}
+      {% if current_user.is_moderator %}
+      | <a href="{{ url_for('blog.edit_post', slug=post.slug) }}">Edit</a>
+      | <a href="{{ url_for('blog.delete_post', slug=post.slug) }}">Delete</a>
+      {% endif %}
+    </p>
+  </header>
+
+  <div class="prose">
+    {{ post.content }}
+  </div>
+
+</div>
+{% endblock %}
+

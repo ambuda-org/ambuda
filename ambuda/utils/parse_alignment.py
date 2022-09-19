@@ -1,15 +1,19 @@
-"""Align word analysis data with its parent XML element."""
+"""Utils for working with a parsed block.
+
+The main task here is to align a list of tokens with an XML blob of source text.
+This is difficult because we should perform this alignment while respecting
+element boundaries and sandhi changes.
+"""
 
 from dataclasses import dataclass
 from typing import Iterator
 from xml.etree import ElementTree as ET
 
-from flask import url_for
 from indic_transliteration import sanscript
 
 from ambuda.seed.utils.sandhi_utils import AC
-from ambuda.utils.cheda import Token
-from ambuda.xml import transform, tei_xml
+from ambuda.utils.word_parses import Token
+from ambuda.utils.xml import tei_xml, transform
 
 
 @dataclass
@@ -104,7 +108,7 @@ def get_padas_for_text(text: str, iter_tokens: Iterator) -> list[Chunk]:
     return chunks
 
 
-def transliterate_text_to(xml, source, dest):
+def transliterate_text_to(xml: ET.Element, source: str, dest: str):
     for el in xml.iter("*"):
         if el.attrib.get("lang") == "en":
             continue
@@ -115,7 +119,7 @@ def transliterate_text_to(xml, source, dest):
             el.tail = sanscript.transliterate(el.tail, source, dest)
 
 
-def create_backup_parse(tokens: list[Token]) -> str:
+def create_backup_parse(tokens: list[Token]) -> ET.Element:
     div = ET.Element("s-lg")
     div.attrib["class"] = "bg-red-100 p-2"
     for token in tokens:
@@ -140,9 +144,7 @@ def create_backup_parse(tokens: list[Token]) -> str:
     return div
 
 
-def align_text_with_parse(
-    xml_blob: str, tokens: list[Token], text_slug, block_slug
-) -> ET.Element:
+def align_text_with_parse(xml_blob: str, tokens: list[Token]) -> str:
     """Align text and parse data by storing parse data on its source XML blob."""
     iter_tokens = iter(tokens)
 

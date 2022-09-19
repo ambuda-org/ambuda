@@ -1,10 +1,13 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
 
-{% block title %}Roadmap | Ambuda{% endblock %}
+
+{% block title %}{{ m.title(_('Roadmap')) }}{% endblock %}
+
 
 {% block content %}
 <div class="prose">
-<h1>Roadmap</h1>
+<h1>{{ _('Roadmap') }}</h1>
 
 <p>Loosely, our project has four phases. Polishing each of these phases is an
 unending task, but even a "good enough" version of each phase is valuable and

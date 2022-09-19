@@ -29,25 +29,11 @@ fi
 
 echo "Beginning clean install of Ambuda."
 
+make install-frontend
+make install-python
 
-# Frontend dependencies
-# =====================
-
-# Install Node dependencies.
-npm install
-
-# Build initial CSS and JavaScript.
-make css-prod js-prod
-
-
-# Python dependencies
-# ===================
-
-# Install Python dependencies.
-python3 -m venv env
-source env/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
+# i18n/l10n setup
+make babel-compile
 
 # Confirm that the setup worked.
 make test
@@ -61,6 +47,8 @@ FLASK_ENV=development
 FLASK_UPLOAD_FOLDER="$(pwd)/data/file-uploads"
 SECRET_KEY="insecure development secret key"
 SQLALCHEMY_DATABASE_URI="sqlite:///database.db"
+
+AMBUDA_BOT_PASSWORD="insecure bot password"
 
 GOOGLE_APPLICATION_CREDENTIALS="<Google API credentials>"
 EOF

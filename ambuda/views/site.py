@@ -1,7 +1,6 @@
 """Views for basic site pages."""
 
-from flask import Blueprint, render_template
-
+from flask import Blueprint, redirect, render_template, session, url_for
 
 bp = Blueprint("site", __name__)
 
@@ -9,6 +8,11 @@ bp = Blueprint("site", __name__)
 @bp.route("/")
 def index():
     return render_template("index.html")
+
+
+@bp.route("/contact")
+def contact():
+    return redirect(url_for("about.contact"))
 
 
 @bp.route("/support")
@@ -40,3 +44,9 @@ def request_too_large(e):
 @bp.app_errorhandler(500)
 def internal_server_error(e):
     return render_template("500.html"), 500
+
+
+@bp.route("/language/<language>")
+def set_language(language=None):
+    session["locale"] = language
+    return redirect(url_for("site.index"))

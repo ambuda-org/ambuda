@@ -2,17 +2,11 @@
 
 from datetime import datetime
 
-from sqlalchemy import (
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    String,
-    Text as _Text,
-)
+from sqlalchemy import Column, DateTime, String
+from sqlalchemy import Text as Text_
 from sqlalchemy.orm import relationship
 
-from ambuda.models.base import Base, pk, foreign_key, same_as
+from ambuda.models.base import Base, foreign_key, pk, same_as
 
 
 def string():
@@ -86,7 +80,7 @@ class Post(Base):
     updated_at = Column(DateTime, default=same_as("created_at"), nullable=False)
 
     #: The post content.
-    content = Column(_Text, nullable=False)
+    content = Column(Text_, nullable=False)
 
     #: The author of this post.
     author = relationship("User", backref="posts")

@@ -6,7 +6,6 @@ from sqlalchemy.orm import Session, load_only
 import ambuda.database as db
 from ambuda.seed.utils.itihasa_utils import create_db
 
-
 REPO = "https://github.com/ambuda-org/dcs.git"
 PROJECT_DIR = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_DIR / "data" / "ambuda-dcs"
@@ -64,6 +63,8 @@ def iter_parse_data(path: Path):
                     xml_id = value
                     _, _, block_slug = xml_id.partition(".")
             elif line:
+                if line.count("\t") != 2:
+                    raise ValueError(f'Line "{line}" must have exactly two tabs.')
                 buf.append(line)
             else:
                 yield block_slug, "\n".join(buf)

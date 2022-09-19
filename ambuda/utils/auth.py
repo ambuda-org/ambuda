@@ -1,10 +1,11 @@
 from functools import wraps
+from typing import Callable
 
-from flask import current_app, request
+from flask import current_app
 from flask_login import current_user
 
 
-def admin_required(func):
+def admin_required(func: Callable):
     """Allow access only to administrators.
 
     Adapted from `flask_login.utils.login_required`.

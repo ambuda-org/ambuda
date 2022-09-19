@@ -1,80 +1,85 @@
-{% extends 'proofing/base.html' %}
-{% import "macros/components.html" as components %}
+{% extends 'proofing/base-sidebar.html' %}
+{% import "macros/components.html" as mc %}
+{% import "macros/proofing.html" as m %}
 
-{% block title %}Proofing | Ambuda{% endblock %}
 
 {% macro _badge(bg) %}
 <span class="inline-block rounded-full border w-4 h-4 mr-1 {{ bg }}"></span>
 {% endmacro %}
 
+
+{% macro status_legend() %}
+<ul class="text-xs bg-slate-100 my-4 grid grid-cols-2 md:flex">
+  <li class="p-2 flex items-center">{{ _badge("bg-red-200 border-red-400") }} {{ _('Needs more work') }}</li>
+  <li class="p-2 flex items-center">{{ _badge("bg-yellow-200 border-yellow-400") }} {{ _('Proofed once') }}</li>
+  <li class="p-2 flex items-center">{{ _badge("bg-green-200 border-green-400") }} {{ _('Proofed twice') }}</li>
+  <li class="p-2 flex items-center">{{ _badge("bg-gray-200 border-gray-400") }} {{ _('Not relevant') }}</li>
+</ul>
+{% endmacro %}
+
+
+{% block title %}{{ mc.title(_('Ongoing projects')) }}{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}
+
+
 {% block content %}
-
-{{ components.flash_messages() }}
-
 <div class="prose">
-  <h1>Proofing</h1>
+<h1 class="md:!mt-0">{{ _('Ongoing projects') }}</h1>
 </div>
 
-{% if current_user.is_authenticated %}
-<div class="rounded bg-slate-100 text-slate-500 p-4 pl-8 a-hover-underline">
-<ul class="list-disc mb-4">
-  <li><a class="text-black font-bold" href="{{ url_for("proofing.beginners_guide") }}">Beginner's guide to proofing</a></li>
-  <li><a href="{{ url_for("proofing.complete_guide") }}">Complete guidelines</a></li>
-</ul>
+{% if projects %}
+{{ status_legend() }}
 
-<ul class="list-disc">
-  <li><a href="{{ url_for("proofing.create_project") }}">Create a new project</a></li>
-  <li><a href="{{ url_for("proofing.recent_changes") }}">Recent changes</a></li>
-  <li><a href="{{ url_for("proofing.tagging.index") }}">Tagging</a></li>
+<div x-data="sortableList('title')">
+
+<form class="border p-2 rounded text-sm">
+  <label class="text-slate-500">{{ _('Sort by:') }}</label>
+  <select class="bg-white" x-model="field" @change="sort">
+    <option value="title" selected>{{ _('Title') }}</option> 
+    <option value="created">{{ _('Creation date') }}</option> 
+    <option value="progress">{{ _('Progress') }}</option> 
+  </select>
+  <select class="bg-white" x-model="order" @change="sort">
+    <option value="asc" selected>{{ _('Ascending') }}</option> 
+    <option value="desc">{{ _('Descending') }}</option> 
+  </select>
+</form>
+
+<ul x-ref="list">
+  {% for p in projects %}
+  <li data-title="{{ p.title }}"
+      data-created="{{ p.created_at }}"
+      data-progress="{{ progress_per_project[p.id] }}">
+    <div class="mt-4 a-hover-underline flex justify-between items-baseline">
+      <a href="{{ url_for("proofing.project.summary", slug=p.slug) }}">{{ p.title }}</a>
+      {% set count = pages_per_project[p.id] %}
+      <span class="text-xs">
+        {{ ngettext('%(num)d page', '%(num)d pages', count) }}
+      </span>
+    </div>
+
+    <div class="flex">
+    {% for cls, fraction in statuses_per_project[p.id].items() %}
+      <div class="h-1 {{ cls }}" style="width: {{ fraction * 100 }}%"></div>
+    {% endfor %}
+    </div>
+
+    {% if p.description %}
+    <section class="mt-2 text-slate-600 text-sm">
+      {{ p.description|markdown|safe }}
+    </section>
+    {% endif %}
+  </li>
+  {% endfor %}
 </ul>
 </div>
 {% else %}
-<div class="bg-slate-100 p-4 md:p-8 my-8 pb-12">
-  <p class="mb-8">Thousands of Sanskrit texts are available only in print. Join our global
-  volunteer effort to digitize these texts and make them accessible to all.</p>
-
-  <p class="text-center">
-  <a class="btn p-4 bg-black border border-black text-white transition
-  hover:bg-white hover:text-black" href="{{ url_for('auth.register') }}">Create an account</a>
-  <a class="btn p-4 border border-slate-400" href="{{ url_for('auth.sign_in') }}">Sign in</a>
-  </p>
+<div class="prose">
+<p>There aren't any ongoing projects. <a href="{{ url_for('proofing.create_project') }}">
+    Create a new project to get started</a>.</p>
 </div>
 {% endif %}
 
-
-<div class="prose">
-<h2>Ongoing projects</h2>
-</div>
-
-<ul class="text-xs bg-slate-100 my-4 grid grid-cols-2 md:flex">
-  <li class="p-2 flex items-center">{{ _badge("bg-red-200 border-red-400") }} Needs proofing</li>
-  <li class="p-2 flex items-center">{{ _badge("bg-yellow-200 border-yellow-400") }} Proofed once</li>
-  <li class="p-2 flex items-center">{{ _badge("bg-green-200 border-green-400") }} Proofed twice</li>
-  <li class="p-2 flex items-center">{{ _badge("bg-gray-200 border-gray-400") }} Not relevant</li>
-</ul>
-
-<ul>
-{% for p in projects %}
-<li>
-  <div class="mt-4 a-hover-underline flex justify-between items-baseline">
-    <a href="{{ url_for("proofing.project.summary", slug=p.slug) }}">{{ p.title }}</a>
-    <span class="text-xs">({{ all_page_counts[p.slug] }} pages)</span>
-  </div>
-
-  <div class="flex">
-  {% for cls, width in all_counts[p.slug].items() %}
-    <div class="h-1 {{ cls }}" style="width: {{ width * 100 }}%"></div>
-  {% endfor %}
-  </div>
-
-  {% if p.description %}
-  <section class="mt-2 text-slate-600 text-sm">
-    {{ p.description|markdown|safe }}
-  </section>
-  {% endif %}
-</li>
-{% endfor %}
-</ul>
-
-</div>
 {% endblock %}

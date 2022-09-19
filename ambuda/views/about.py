@@ -1,5 +1,6 @@
-from flask import Blueprint, render_template
+"""General information about Ambuda."""
 
+from flask import Blueprint, render_template
 
 bp = Blueprint("about", __name__)
 
@@ -47,3 +48,8 @@ def contact():
 @bp.route("/terms")
 def terms():
     return render_template("about/terms.html")
+
+
+@bp.route("/privacy-policy")
+def privacy():
+    return render_template("about/privacy.html")
