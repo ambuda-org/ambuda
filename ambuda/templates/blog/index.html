@@ -13,7 +13,7 @@
 
 {{ m.flash_messages() }}
 
-<header class="text-center my-8">
+<header class="text-center mt-20 mb-8 text-slate-600">
   <h1 class="font-bold text-4xl mb-4">{{ _('Ambuda blog') }}</h1>
   <p class="a-underline">{% trans %}
   Follow our blog for project updates, volunteer opportunities, and other news
@@ -33,7 +33,7 @@
 {% for post in posts %}
 <section class="border-t border-slate-300 py-8">
   <header class="mb-2">
-    <h1 class="font-bold text-2xl">
+    <h1 class="font-bold text-3xl">
       <a class="hover:underline" href="{{ url_for('blog.post', slug=post.slug) }}">
         {{ post.title }}
       </a>
@@ -42,7 +42,7 @@
   </header>
 
   <div class="prose">
-    {{ post.content }}
+    {{ post.content|markdown|safe }}
   </div>
 </section>
 {% endfor %}
