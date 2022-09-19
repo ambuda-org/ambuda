@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from ambuda import consts
 from ambuda import database as db
-from ambuda.seed.utils.itihasa_utils import create_db
+from ambuda.seed.utils.data_utils import create_db
 
 
 def _create_bot_user(session):
