@@ -6,10 +6,11 @@
 
 import re
 
+import click
 from indic_transliteration import sanscript
 
 from ambuda.seed.utils.cdsl_utils import create_from_scratch
-from ambuda.seed.utils.itihasa_utils import create_db, fetch_text
+from ambuda.seed.utils.data_utils import fetch_text, create_db
 from ambuda.utils.dict_utils import standardize_key
 
 RAW_URL = "https://github.com/indic-dict/stardict-sanskrit/raw/master/sa-head/other-indic-entries/shabdArtha_kaustubha/shabdArtha_kaustubha.babylon"
@@ -43,12 +44,14 @@ def sak_generator(dict_blob: str):
             buf = []
 
 
-def run():
+@click.command()
+@click.option("--use-cache/--no-use-cache", default=False)
+def run(use_cache):
     print("Initializing database ...")
     engine = create_db()
 
-    print("Fetching data from GitHub ...")
-    text_blob = fetch_text(RAW_URL)
+    print(f"Fetching data from GitHub (use_cache = {use_cache})...")
+    text_blob = fetch_text(RAW_URL, read_from_cache=use_cache)
 
     print("Adding items to database ...")
     create_from_scratch(

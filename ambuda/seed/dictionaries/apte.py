@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 
 from ambuda.seed.utils import sandhi_utils
 from ambuda.seed.utils.cdsl_utils import create_from_scratch, iter_entries_as_xml
-from ambuda.seed.utils.itihasa_utils import create_db, fetch_bytes, unzip_and_read
+from ambuda.seed.utils.data_utils import fetch_bytes, unzip_and_read, create_db
 from ambuda.utils.dict_utils import standardize_key
 
 ZIP_URL = "https://www.sanskrit-lexicon.uni-koeln.de/scans/AP90Scan/2020/downloads/ap90xml.zip"

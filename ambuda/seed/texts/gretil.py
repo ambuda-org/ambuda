@@ -8,7 +8,7 @@ from pathlib import Path
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
-from ambuda.seed.utils.itihasa_utils import create_db
+from ambuda.seed.utils.data_utils import create_db
 from ambuda.utils.tei_parser import Document, parse_document
 
 
