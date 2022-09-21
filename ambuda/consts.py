@@ -25,4 +25,13 @@ TEXT_CATEGORIES = {
     ],
 }
 
+
 BOT_USERNAME = "ambuda-bot"
+
+
+LOCALES = [
+    Locale("sa", "sa", "Sanskrit"),
+    Locale("en", "en", "English"),
+    Locale("te", "mr_IN", ""),
+    Locale("te", "te_IN", ""),
+]
