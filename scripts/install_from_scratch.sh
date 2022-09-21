@@ -32,8 +32,8 @@ echo "Beginning clean install of Ambuda."
 make install-frontend
 make install-python
 
-# i18n/l10n setup
-make translation-compile
+# compile message catalog
+make catalog-compile
 
 # Confirm that the setup worked.
 make test

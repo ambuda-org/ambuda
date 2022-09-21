@@ -171,5 +171,6 @@ babel-update: py-venv-check
 babel-compile: py-venv-check
 	pybabel compile -d ambuda/translations -D "messages text"
 
-translation-compile:
+# Obtain translation files from i18n repo and compile message catalogue
+catalog-compile:  py-venv-check
 	@python fetch.py
