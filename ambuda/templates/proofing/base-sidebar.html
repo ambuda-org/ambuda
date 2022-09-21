@@ -9,7 +9,9 @@ A state-of-the-art Sanskrit proofreading platform with best-in-class OCR. Join t
 
 
 {% block header %}
-{% include "include/header-login.html" %}
+<div class="text-sky-900 bg-slate-100 border-b mb-4">
+  {% include "include/header-login.html" %}
+</div>
 {% endblock %}
 
 
@@ -20,13 +22,15 @@ A state-of-the-art Sanskrit proofreading platform with best-in-class OCR. Join t
 
 {% if not current_user.is_authenticated %}
 <div class="bg-slate-100 p-4 pb-8 mb-8">
-  <p class="mb-4">Thousands of Sanskrit texts are available only in print. Join our global
-  volunteer effort to digitize these texts and make them accessible to all.</p>
+  <p class="mb-4">{% trans %}
+  Thousands of Sanskrit texts are available only in print. Join our global
+  volunteer effort to digitize these texts and make them accessible to all.
+  {% endtrans %}</p>
 
   <nav>
   <a class="btn p-2 bg-black border border-black text-white transition
-  hover:bg-white hover:text-black" href="{{ url_for('auth.register') }}">Sign up</a>
-  <a class="btn p-2 border border-slate-400" href="{{ url_for('auth.sign_in') }}">Sign in</a>
+  hover:bg-white hover:text-black" href="{{ url_for('auth.register') }}">{{ _('Register') }}</a>
+  <a class="btn p-2 border border-slate-400" href="{{ url_for('auth.sign_in') }}">{{ _('Sign in') }}</a>
   </nav>
 </div>
 {% endif %}

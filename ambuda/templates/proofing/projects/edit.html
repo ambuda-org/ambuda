@@ -12,15 +12,17 @@
 
 {% block content %}
 {{ m.project_header_nested('Edit', project) }}
-{{ m.project_nav(project=project, active='edit', is_admin=current_user.is_admin) }}
+{{ m.project_nav(project=project, active='edit', is_mod=current_user.is_moderator) }}
+
 {% set search_url = url_for("proofing.project.search", slug=project.slug)  %}
 {% set ocr_url = url_for("proofing.project.batch_ocr", slug=project.slug)  %}
 
 <div class="prose">
-<p>We'll add more useful tools here soon. For now, you can <a href="{{
-search_url }}">search the project</a>, <a href="{{ ocr_url }}">run batch OCR</a>,
-or edit its metadata:</p>
-</div>
+
+<ul>
+  <li><a href="{{ search_url }}">{{ _('Search the project') }}</a></li>
+  <li><a href="{{ ocr_url }}">{{ _('Run batch OCR') }}</a></p>
+</ul>
 
 {{ components.flash_messages() }}
 {{ mf.show_errors_if_any(form.errors) }}
@@ -35,7 +37,7 @@ or edit its metadata:</p>
   {{ mf.field(form.publisher) }}
   {{ mf.field(form.publication_year) }}
 
-  <input class="btn btn-submit" type="submit" value="Save changes">
+  <input class="btn btn-submit" type="submit" value="{{ _('Save changes') }}">
 </form>
 
 {% endblock %}

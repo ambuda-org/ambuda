@@ -11,7 +11,6 @@ from sqlalchemy import create_engine
 from ambuda import config
 from ambuda import database as db
 
-
 load_dotenv()
 
 

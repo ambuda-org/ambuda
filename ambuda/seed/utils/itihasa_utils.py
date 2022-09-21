@@ -1,24 +1,15 @@
 #!/usr/bin/env python3
 """Database utility functions."""
 
-
-import hashlib
-import io
-import os
 from dataclasses import dataclass
 from pathlib import Path
-import zipfile
 from typing import Iterator
 
-import requests
 from dotenv import load_dotenv
 from indic_transliteration import sanscript
-from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-import config
 import ambuda.database as db
-
 
 load_dotenv()
 PROJECT_DIR = Path(__file__).parent.parent.parent
@@ -61,55 +52,6 @@ class Kanda:
 
     n: int
     sections: list[Section]
-
-
-def fetch_text(url: str) -> str:
-    """Fetch text data against a simple cache.
-
-    In production, we don't need the cache at all. But during development, it's
-    useful to use a cache so that we can iterate on the end-to-end setup without
-    waiting on network overhead.
-    """
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
-
-    code = hashlib.sha256(url.encode()).hexdigest()
-    path = CACHE_DIR / code
-
-    resp = requests.get(url)
-    # When the response headers don't specify any encoding, `resp.text` decodes
-    # the response as if it is in ISO-8859-1 encoding (following RFC 2616).
-    # This is usually incorrect, so we need to set `resp.encoding` to the
-    # actual encoding (guessed using `chardet`).
-    resp.encoding = resp.apparent_encoding
-    path.write_text(resp.text)
-    return resp.text
-
-
-def fetch_bytes(url: str) -> bytes:
-    """Fetch binary data against a simple cache.
-
-    In production, we don't need the cache at all. But during development, it's
-    useful to use a cache so that we can iterate on the end-to-end setup without
-    waiting on network overhead.
-    """
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
-
-    code = hashlib.sha256(url.encode()).hexdigest()
-    path = CACHE_DIR / code
-
-    if path.exists():
-        return path.read_bytes()
-    else:
-        resp = requests.get(url)
-        path.write_bytes(resp.content)
-        return resp.content
-
-
-def unzip_and_read(zip_bytes: bytes, filepath: str) -> str:
-    """Open a zip archive and read plain-text data from one of its files."""
-    with zipfile.ZipFile(io.BytesIO(zip_bytes), "r") as ref:
-        with ref.open(filepath) as f:
-            return f.read()
 
 
 def get_verses(lines) -> Iterator[Verse]:
@@ -192,15 +134,6 @@ def write_kandas(
                     session.add(block)
                     n += 1
         session.commit()
-
-
-def create_db():
-    flask_env = os.environ["FLASK_ENV"]
-    conf = config.load_config_object(flask_env)
-    engine = create_engine(conf.SQLALCHEMY_DATABASE_URI)
-
-    db.Base.metadata.create_all(engine)
-    return engine
 
 
 def delete_existing_text(engine, slug: str):

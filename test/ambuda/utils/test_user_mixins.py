@@ -1,7 +1,7 @@
 from ambuda import database as db
 from ambuda import queries as q
 from ambuda.enums import SiteRole
-from ambuda.utils.user_mixins import AmbudaAnonymousUser, AmbudaUserMixin
+from ambuda.utils.user_mixins import AmbudaAnonymousUser
 
 
 def test_anonymous_user():

@@ -52,7 +52,7 @@
 
 
 {# Project-level tabs. #}
-{% macro project_nav(project, active, is_admin = false) %}
+{% macro project_nav(project, active, is_mod = false) %}
 {% set routes = [
   ("summary",  _("Summary"),   url_for("proofing.project.summary", slug=project.slug)),
   ("activity", _("Activity"),  url_for("proofing.project.activity", slug=project.slug)),
@@ -60,7 +60,7 @@
   ("edit",     _("Edit"),      url_for("proofing.project.edit", slug=project.slug)),
   ("download", _("Download"),  url_for("proofing.project.download", slug=project.slug)),
 ] %}
-{% if is_admin %}{% set routes = routes + [
+{% if is_mod %}{% set routes = routes + [
   ("admin",    _("Admin"),     url_for("proofing.project.admin", slug=project.slug)),
 ] %}{% endif %}
 

@@ -6,7 +6,6 @@ from dateutil.relativedelta import relativedelta
 from indic_transliteration import sanscript
 from markdown_it import MarkdownIt
 
-
 #: A markdown parser for user-generated text.
 #:
 #: - `js-default` is like Commonmark but it disables raw HTML.

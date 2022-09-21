@@ -1,13 +1,9 @@
 #!/usr/bin/env python3
 """Add the Shabda-sagara dictionary to the database."""
 
-from ambuda.utils.dict_utils import standardize_key
 from ambuda.seed.utils.cdsl_utils import create_from_scratch, iter_entries_as_strings
-from ambuda.seed.utils.itihasa_utils import (
-    fetch_bytes,
-    create_db,
-    unzip_and_read,
-)
+from ambuda.seed.utils.data_utils import create_db, fetch_bytes, unzip_and_read
+from ambuda.utils.dict_utils import standardize_key
 
 ZIP_URL = (
     "https://www.sanskrit-lexicon.uni-koeln.de/scans/SHSScan/2020/downloads/shsxml.zip"

@@ -31,10 +31,11 @@
 <div>
   {{ label(field.label) }}
   {{ field(class_="border block p-2 w-full min-h-[200px] rounded") }}
-  <p class="text-sm text-slate-500 mt-2 mb-4">
+  {% set help_url = "https://commonmark.org/help/" %}
+  <p class="text-sm text-slate-500 mt-2 mb-4 a-underline">{% trans %}
     You can format this text with Markdown.
-    <a class="underline" href="https://commonmark.org/help/">Click here to learn more.</a>
-  </p>
+    <a href="{{ help_url }}">Click here to learn more.</a>
+  {% endtrans %}</p>
 </div>
 {% endmacro %}
 

@@ -2,13 +2,17 @@
 
 from flask import Blueprint, redirect, render_template, session, url_for
 
-
 bp = Blueprint("site", __name__)
 
 
 @bp.route("/")
 def index():
     return render_template("index.html")
+
+
+@bp.route("/contact")
+def contact():
+    return redirect(url_for("about.contact"))
 
 
 @bp.route("/support")

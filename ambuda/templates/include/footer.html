@@ -1,17 +1,26 @@
+{% set blog = url_for('blog.index') %}
 {% set discord = "https://discord.gg/7rGdTyWY7Z" %}
 {% set github = "https://github.com/ambuda-org/ambuda" %}
 {% set reddit = "https://reddit.com/u/learnsanskrit-org" %}
 {% set paypal = "https://www.paypal.com/donate/?hosted_button_id=932UCTBER9RHA" %}
 {% set twitter = "https://twitter.com/ambuda_org" %}
+{% set support = url_for('site.support') %}
 <footer class="bg-sky-100 text-slate-700 a-hover-underline text-sm p-4 md:p-12 md:flex justify-between border-t">
-  <div class="md:max-w-xs md:mr-8">
-  <p>Ambuda is run entirely by volunteers for the public
-  benefit. Learn more about how you can <a href="{{ url_for('site.support') }}">
-  help Ambuda grow</a>.</p>
+<div class="md:max-w-xs md:mr-8">
+  <p class="a-underline">{% trans %}
+  Ambuda is run entirely by volunteers for the public benefit. Learn more
+  about how you can <a href="{{ support }}"> help Ambuda grow</a>.
+  {% endtrans %}</p>
+
+  {% set locales = [
+    ('en', 'English'),
+    ('sa', 'saMskRtam'|d),
+  ] %}
 
   <ul class="my-2 float list-disc ml-4">
-    <li><a href="{{ url_for('site.set_language', language='en') }}">English</a></li>
-    <li><a href="{{ url_for('site.set_language', language='sa') }}">{{ 'saMskRtam'|d }}</a></li>
+    {% for code, text in locales %}
+    <li><a href="{{ url_for('site.set_language', language=code) }}">{{ text }}</a></li>
+    {% endfor %}
   </ul>
 
   <p class="my-2">{{ 'satyaM vada dharmaM cara |'|devanagari }}</p>
@@ -46,11 +55,12 @@
   <section class="mt-4 md:mt-0">
     <h3 class="font-bold mb-2">{{ _('Community') }}</h3>
     <ul>
-      <li><a href="{{ discord }}">Discord</a>
-      <li><a href="{{ github }}">GitHub</a>
-      <li><a href="{{ reddit }}">Reddit</a>
-      <li><a href="{{ twitter }}">Twitter</a>
+      <li><a href="{{ blog }}">{{ _('Blog') }}</a>
+      <li><a href="{{ discord }}">{{ _('Discord') }}</a>
+      <li><a href="{{ github }}">{{ _('GitHub') }}</a>
+      <li><a href="{{ reddit }}">{{ _('Reddit') }}</a>
+      <li><a href="{{ twitter }}">{{ _('Twitter') }}</a>
     </ul>
   </section>
-  </div>
+</div>
 </footer>

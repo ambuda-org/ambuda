@@ -3,7 +3,8 @@
 from pathlib import Path
 
 from flask import Blueprint, current_app, flash, render_template
-from flask_login import current_user, login_required
+from flask_login import current_user
+
 from flask_wtf import FlaskForm
 from slugify import slugify
 from sqlalchemy import orm
@@ -14,7 +15,7 @@ from wtforms.widgets import TextArea
 from ambuda import consts
 from ambuda import database as db
 from ambuda import queries as q
-from ambuda.enums import SitePageStatus, SiteRole
+from ambuda.enums import SitePageStatus
 from ambuda.tasks import projects as project_tasks
 from ambuda.views.proofing.decorators import p2_required
 
