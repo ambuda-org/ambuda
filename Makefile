@@ -170,3 +170,6 @@ babel-update: py-venv-check
 # Compile all translation files.
 babel-compile: py-venv-check
 	pybabel compile -d ambuda/translations -D "messages text"
+
+translation-compile:
+	@python fetch.py

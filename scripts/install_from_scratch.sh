@@ -33,6 +33,7 @@ make install-frontend
 make install-python
 
 # i18n/l10n setup
+make translation-compile
 make babel-compile
 
 # Confirm that the setup worked.

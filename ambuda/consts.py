@@ -1,3 +1,5 @@
+from babel import Locale
+
 TEXT_CATEGORIES = {
     "itihasa": [
         "ramayanam",
@@ -25,4 +27,13 @@ TEXT_CATEGORIES = {
     ],
 }
 
+
 BOT_USERNAME = "ambuda-bot"
+
+
+LOCALES = [
+    Locale("sa", "IN"),
+    Locale("en", "IN"),
+    Locale("te", "IN"),
+    Locale("mr", "IN"),
+]
