@@ -1,0 +1,3 @@
+# Ignore translation files, as we load them dynamically from the
+# `ambuda/ambuda-i18n` repo.
+*.po
