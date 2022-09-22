@@ -56,7 +56,7 @@ jobs:
         run: docker-compose up -V --build --force-recreate -d
 
       - name: Check that site is running
-        run: timeout 30s bash -c 'until curl --fail-with-body localhost:5000; do sleep 1; done'
+        run: timeout 2m bash -c 'until curl --fail-with-body localhost:5000; do sleep 1; done'
         
       - name: Show logs on fail
         if: ${{ failure() }}
