@@ -1,10 +1,9 @@
-from flask import Blueprint, render_template, abort
+from flask import Blueprint, abort, render_template
 
 import ambuda.queries as q
 from ambuda.utils import word_parses as parse_utils
 from ambuda.utils.parse_alignment import align_text_with_parse
 from ambuda.views.api import bp as api
-
 
 bp = Blueprint("parses", __name__)
 

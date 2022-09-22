@@ -1,6 +1,9 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
 
-{% block title %}Support | Ambuda{% endblock %}
+
+{% block title %}{{ m.title('Support') }}{% endblock %}
+
 
 {% block meta_description -%}
 Learn more about all the ways you can help Ambuda grow.

@@ -1,6 +1,9 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
 
-{% block title %}Roadmap | Ambuda{% endblock %}
+
+{% block title %}{{ m.title(_('Roadmap')) }}{% endblock %}
+
 
 {% block content %}
 <div class="prose">

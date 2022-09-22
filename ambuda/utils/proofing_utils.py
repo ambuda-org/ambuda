@@ -1,7 +1,6 @@
 from datetime import date
 from typing import Iterator
 
-
 DOUBLE_DANDA = "\u0965"
 
 TEI_HEADER_BOILERPLATE = """

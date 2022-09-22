@@ -1,6 +1,5 @@
 import pytest
 
-
 from ambuda.views.proofing import main
 
 

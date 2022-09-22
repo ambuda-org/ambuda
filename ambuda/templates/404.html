@@ -1,13 +1,20 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
 
-{% block title %}Not Found (404) | Ambuda{% endblock %}
+
+{% block title %}{{ m.title('Not Found (404)') }}{% endblock %}
+
 
 {% block content %}
 {% set contact_url = url_for('about.contact') %}
 <div class="prose">
-<h1>Not Found (404)</h1>
-<p>Sorry! We couldn't find what you were looking for. If you think you've found
+<h1>{{ _('Not Found (404)') }}</h1>
+
+<p>{% trans %}
+Sorry! We couldn't find what you were looking for. If you think you've found
 a bug in our project, <a href="{{ contact_url }}">let us know</a> and we'll fix
-it as soon as we can.</p>
+it as soon as we can.
+{% endtrans %}</p>
+
 </div>
 {% endblock %}

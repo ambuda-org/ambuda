@@ -1,16 +1,17 @@
 from celery.result import GroupResult
 from flask import (
-    current_app,
-    render_template,
-    flash,
-    url_for,
-    make_response,
-    request,
     Blueprint,
+    current_app,
+    flash,
+    make_response,
+    render_template,
+    request,
+    url_for,
 )
-from flask_login import current_user, login_required
+from flask_babel import lazy_gettext as _l
+from flask_login import login_required
 from flask_wtf import FlaskForm
-from markupsafe import escape, Markup
+from markupsafe import Markup, escape
 from sqlalchemy import orm
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
@@ -18,14 +19,12 @@ from wtforms import StringField
 from wtforms.validators import DataRequired, ValidationError
 from wtforms.widgets import TextArea
 
-from ambuda import queries as q, database as db
-from ambuda.tasks import ocr as ocr_tasks
+from ambuda import database as db
+from ambuda import queries as q
 from ambuda.tasks import app as celery_app
-from ambuda.utils import project_utils
-from ambuda.utils import proofing_utils
-from ambuda.utils.auth import admin_required
-from ambuda.views.proofing.decorators import p2_required
-
+from ambuda.tasks import ocr as ocr_tasks
+from ambuda.utils import project_utils, proofing_utils
+from ambuda.views.proofing.decorators import moderator_required, p2_required
 
 bp = Blueprint("project", __name__)
 
@@ -39,43 +38,49 @@ def _is_valid_page_number_spec(_, field):
 
 class EditMetadataForm(FlaskForm):
     description = StringField(
-        "Description (optional)",
+        _l("Description (optional)"),
         widget=TextArea(),
         render_kw={
-            "placeholder": "What is this book about? Why is this project exciting?",
+            "placeholder": _l(
+                "What is this book about? Why is this project interesting?"
+            ),
         },
     )
     page_numbers = StringField(
-        "Page numbers (optional)",
+        _l("Page numbers (optional)"),
         widget=TextArea(),
         validators=[_is_valid_page_number_spec],
         render_kw={
             "placeholder": "Coming soon.",
         },
     )
-    title = StringField("Title", validators=[DataRequired()])
+    title = StringField(_l("Title"), validators=[DataRequired()])
     author = StringField(
-        "Author",
+        _l("Author"),
         render_kw={
-            "placeholder": "The author of the original work, e.g. Kalidasa.",
+            "placeholder": _l("The author of the original work, e.g. Kalidasa."),
         },
     )
     editor = StringField(
-        "Editor",
+        _l("Editor"),
         render_kw={
-            "placeholder": "The person or organization that created this edition of the text.",
+            "placeholder": _l(
+                "The person or organization that created this edition of the text."
+            ),
         },
     )
     publisher = StringField(
-        "Publisher",
+        _l("Publisher"),
         render_kw={
-            "placeholder": "The original publisher of this book, e.g. Nirnayasagar.",
+            "placeholder": _l(
+                "The original publisher of this book, e.g. Nirnayasagar."
+            ),
         },
     )
     publication_year = StringField(
-        "Publication year",
+        _l("Publication year"),
         render_kw={
-            "placeholder": "The year in which this specific edition was published.",
+            "placeholder": _l("The year in which this specific edition was published."),
         },
     )
 
@@ -84,7 +89,7 @@ class SearchForm(FlaskForm):
     class Meta:
         csrf = False
 
-    query = StringField("Query", validators=[DataRequired()])
+    query = StringField(_l("Query"), validators=[DataRequired()])
 
 
 class DeleteProjectForm(FlaskForm):
@@ -157,7 +162,7 @@ def edit(slug):
         form.populate_obj(project_)
         session.commit()
 
-        flash("Saved changes.", "success")
+        flash(_l("Saved changes."), "success")
         return redirect(url_for("proofing.project.summary", slug=slug))
 
     return render_template(
@@ -297,7 +302,7 @@ def batch_ocr(slug):
                 task_id=task.id,
             )
         else:
-            flash("All pages in this project have at least one edit already.")
+            flash(_l("All pages in this project have at least one edit already."))
 
     return render_template(
         "proofing/projects/batch-ocr.html",
@@ -345,7 +350,7 @@ def batch_ocr_status(task_id):
 
 
 @bp.route("/<slug>/admin", methods=["GET", "POST"])
-@admin_required
+@moderator_required
 def admin(slug):
     """View admin controls for the project.
 

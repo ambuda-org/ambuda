@@ -4,7 +4,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fabric import Connection, task
 
-
 load_dotenv()
 APP_DIRECTORY = Path(os.environ["SERVER_APP_DIRECTORY"])
 UPLOADS_DIRECTORY = Path(os.environ["SERVER_UPLOADS_DIRECTORY"])

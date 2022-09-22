@@ -1,0 +1,52 @@
+{% extends 'blog/base.html' %}
+{% import "macros/components.html" as m %}
+
+
+{% set mailing_url = 'https://groups.google.com/g/learnsanskrit-announce' %}
+
+
+{% block title %}{{ m.title(_('Blog')) }}{% endblock %}
+
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+
+{{ m.flash_messages() }}
+
+<header class="text-center mt-20 mb-8 text-slate-600">
+  <h1 class="font-bold text-4xl mb-4">{{ _('Ambuda blog') }}</h1>
+  <p class="a-underline">{% trans %}
+  Follow our blog for project updates, volunteer opportunities, and other news
+  about Ambuda. For major updates, please <a href="{{ mailing_url }}">subscribe
+  to our mailing list</a>.
+  {% endtrans %}</p>
+</header>
+
+{% if current_user.is_moderator %}
+<div class="border border-slate-300 rounded p-4">
+  <h1 class="text-slate-500 font-bold uppercase mb-4">Admin</h1>
+  <a href="{{ url_for('blog.create_post') }}">Create post</a>
+</div>
+{% endif %}
+
+<div class="mt-8">
+{% for post in posts %}
+<section class="border-t border-slate-300 py-8">
+  <header class="mb-2">
+    <h1 class="font-bold text-3xl">
+      <a class="hover:underline" href="{{ url_for('blog.post', slug=post.slug) }}">
+        {{ post.title }}
+      </a>
+    </h1>
+    <p class="text-slate-500 text-xs">{{ post.created_at|time_ago }}</p>
+  </header>
+
+  <div class="prose">
+    {{ post.content|markdown|safe }}
+  </div>
+</section>
+{% endfor %}
+</div>
+
+</div>
+{% endblock %}

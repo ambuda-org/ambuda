@@ -1,19 +1,13 @@
-from flask import (
-    Blueprint,
-    abort,
-    render_template,
-)
+from flask import Blueprint, abort, render_template
 from flask_login import login_required
 from flask_wtf import FlaskForm
-from wtforms import StringField, HiddenField
+from wtforms import HiddenField, StringField
 from wtforms.validators import DataRequired
 from wtforms.widgets import TextArea
 
 import ambuda.queries as q
 from ambuda import database as db
-from ambuda.utils import word_parses
-from ambuda.utils import xml
-
+from ambuda.utils import word_parses, xml
 
 bp = Blueprint("tagging", __name__)
 

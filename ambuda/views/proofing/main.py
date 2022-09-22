@@ -2,27 +2,21 @@
 
 from pathlib import Path
 
-from flask import (
-    Blueprint,
-    current_app,
-    flash,
-    render_template,
-)
-from flask_login import current_user, login_required
+from flask import Blueprint, current_app, flash, render_template
+from flask_login import current_user
 from flask_wtf import FlaskForm
 from slugify import slugify
 from sqlalchemy import orm
-from wtforms import StringField, FileField, RadioField
+from wtforms import FileField, RadioField, StringField
 from wtforms.validators import DataRequired, ValidationError
 from wtforms.widgets import TextArea
 
 from ambuda import consts
 from ambuda import database as db
 from ambuda import queries as q
-from ambuda.enums import SiteRole, SitePageStatus
+from ambuda.enums import SitePageStatus
 from ambuda.tasks import projects as project_tasks
 from ambuda.views.proofing.decorators import p2_required
-
 
 bp = Blueprint("proofing", __name__)
 
@@ -197,7 +191,7 @@ def create_project():
 
         # Save the original PDF so that it can be downloaded later or reused
         # for future tasks (thumbnails, better image formats, etc.)
-        pdf_path = pdf_dir / f"source.pdf"
+        pdf_path = pdf_dir / "source.pdf"
         form.local_file.data.save(pdf_path)
 
         task = project_tasks.create_project.delay(

@@ -2,7 +2,6 @@
 
 from . import main, page, project, tagging, talk, user
 
-
 __all__ = ["bp"]
 
 

@@ -2,8 +2,9 @@
 """
 
 import difflib
+
 import regex
-from markupsafe import escape, Markup
+from markupsafe import Markup, escape
 
 
 class GraphemeList(list):

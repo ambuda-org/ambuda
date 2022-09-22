@@ -6,7 +6,6 @@
 # Return format: https://cloud.google.com/vision/docs/reference/rest/v1/images/annotate#TextAnnotation
 # Billing: https://console.cloud.google.com/billing/
 
-
 import io
 import logging
 from dataclasses import dataclass

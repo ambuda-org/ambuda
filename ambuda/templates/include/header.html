@@ -1,3 +1,4 @@
+{# Header with layout but no color. Apply color in a wrapping parent element. #}
 {# https://css-tricks.com/snippets/svg/svg-hamburger-menu/ #}
 {% macro hamburger() %}
 <svg viewBox="0 0 100 80" width="20" height="20">
@@ -7,8 +8,7 @@
 </svg>
 {% endmacro %}
 
-<nav class="mb-4 border-b md:flex justify-between
-    items-center a-hover-underline text-sky-900 bg-slate-100">
+<nav class="md:flex justify-between items-center a-hover-underline">
   <div class="flex justify-between items-center">
     <a class="p-4 font-bold text-lg" href="{{ url_for('site.index') }}">{{ _('Ambuda') }}</a>
     <div class="block p-4 md:hidden">

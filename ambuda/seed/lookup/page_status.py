@@ -1,10 +1,10 @@
+import logging
+
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
 from ambuda.enums import SitePageStatus
-from ambuda.seed.utils.itihasa_utils import create_db
-
-import logging
+from ambuda.seed.utils.data_utils import create_db
 
 
 def get_default_id():

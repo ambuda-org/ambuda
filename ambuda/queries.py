@@ -9,15 +9,9 @@ from typing import Optional
 
 from flask import current_app
 from sqlalchemy import create_engine
-from sqlalchemy.orm import (
-    load_only,
-    selectinload,
-    scoped_session,
-    sessionmaker,
-)
+from sqlalchemy.orm import load_only, scoped_session, selectinload, sessionmaker
 
 import ambuda.database as db
-
 
 # NOTE: this logic is copied from Flask-SQLAlchemy. We avoid Flask-SQLAlchemy
 # because we also need to access the database from a non-Flask context when
@@ -229,3 +223,15 @@ def create_user(*, username: str, email: str, raw_password: str) -> db.User:
 
     session.commit()
     return user
+
+
+def blog_post(slug: str) -> Optional[db.BlogPost]:
+    """Fetch the given blog post."""
+    session = get_session()
+    return session.query(db.BlogPost).filter_by(slug=slug).first()
+
+
+def blog_posts() -> list[db.BlogPost]:
+    """Fetch all blog posts."""
+    session = get_session()
+    return session.query(db.BlogPost).order_by(db.BlogPost.created_at.desc()).all()

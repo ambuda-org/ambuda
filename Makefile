@@ -86,8 +86,7 @@ lint-flake8:
 	@git ls-files '*.py' | xargs flake8 --config=./.flake8 2>&1
 
 # Add isort when imports are organized better
-# lint-py: py-venv-check lint-black lint-isort lint-flake8
-py-lint: py-venv-check lint-black lint-flake8
+py-lint: py-venv-check lint-black lint-isort lint-flake8
 	@echo "Python lint completed"
 
 # Lint our Python and JavaScript code.
@@ -159,17 +158,14 @@ js-check-types:
 # Extract all translatable text from the application.
 babel-extract: py-venv-check
 	pybabel extract --mapping babel.cfg --keywords _l --output-file messages.pot .
-	pybabel extract --mapping babel.cfg --keywords _t --no-default-keywords --output-file text.pot .
 
 # Create a new translation file from `messages.pot`.
 babel-init: py-venv-check
 	pybabel init -i messages.pot -d ambuda/translations --locale $(locale)
-	pybabel init -i text.pot -d ambuda/translations -D "text" --locale $(locale)
 
 # Update all translation files with new text from `messages.pot`
 babel-update: py-venv-check
 	pybabel update -i messages.pot -d ambuda/translations
-	pybabel update -i text.pot -d ambuda/translations -D "text"
 
 # Compile all translation files.
 babel-compile: py-venv-check

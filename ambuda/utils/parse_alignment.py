@@ -13,7 +13,7 @@ from indic_transliteration import sanscript
 
 from ambuda.seed.utils.sandhi_utils import AC
 from ambuda.utils.word_parses import Token
-from ambuda.utils.xml import transform, tei_xml
+from ambuda.utils.xml import tei_xml, transform
 
 
 @dataclass

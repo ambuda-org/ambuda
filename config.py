@@ -15,14 +15,13 @@ package: From the Flask docs (emphasis added):
     *ideally located outside the actual application package*.
 """
 
+import logging
 import os
 from pathlib import Path
 from typing import Optional
 
 from dotenv import load_dotenv
 from flask import Flask
-import logging
-
 
 # Load dotenv early so that `_env` will work in the class definitions below.
 load_dotenv()

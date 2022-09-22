@@ -9,7 +9,6 @@ import sys
 
 import requests
 
-
 URLS_200 = [
     "/",
     "/api/dictionaries/vacaspatyam/nara",

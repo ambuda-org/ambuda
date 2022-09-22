@@ -1,4 +1,5 @@
 {% extends 'proofing/base-sidebar.html' %}
+{% import "macros/components.html" as mc %}
 {% import "macros/proofing.html" as m %}
 
 
@@ -9,16 +10,15 @@
 
 {% macro status_legend() %}
 <ul class="text-xs bg-slate-100 my-4 grid grid-cols-2 md:flex">
-  <li class="p-2 flex items-center">{{ _badge("bg-red-200 border-red-400") }} Needs proofing</li>
-  <li class="p-2 flex items-center">{{ _badge("bg-yellow-200 border-yellow-400") }} Proofed once</li>
-  <li class="p-2 flex items-center">{{ _badge("bg-green-200 border-green-400") }} Proofed twice</li>
-  <li class="p-2 flex items-center">{{ _badge("bg-gray-200 border-gray-400") }} Not relevant</li>
+  <li class="p-2 flex items-center">{{ _badge("bg-red-200 border-red-400") }} {{ _('Needs more work') }}</li>
+  <li class="p-2 flex items-center">{{ _badge("bg-yellow-200 border-yellow-400") }} {{ _('Proofed once') }}</li>
+  <li class="p-2 flex items-center">{{ _badge("bg-green-200 border-green-400") }} {{ _('Proofed twice') }}</li>
+  <li class="p-2 flex items-center">{{ _badge("bg-gray-200 border-gray-400") }} {{ _('Not relevant') }}</li>
 </ul>
 {% endmacro %}
 
 
-
-{% block title %}Ongoing projects | Ambuda{% endblock %}
+{% block title %}{{ mc.title(_('Ongoing projects')) }}{% endblock %}
 
 
 {% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}
@@ -35,16 +35,16 @@
 <div x-data="sortableList('title')">
 
 <form class="border p-2 rounded text-sm">
-<label class="text-slate-500">Sort by:</label>
-<select class="bg-white" x-model="field" @change="sort">
-  <option value="title" selected>Title</option> 
-  <option value="created">Creation date</option> 
-  <option value="progress">Progress</option> 
-</select>
-<select class="bg-white" x-model="order" @change="sort">
-  <option value="asc" selected>Ascending</option> 
-  <option value="desc">Descending</option> 
-</select>
+  <label class="text-slate-500">{{ _('Sort by:') }}</label>
+  <select class="bg-white" x-model="field" @change="sort">
+    <option value="title" selected>{{ _('Title') }}</option> 
+    <option value="created">{{ _('Creation date') }}</option> 
+    <option value="progress">{{ _('Progress') }}</option> 
+  </select>
+  <select class="bg-white" x-model="order" @change="sort">
+    <option value="asc" selected>{{ _('Ascending') }}</option> 
+    <option value="desc">{{ _('Descending') }}</option> 
+  </select>
 </form>
 
 <ul x-ref="list">
@@ -54,7 +54,10 @@
       data-progress="{{ progress_per_project[p.id] }}">
     <div class="mt-4 a-hover-underline flex justify-between items-baseline">
       <a href="{{ url_for("proofing.project.summary", slug=p.slug) }}">{{ p.title }}</a>
-      <span class="text-xs">{{ pages_per_project[p.id] }} pages</span>
+      {% set count = pages_per_project[p.id] %}
+      <span class="text-xs">
+        {{ ngettext('%(num)d page', '%(num)d pages', count) }}
+      </span>
     </div>
 
     <div class="flex">
