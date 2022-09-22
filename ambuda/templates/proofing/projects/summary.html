@@ -14,11 +14,11 @@
 {{ components.flash_messages() }}
 
 <h1 class="font-bold text-3xl mb-4">{{ project.title }}</h1>
-{{ m.project_nav(project=project, active='summary', is_admin=current_user.is_admin) }}
+{{ m.project_nav(project=project, active='summary', is_mod=current_user.is_moderator) }}
 
 {% if project.description %}
 <div class="prose">
-  <h2>Description</h2>
+  <h2>{{ _('Description') }}</h2>
   <blockquote>
   {{ project.description|markdown|safe }}
   </blockquote>
@@ -26,7 +26,7 @@
 {% endif %}
 
 <div class="prose">
-  <h2>Pages</h2>
+  <h2>{{ _('Pages') }}</h2>
 </div>
 
 <ul class="grid grid-cols-5 md:grid-cols-10 gap-2 text-center">
@@ -40,44 +40,45 @@
 </ul>
 
 <div class="prose">
-  <h2>About</h2>
+  <h2>{{ pgettext("project", "About") }}</h2>
 </div>
 
 <div class="bg-slate-100 p-4 w-2/3">
 <table class="w-full">
   <tr>
-    <th class="text-left">Title</th>
-    <td class="text-right">{{ project.title or "(none)" }}</td>
+    <th class="text-left">{{ _('Title') }}</th>
+    <td class="text-right">{{ project.title or _("(none)") }}</td>
   </tr>
   <tr>
-    <th class="text-left">Author</th>
-    <td class="text-right">{{ project.author or "(none)" }}</td>
+    <th class="text-left">{{ _('Author') }}</th>
+    <td class="text-right">{{ project.author or _("(none)") }}</td>
   </tr>
   <tr>
-    <th class="text-left">Editor</th>
-    <td class="text-right">{{ project.editor or "(none)" }}</td></tr>
+    <th class="text-left">{{ _('Editor') }}</th>
+    <td class="text-right">{{ project.editor or _("(none)") }}</td></tr>
   <tr>
-    <th class="text-left">Publisher</th>
-    <td class="text-right">{{ project.publisher or "(none)" }}</td></tr>
+    <th class="text-left">{{ _('Publisher') }}</th>
+    <td class="text-right">{{ project.publisher or _("(none)") }}</td></tr>
   <tr>
-    <th class="text-left">Publication year</th>
-    <td class="text-right">{{ project.publication_year or "(none)" }}</td>
+    <th class="text-left">{{ _('Publication year') }}</th>
+    <td class="text-right">{{ project.publication_year or _("(none)") }}</td>
   </tr>
 </table>
 </div>
 
 <div class="prose">
-  <h2>Recent discussion</h2>
+  <h2>{{ _('Recent discussion') }}</h2>
 </div>
 
 {% if project.board.threads[:3] %}
 {{ m_talk.thread_list(project.slug, project.board.threads) }}
 {% else %}
-{% set new_thread = url_for('proofing.talk.create_thread', slug=project.slug) %}
+{% set new_thread_url = url_for('proofing.talk.create_thread', slug=project.slug) %}
 <div class="prose">
-    <p>This project doesn't have any ongoing discussion.
-    <a href="{{ new_thread }}">Start a new thread?</a>
-    </p>
+  <p>{% trans %}
+  This project doesn't have any ongoing discussion.
+  <a href="{{ new_thread_url }}">Start a new thread?</a>
+  {% endtrans %}</p>
 </div>
 {% endif %}
 
@@ -88,7 +89,7 @@
 {% if recent_revisions %}
 {{ m.revision_list(recent_revisions) }}
 {% else %}
-<p>This project doesn't have any edits yet.</p>
+<p>{{ _("This project doesn't have any edits yet.") }}</p>
 {% endif %}
 
 {% endblock %}

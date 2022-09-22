@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 import ambuda.database as db
 import ambuda.seed.lookup.page_status
-from ambuda.seed.utils.itihasa_utils import create_db
+from ambuda.seed.utils.data_utils import create_db
 
 # revision identifiers, used by Alembic.
 revision = "6c87b647ecaa"

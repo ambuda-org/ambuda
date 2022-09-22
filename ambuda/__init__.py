@@ -11,7 +11,7 @@ import sys
 import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask, session
-from flask_babel import Babel, Domain
+from flask_babel import Babel, pgettext
 from flask_talisman import Talisman
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy import exc
@@ -25,6 +25,7 @@ from ambuda.utils import assets
 from ambuda.views.about import bp as about
 from ambuda.views.api import bp as api
 from ambuda.views.auth import bp as auth
+from ambuda.views.blog import bp as blog
 from ambuda.views.dictionaries import bp as dictionaries
 from ambuda.views.proofing import bp as proofing
 from ambuda.views.reader.parses import bp as parses
@@ -126,7 +127,6 @@ def create_app(config_env: str):
 
     # Extensions
     babel = Babel(app)
-    i18n_text = Domain(domain="text")
 
     @babel.localeselector
     def get_locale():
@@ -144,12 +144,15 @@ def create_app(config_env: str):
     app.register_blueprint(about, url_prefix="/about")
     app.register_blueprint(api, url_prefix="/api")
     app.register_blueprint(auth)
+    app.register_blueprint(blog, url_prefix="/blog")
     app.register_blueprint(dictionaries, url_prefix="/tools/dictionaries")
     app.register_blueprint(parses, url_prefix="/parses")
     app.register_blueprint(proofing, url_prefix="/proofing")
     app.register_blueprint(site)
     app.register_blueprint(texts, url_prefix="/texts")
 
+    # i18n string trimming
+    app.jinja_env.policies["ext.i18n.trimmed"] = True
     # Template functions and filters
     app.jinja_env.filters.update(
         {
@@ -164,7 +167,7 @@ def create_app(config_env: str):
     app.jinja_env.globals.update(
         {
             "asset": assets.hashed_static,
-            "_t": i18n_text.gettext,
+            "pgettext": pgettext,
         }
     )
 

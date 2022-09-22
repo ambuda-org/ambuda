@@ -70,7 +70,7 @@ def _add_project_to_database(title: str, slug: str, num_pages: int, creator_id: 
     session.commit()
 
 
-def _create_project_inner(
+def create_project_inner(
     *,
     title: str,
     pdf_path: str,
@@ -132,10 +132,10 @@ def create_project(
 ):
     """Split the given PDF into pages and register the project on the database.
 
-    For argument details, see `_create_project_inner`.
+    For argument details, see `create_project_inner`.
     """
     task_status = CeleryTaskStatus(self)
-    _create_project_inner(
+    create_project_inner(
         title=title,
         pdf_path=pdf_path,
         output_dir=output_dir,

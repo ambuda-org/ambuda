@@ -1,14 +1,20 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
 
-{% block title %}Server Error (500) | Ambuda{% endblock %}
+
+{% block title %}{{ m.title('Server Error (500)') }}{% endblock %}
+
 
 {% block content %}
 {% set contact_url = url_for('about.contact') %}
 <div class="prose">
-<h1>Server Error (500)</h1>
-<p>Oops! Our site has encountered an unknown error. We will investigate the
-issue so that we can prevent it in the future. If you think you know what
-caused this issue, please <a href="{{ contact_url }}">let us know</a> and we'll
-fix it as soon as we can.</p>
+<h1>{{ _('Server Error (500)') }}</h1>
+
+<p>{% trans %}
+Sorry, our site has encountered an unknown error. We will investigate the issue
+so that we can prevent it in the future. If you think you know what caused this
+issue, please <a href="{{ contact_url }}">let us know</a> and we'll fix it as
+soon as we can.
+{% endtrans %}</p>
 </div>
 {% endblock %}

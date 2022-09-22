@@ -10,6 +10,11 @@ def index():
     return render_template("index.html")
 
 
+@bp.route("/contact")
+def contact():
+    return redirect(url_for("about.contact"))
+
+
 @bp.route("/support")
 def support():
     return render_template("support.html")
