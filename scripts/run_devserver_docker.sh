@@ -28,6 +28,10 @@ if [ ! -f $DB_FILE_PATH ]; then
 
 fi
 
+# Update to the latest migration.
+python -m ambuda.seed.lookup
+alembic upgrade head
+
 pwd
 ls .
 ls ./node_modules
