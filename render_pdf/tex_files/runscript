@@ -1,0 +1,4 @@
+xelatex template.tex
+rm *.out
+rm *.log
+rm *.aux
