@@ -5,12 +5,12 @@ const sampleHTML = `
 <div>
   <textarea id="content"></textarea>
 </div>
+<script type="application/json" id="image_url">IMAGE_URL</script>
 `;
 
 // Can't modify existing `window.location` -- delete it so that we can mock it.
 // (See beforeEach and the tests below.)
 delete window.location;
-window.IMAGE_URL = 'IMAGE_URL';
 window.OpenSeadragon = (_) => ({
   addHandler: jest.fn((_, callback) => callback()),
   viewport: {
