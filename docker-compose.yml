@@ -6,6 +6,7 @@ services:
     tty: true
     volumes:
       - .:/app
+      - /app/node_modules
     ports:
       - '5000:5000'
     environment:
@@ -15,12 +16,15 @@ services:
       - SECRET_KEY=insecure development secret key
       - GOOGLE_APPLICATION_CREDENTIALS=<Google API credentials>
       - REDIS_URL=redis://redis:6379/0
+      - VIRTUAL_ENV=.
+      - AMBUDA_BOT_PASSWORD=insecure bot password
 
   celery:
     build: .
     command: make celery
     volumes:
       - .:/app
+      - /app/node_modules
     environment:
     - REDIS_URL=redis://redis:6379/0
     depends_on:

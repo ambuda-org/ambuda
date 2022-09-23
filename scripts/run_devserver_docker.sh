@@ -28,6 +28,10 @@ if [ ! -f $DB_FILE_PATH ]; then
 
 fi
 
+# Update to the latest migration.
+python -m ambuda.seed.lookup
+alembic upgrade head
+
 # Run the devserver, and live reload our CSS and JS.
 # "npx concurrently" does not work on Docker, but ./node_modules/.bin/concurrently does.
 # We also need to add "--host=0.0.0.0" to "flask run" to allow the host to access the

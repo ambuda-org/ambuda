@@ -35,9 +35,9 @@ install-i18n: py-venv-check
 # Upgrade an existing setup.
 upgrade:
 	make install-frontend install-python
-	. env/bin/activate; python -m ambuda.seed.lookup
-	. env/bin/activate; alembic upgrade head
 	. env/bin/activate; make install-i18n
+	. env/bin/activate; alembic upgrade head
+	. env/bin/activate; python -m ambuda.seed.lookup
 
 # Seed the database with just enough data for the devserver to be interesting.
 db-seed-basic: py-venv-check
@@ -72,7 +72,7 @@ devserver: py-venv-check
 
 # Start using Docker.
 start-docker:
-	docker-compose up --build --force-recreate
+	docker-compose up -V --build --force-recreate
 
 # Run a local Celery instance for background tasks.
 celery: 
