@@ -12,14 +12,9 @@
   about how you can <a href="{{ support }}"> help Ambuda grow</a>.
   {% endtrans %}</p>
 
-  {% set locales = [
-    ('en', 'English'),
-    ('sa', 'saMskRtam'|d),
-  ] %}
-
   <ul class="my-2 float list-disc ml-4">
-    {% for code, text in locales %}
-    <li><a href="{{ url_for('site.set_language', language=code) }}">{{ text }}</a></li>
+    {% for L in ambuda_locales %}
+    <li><a href="{{ url_for('site.set_language', slug=L.slug) }}">{{ L.text }}</a></li>
     {% endfor %}
   </ul>
 

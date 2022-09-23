@@ -17,8 +17,12 @@ node_modules/
 # Development database
 *.db
 
-# i18n -- regenerate these files with `make babel-extract` and `make babel-compile`
+# i18n files:
+# - .pot can be regenerated with `make babel-extract`.
+# - .po files are fetched from our GitHub repo (`ambuda/ambuda-i18n`).
+# - .mo files are just the compiled version of our .po files.
 *.pot
+*.po
 *.mo
 
 # Production config
