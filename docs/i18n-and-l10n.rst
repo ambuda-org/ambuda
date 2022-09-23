@@ -112,7 +112,7 @@ Next, we download the `.po` files created by Transifex, add them to the
 We can do all of this with the following command::
 
     # NOTE: you must run this command within a virtual environment.
-    make install-translations
+    make install-i18n
 
 
 5. Update the app UI

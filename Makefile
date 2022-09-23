@@ -29,7 +29,7 @@ install-python:
 	. env/bin/activate; pip install -r requirements.txt
 
 # Fetch and build all i18n files.
-install-translations: py-venv-check
+install-i18n: py-venv-check
 	python -m ambuda.scripts.fetch_i18n_files
 
 # Upgrade an existing setup.
@@ -37,7 +37,7 @@ upgrade:
 	make install-frontend install-python
 	. env/bin/activate; python -m ambuda.seed.lookup
 	. env/bin/activate; alembic upgrade head
-	. env/bin/activate; make install-translations
+	. env/bin/activate; make install-i18n
 
 # Seed the database with just enough data for the devserver to be interesting.
 db-seed-basic: py-venv-check
@@ -173,6 +173,6 @@ babel-update: py-venv-check
 	pybabel update -i messages.pot -d ambuda/translations
 
 # Compile all translation files.
-# NOTE: you probably want `make install-translations` instead.
+# NOTE: you probably want `make install-i18n` instead.
 babel-compile: py-venv-check
 	pybabel compile -d ambuda/translations
