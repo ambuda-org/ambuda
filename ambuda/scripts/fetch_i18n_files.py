@@ -1,4 +1,4 @@
-import distutils
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -24,7 +24,7 @@ def compile_translations(path: Path):
 
 
 def copy_translation_files(src_dir: Path, dest_dir: Path):
-    distutils.dir_util.copy_tree(str(src_dir), str(dest_dir))
+    shutil.copytree(str(src_dir), str(dest_dir), dirs_exist_ok=True)
 
 
 def main():
