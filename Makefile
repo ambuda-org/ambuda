@@ -31,8 +31,8 @@ install-python:
 # Upgrade an existing setup.
 upgrade:
 	make install-frontend install-python
-	. env/bin/activate; python -m ambuda.seed.lookup
 	. env/bin/activate; alembic upgrade head
+	. env/bin/activate; python -m ambuda.seed.lookup
 
 # Seed the database with just enough data for the devserver to be interesting.
 db-seed-basic: py-venv-check
