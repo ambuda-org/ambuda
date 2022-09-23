@@ -79,7 +79,7 @@ def deploy_to_commit(_, pointer: str):
 
         # Build i18n and l10n files
         with c.prefix("source env/bin/activate"):
-            c.run("make babel-compile")
+            c.run("make install-translations")
 
         # Verify that the production setup is well-formed.
         with c.prefix("source env/bin/activate"):

@@ -19,6 +19,7 @@ import config
 from ambuda import admin as admin_manager
 from ambuda import auth as auth_manager
 from ambuda import checks, filters, queries
+from ambuda.consts import LOCALES
 from ambuda.mail import mailer
 from ambuda.utils import assets
 from ambuda.views.about import bp as about
@@ -150,6 +151,7 @@ def create_app(config_env: str):
         {
             "asset": assets.hashed_static,
             "pgettext": pgettext,
+            "ambuda_locales": LOCALES,
         }
     )
 
