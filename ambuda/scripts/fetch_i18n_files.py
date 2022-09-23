@@ -4,7 +4,7 @@ from pathlib import Path
 
 
 REPO = "https://github.com/ambuda-org/ambuda-i18n.git"
-PROJECT_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_DIR / "data" / "ambuda-i18n"
 
 
@@ -20,7 +20,7 @@ def fetch_git_repo(url: str, path: Path):
 
 
 def compile_translations(path: Path):
-    subprocess.call(f"pybabel compile -d {path}", shell=True)
+    subprocess.call(f"pybabel compile -d {path}", shell=True, stderr=subprocess.DEVNULL)
 
 
 def copy_translation_files(src_dir: Path, dest_dir: Path):
@@ -30,10 +30,12 @@ def copy_translation_files(src_dir: Path, dest_dir: Path):
 def main():
     src_dir = DATA_DIR / "translations"
     dest_dir = PROJECT_DIR / "ambuda" / "translations"
+    dest_dir.mkdir(parents=True, exist_ok=True)
 
     fetch_git_repo(REPO, DATA_DIR)
     compile_translations(src_dir)
     copy_translation_files(src_dir, dest_dir)
+    print("Done.")
 
 
 if __name__ == "__main__":
