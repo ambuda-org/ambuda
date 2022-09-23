@@ -67,7 +67,7 @@ devserver: py-venv-check
 
 # Start using Docker.
 start-docker:
-	docker-compose up --build --force-recreate
+	docker-compose up -V --build --force-recreate
 
 # Run a local Celery instance for background tasks.
 celery: 
