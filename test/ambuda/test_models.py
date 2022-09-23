@@ -1,3 +1,4 @@
+from datetime import datetime
 import ambuda.database as db
 from ambuda.queries import get_session
 
@@ -85,3 +86,54 @@ def test_token__set_and_check_token(client):
     assert not row.check_token("password2")
 
     _cleanup(session, row)
+
+    
+def test_user_status_log__permanent(client):
+    session = get_session()
+    row = db.UserStatusLog(
+        user_id=1,
+        change_description="action_one",
+    )
+
+    session.add(row)
+    session.commit()
+
+    assert not row.is_expired
+    assert not row.is_temporary
+
+    _cleanup(session, row)
+
+
+def test_user_status_log__temporary_unexpired(client):
+    session = get_session()
+    row = db.UserStatusLog(
+        user_id=1,
+        change_description="action_one",
+        expiry=datetime.fromisoformat('2055-09-22')
+    )
+
+    session.add(row)
+    session.commit()
+
+    assert not row.is_expired
+    assert row.is_temporary
+
+    _cleanup(session, row)
+
+
+def test_user_status_log__temporary_expired(client):
+    session = get_session()
+    row = db.UserStatusLog(
+        user_id=1,
+        change_description="action_one",
+        expiry=datetime.fromisoformat('2020-09-22')
+    )
+
+    session.add(row)
+    session.commit()
+
+    assert row.is_expired
+    assert row.is_temporary
+
+    _cleanup(session, row)
+
