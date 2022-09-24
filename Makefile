@@ -175,8 +175,4 @@ babel-update: py-venv-check
 # Compile all translation files.
 # NOTE: you probably want `make install-i18n` instead.
 babel-compile: py-venv-check
-<<<<<<< HEAD
 	pybabel compile -d ambuda/translations
-=======
-	pybabel compile -d ambuda/translations -D messages
->>>>>>> Dictionary index
