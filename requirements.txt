@@ -62,7 +62,7 @@ langcodes==3.3.0
 language-data==1.1
 linkify-it-py==2.0.0
 lxml==4.9.1
-Mako==1.2.0
+Mako==1.2.2
 marisa-trie==0.7.7
 markdown-it-py==2.1.0
 MarkupSafe==2.1.1
