@@ -90,7 +90,9 @@ or in their own modal window. #}
     <a class="hover:underline" href="{{ url_for('texts.text', slug=text.slug) }}">
       {{ text.title | devanagari }}
     </a>
-    {{ section.title | devanagari }}
+    {% if not is_single_section_text %}
+      {{ section.title | devanagari }}
+    {% endif %}
   </div>
   <div class="flex items-center">
     {{ settings() }}
