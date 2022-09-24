@@ -1,5 +1,5 @@
 from flask import Blueprint, current_app, flash, render_template, send_file
-from flask_babel import lazy_gettext
+from flask_babel import lazy_gettext as _l
 from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from werkzeug.exceptions import abort
@@ -21,16 +21,18 @@ bp = Blueprint("page", __name__)
 
 
 class EditPageForm(FlaskForm):
-    summary = StringField("Edit summary (optional)")
-    version = HiddenField("Page version")
-    content = StringField("Content", widget=TextArea(), validators=[DataRequired()])
+    summary = StringField(_l("Edit summary (optional)"))
+    version = HiddenField(_l("Page version"))
+    content = StringField(
+        _l("Page content"), widget=TextArea(), validators=[DataRequired()]
+    )
     status = RadioField(
-        "Status",
+        _l("Status"),
         choices=[
-            (SitePageStatus.R0.value, lazy_gettext("Needs more work")),
-            (SitePageStatus.R1.value, lazy_gettext("Proofed once")),
-            (SitePageStatus.R2.value, lazy_gettext("Proofed twice")),
-            (SitePageStatus.SKIP.value, lazy_gettext("Not relevant")),
+            (SitePageStatus.R0.value, _l("Needs more work")),
+            (SitePageStatus.R1.value, _l("Proofed once")),
+            (SitePageStatus.R2.value, _l("Proofed twice")),
+            (SitePageStatus.SKIP.value, _l("Not relevant")),
         ],
     )
 

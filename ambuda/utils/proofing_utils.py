@@ -52,12 +52,14 @@ and resolve any TODOs. -->
 PageContent = str
 Line = str
 
+
 def _iter_raw_text_lines(blobs: list[PageContent]) -> Iterator[Line]:
     """Iterate over text blobs as a stream of lines."""
     for blob in blobs:
         blob = blob.strip()
         for line in blob.splitlines():
             yield line.strip()
+
 
 def iter_blocks(blobs: Iterator[PageContent]) -> Iterator[list[Line]]:
     """Iterate over text blobs as a stream of blocks.

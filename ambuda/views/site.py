@@ -4,7 +4,6 @@ from flask import Blueprint, redirect, render_template, session, url_for
 
 from ambuda.consts import LOCALES
 
-
 bp = Blueprint("site", __name__)
 
 
