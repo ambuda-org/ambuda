@@ -51,7 +51,6 @@ and resolve any TODOs. -->
 
 PageContent = str
 Line = str
-Block = list[Line]
 
 def _iter_raw_text_lines(blobs: list[PageContent]) -> Iterator[Line]:
     """Iterate over text blobs as a stream of lines."""
@@ -60,7 +59,7 @@ def _iter_raw_text_lines(blobs: list[PageContent]) -> Iterator[Line]:
         for line in blob.splitlines():
             yield line.strip()
 
-def iter_blocks(blobs: Iterator[PageContent]) -> Iterator[Block]:
+def iter_blocks(blobs: Iterator[PageContent]) -> Iterator[list[Line]]:
     """Iterate over text blobs as a stream of blocks.
 
     A block is a sequence of lines separated by an empty line."""
@@ -75,12 +74,12 @@ def iter_blocks(blobs: Iterator[PageContent]) -> Iterator[Block]:
         yield buf
 
 
-def is_verse(lines: Block) -> bool:
+def is_verse(lines: list[Line]) -> bool:
     """Heuristically decide whether a list of lines represents a verse."""
     return lines[-1].endswith(DOUBLE_DANDA)
 
 
-def create_plain_text_block(lines: Block) -> str:
+def create_plain_text_block(lines: list[Line]) -> str:
     """Convert a group of lines into a well-formatted plain-text block."""
     if is_verse(lines):
         return "\n".join(lines)
@@ -101,7 +100,7 @@ def create_tei_header_boilerplate(**kw) -> str:
     return TEI_HEADER_BOILERPLATE.format(**kw)
 
 
-def create_xml_block(lines: Block) -> str:
+def create_xml_block(lines: list[Line]) -> str:
     """Convert a group of lines into a well-formatted TEI XML block."""
     if is_verse(lines):
         buf = ["<lg>"]
