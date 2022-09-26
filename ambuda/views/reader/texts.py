@@ -9,8 +9,6 @@ from ambuda.consts import TEXT_CATEGORIES
 from ambuda.utils import xml
 from ambuda.views.api import bp as api
 
-bp = Blueprint("texts", __name__)
-
 # A hacky list that decides which texts have parse data.
 HAS_NO_PARSE = {
     "raghuvamsham",
@@ -20,6 +18,16 @@ HAS_NO_PARSE = {
     "shivopanishat",
     "catuhshloki",
 }
+
+#: A special slug for single-section texts.
+#:
+#: Some texts are small enough that they don't have any divisions (sargas,
+#: kandas). For simplicity, we represent such texts as having one section that
+#: we just call "all." All such texts are called *single-section texts.*
+SINGLE_SECTION_SLUG = "all"
+
+
+bp = Blueprint("texts", __name__)
 
 
 def _prev_cur_next(sections: list[db.TextSection], slug: str):
@@ -111,13 +119,15 @@ def section(text_slug, section_slug):
         abort(404)
 
     try:
-        prev, cur, next = _prev_cur_next(text.sections, section_slug)
+        prev, cur, next_ = _prev_cur_next(text.sections, section_slug)
     except ValueError:
         abort(404)
 
-    # Single-section text should have only the slug 'all'.
-    if not prev and not next:
-        if section_slug != "all":
+    is_single_section_text = not prev and not next_
+    if is_single_section_text:
+        # Single-section texts have exactly one section whose slug should be
+        # `SINGLE_SECTION_SLUG`. If the slug is anything else, abort.
+        if section_slug != SINGLE_SECTION_SLUG:
             abort(404)
 
     # Fetch with content blocks
@@ -133,9 +143,10 @@ def section(text_slug, section_slug):
         text=text,
         prev=prev,
         section=cur,
-        next=next,
+        next=next_,
         html_blocks=html_blocks,
         has_no_parse=has_no_parse,
+        is_single_section_text=is_single_section_text,
     )
 
 
