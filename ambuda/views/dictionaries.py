@@ -15,7 +15,7 @@ def _fetch_entries(version: str, query: str) -> list[str]:
 
     slp1_key = sanscript.transliterate(query, input_scheme, sanscript.SLP1)
     slp1_key = standardize_key(slp1_key)
-    if version == "apte":
+    if version in {"apte", "apte-sh"}:
         keys = expand_apte_keys(slp1_key)
         rows = q.dict_entries(version, keys)
     elif version == "shabdakalpadruma":
@@ -25,7 +25,8 @@ def _fetch_entries(version: str, query: str) -> list[str]:
         rows = q.dict_entry(version, slp1_key)
 
     transforms = {
-        "apte": xml.transform_apte,
+        "apte": xml.transform_apte_sanskrit_english,
+        "apte-sh": xml.transform_apte_sanskrit_hindi,
         "shabdartha-kaustubha": xml.transform_sak,
         "mw": xml.transform_mw,
         "vacaspatyam": xml.transform_vacaspatyam,

@@ -207,7 +207,10 @@ mw_xml = {
     # Other
     "pb": None,
 }
-apte_xml = {
+
+# Tag meanings are documented here:
+# https://www.sanskrit-lexicon.uni-koeln.de/talkMay2008/mwtags.html
+apte_cologne_xml = {
     "ab": elem("abbr"),
     "b": elem("b"),
     "br": elem("br"),
@@ -226,7 +229,24 @@ vacaspatyam_xml = {
     "lb": elem("div", {"class": "h-2"}, " "),
     "b": elem("b"),
 }
-
+#: Transforms for Apte's Sanskrit-Hindi dictionary from the University of
+#: Hyderabad.
+apte_uoh_xml = {
+    # TODO:
+    # Entry
+    "lexhead": elem("li", {"class": "dict-entry mw-entry"}),
+    # Lookup key
+    "dentry": sanskrit_text,
+    # Bare stem (redundant given `dentry')
+    "prAwipaxikam": None,
+    "grammar": elem("span", {"class": "lex"}),
+    "etymology": elem("span", {"class": "lex"}),
+    "sense": elem("div", {"class": "m-2"}, " "),
+    # Citation
+    # FIXME: text_before inserts text after opening tag. But here, we want
+    # text *before* the opening tag.
+    "citation": elem("cite", text_before=" ", text_after=" "),
+}
 
 # Defined against the TEI spec
 tei_header_xml = {
@@ -265,22 +285,6 @@ tei_xml = {
     "section": elem("section"),
 }
 
-# Tag meanings are documented here:
-# https://www.sanskrit-lexicon.uni-koeln.de/talkMay2008/mwtags.html
-apte_transforms = {
-    "ab": elem("abbr"),
-    "b": elem("b"),
-    "br": elem("br"),
-    "i": elem("i"),
-    "body": elem("li", {"class": "mw-entry"}),
-    "lb": elem("div", {"class": "h-2"}, " "),
-    "lbinfo": None,
-    "ls": elem("cite"),
-    "s": elem("span", {"lang": "sa"}, "##", "##"),
-    # TODO: keep attrs
-    "span": elem("span"),
-}
-
 
 def transform(xml: ET.Element, transforms: dict[str, Rule]) -> str:
     for el in xml.iter("*"):
@@ -300,10 +304,16 @@ def transform_mw(blob: str) -> str:
     return transform(xml, mw_xml)
 
 
-def transform_apte(blob: str) -> str:
-    """Transform XML for the Apte dictionary."""
+def transform_apte_sanskrit_english(blob: str) -> str:
+    """Transform XML for the Apte Sanskrit-English dictionary."""
     xml = ET.fromstring(blob)
-    return transform(xml, apte_xml)
+    return transform(xml, apte_cologne_xml)
+
+
+def transform_apte_sanskrit_hindi(blob: str) -> str:
+    """Transform XML for the Apte Sanskrit-Hindi dictionary."""
+    xml = ET.fromstring(blob)
+    return transform(xml, apte_uoh_xml)
 
 
 def transform_vacaspatyam(blob: str) -> str:
