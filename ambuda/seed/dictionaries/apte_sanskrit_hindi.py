@@ -23,8 +23,6 @@ And a sample entry:
 
 """
 
-import io
-import re
 import xml.etree.ElementTree as ET
 from typing import Iterator
 
@@ -100,12 +98,12 @@ def _make_key(xml: ET.Element) -> str:
     """
     assert xml.tag in {"lexhead", "segmenthd"}, xml.tag
 
-    devanagari_key = xml.find("./dentry").text
-    assert devanagari_key
-    slp1_key = sanscript.transliterate(
-        devanagari_key, sanscript.DEVANAGARI, sanscript.SLP1
-    )
-    return slp1_key
+    key = xml.find("./dentry").text
+    assert key
+
+    key = sanscript.transliterate(key, sanscript.DEVANAGARI, sanscript.SLP1)
+    key = standardize_key(key)
+    return key
 
 
 def _make_value(xml: ET.Element) -> str:
