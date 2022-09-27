@@ -10,4 +10,22 @@ export default {
     const slug = suffix.split('/')[0];
     return slug;
   },
+
+  parseDictionaryURL: () => {
+    const { pathname } = window.location;
+
+    const prefix = '/tools/dictionaries/';
+    const segments = pathname.split('/');
+    // segments: "", "tools", "dictionaries", "<source>", "<query>"
+    if (pathname.startsWith(prefix) && segments.length === 5) {
+      return {
+        source: segments[3],
+        query: segments[4],
+      };
+    }
+    return {
+      source: null,
+      query: null,
+    };
+  },
 };

@@ -69,13 +69,14 @@ test('loadSettings works if localStorage data is corrupt', () => {
   expect(d.source).toBe('mw');
 });
 
-test('setSource sets dictionary source then fetches', async () => {
+test('updateSource updates config then fetches', async () => {
   const d = Dictionary();
   d.init();
   d.query = 'foo';
   expect(d.source).toBe('mw');
 
-  await d.setSource('apte');
+  d.source = 'apte';
+  await d.updateSource();
   expect(d.source).toBe('apte');
   expect($('#dict--response').innerHTML).toBe('<div>fetched apte:foo</div>');
 });

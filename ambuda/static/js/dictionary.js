@@ -18,8 +18,16 @@ export default () => ({
   query: '',
 
   init() {
+    // URL settings take priority.
+    this.parseURL();
     this.loadSettings();
     this.transliterate('devanagari', this.script);
+  },
+
+  parseURL() {
+    const { query, source } = Routes.parseDictionaryURL();
+    this.query = query || this.query;
+    this.source = source || this.source;
   },
 
   loadSettings() {
@@ -44,8 +52,7 @@ export default () => ({
     localStorage.setItem(DICTIONARY_CONFIG_KEY, JSON.stringify(settings));
   },
 
-  async setSource(value) {
-    this.source = value;
+  async updateSource() {
     this.saveSettings();
     // Return the promise so we can await it in tests.
     return this.searchDictionary(this.query);
