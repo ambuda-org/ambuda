@@ -1,12 +1,12 @@
 import Routes from '@/routes';
 
-beforeEach() {
+beforeEach(() => {
   // I was not able to redefine the property after the first definition.
   // Instead, define it once then use simple assignment in each test.
   Object.defineProperty(window, 'location', {
     value: { pathname: '' },
   });
-}
+});
 
 test('ajaxDictionaryQuery', () => {
   expect(Routes.ajaxDictionaryQuery('mw', 'nara')).toBe('/api/dictionaries/mw/nara');
