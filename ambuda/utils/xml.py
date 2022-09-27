@@ -235,16 +235,19 @@ apte_uoh_xml = {
     # TODO:
     # Entry
     "lexhead": elem("li", {"class": "dict-entry mw-entry"}),
-    # Lookup key
+    "segmenthd": elem("li", {"class": "dict-entry mw-entry"}),
+    # Key
     "dentry": sanskrit_text,
     # Bare stem (redundant given `dentry')
     "prAwipaxikam": None,
+    # Part of speech and derivation
     "grammar": elem("span", {"class": "lex"}),
     "etymology": elem("span", {"class": "lex"}),
+    # Definitions
     "sense": elem("div", {"class": "m-2"}, " "),
     # Citation
-    # FIXME: text_before inserts text after opening tag. But here, we want
-    # text *before* the opening tag.
+    # FIXME: <citation> has no space before it. `text_before` inserts text
+    # after opening tag, but here we want text *before* the opening tag.
     "citation": elem("cite", text_before=" ", text_after=" "),
 }
 

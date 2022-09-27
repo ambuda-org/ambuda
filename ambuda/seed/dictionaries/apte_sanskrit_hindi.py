@@ -86,16 +86,55 @@ LETTERS = [
 
 
 #: URL template for Apte data
-RAW_URL = (
+URL_TEMPLATE = (
     "https://github.com/samsaadhanii/scl/raw/master/MT/data/hi/Apte_dict/{letter}.xml"
 )
 
 
-def _get_text(xml, path: str) -> str:
-    try:
-        return xml.find(path).text
-    except AttributeError:
-        return ""
+def _make_key(xml: ET.Element) -> str:
+    """Get a standardized lookup key for this entry.
+
+    We convert the dictionary key to SLP1, which is a common standard for
+    Sanskrit natural language processing (NLP) applications.
+
+    :param xml: the dictionary entry to proecss.
+    """
+    assert xml.tag in {"lexhead", "segmenthd"}, xml.tag
+
+    devanagari_key = xml.find("./dentry").text
+    assert devanagari_key
+    slp1_key = sanscript.transliterate(
+        devanagari_key, sanscript.DEVANAGARI, sanscript.SLP1
+    )
+    return slp1_key
+
+
+def _make_value(xml: ET.Element) -> str:
+    """Serialize the given XML element to a Unicode string.
+
+    ElementTree's default serialization will escape most Unicode characters and
+    create an unsightly output. Instead, just produce a simple Unicode `str`.
+    """
+    return ET.tostring(xml, encoding="utf-8").decode("utf-8")
+
+
+def _make_entries(xml: ET.Element) -> Iterator[tuple[str, str]]:
+    # Yield sub-entries (e.g. compounds) if any exist.
+    for child in xml.findall("./segmenthd"):
+        key = _make_key(child)
+        value = _make_value(child)
+        yield key, value
+
+        # Remove this child so that it's not included in the parent entry.
+        # (This is the standard we follow in other dictionary entries. In
+        # the future, we can improve how we model sub-entries and make this
+        # behavior a user preference.)
+        xml.remove(child)
+
+    # Yield the main entry.
+    key = _make_key(xml)
+    value = _make_value(xml)
+    yield key, value
 
 
 def _iter_entries_as_xml(blobs: list[str]) -> Iterator[tuple[str, str]]:
@@ -103,11 +142,7 @@ def _iter_entries_as_xml(blobs: list[str]) -> Iterator[tuple[str, str]]:
         xml = ET.fromstring(blob)
         for entry in xml:
             assert entry.tag == "lexhead"
-
-            key = _get_text(entry, "./dentry")
-            key = sanscript.transliterate(key, sanscript.DEVANAGARI, sanscript.SLP1)
-            value = ET.tostring(entry, encoding="utf-8").decode("utf-8")
-            yield key, value
+            yield from _make_entries(entry)
 
 
 @click.command()
@@ -120,8 +155,8 @@ def run(use_cache):
 
     blobs = []
     for letter in LETTERS:
-        url = RAW_URL.format(letter=letter)
-        print(f"- Fetching {letter} ({url})")
+        url = URL_TEMPLATE.format(letter=letter)
+        print(f"- Loading {letter} ({url})")
         blob = fetch_text(url, read_from_cache=use_cache)
         blobs.append(blob)
 
