@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 
 import ambuda.database as db
 
-
 #: The maximum number of entries to add to the dictionary at one time.
 #:
 #: Batching is more efficient than adding entries one at a time. But large

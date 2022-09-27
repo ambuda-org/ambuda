@@ -35,7 +35,6 @@ from ambuda.seed.utils.cdsl_utils import create_from_scratch
 from ambuda.seed.utils.data_utils import create_db, fetch_text
 from ambuda.utils.dict_utils import standardize_key
 
-
 #: All of the first letters used in the dictionary data.
 LETTERS = [
     "a",
