@@ -11,6 +11,10 @@ export default {
     return slug;
   },
 
+  /**
+   * Parse a dictionary URL for its source and query. We use this data to
+   * initialize our form fields from the URL state.
+   */
   parseDictionaryURL: () => {
     const { pathname } = window.location;
 
