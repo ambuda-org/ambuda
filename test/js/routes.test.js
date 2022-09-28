@@ -1,5 +1,13 @@
 import Routes from '@/routes';
 
+beforeEach(() => {
+  // I was not able to redefine the property after the first definition.
+  // Instead, define it once then use simple assignment in each test.
+  Object.defineProperty(window, 'location', {
+    value: { pathname: '' },
+  });
+});
+
 test('ajaxDictionaryQuery', () => {
   expect(Routes.ajaxDictionaryQuery('mw', 'nara')).toBe('/api/dictionaries/mw/nara');
 });
@@ -13,10 +21,16 @@ test('parseData', () => {
 });
 
 test('getTextSlug', () => {
-  Object.defineProperty(window, 'location', {
-    value: {
-      pathname: '/texts/ramayana/1.1',
-    },
-  });
+  window.location.pathname = '/texts/ramayana/1.1';
   expect(Routes.getTextSlug()).toBe('ramayana');
+});
+
+test('parseDictionaryURL returns fields with valid URL', () => {
+  window.location.pathname = '/tools/dictionaries/apte/deva',
+  expect(Routes.parseDictionaryURL()).toEqual({ source: "apte", query: "deva" });
+});
+
+test('parseDictionaryURL returns nulls with invalid URL', () => {
+  window.location.pathname = '/tools/dictionaries/',
+  expect(Routes.parseDictionaryURL()).toEqual({ source: null, query: null });
 });

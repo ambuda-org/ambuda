@@ -18,8 +18,17 @@ export default () => ({
   query: '',
 
   init() {
+    // URL settings take priority.
+    this.loadSettingsFromURL();
     this.loadSettings();
     this.transliterate('devanagari', this.script);
+  },
+
+  /** Load source and query from the URL (if defined). */
+  loadSettingsFromURL() {
+    const { query, source } = Routes.parseDictionaryURL();
+    this.query = query || this.query;
+    this.source = source || this.source;
   },
 
   loadSettings() {
@@ -36,6 +45,7 @@ export default () => ({
       }
     }
   },
+
   saveSettings() {
     const settings = {
       script: this.script,
@@ -44,12 +54,12 @@ export default () => ({
     localStorage.setItem(DICTIONARY_CONFIG_KEY, JSON.stringify(settings));
   },
 
-  async setSource(value) {
-    this.source = value;
+  async updateSource() {
     this.saveSettings();
     // Return the promise so we can await it in tests.
     return this.searchDictionary(this.query);
   },
+
   updateScript() {
     this.transliterate(this.script, this.uiScript);
     this.script = this.uiScript;
@@ -74,6 +84,7 @@ export default () => ({
       $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
     }
   },
+
   transliterate(oldScript, newScript) {
     transliterateElement($('#dict--response'), oldScript, newScript);
   },

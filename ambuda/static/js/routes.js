@@ -10,4 +10,26 @@ export default {
     const slug = suffix.split('/')[0];
     return slug;
   },
+
+  /**
+   * Parse a dictionary URL for its source and query. We use this data to
+   * initialize our form fields from the URL state.
+   */
+  parseDictionaryURL: () => {
+    const { pathname } = window.location;
+
+    const prefix = '/tools/dictionaries/';
+    const segments = pathname.split('/');
+    // segments: "", "tools", "dictionaries", "<source>", "<query>"
+    if (pathname.startsWith(prefix) && segments.length === 5) {
+      return {
+        source: segments[3],
+        query: segments[4],
+      };
+    }
+    return {
+      source: null,
+      query: null,
+    };
+  },
 };
