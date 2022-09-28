@@ -4,7 +4,7 @@
 Professor Amba Kulkarni's group at the University of Hyderabad has published a
 digitized version of Apte's Sanskrit-Hindi dictionary, which is available from
 their main GitHub repo (https://github.com/samsaadhanii/scl). But since the
-repo as a whole ,is quite large (>250 MiB even with `--depth 1`), we download
+repo as a whole is quite large (>250 MiB even with `--depth 1`), we download
 just the data we want via simple HTTP requests.
 
 The dictionary is sharded into several XML files by first letter. A sample file:
@@ -89,15 +89,16 @@ URL_TEMPLATE = (
 
 
 def _make_key(xml: ET.Element) -> str:
-    """Get a standardized lookup key for this entry.
+    """Create a standardized lookup key for this entry.
 
-    We convert the dictionary key to SLP1, which is a common standard for
-    Sanskrit natural language processing (NLP) applications.
+    Steps:
+    1. Convert the dictionary key to SLP1, which is our convention for
+       dictionary lookup keys.
+    2. Standardize the key's spelling using `standardize_key`.
 
     :param xml: the dictionary entry to proecss.
     """
     assert xml.tag in {"lexhead", "segmenthd"}, xml.tag
-
     key = xml.find("./dentry").text
     assert key
 
@@ -107,7 +108,7 @@ def _make_key(xml: ET.Element) -> str:
 
 
 def _make_value(xml: ET.Element) -> str:
-    """Serialize the given XML element to a Unicode string.
+    """Serialize the given XML entry to a Unicode string.
 
     ElementTree's default serialization will escape most Unicode characters and
     create an unsightly output. Instead, just produce a simple Unicode `str`.
@@ -116,12 +117,17 @@ def _make_value(xml: ET.Element) -> str:
 
 
 def _make_entries(xml: ET.Element) -> Iterator[tuple[str, str]]:
-    # Yield sub-entries (e.g. compounds) if any exist.
-    for child in xml.findall("./segmenthd"):
-        key = _make_key(child)
-        value = _make_value(child)
-        yield key, value
+    """Yield all entries in the given XML element.
 
+    An element might contain multiple elements. This function first yields the
+    parent (root) element then yields all children in order.
+
+    :param xml: a `lexhead` element
+    """
+    assert xml.tag == "lexhead"
+    children = xml.findall("./segmenthd")
+
+    for child in children:
         # Remove this child so that it's not included in the parent entry.
         # (This is the standard we follow in other dictionary entries. In
         # the future, we can improve how we model sub-entries and make this
@@ -129,16 +135,23 @@ def _make_entries(xml: ET.Element) -> Iterator[tuple[str, str]]:
         xml.remove(child)
 
     # Yield the main entry.
+    # (We yield the main element first to better support a potential use case
+    # where we show in-order dictionary entries to the user.)
     key = _make_key(xml)
     value = _make_value(xml)
     yield key, value
+
+    # Yield sub-entries (e.g. compounds) if any exist.
+    for child in children:
+        key = _make_key(child)
+        value = _make_value(child)
+        yield key, value
 
 
 def _iter_entries_as_xml(blobs: list[str]) -> Iterator[tuple[str, str]]:
     for blob in blobs:
         xml = ET.fromstring(blob)
         for entry in xml:
-            assert entry.tag == "lexhead"
             yield from _make_entries(entry)
 
 
@@ -160,7 +173,7 @@ def run(use_cache):
     create_from_scratch(
         engine,
         slug="apte-sh",
-        title="संस्कृत-हिन्दी कोश (आप्टे, 1966)",
+        title="आप्टे संस्कृत-हिन्दी कोश (1966)",
         generator=_iter_entries_as_xml(blobs),
     )
 
