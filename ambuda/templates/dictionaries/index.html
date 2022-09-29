@@ -1,4 +1,4 @@
-{% extends 'base-text.html' %}
+{% extends 'header-main-footer.html' %}
 {% import "macros/components.html" as mc %}
 {% import 'macros/dictionaries.html' as m %}
 
@@ -12,13 +12,10 @@ different languages.
 {%- endblock %}
 
 
-{% block content %}
-<h1 class="text-xl font-bold my-4">{{ _('Dictionary lookup') }}</h1>
-
+{% macro dictionary_form() %}
 <form
     id="dict--form"
     class="mb-4"
-    x-data="dictionary"
     @submit.prevent="searchDictionary">
   <div class="flex mb-2">
     <input
@@ -49,7 +46,10 @@ different languages.
     {% include 'include/script-options.html' %}
   </select>
 </form>
+{% endmacro %}
 
+
+{% macro dictionary_response(query, entries) %}
 <div id="dict--response">
 {% if query or entries %}
   {% with query=query, entries=entries %}
@@ -59,5 +59,30 @@ different languages.
   {% include 'include/dictionary-help.html' %}
 {% endif %}
 </div>
+{% endmacro %}
 
+
+{% block main %}
+<article class="p-4 md:p-0 max-w-4xl mx-auto md:px-2 md:my-24 md:mb-36">
+
+<h1 class="text-xl font-bold my-4">{{ _('Dictionary lookup') }}</h1>
+
+<div x-data="dictionary" class="lg:flex">
+  <div class="flex-1 max-w-[700px]">
+    {{ dictionary_form() }}
+    {{ dictionary_response(query, entries) }}
+  </div>
+
+  <div class="text-sm
+      bg-slate-100 rounded p-2 overflow-hidden
+      mt-4 lg:mt-0 lg:ml-4 lg:w-48">
+    <h3 class="font-bold text-slate-500 mb-2">{{ _('History') }}</h3>
+    <ul x-cloak class="a-hover-underline" x-if="history.length">
+      <template x-for="q in history.slice().reverse()">
+        <li><a href="#" x-text="q" @click.prevent="searchFor(q)"></a></li>
+      </template>
+    </ul>
+  </div>
+</div>
+</article>
 {% endblock %}

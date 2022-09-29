@@ -20,6 +20,9 @@
     @apply bg-red-200 text-red-700;
   }
 
+  /* Needed to support the Alpine `x-cloak` attribute. */
+  [x-cloak] { display: none !important; }
+
   /* Theme colors */
   .text-brand { color: #152b48; }
   .bg-brand { background: #152b48; }
