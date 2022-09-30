@@ -1,4 +1,4 @@
-{% extends 'header-main-footer.html' %}
+{% extends 'base-text.html' %}
 {% import "macros/components.html" as mc %}
 {% import 'macros/dictionaries.html' as m %}
 
@@ -27,7 +27,7 @@ different languages.
     >
     </input>
     <input type="submit" value="{{ _('Search') }}"
-        class="cursor-pointer bg-zinc-800 text-white p-2 rounded-tr rounded-br"></input>
+        class="cursor-pointer btn-submit p-2 rounded-tr rounded-br"></input>
   </div>
   <select
       id="dict--version"
@@ -49,6 +49,27 @@ different languages.
 {% endmacro %}
 
 
+{% macro dictionary_history() %}
+<div class="text-sm my-4 pb-2 border-b text-slate-500
+     flex items-start justify-between"
+     x-cloak x-show="history.length">
+  <div class="flex flex-1 overflow-hidden">
+    <h3 class="font-bold mb-2">{{ _('History:') }}</h3>
+    <ul class="a-hover-underline flex">
+      <template x-for="q in history.slice().reverse()">
+        <li class="px-1">
+          <a href="#" x-text="q" @click.prevent="searchFor(q)"></a>
+        </li>
+      </template>
+    </ul>
+  </div>
+  <button class="btn btn-basic text-xs !p-0.5" @click.prevent="history = []">
+    Clear
+  </button>
+</div>
+{% endmacro %}
+
+
 {% macro dictionary_response(query, entries) %}
 <div id="dict--response">
 {% if query or entries %}
@@ -62,27 +83,12 @@ different languages.
 {% endmacro %}
 
 
-{% block main %}
-<article class="p-4 md:p-0 max-w-4xl mx-auto md:px-2 md:my-24 md:mb-36">
-
+{% block content %}
 <h1 class="text-xl font-bold my-4">{{ _('Dictionary lookup') }}</h1>
 
-<div x-data="dictionary" class="lg:flex">
-  <div class="flex-1 max-w-[700px]">
-    {{ dictionary_form() }}
-    {{ dictionary_response(query, entries) }}
-  </div>
-
-  <div class="text-sm
-      bg-slate-100 rounded p-2 overflow-hidden
-      mt-4 lg:mt-0 lg:ml-4 lg:w-48">
-    <h3 class="font-bold text-slate-500 mb-2">{{ _('History') }}</h3>
-    <ul x-cloak class="a-hover-underline" x-if="history.length">
-      <template x-for="q in history.slice().reverse()">
-        <li><a href="#" x-text="q" @click.prevent="searchFor(q)"></a></li>
-      </template>
-    </ul>
-  </div>
+<div x-data="dictionary">
+  {{ dictionary_form() }}
+  {{ dictionary_history() }}
+  {{ dictionary_response(query, entries) }}
 </div>
-</article>
 {% endblock %}
