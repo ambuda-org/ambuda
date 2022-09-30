@@ -81,23 +81,25 @@ export default () => ({
     const $container = $('#dict--response');
     const resp = await fetch(url);
 
-    this.addToSearchHistory(this.query);
-
     if (resp.ok) {
       const text = await resp.text();
       $container.innerHTML = transliterateHTMLString(text, this.script);
+      // Update search history after the fetch so that the history widget
+      // renders in sync with the main content.
+      this.addToSearchHistory(this.query);
 
       const newURL = Routes.dictionaryQuery(this.source, this.query);
       window.history.replaceState({}, '', newURL);
     } else {
       $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
+      this.addToSearchHistory(this.query);
     }
   },
 
   // Search with the given query.
   async searchFor(q) {
     this.query = q;
-    this.searchDictionary();
+    await this.searchDictionary();
   },
 
   addToSearchHistory(query) {
