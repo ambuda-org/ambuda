@@ -5,6 +5,8 @@
   {% endfor %}
 </ul>
 {% elif query %}
-<p>No results found for query "<kbd>{{ query }}</kbd>". We suggest trying a
-different dictionary, since not all dictionaries have the same words.</p>
+<p>{% trans %}
+No results found for query "<kbd>{{ query }}</kbd>". We suggest trying a
+different dictionary, since not all dictionaries have the same words.
+{% endtrans %}</p>
 {% endif %}

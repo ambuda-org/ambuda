@@ -3,6 +3,7 @@
 
 import re
 
+import ambuda.seed.utils.data_utils
 import ambuda.seed.utils.itihasa_utils as iti
 
 BASE_URL = "https://bombay.indology.info/ramayana/text/UD/Ram{n}.txt"
@@ -61,7 +62,7 @@ def run():
     text_slug = "ramayanam"
 
     print("Initializing database ...")
-    engine = iti.create_db()
+    engine = ambuda.seed.utils.data_utils.create_db()
 
     print("Cleaning up old state ...")
     iti.delete_existing_text(engine, text_slug)
@@ -74,7 +75,7 @@ def run():
             n = "0" + n
 
         url = BASE_URL.format(n=n)
-        text = iti.fetch_text(url)
+        text = ambuda.seed.utils.data_utils.fetch_text(url)
         kandas.append(parse_kanda(text))
 
     print("Writing text ...")

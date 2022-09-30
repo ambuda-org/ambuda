@@ -19,7 +19,8 @@ def _load_user(user_id: int) -> Optional[User]:
     import current_user`) and as a template variable injected into each template.
     """
     session = get_session()
-    return session.query(User).get(int(user_id))
+    user = session.query(User).get(int(user_id))
+    return user if user and user.is_ok else None
 
 
 def _unauthorized():

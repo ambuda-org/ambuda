@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 import ambuda.database as db
 from ambuda.enums import SiteRole
-from ambuda.seed.utils.itihasa_utils import create_db
+from ambuda.seed.utils.data_utils import create_db
 
 
 def run():

@@ -24,7 +24,7 @@ different languages.
     <input
         name="q"
         type="text"
-        placeholder="राम, ರಾಮ, rāma, rAma, ..."
+        placeholder="{{ _('राम, ರಾಮ, rāma, rAma, ...') }}"
         class="p-2 flex-1 bg-zinc-100 rounded-tl rounded-bl"
         x-model="query"
     >
@@ -37,7 +37,8 @@ different languages.
       name="version"
       class="text-sm bg-zinc-100
       text-zinc-400 hover:text-zinc-800 p-1"
-      @change="setSource($event.target.value)">
+      x-model="source"
+      @change="updateSource">
     {% include "include/dict-options.html" %}
   </select>
   <select

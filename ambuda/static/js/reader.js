@@ -35,6 +35,7 @@ async function searchDictionary(version, query, contentScript) {
     const text = await resp.text();
     $container.innerHTML = transliterateHTMLString(text, contentScript);
   } else {
+    // FIXME: add i18n support
     $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
   }
 }
@@ -71,12 +72,14 @@ async function showParsedBlock(blockID, contentScript, onFailure) {
     const link = document.createElement('a');
     link.className = 'text-sm text-zinc-400 hover:underline js--source';
     link.href = '#';
+    // FIXME: add i18n support
     link.innerHTML = '<span class=\'shown-side-by-side\'>Hide</span><span class=\'hidden-side-by-side\'>Show original</span>';
     parsedNode.firstChild.appendChild(link);
 
     $block.classList.add('show-parsed');
   } else {
     $block.classList.remove('has-parsed');
+    // FIXME: add i18n support
     $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
     onFailure();
   }

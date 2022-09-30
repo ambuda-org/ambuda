@@ -19,6 +19,7 @@ import config
 from ambuda import admin as admin_manager
 from ambuda import auth as auth_manager
 from ambuda import checks, filters, queries
+from ambuda.consts import LOCALES
 from ambuda.mail import mailer
 from ambuda.utils import assets
 from ambuda.views.about import bp as about
@@ -97,6 +98,7 @@ def create_app(config_env: str):
     app.config.from_object(config_spec)
 
     # Sanity checks
+    assert config_env == config_spec.AMBUDA_ENVIRONMENT
     if config_env != config.TESTING:
         with app.app_context():
             checks.check_database(config_spec.SQLALCHEMY_DATABASE_URI)
@@ -150,6 +152,7 @@ def create_app(config_env: str):
         {
             "asset": assets.hashed_static,
             "pgettext": pgettext,
+            "ambuda_locales": LOCALES,
         }
     )
 

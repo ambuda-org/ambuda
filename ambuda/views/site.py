@@ -2,6 +2,8 @@
 
 from flask import Blueprint, redirect, render_template, session, url_for
 
+from ambuda.consts import LOCALES
+
 bp = Blueprint("site", __name__)
 
 
@@ -46,7 +48,10 @@ def internal_server_error(e):
     return render_template("500.html"), 500
 
 
-@bp.route("/language/<language>")
-def set_language(language=None):
-    session["locale"] = language
+@bp.route("/language/<slug>")
+def set_language(slug=None):
+    locale = [L for L in LOCALES if slug == L.slug]
+    if locale:
+        locale = locale[0]
+        session["locale"] = locale.code
     return redirect(url_for("site.index"))

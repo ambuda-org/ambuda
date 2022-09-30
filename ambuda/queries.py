@@ -204,7 +204,11 @@ def page(project_id, page_slug: str) -> Optional[db.Page]:
 
 def user(username: str) -> Optional[db.User]:
     session = get_session()
-    return session.query(db.User).filter_by(username=username).first()
+    return (
+        session.query(db.User)
+        .filter_by(username=username, is_deleted=False, is_banned=False)
+        .first()
+    )
 
 
 def create_user(*, username: str, email: str, raw_password: str) -> db.User:

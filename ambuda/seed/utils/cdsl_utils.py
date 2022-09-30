@@ -7,6 +7,12 @@ from sqlalchemy.orm import Session
 
 import ambuda.database as db
 
+#: The maximum number of entries to add to the dictionary at one time.
+#:
+#: Batching is more efficient than adding entries one at a time. But large
+#: batches also take up a lot of memory. I picked 10000 arbitrarily.
+BATCH_SIZE = 10000
+
 
 def iter_entries_as_xml(blob: str):
     """Iterate over CDSL-style dictionary XML."""
@@ -71,6 +77,7 @@ def batches(generator, n):
 def create_from_scratch(engine, slug: str, title: str, generator):
     with Session(engine) as session:
         delete_existing_dict(session, slug)
+
         dictionary = create_dict(session, slug=slug, title=title)
         dictionary_id = dictionary.id
         assert dictionary_id
@@ -78,11 +85,11 @@ def create_from_scratch(engine, slug: str, title: str, generator):
     entries = db.DictionaryEntry.__table__
     ins = entries.insert()
     with engine.connect() as conn:
-        for i, batch in enumerate(batches(generator, 10000)):
+        for i, batch in enumerate(batches(generator, BATCH_SIZE)):
             items = []
             for key, value in batch:
                 items.append(
                     {"dictionary_id": dictionary.id, "key": key, "value": value}
                 )
             conn.execute(ins, items)
-            logging.info(10000 * (i + 1))
+            logging.info(BATCH_SIZE * (i + 1))

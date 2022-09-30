@@ -28,11 +28,16 @@ install-python:
 	. env/bin/activate; pip install --upgrade pip
 	. env/bin/activate; pip install -r requirements.txt
 
+# Fetch and build all i18n files.
+install-i18n: py-venv-check
+	python -m ambuda.scripts.fetch_i18n_files
+
 # Upgrade an existing setup.
 upgrade:
 	make install-frontend install-python
-	. env/bin/activate; python -m ambuda.seed.lookup
+	. env/bin/activate; make install-i18n
 	. env/bin/activate; alembic upgrade head
+	. env/bin/activate; python -m ambuda.seed.lookup
 
 # Seed the database with just enough data for the devserver to be interesting.
 db-seed-basic: py-venv-check
@@ -67,7 +72,7 @@ devserver: py-venv-check
 
 # Start using Docker.
 start-docker:
-	docker-compose up --build --force-recreate
+	docker-compose up -V --build --force-recreate
 
 # Run a local Celery instance for background tasks.
 celery: 
@@ -168,5 +173,6 @@ babel-update: py-venv-check
 	pybabel update -i messages.pot -d ambuda/translations
 
 # Compile all translation files.
+# NOTE: you probably want `make install-i18n` instead.
 babel-compile: py-venv-check
-	pybabel compile -d ambuda/translations -D "messages text"
+	pybabel compile -d ambuda/translations

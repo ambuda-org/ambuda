@@ -3,9 +3,13 @@
 The blog is a work in progress and doesn't have a defined voice, level of
 formality, etc. For now, we use it for any text content that it doesn't make
 sense to check into version control.
+
+Notes on i18n: Generally, this interface is for admins and moderators, so the
+`gettext` annotations here are quite lax.
 """
 
 from flask import Blueprint, abort, flash, redirect, render_template, url_for
+from flask_babel import lazy_gettext as _l
 from flask_login import current_user
 from flask_wtf import FlaskForm
 from slugify import slugify
@@ -72,7 +76,7 @@ def create_post():
         session.add(post)
         session.commit()
 
-        flash("Created post.")
+        flash(_l("Created post."), "success")
         return redirect(url_for("blog.index"))
 
     return render_template("blog/create-post.html", form=form)
@@ -92,7 +96,7 @@ def edit_post(slug):
         form.populate_obj(post_)
         session.commit()
 
-        flash("Edited post.")
+        flash(_l("Edited post."), "success")
         return redirect(url_for("blog.index"))
 
     return render_template("blog/edit-post.html", post=post_, form=form)
@@ -113,7 +117,7 @@ def delete_post(slug):
             session.delete(post_)
             session.commit()
 
-            flash(f"Deleted post {slug}")
+            flash(f"Deleted post {slug}", "success")
             return redirect(url_for("blog.index"))
         else:
             form.slug.errors.append("Mismatch with project slug.")

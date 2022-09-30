@@ -1,6 +1,8 @@
 """Utilities for interpreting parsed words.
 
 This module is quite sloppy and will likely change in the future.
+
+FIXME: add i18n support
 """
 
 from dataclasses import dataclass

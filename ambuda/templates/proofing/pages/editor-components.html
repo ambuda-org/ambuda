@@ -49,7 +49,7 @@ these components in our help text and documentation.
 
   {% set history_url = url_for("proofing.page.history", project_slug=project.slug, page_slug=cur.slug) %}
   <nav class="flex text-slate-700 text-md">
-    <a class="block p-2" href="{{ history_url }}">History</a>
+    <a class="block p-2" href="{{ history_url }}">{{ _('History') }}</a>
     {% set prev_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=prev.slug) %}
     {% set next_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=next.slug) %}
     <a class="block p-2" href="{{ prev_url }}">&larr;</a>
@@ -101,11 +101,11 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
   <div x-data="{open: false}" class="relative">
     <button class="{{ button_css }}"
        @click.prevent="open=!open"
-       @click.outside="open=false">Layout</button>
+       @click.outside="open=false">{{ _('Layout') }}</button>
     <div x-show="open" class="dropdown-pane w-48">
       <ul class="text-sm" @click.prevent="open=false">
-        {{ _dropdown_item('displaySideBySide', 'Image right, text left') }}
-        {{ _dropdown_item('displayTopAndBottom', 'Image above, text below') }}
+        {{ _dropdown_item('displaySideBySide', _('Image right, text left')) }}
+        {{ _dropdown_item('displayTopAndBottom', _('Image above, text below')) }}
       </ul>
     </div>
   </div>
@@ -113,22 +113,23 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
   <div x-data="{open: false}" class="relative">
     <button class="{{ button_css }}"
        @click.prevent="open=!open"
-       @click.outside="open=false">Markup</button>
+       @click.outside="open=false">{{ _('Markup') }}</button>
     <div x-show="open" class="dropdown-pane w-48">
       <ul class="text-sm" @click.prevent="open=false">
-        {{ _dropdown_item('markAsError', 'Mark as error') }}
-        {{ _dropdown_item('markAsFix', 'Mark as fix') }}
-        {{ _dropdown_item('markAsUnclear', 'Mark as unclear') }}
-        {{ _dropdown_item('markAsFootnoteNumber', 'Mark as footnote number') }}
+        {{ _dropdown_item('markAsError', _('Mark as error')) }}
+        {{ _dropdown_item('markAsFix', _('Mark as fix')) }}
+        {{ _dropdown_item('markAsUnclear', _('Mark as unclear')) }}
+        {{ _dropdown_item('markAsFootnoteNumber', _('Mark as footnote number')) }}
       </ul>
     </div>
   </div>
 
   <div x-data="{open: false}" class="relative" @click.outside="open=false">
     <button class="{{ button_css }}"
-       @click.prevent="open=!open">Transliterator</button>
+       @click.prevent="open=!open">{{ _('Transliterator') }}</button>
     <div x-show="open" class="dropdown-pane w-80 p-2">
-      <label class="block">From:</label>
+      {# i18n: source scheme when transliterating #}
+      <label class="block">{{ pgettext('editor', 'From:') }}</label>
       <div class="mb-2 flex justify-between">
         <select class="p-1" x-model="fromScript">
           <option value="hk">Harvard-Kyoto ("aGka" &rarr; {{ 'aGka'|d }})</option>
@@ -137,17 +138,19 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
         </select>
       </div>
 
-      <label class="block">To:</label>
+      {# i18n: destination scheme when transliterating #}
+      <label class="block">{{ pgettext('editor', 'To:') }}</label>
       <div class="mb-2 flex justify-between">
         <select class="p-1" x-model="toScript">
-          <option value="devanagari">Devanagari</option>
-          <option value="iast">IAST</option>
+          <option value="devanagari">{{ _('Devanagari') }}</option>
+          <option value="iast">{{ _('IAST') }}</option>
         </select>
       </div>
 
       <button class="mt-4 btn btn-basic block w-full"
           @click.prevent="transliterate; open=false">
-          Transliterate selected text
+          {# i18n: Command in proofing editor #}
+          {{ _('Transliterate selected text') }}
       </button>
     </div>
   </div>
@@ -155,9 +158,10 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
   <div x-data="{open: false}" class="relative">
     <button class="{{ button_css }}"
        @click.prevent="open=!open"
-       @click.outside="open=false">Characters</button>
+       {# i18n: Selection menu for Unicode character in proofing editor. #}
+       @click.outside="open=false">{{ pgettext('editor', 'Characters') }}</button>
     <div x-show="open" class="p-2 dropdown-pane w-60" @click.prevent="copyCharacter">
-      <p class="text-xs text-center mb-2">Click a character to copy it.</p>
+      <p class="text-xs text-center mb-2">{{ _('Click a character to copy it.') }}</p>
       <ul class="text-center">
         {{ _latin_char_row('ā á â à', 'grid-cols-8') }}
         {{ _latin_char_row('ī í î ì', 'grid-cols-8') }}
@@ -174,8 +178,11 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
     </div>
   </div>
 
-  <a class="{{ button_css }}"
-      href="{{ url_for('proofing.editor_guide') }}" target="_blank">Help</a> 
+  {% set help_url = url_for('proofing.editor_guide') %}
+  <a class="{{ button_css }}" href="{{ help_url }}" target="_blank">
+    {# i18n: Help text for proofing edit #}
+	{{ pgettext('editor', 'Help') }}
+  </a>
 </nav>
 {% endmacro %}
 
@@ -190,8 +197,9 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
           class="btn bg-sky-700 text-white m-2 hover:bg-sky-900"
           @click="runOCR"
           :disabled="isRunningOCR"
-          x-text="isRunningOCR ? 'Running ...' : 'Run OCR'">
-        Run OCR
+          {# i18n: When clicked, run OCR #}
+          x-text="isRunningOCR ? '{{ _("Running OCR ...") }}' : '{{ _("Run OCR") }}'">
+        {{ _("Run OCR") }}
       </button>
     </div>
     <div>
