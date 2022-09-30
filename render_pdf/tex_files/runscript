@@ -1,4 +1,4 @@
-xelatex template.tex
+lualatex output.tex
 rm *.out
 rm *.log
 rm *.aux
