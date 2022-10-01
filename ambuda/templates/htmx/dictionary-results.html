@@ -1,10 +1,13 @@
-{% if query and entries %}
-<ul>
-  {% for entry in entries %}
-    {{ entry|safe }}
-  {% endfor %}
-</ul>
-{% elif query %}
+{% for source, source_entries in entries.items() %}
+  {{ source }}
+  <ul>
+    {% for entry in source_entries %}
+      {{ entry|safe }}
+    {% endfor %}
+  </ul>
+{% endfor %}
+
+{% if query and not entries %}
 <p>{% trans %}
 No results found for query "<kbd>{{ query }}</kbd>". We suggest trying a
 different dictionary, since not all dictionaries have the same words.

@@ -123,11 +123,11 @@ def dict_entries(sources: list[str], keys: list[str]) -> list[db.DictionaryEntry
     session = get_session()
     dicts = dictionaries()
 
-    ids = {x.id for x in dicts[version]
+    dict_ids = {dicts[s].id for s in sources if s in dicts}
     return (
         session.query(db.DictionaryEntry)
         .filter(
-            (db.DictionaryEntry.dictionary_id == d.id)
+            (db.DictionaryEntry.dictionary_id.in_(dict_ids))
             & (db.DictionaryEntry.key.in_(keys))
         )
         .all()
