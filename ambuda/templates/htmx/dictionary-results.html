@@ -4,7 +4,7 @@
   {% for slug, source_entries in entries.items() %}
   <div x-data="{show: true}">
     {% if num_sources > 1 %}
-    <header class="my-0.5 cursor-pointer rounded p-1 text-slate-500 bg-slate-200 text-xs font-bold uppercase flex justify-between"
+    <header class="my-0.5 cursor-pointer rounded p-1 text-sky-600 bg-sky-100 text-xs font-bold uppercase flex justify-between"
         @click.prevent="show=!show">
       <h1>{{ dictionaries[slug] }}</h1> <span x-text="show ? '▼' : '◀'"></span>
     </header>
