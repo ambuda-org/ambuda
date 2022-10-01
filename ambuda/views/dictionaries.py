@@ -1,3 +1,17 @@
+"""Dictionary routes and API.
+
+A *source* is our term for a specific dictionary source, e.g. the Apte
+Sanskrit-English dictionary from 1890. To support lookup against multiple
+dictionaries, our code here generally works with *lists* of sources.
+
+A source list is valid iff all of the following conditions are met:
+- the list is non-empty.
+- at least one source in the list exists in the dictionary.
+
+If a source list is invalid, we raise a 404 error.
+"""
+
+
 import functools
 
 from flask import Blueprint, abort, redirect, render_template, url_for
@@ -60,10 +74,12 @@ def index():
     return render_template("dictionaries/index.html", dictionaries=dictionaries)
 
 
-@bp.route("/<list:slugs>/")
-def sources(slugs):
-    if not all(s in _get_dictionary_data() for s in slugs):
+@bp.route("/<list:sources>/")
+def index_with_sources(sources):
+    safe_sources = [s for s in sources if s in _get_dictionary_data()]
+    if not safe_sources:
         abort(404)
+
     # TODO: set chosen dictionaries as UX view
     return redirect(url_for("dictionaries.index"))
 
@@ -72,8 +88,8 @@ def sources(slugs):
 def entry(sources, query):
     """Show a specific dictionary entry."""
     dictionaries = _get_dictionary_data()
-    if not sources or not all(s in dictionaries for s in sources):
-        # Abort if sources aren't reasonable.
+    sources = [s for s in sources if s in dictionaries]
+    if not sources:
         abort(404)
 
     entries = _fetch_entries(sources, query)
@@ -88,8 +104,8 @@ def entry(sources, query):
 @api.route("/dictionaries/<list:sources>/<query>")
 def entry_htmx(sources, query):
     dictionaries = _get_dictionary_data()
-    if not sources or not all(s in _get_dictionary_data() for s in sources):
-        # Abort if sources aren't reasonable.
+    sources = [s for s in sources if s in dictionaries]
+    if not sources:
         abort(404)
 
     entries = _fetch_entries(sources, query)

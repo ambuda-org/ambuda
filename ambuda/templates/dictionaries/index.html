@@ -3,7 +3,7 @@
 {% import 'macros/dictionaries.html' as m %}
 
 
-{% macro _check(name, title) %}
+{% macro _checkbox(name, title) %}
 {% set field_name = "source-" + name %}
 <div>
   <input type="checkbox" id="{{ field_name }}" name="{{ field_name }}"
@@ -54,22 +54,22 @@ different languages.
     <div x-show="showSourceSelector" class="dropdown-pane p-2 w-64">
       <fieldset>
         <legend class="font-bold my-2">{{ _('Sanskrit-English') }}</legend>
-        {{ _check("apte", _("Apte (1890)")) }}
-        {{ _check("mw", _('Monier-Williams (1899)')) }}
-        {{ _check("shabdasagara", _('Shabdasagara (1900)')) }}
+        {{ _checkbox("apte", _("Apte (1890)")) }}
+        {{ _checkbox("mw", _('Monier-Williams (1899)')) }}
+        {{ _checkbox("shabdasagara", _('Shabdasagara (1900)')) }}
       </fieldset>
       <fieldset>
         <legend class="font-bold my-2">{{ _('Sanskrit-Sanskrit') }}</legend>
-        {{ _check("vacaspatyam", _('Vācaspatyam (1873)')) }}
-        {{ _check("shabdakalpadruma", _('Śabdakalpadrumaḥ (1886)')) }}
+        {{ _checkbox("vacaspatyam", _('Vācaspatyam (1873)')) }}
+        {{ _checkbox("shabdakalpadruma", _('Śabdakalpadrumaḥ (1886)')) }}
       </fieldset>
       <fieldset>
         <legend class="font-bold my-2">{{ _('Sanskrit-Hindi') }}</legend>
-        {{ _check("apte-sh", _("Apte Sanskrit-Hindi Kosh (1966)")) }}
+        {{ _checkbox("apte-sh", _("Apte Sanskrit-Hindi Kosh (1966)")) }}
       </fieldset>
       <fieldset>
         <legend class="font-bold my-2">{{ _('Sanskrit-Kannada') }}</legend>
-        {{ _check("shabdartha-kaustubha", _('Shabdarthakaustubha')) }}
+        {{ _checkbox("shabdartha-kaustubha", _('Shabdarthakaustubha')) }}
       </fieldset>
     </div>
   </div>
