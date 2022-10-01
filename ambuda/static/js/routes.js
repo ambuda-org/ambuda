@@ -23,7 +23,9 @@ export default {
     // segments: "", "tools", "dictionaries", "<source>", "<query>"
     if (pathname.startsWith(prefix) && segments.length === 5) {
       return {
-        sources: segments[3].split('+'),
+        // The server uses only `,`, but we use a permissive regex here so that
+        // the URL is easier for the end user to hack and modify.
+        sources: segments[3].split(/[+,-]/),
         query: segments[4],
       };
     }

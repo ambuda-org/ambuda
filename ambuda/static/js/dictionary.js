@@ -9,7 +9,9 @@ const DICTIONARY_CONFIG_KEY = 'dictionary';
 const HISTORY_SIZE = 10;
 
 export default () => ({
+  // The script to use for Sanskrit text.
   script: 'devanagari',
+  // The dictionary sources to use.
   sources: ['mw'],
 
   // (transient data)
@@ -30,6 +32,7 @@ export default () => ({
     this.loadSettingsFromURL();
     this.loadSettings();
     this.transliterate('devanagari', this.script);
+    console.log('sources are', this.sources);
   },
 
   /** Load source and query from the URL (if defined). */
