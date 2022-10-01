@@ -3,7 +3,10 @@ import {
 } from './core.ts';
 import Routes from './routes';
 
+// The key to use when storing the dictionary config in local storage.
 const DICTIONARY_CONFIG_KEY = 'dictionary';
+// The maximum number of queries to keep in `this.history`.
+const HISTORY_SIZE = 10;
 
 export default () => ({
   script: 'devanagari',
@@ -15,7 +18,10 @@ export default () => ({
   // from `script` since we currently need to know both fields in order to
   // transliterate.
   uiScript: null,
+  // The current query.
   query: '',
+  // The user's search history, from least to most recent.
+  history: [],
 
   init() {
     // URL settings take priority.
@@ -74,14 +80,34 @@ export default () => ({
     const url = Routes.ajaxDictionaryQuery(this.source, this.query);
     const $container = $('#dict--response');
     const resp = await fetch(url);
+
     if (resp.ok) {
       const text = await resp.text();
       $container.innerHTML = transliterateHTMLString(text, this.script);
+      // Update search history after the fetch so that the history widget
+      // renders in sync with the main content.
+      this.addToSearchHistory(this.query);
 
       const newURL = Routes.dictionaryQuery(this.source, this.query);
       window.history.replaceState({}, '', newURL);
     } else {
       $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
+      this.addToSearchHistory(this.query);
+    }
+  },
+
+  // Search with the given query.
+  async searchFor(q) {
+    this.query = q;
+    await this.searchDictionary();
+  },
+
+  addToSearchHistory(query) {
+    // If the query is already in the history, remove it.
+    this.history = this.history.filter((x) => x !== query).concat(query);
+
+    if (this.history.length > HISTORY_SIZE) {
+      this.history.shift();
     }
   },
 

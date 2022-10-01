@@ -62,7 +62,7 @@ test('loadSettings works if localStorage data is empty', () => {
 });
 
 test('loadSettings works if localStorage data is corrupt', () => {
-  localStorage.setItem('proofing-editor', "invalid JSON");
+  localStorage.setItem('dictionary', "invalid JSON");
   const d = Dictionary();
   d.loadSettings();
   expect(d.script).toBe('devanagari');
@@ -113,4 +113,32 @@ test('searchDictionary gracefully handles a server error', async () => {
   d.query = 'error';
   await d.searchDictionary();
   expect($('#dict--response').innerHTML.trim()).toMatch(new RegExp('^<p>Sorry.*'));
+});
+
+test('searchFor fetches a response', async () => {
+  const d = Dictionary();
+  await d.searchFor("saMskRtam");
+  expect($('#dict--response').innerHTML).toBe('<div>fetched mw:saMskRtam</div>');
+});
+
+test('addToSearchHistory adds the given query', async () => {
+  const d = Dictionary();
+  expect(d.history).toEqual([]);
+
+  d.addToSearchHistory("deva");
+  expect(d.history).toEqual(["deva"]);
+});
+
+test('addToSearchHistory reorders an existing word', async () => {
+  const d = Dictionary();
+  d.history = ["deva", "svarga"];
+  d.addToSearchHistory("deva");
+  expect(d.history).toEqual(["svarga", "deva"]);
+});
+
+test('addToSearchHistory flushes a word over capacity', async () => {
+  const d = Dictionary();
+  d.history = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+  d.addToSearchHistory("deva");
+  expect(d.history).toEqual(["2", "3", "4", "5", "6", "7", "8", "9", "10", "deva"]);
 });
