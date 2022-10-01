@@ -12,8 +12,8 @@ bp = Blueprint("dictionaries", __name__)
 
 
 @functools.cache
-def _get_dictionary_slugs() -> set[str]:
-    return {d.slug for d in q.dictionaries()}
+def _get_dictionary_data() -> dict[str, str]:
+    return {d.slug: d.title for d in q.dictionaries()}
 
 
 def _create_query_keys(sources: list[str], query: str) -> list[str]:
@@ -56,13 +56,13 @@ def _fetch_entries(sources: list[str], query: str) -> dict[str, str]:
 @bp.route("/")
 def index():
     """Show the dictionary lookup tool."""
-    dictionaries = q.dictionaries()
-    return render_template("dictionaries/index.html")
+    dictionaries = _get_dictionary_data()
+    return render_template("dictionaries/index.html", dictionaries=dictionaries)
 
 
 @bp.route("/<list:slugs>/")
 def sources(slugs):
-    if any(s not in _get_dictionary_slugs() for s in slugs):
+    if not all(s in _get_dictionary_data() for s in slugs):
         abort(404)
     # TODO: set chosen dictionaries as UX view
     return redirect(url_for("dictionaries.index"))
@@ -71,21 +71,31 @@ def sources(slugs):
 @bp.route("/<list:sources>/<query>")
 def entry(sources, query):
     """Show a specific dictionary entry."""
-    # Abort if sources aren't reasonable.
-    if not sources:
-        abort(404)
-
-    if any(s not in _get_dictionary_slugs() for s in sources):
+    dictionaries = _get_dictionary_data()
+    if not sources or not all(s in dictionaries for s in sources):
+        # Abort if sources aren't reasonable.
         abort(404)
 
     entries = _fetch_entries(sources, query)
-    return render_template("dictionaries/index.html", query=query, entries=entries)
+    return render_template(
+        "dictionaries/index.html",
+        query=query,
+        entries=entries,
+        dictionaries=dictionaries,
+    )
 
 
 @api.route("/dictionaries/<list:sources>/<query>")
 def entry_htmx(sources, query):
-    if any(s not in _get_dictionary_slugs() for s in sources):
+    dictionaries = _get_dictionary_data()
+    if not sources or not all(s in _get_dictionary_data() for s in sources):
+        # Abort if sources aren't reasonable.
         abort(404)
 
     entries = _fetch_entries(sources, query)
-    return render_template("htmx/dictionary-results.html", query=query, entries=entries)
+    return render_template(
+        "htmx/dictionary-results.html",
+        query=query,
+        entries=entries,
+        dictionaries=dictionaries,
+    )
