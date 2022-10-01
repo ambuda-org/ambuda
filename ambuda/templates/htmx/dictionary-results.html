@@ -5,11 +5,16 @@
     {{ source }}
   </h1>
   {% endif %}
+
+  {% if source_entries %}
   <ul>
     {% for entry in source_entries %}
       {{ entry|safe }}
     {% endfor %}
   </ul>
+  {% else %}
+  <p>{% trans %}No entries found.{% endtrans %}</p>
+  {% endif %}
 {% endfor %}
 
 {% if query and not entries %}
