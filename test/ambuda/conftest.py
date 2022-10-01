@@ -7,6 +7,19 @@ from ambuda.consts import BOT_USERNAME, TEXT_CATEGORIES
 from ambuda.queries import get_engine, get_session
 
 
+def _add_dictionaries(session):
+    """Add dummy dictionary data."""
+    d1 = db.Dictionary(slug="dict-1", title="Test Dictionary 1")
+    d2 = db.Dictionary(slug="dict-2", title="Test Dictionary 2")
+    session.add_all([d1, d2])
+    session.flush()
+
+    e1 = db.DictionaryEntry(dictionary_id=d1.id, key="agni", value="<div>fire</div>")
+    e2 = db.DictionaryEntry(dictionary_id=d2.id, key="agni", value="<div>ignis</div>")
+    session.add_all([e1, e2])
+    session.flush()
+
+
 def initialize_test_db():
     engine = get_engine()
     assert ":memory:" in engine.url
@@ -45,15 +58,7 @@ def initialize_test_db():
     )
     session.add(parse)
 
-    # Dictionaries
-    dictionary = db.Dictionary(slug="test-dict", title="Test Dictionary")
-    session.add(dictionary)
-    session.flush()
-
-    dictionary_entry = db.DictionaryEntry(
-        dictionary_id=dictionary.id, key="agni", value="<div>fire</div>"
-    )
-    session.add(dictionary_entry)
+    _add_dictionaries(session)
 
     # Bot
     bot = db.User(username=BOT_USERNAME, email="ambuda-bot@ambuda.org")
