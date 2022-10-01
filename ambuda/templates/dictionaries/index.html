@@ -45,10 +45,10 @@ different languages.
     {% include "include/dict-options.html" %}
   </select>
   </noscript>
-  <div x-cloak @click.outside="showSourceSelector = false; searchDictionary()"
+  <div x-cloak @click.outside="onClickOutsideOfSourceSelector"
       class="relative text-sm select-none inline-block">
     <div class="f-select px-2 cursor-pointer inline-block"
-         @click.prevent="showSourceSelector = !showSourceSelector">
+         @click.prevent="toggleSourceSelector">
         {{ _('(choose dictionary)') }} <span class="text-xs">&#x25BC;</span>
     </div>
     <div x-show="showSourceSelector" class="dropdown-pane p-2 w-64">

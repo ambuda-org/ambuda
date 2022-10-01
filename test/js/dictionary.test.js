@@ -149,3 +149,17 @@ test('clearHistory clears the search history', () => {
   d.clearHistory();
   expect(d.history).toEqual([]);
 });
+
+test('toggleSourceSelector works', () => {
+  const d = Dictionary();
+  expect(d.showSourceSelector).toBe(false);
+  d.toggleSourceSelector();
+  expect(d.showSourceSelector).toBe(true);
+});
+
+test('onClickOutsideOfSourceSelector works', () => {
+  const d = Dictionary();
+  d.showSourceSelector = true;
+  d.onClickOutsideOfSourceSelector();
+  expect(d.showSourceSelector).toBe(false);
+});

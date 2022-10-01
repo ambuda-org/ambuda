@@ -122,6 +122,19 @@ export default () => ({
     this.history = [];
   },
 
+  /** Toggle the source selector's visibility. */
+  toggleSourceSelector() {
+    this.showSourceSelector = !this.showSourceSelector;
+  },
+
+  /** Close the source selector widget and re-run the query as needed. */
+  onClickOutsideOfSourceSelector() {
+    if (this.showSourceSelector) {
+      this.searchDictionary();
+    }
+    this.showSourceSelector = false;
+  },
+
   transliterate(oldScript, newScript) {
     transliterateElement($('#dict--response'), oldScript, newScript);
   },
