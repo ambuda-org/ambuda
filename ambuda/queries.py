@@ -119,20 +119,11 @@ def dictionaries() -> dict[str, db.Dictionary]:
     return {d.slug: d for d in session.query(db.Dictionary).all()}
 
 
-def dict_entry(version: str, key: str) -> list[db.DictionaryEntry]:
-    # TODO: same performance as dict_entries? If so, merge
+def dict_entries(sources: list[str], keys: list[str]) -> list[db.DictionaryEntry]:
     session = get_session()
     dicts = dictionaries()
-    d = dicts[version]
-    return (
-        session.query(db.DictionaryEntry).filter_by(dictionary_id=d.id, key=key).all()
-    )
 
-
-def dict_entries(version: str, keys: list[str]) -> list[db.DictionaryEntry]:
-    session = get_session()
-    dicts = dictionaries()
-    d = dicts[version]
+    ids = {x.id for x in dicts[version]
     return (
         session.query(db.DictionaryEntry)
         .filter(
