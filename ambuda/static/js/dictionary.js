@@ -10,7 +10,7 @@ const HISTORY_SIZE = 10;
 
 export default () => ({
   script: 'devanagari',
-  source: 'mw',
+  sources: ['mw'],
 
   // (transient data)
 
@@ -22,6 +22,8 @@ export default () => ({
   query: '',
   // The user's search history, from least to most recent.
   history: [],
+  // If show, show the source multiselect widget.
+  showSourceSelectWidget: false,
 
   init() {
     // URL settings take priority.
@@ -32,9 +34,9 @@ export default () => ({
 
   /** Load source and query from the URL (if defined). */
   loadSettingsFromURL() {
-    const { query, source } = Routes.parseDictionaryURL();
+    const { query, sources } = Routes.parseDictionaryURL();
     this.query = query || this.query;
-    this.source = source || this.source;
+    this.sources = sources || this.sources;
   },
 
   loadSettings() {
@@ -43,7 +45,7 @@ export default () => ({
       try {
         const settings = JSON.parse(settingsStr);
         this.script = settings.script || this.script;
-        this.source = settings.source || this.source;
+        this.sources = settings.sources || this.sources;
         this.uiScript = this.script;
       } catch (error) {
         // Old settings are invalid -- rewrite with valid values.
@@ -55,7 +57,7 @@ export default () => ({
   saveSettings() {
     const settings = {
       script: this.script,
-      source: this.source,
+      sources: this.sources,
     };
     localStorage.setItem(DICTIONARY_CONFIG_KEY, JSON.stringify(settings));
   },
@@ -77,7 +79,7 @@ export default () => ({
       return;
     }
 
-    const url = Routes.ajaxDictionaryQuery(this.source, this.query);
+    const url = Routes.ajaxDictionaryQuery(this.sources, this.query);
     const $container = $('#dict--response');
     const resp = await fetch(url);
 
@@ -88,7 +90,7 @@ export default () => ({
       // renders in sync with the main content.
       this.addToSearchHistory(this.query);
 
-      const newURL = Routes.dictionaryQuery(this.source, this.query);
+      const newURL = Routes.dictionaryQuery(this.sources, this.query);
       window.history.replaceState({}, '', newURL);
     } else {
       $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';

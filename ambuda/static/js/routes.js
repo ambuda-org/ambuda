@@ -23,12 +23,12 @@ export default {
     // segments: "", "tools", "dictionaries", "<source>", "<query>"
     if (pathname.startsWith(prefix) && segments.length === 5) {
       return {
-        source: segments[3],
+        sources: segments[3].split('+'),
         query: segments[4],
       };
     }
     return {
-      source: null,
+      sources: null,
       query: null,
     };
   },

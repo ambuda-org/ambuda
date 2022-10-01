@@ -3,6 +3,16 @@
 {% import 'macros/dictionaries.html' as m %}
 
 
+{% macro _check(name, title) %}
+{% set field_name = "source-" + name %}
+<div>
+  <input type="checkbox" id="{{ field_name }}" name="{{ field_name }}"
+    value="{{ name }}" x-model="sources">
+  <label for="{{ field_name }}">{{ title }}</label>
+</div>
+{% endmacro %}
+
+
 {% block title %}{{ mc.title(_('Dictionaries')) }}{% endblock %}
 
 
@@ -22,25 +32,55 @@ different languages.
         name="q"
         type="text"
         placeholder="{{ _('राम, ರಾಮ, rāma, rAma, ...') }}"
-        class="p-2 flex-1 bg-zinc-100 rounded-tl rounded-bl"
+        class="p-2 flex-1 bg-slate-100 rounded-tl rounded-bl"
         x-model="query"
     >
     </input>
     <input type="submit" value="{{ _('Search') }}"
         class="cursor-pointer btn-submit p-2 rounded-tr rounded-br"></input>
   </div>
+
+  <noscript>
   <select
       id="dict--version"
       name="version"
-      class="text-sm bg-zinc-100
-      text-zinc-400 hover:text-zinc-800 p-1"
-      x-model="source"
+      class="f-select"
       @change="updateSource">
     {% include "include/dict-options.html" %}
   </select>
+  </noscript>
+  <div x-cloak @click.outside="showSourceSelectWidget = false"
+      class="relative text-sm select-none inline-block">
+    <div class="f-select px-2 cursor-pointer inline-block"
+         @click.prevent="showSourceSelectWidget = !showSourceSelectWidget">
+        {{ _('(select dictionary)') }} <span class="text-xs">&#x25BC;</span>
+    </div>
+    <div x-show="showSourceSelectWidget" class="dropdown-pane p-2 w-64">
+      <fieldset>
+        <legend class="font-bold my-2">{{ _('Sanskrit-English') }}</legend>
+        {{ _check("apte", _("Apte (1890)")) }}
+        {{ _check("mw", _('Monier-Williams (1899)')) }}
+        {{ _check("shabdasagara", _('Shabdasagara (1900)')) }}
+      </fieldset>
+      <fieldset>
+        <legend class="font-bold my-2">{{ _('Sanskrit-Sanskrit') }}</legend>
+        {{ _check("vacaspatyam", _('Vācaspatyam (1873)')) }}
+        {{ _check("shabdakalpadruma", _('Śabdakalpadrumaḥ (1886)')) }}
+      </fieldset>
+      <fieldset>
+        <legend class="font-bold my-2">{{ _('Sanskrit-Hindi') }}</legend>
+        {{ _check("apte-sh", _("Apte Sanskrit-Hindi Kosh (1966)")) }}
+      </fieldset>
+      <fieldset>
+        <legend class="font-bold my-2">{{ _('Sanskrit-Kannada') }}</legend>
+        {{ _check("shabdartha-kaustubha", _('Shabdarthakaustubha')) }}
+      </fieldset>
+    </div>
+  </div>
+
   <select
       id="dict--script"
-      class="text-sm bg-zinc-100 text-zinc-400 hover:text-zinc-800 p-1"
+      class="f-select"
       x-model="uiScript"
       @change="updateScript">
     {% include 'include/script-options.html' %}

@@ -40,6 +40,9 @@
   ::file-selector-button {
     @apply border-0 p-2 rounded bg-slate-600 text-white cursor-pointer mr-4 hover:bg-black;
   }
+  .f-select {
+    @apply text-sm bg-slate-100 text-slate-400 hover:text-slate-800 p-1
+  }
 
   /* Dropdowns (e.g. in proofing editor) */
   .dropdown-pane {
