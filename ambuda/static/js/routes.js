@@ -2,11 +2,13 @@
  * Converts variables to URLs, and occasionally vice-versa.
  */
 export default {
-  ajaxDictionaryQuery: (version, query) => `/api/dictionaries/${version}/${query}`,
-  dictionaryQuery: (version, query) => `/tools/dictionaries/${version}/${query}`,
+  ajaxDictionaryQuery: (sources, query) => {
+    const sourcesStr = sources.join(',');
+    return `/api/dictionaries/${sourcesStr}/${query}`;
+  },
 
-  dictionaryQueryV2: (sources, query) => {
-    const sourcesStr = sources.join(",");
+  dictionaryQuery: (sources, query) => {
+    const sourcesStr = sources.join(',');
     return `/tools/dictionaries/${sourcesStr}/${query}`;
   },
 
@@ -32,7 +34,7 @@ export default {
     // segments: "", "tools", "dictionaries", "<source>", "<query>"
     if (pathname.startsWith(prefix) && segments.length === 5) {
       return {
-        sources: segments[3].split(","),
+        sources: segments[3].split(','),
         query: segments[4],
       };
     }

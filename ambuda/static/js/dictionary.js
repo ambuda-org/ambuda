@@ -90,23 +90,25 @@ export default () => ({
       $container.innerHTML = transliterateHTMLString(text, this.script);
       // Update search history after the fetch so that the history widget
       // renders in sync with the main content.
-      this.addToSearchHistory(this.query);
+      this.addToHistory(this.query);
 
       const newURL = Routes.dictionaryQuery(this.sources, this.query);
       window.history.replaceState({}, '', newURL);
     } else {
       $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
-      this.addToSearchHistory(this.query);
+      this.addToHistory(this.query);
     }
   },
 
   // Search with the given query.
   async searchFor(q) {
     this.query = q;
-    await this.searchDictionary();
+    // Return the promise so we can await it in tests.
+    return this.searchDictionary();
   },
 
-  addToSearchHistory(query) {
+  /** Add the given query to our current search history. */
+  addToHistory(query) {
     // If the query is already in the history, remove it.
     this.history = this.history.filter((x) => x !== query).concat(query);
 
@@ -114,9 +116,12 @@ export default () => ({
       this.history.shift();
     }
   },
-  clearSearchHistory() {
+
+  /** Clear the search history. */
+  clearHistory() {
     this.history = [];
   },
+
   transliterate(oldScript, newScript) {
     transliterateElement($('#dict--response'), oldScript, newScript);
   },

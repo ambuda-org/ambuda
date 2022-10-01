@@ -41,11 +41,7 @@ different languages.
   </div>
 
   <noscript>
-  <select
-      id="dict--version"
-      name="version"
-      class="f-select"
-      @change="updateSource">
+  <select id="dict--version" name="version" class="f-select">
     {% include "include/dict-options.html" %}
   </select>
   </noscript>
@@ -103,7 +99,7 @@ different languages.
       </template>
     </ul>
   </div>
-  <button class="btn btn-basic text-xs !p-0.5" @click.prevent="history = []">
+  <button class="btn btn-basic text-xs !p-0.5" @click.prevent="clearHistory">
     Clear
   </button>
 </div>
