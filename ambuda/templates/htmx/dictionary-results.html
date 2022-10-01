@@ -1,33 +1,33 @@
 {# dictionaries, entries, query #}
-{% set num_sources = entries|length %}
-{% for slug, source_entries in entries.items() %}
-<div x-data="{show: true}">
-  {% if num_sources > 1 %}
-  <header class="rounded p-1 text-slate-500 bg-slate-200 text-xs font-bold uppercase mt-8 mb-4 flex justify-between">
-    <h1>
-      {{ dictionaries[slug] }}
-    </h1>
-    <a class="px-2" href="#" @click.prevent="show = !show" x-text="show ? '▼' : '◀'"></a>
-  </header>
-  {% endif %}
-
-  <div x-show="show">
-    {% if source_entries %}
-    <ul>
-      {% for entry in source_entries %}
-        {{ entry|safe }}
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p>{% trans %}No results found.{% endtrans %}</p>
+<div class="mt-8">
+  {% set num_sources = entries|length %}
+  {% for slug, source_entries in entries.items() %}
+  <div x-data="{show: true}">
+    {% if num_sources > 1 %}
+    <header class="my-0.5 cursor-pointer rounded p-1 text-slate-500 bg-slate-200 text-xs font-bold uppercase flex justify-between"
+        @click.prevent="show=!show">
+      <h1>{{ dictionaries[slug] }}</h1> <span x-text="show ? '▼' : '◀'"></span>
+    </header>
     {% endif %}
-  </div>
-</div>
-{% endfor %}
 
-{% if query and not entries %}
-<p>{% trans %}
-No results found for query "<kbd>{{ query }}</kbd>". We suggest trying a
-different dictionary, since not all dictionaries have the same words.
-{% endtrans %}</p>
-{% endif %}
+    <div x-show="show" class="mt-8 mb-4">
+      {% if source_entries %}
+      <ul>
+        {% for entry in source_entries %}
+          {{ entry|safe }}
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p>{% trans %}No results found.{% endtrans %}</p>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+
+  {% if query and not entries %}
+  <p>{% trans %}
+  No results found for query "<kbd>{{ query }}</kbd>". We suggest trying a
+  different dictionary, since not all dictionaries have the same words.
+  {% endtrans %}</p>
+  {% endif %}
+</div>
