@@ -34,7 +34,8 @@
 
 <div x-data="sortableList('title')">
 
-<form x-cloak class="border p-2 bg-slate-100 rounded text-sm flex items-center">
+<form class="border p-2 bg-slate-100 rounded text-sm flex items-center"
+    x-cloak @submit.prevent>
   <input type="text" placeholder="Search for a project title" x-model="query"
      class="p-1 rounded border flex-1 mr-4" @keyup="filter"></input>
   <label class="text-slate-500 mr-2">{{ _('Sort by:') }}</label>
