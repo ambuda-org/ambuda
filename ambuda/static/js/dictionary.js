@@ -32,7 +32,6 @@ export default () => ({
     this.loadSettingsFromURL();
     this.loadSettings();
     this.transliterate('devanagari', this.script);
-    console.log('sources are', this.sources);
   },
 
   /** Load source and query from the URL (if defined). */

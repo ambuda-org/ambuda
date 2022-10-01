@@ -1,5 +1,10 @@
+{% set num_sources = entries|length %}
 {% for source, source_entries in entries.items() %}
-  {{ source }}
+  {% if num_sources > 1 %}
+  <h1 class="rounded p-1 text-slate-700 bg-slate-200 text-sm font-bold uppercase mt-8 mb-4">
+    {{ source }}
+  </h1>
+  {% endif %}
   <ul>
     {% for entry in source_entries %}
       {{ entry|safe }}
