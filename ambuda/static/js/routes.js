@@ -1,10 +1,15 @@
+/**
+ * Converts variables to URLs, and occasionally vice-versa.
+ */
 export default {
   ajaxDictionaryQuery: (version, query) => `/api/dictionaries/${version}/${query}`,
   dictionaryQuery: (version, query) => `/tools/dictionaries/${version}/${query}`,
+
   dictionaryQueryV2: (sources, query) => {
     const sourcesStr = sources.join(",");
-    return `/tools/dictionaries/${sourcesStr}/${query}`,
-  }
+    return `/tools/dictionaries/${sourcesStr}/${query}`;
+  },
+
   parseData: (textSlug, blockSlug) => `/api/parses/${textSlug}/${blockSlug}`,
 
   // TODO: where to put this?

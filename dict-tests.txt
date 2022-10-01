@@ -1,0 +1,12 @@
+- Look up mw/nara
+
+
+URLs:
+- http://localhost:5000/tools/dictionaries/mw/nara
+- http://localhost:5000/tools/dictionaries/mw,apte/nara
+- http://localhost:5000/tools/dictionaries/apte,nara/nara
+
+- http://localhost:5000/tools/dictionaries/mw
+- http://localhost:5000/tools/dictionaries/mw/
+- http://localhost:5000/tools/dictionaries/mw,apte
+- http://localhost:5000/tools/dictionaries/mw,apte/

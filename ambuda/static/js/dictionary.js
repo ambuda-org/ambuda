@@ -25,7 +25,7 @@ export default () => ({
   // The user's search history, from least to most recent.
   history: [],
   // If show, show the source multiselect widget.
-  showSourceSelectWidget: false,
+  showSourceSelector: false,
 
   init() {
     // URL settings take priority.
@@ -114,7 +114,9 @@ export default () => ({
       this.history.shift();
     }
   },
-
+  clearSearchHistory() {
+    this.history = [];
+  },
   transliterate(oldScript, newScript) {
     transliterateElement($('#dict--response'), oldScript, newScript);
   },

@@ -114,24 +114,37 @@ def block_parse(block_id: int) -> Optional[db.BlockParse]:
     return session.query(db.BlockParse).filter_by(block_id=block_id).first()
 
 
-def dictionaries() -> dict[str, db.Dictionary]:
+def dictionaries() -> list[db.Dictionary]:
     session = get_session()
-    return {d.slug: d for d in session.query(db.Dictionary).all()}
+    return session.query(db.Dictionary).all()
 
 
-def dict_entries(sources: list[str], keys: list[str]) -> list[db.DictionaryEntry]:
+def dict_entries(
+    sources: list[str], keys: list[str]
+) -> dict[str, list[db.DictionaryEntry]]:
+    """
+    :param sources: slugs of the dictionaries to query
+    :param keys: the keys (dictionary entries) to query
+    """
     session = get_session()
     dicts = dictionaries()
+    source_ids = [d.id for d in dicts if d.slug in sources]
 
-    dict_ids = {dicts[s].id for s in sources if s in dicts}
-    return (
+    rows = (
         session.query(db.DictionaryEntry)
         .filter(
-            (db.DictionaryEntry.dictionary_id.in_(dict_ids))
+            (db.DictionaryEntry.dictionary_id.in_(source_ids))
             & (db.DictionaryEntry.key.in_(keys))
         )
         .all()
     )
+
+    dict_id_to_slug = {d.id: d.slug for d in dicts}
+    mapping = {s: [] for s in sources}
+    for row in rows:
+        dict_slug = dict_id_to_slug[row.dictionary_id]
+        mapping[dict_slug].append(row)
+    return mapping
 
 
 def projects() -> list[db.Project]:

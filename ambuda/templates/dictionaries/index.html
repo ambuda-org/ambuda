@@ -49,13 +49,13 @@ different languages.
     {% include "include/dict-options.html" %}
   </select>
   </noscript>
-  <div x-cloak @click.outside="showSourceSelectWidget = false"
+  <div x-cloak @click.outside="showSourceSelector = false"
       class="relative text-sm select-none inline-block">
     <div class="f-select px-2 cursor-pointer inline-block"
-         @click.prevent="showSourceSelectWidget = !showSourceSelectWidget">
+         @click.prevent="showSourceSelector = !showSourceSelector">
         {{ _('(select dictionary)') }} <span class="text-xs">&#x25BC;</span>
     </div>
-    <div x-show="showSourceSelectWidget" class="dropdown-pane p-2 w-64">
+    <div x-show="showSourceSelector" class="dropdown-pane p-2 w-64">
       <fieldset>
         <legend class="font-bold my-2">{{ _('Sanskrit-English') }}</legend>
         {{ _check("apte", _("Apte (1890)")) }}

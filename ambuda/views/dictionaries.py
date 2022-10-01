@@ -1,3 +1,5 @@
+import functools
+
 from flask import Blueprint, abort, redirect, render_template, url_for
 from indic_transliteration import detect, sanscript
 
@@ -7,6 +9,11 @@ from ambuda.utils.dict_utils import expand_apte_keys, expand_skd_keys, standardi
 from ambuda.views.api import bp as api
 
 bp = Blueprint("dictionaries", __name__)
+
+
+@functools.cache
+def _get_dictionary_slugs() -> set[str]:
+    return {d.slug for d in q.dictionaries()}
 
 
 def _create_query_keys(sources: list[str], query: str) -> list[str]:
@@ -27,10 +34,7 @@ def _create_query_keys(sources: list[str], query: str) -> list[str]:
 
 def _fetch_entries(sources: list[str], query: str) -> dict[str, str]:
     keys = _create_query_keys(sources, query)
-    rows = q.dict_entries(sources, keys)
-
-    dictionaries = q.dictionaries().values()
-    dict_id_to_slug = {d.id: d.slug for d in dictionaries}
+    entries = q.dict_entries(sources, keys)
 
     transforms = {
         "apte": xml.transform_apte_sanskrit_english,
@@ -41,26 +45,26 @@ def _fetch_entries(sources: list[str], query: str) -> dict[str, str]:
         "shabdakalpadruma": xml.transform_mw,
     }
 
-    results = {d.slug: [] for d in dictionaries if d.slug in sources}
-    for r in rows:
-        slug = dict_id_to_slug[r.dictionary_id]
-        fn = transforms.get(slug, xml.transform_mw)
-        results[slug].append(fn(r.value))
+    results = {}
+    for source_slug, source_entries in entries.items():
+        fn = transforms.get(source_slug, xml.transform_mw)
+        html_blobs = [fn(e.value) for e in source_entries]
+        results[source_slug] = html_blobs
     return results
 
 
 @bp.route("/")
 def index():
     """Show the dictionary lookup tool."""
+    dictionaries = q.dictionaries()
     return render_template("dictionaries/index.html")
 
 
-@bp.route("/<slug>/")
-def version(slug):
-    dictionaries = q.dictionaries()
-    if slug not in dictionaries:
+@bp.route("/<list:slugs>/")
+def sources(slugs):
+    if any(s not in _get_dictionary_slugs() for s in slugs):
         abort(404)
-    # TODO: set chosen dictionary as UX view
+    # TODO: set chosen dictionaries as UX view
     return redirect(url_for("dictionaries.index"))
 
 
@@ -70,10 +74,9 @@ def entry(sources, query):
     # Abort if sources aren't reasonable.
     if not sources:
         abort(404)
-    dictionaries = q.dictionaries()
-    for source in sources:
-        if source not in dictionaries:
-            abort(404)
+
+    if any(s not in _get_dictionary_slugs() for s in sources):
+        abort(404)
 
     entries = _fetch_entries(sources, query)
     return render_template("dictionaries/index.html", query=query, entries=entries)
@@ -81,9 +84,8 @@ def entry(sources, query):
 
 @api.route("/dictionaries/<list:sources>/<query>")
 def entry_htmx(sources, query):
-    dictionaries = q.dictionaries()
-    # if source not in dictionaries:
-    #    abort(404)
+    if any(s not in _get_dictionary_slugs() for s in sources):
+        abort(404)
 
     entries = _fetch_entries(sources, query)
     return render_template("htmx/dictionary-results.html", query=query, entries=entries)
