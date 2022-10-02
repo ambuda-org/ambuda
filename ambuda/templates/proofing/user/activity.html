@@ -16,7 +16,7 @@
 {{ components.flash_messages() }}
 {{ m.nested_header('Activity', user.username, url) }}
 
-{{ m.user_tabs(user=user, active='activity', is_mod=current_user.is_moderator) }}
+{{ m.user_tabs(user=user, active='activity') }}
 
 {% if recent_activity %}
 <div class="prose">

@@ -26,14 +26,25 @@
 </header>
 {% endmacro %}
 
-
-{# Main-level sidebar. #}
-{% macro main_nav(active = none, is_mod = false) %}
+{# Sidebar link #}
 {% macro _link(label, route, text) -%}
 {% if active == label %}<li class="font-bold text-black">{% else %}<li>{% endif %}
 <a href="{{ url_for(route) }}">{{ text }}</a>
 </li>
 {%- endmacro %}
+
+
+{# Sidebar shown on most proofing pages. #}
+{% macro main_nav(active = none, is_mod = false) %}
+
+{% if is_mod %}
+<nav class="rounded bg-slate-200 text-slate-500 mb-2 p-4 a-hover-underline text-sm">
+<h1 class="font-bold">{{ _('Moderation') }}</h1>
+<ul class="list-disc pl-6">
+  {{ _link('stats', "proofing.dashboard", _("Dashboard")) }}
+</ul>
+</nav>
+{% endif %}
 
 <nav class="rounded bg-slate-100 text-slate-500 p-4 a-hover-underline text-sm">
 <h1 class="font-bold">{{ _('Help') }}</h1>
@@ -51,13 +62,6 @@
   {{ _link('tagging', "proofing.tagging.index", _("Tagging")) }}
   {{ _link('talk', "proofing.talk", _("Talk")) }}
 </ul>
-
-{% if is_mod %}
-<h1 class="mt-2 font-bold">{{ _('Moderation') }}</h1>
-<ul class="list-disc pl-6">
-  {{ _link('stats', "proofing.stats", _("Statistics")) }}
-</ul>
-{% endif %}
 </nav>
 {% endmacro %}
 

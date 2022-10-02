@@ -12,7 +12,7 @@
 
 {% block content %}
 {{ m.project_header_nested('Edit', project) }}
-{{ m.project_nav(project=project, active='edit', is_mod=current_user.is_moderator) }}
+{{ m.project_nav(project=project, active='edit') }}
 
 {% set search_url = url_for("proofing.project.search", slug=project.slug)  %}
 {% set ocr_url = url_for("proofing.project.batch_ocr", slug=project.slug)  %}
