@@ -129,10 +129,13 @@ export default () => ({
 
   /** Close the source selection widget and re-run the query as needed. */
   onClickOutsideOfSourceSelector() {
+    // NOTE: With our current bindings, this method will run *every* time we
+    // click outside of the selector even if the selector is not open. If the
+    // selector is not visible, this method is best left as a no-op.
     if (this.showSourceSelector) {
       this.searchDictionary();
+      this.showSourceSelector = false;
     }
-    this.showSourceSelector = false;
   },
 
   transliterate(oldScript, newScript) {
