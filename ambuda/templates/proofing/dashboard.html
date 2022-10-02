@@ -14,7 +14,7 @@
 {% block title %}{{ mc.title(_('Dashboard')) }}{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}

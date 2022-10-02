@@ -12,7 +12,7 @@
 {% block title %}Editor manual| Ambuda{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('manual') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('manual', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}

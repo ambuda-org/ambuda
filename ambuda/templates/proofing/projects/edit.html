@@ -7,7 +7,7 @@
 {% block title %}Edit: {{ project.title }} | Ambuda{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
