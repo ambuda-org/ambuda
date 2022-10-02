@@ -141,11 +141,11 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 
         <div x-cloak @click.outside="onClickOutsideOfSourceSelector"
             class="relative text-sm select-none inline-block">
-          <div class="f-select px-2 cursor-pointer inline-block"
+          <div class="f-select bg-white lg:bg-slate-100 px-2 cursor-pointer inline-block"
                @click.prevent="toggleSourceSelector">
               {{ _('(choose dictionary)') }} <span class="text-xs">&#x25BC;</span>
           </div>
-          <div x-show="showDictSourceSelector" class="dropdown-pane p-2 w-64">
+          <div x-show="showDictSourceSelector" class="dropdown-pane p-2 w-64 !static lg:!absolute">
             {{ m_dict.source_multiselect(x_model='dictSources') }}
           </div>
         </div>

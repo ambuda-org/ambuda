@@ -25,10 +25,10 @@ import Routes from './routes';
  * Future PRs will migrate this code to Alpine.
  */
 
-async function searchDictionary(version, query, contentScript) {
+async function searchDictionary(sources, query, contentScript) {
   $('#dict--form input[name=q]').value = query;
 
-  const url = Routes.ajaxDictionaryQuery([version], query);
+  const url = Routes.ajaxDictionaryQuery(sources, query);
   const $container = $('#dict--response');
   const resp = await fetch(url);
   if (resp.ok) {
@@ -115,7 +115,7 @@ export default () => ({
   // How to display parse data to the user.
   parseLayout: 'in-place',
   // The dictionary sources to use when fetching.
-  dictSources: ["mw"],
+  dictSources: ['mw'],
 
   // (transient data)
 
@@ -251,6 +251,7 @@ export default () => ({
     // click outside of the selector even if the selector is not open. If the
     // selector is not visible, this method is best left as a no-op.
     if (this.showDictSourceSelector) {
+      this.saveSettings();
       this.submitDictionaryQuery();
       this.showDictSourceSelector = false;
     }
