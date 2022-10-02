@@ -24,7 +24,7 @@ export default () => ({
   query: '',
   // The user's search history, from least to most recent.
   history: [],
-  // If true, show the source multiselect widget.
+  // If true, show the source selection widget.
   showSourceSelector: false,
 
   init() {
@@ -122,12 +122,12 @@ export default () => ({
     this.history = [];
   },
 
-  /** Toggle the source selector's visibility. */
+  /** Toggle the source selection widget's visibility. */
   toggleSourceSelector() {
     this.showSourceSelector = !this.showSourceSelector;
   },
 
-  /** Close the source selector widget and re-run the query as needed. */
+  /** Close the source selection widget and re-run the query as needed. */
   onClickOutsideOfSourceSelector() {
     if (this.showSourceSelector) {
       this.searchDictionary();
