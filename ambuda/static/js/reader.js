@@ -46,22 +46,25 @@ function getBlockSlug(blockID) {
 }
 
 async function showParsedBlock(blockID, contentScript, onFailure) {
-  const blockSlug = getBlockSlug(blockID);
-  const $container = $('#parse--response');
-  const textSlug = Routes.getTextSlug();
-
   const $block = $(`#${blockID.replaceAll('.', '\\.')}`);
-
   if ($block.classList.contains('has-parsed')) {
     // Text has already been parsed. Show it if necessary.
     $block.classList.add('show-parsed');
     return;
   }
-  $block.classList.add('has-parsed');
+
+  const blockSlug = getBlockSlug(blockID);
+  const textSlug = Routes.getTextSlug();
+  const url = Routes.parseData(textSlug, blockSlug);
 
   // Fetch parsed data.
-  const url = Routes.parseData(textSlug, blockSlug);
-  const resp = await fetch(url);
+  let resp;
+  try {
+    resp = await fetch(url);
+  } catch (e) {
+    return;
+  }
+
   if (resp.ok) {
     const text = await resp.text();
     const parsedNode = document.createElement('div');
@@ -76,9 +79,10 @@ async function showParsedBlock(blockID, contentScript, onFailure) {
     link.innerHTML = '<span class=\'shown-side-by-side\'>Hide</span><span class=\'hidden-side-by-side\'>Show original</span>';
     parsedNode.firstChild.appendChild(link);
 
+    $block.classList.add('has-parsed');
     $block.classList.add('show-parsed');
   } else {
-    $block.classList.remove('has-parsed');
+    const $container = $('#parse--response');
     // FIXME: add i18n support
     $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
     onFailure();
