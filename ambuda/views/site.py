@@ -17,6 +17,11 @@ def contact():
     return redirect(url_for("about.contact"))
 
 
+@bp.route("/donate")
+def donate():
+    return render_template("donate.html")
+
+
 @bp.route("/support")
 def support():
     return render_template("support.html")

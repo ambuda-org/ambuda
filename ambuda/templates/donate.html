@@ -1,0 +1,36 @@
+{% extends 'header-main-footer.html' %}
+{% import "macros/components.html" as m %}
+
+
+{% block title %}{{ m.title(_('Donate')) }}{% endblock %}
+
+
+{% block body %}
+<body class="bg-sky-100">
+
+<header class="text-sky-800 shrink-0 pb-8">
+  <div class="mb-4 fill-white">
+    <nav class="md:flex justify-between items-center a-hover-underline">
+      <a class="p-4 font-bold text-lg" href="{{ url_for('site.index') }}">{{ _('Ambuda') }}</a>
+    </nav>
+  </div>
+
+  <div class="max-w-4xl mx-auto mt-16 mb-4 p-4 text-center">
+    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold">{{ _('Support the future of Sanskrit') }}</h1>
+    <div class="mx-auto text-lg max-w-xl">
+      <p class="my-4">{{ _('Ambuda is a breakthrough digital library of Sanskrit literature.') }}</p>
+      <p class="my-4">{{ _('Donate today and help us make Sanskrit accessible to all.') }}</p>
+      <p class="italic my-4 text-sm">{{ _('Ambuda is run entirely by volunteers for the public befenit.') }}</p>
+  </div>
+</header>
+
+<main>
+  <div class="text-center p-8 bg-white rounded max-w-xl mx-auto">
+    <a href="{{ paypal_url }}" class="btn bg-black text-white p-4">
+      {{ _('Donate to Ambuda') }}
+    </a>
+  </div>
+</main>
+
+</body>
+{% endblock %}
