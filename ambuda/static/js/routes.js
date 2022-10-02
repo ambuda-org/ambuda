@@ -1,6 +1,17 @@
+/**
+ * Converts variables to URLs, and occasionally vice-versa.
+ */
 export default {
-  ajaxDictionaryQuery: (version, query) => `/api/dictionaries/${version}/${query}`,
-  dictionaryQuery: (version, query) => `/tools/dictionaries/${version}/${query}`,
+  ajaxDictionaryQuery: (sources, query) => {
+    const sourcesStr = sources.join(',');
+    return `/api/dictionaries/${sourcesStr}/${query}`;
+  },
+
+  dictionaryQuery: (sources, query) => {
+    const sourcesStr = sources.join(',');
+    return `/tools/dictionaries/${sourcesStr}/${query}`;
+  },
+
   parseData: (textSlug, blockSlug) => `/api/parses/${textSlug}/${blockSlug}`,
 
   // TODO: where to put this?
@@ -23,12 +34,12 @@ export default {
     // segments: "", "tools", "dictionaries", "<source>", "<query>"
     if (pathname.startsWith(prefix) && segments.length === 5) {
       return {
-        source: segments[3],
+        sources: segments[3].split(','),
         query: segments[4],
       };
     }
     return {
-      source: null,
+      sources: null,
       query: null,
     };
   },

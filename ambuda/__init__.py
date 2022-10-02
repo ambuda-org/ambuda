@@ -22,6 +22,7 @@ from ambuda import checks, filters, queries
 from ambuda.consts import LOCALES
 from ambuda.mail import mailer
 from ambuda.utils import assets
+from ambuda.utils.url_converters import ListConverter
 from ambuda.views.about import bp as about
 from ambuda.views.api import bp as api
 from ambuda.views.auth import bp as auth
@@ -123,6 +124,9 @@ def create_app(config_env: str):
 
     with app.app_context():
         _ = admin_manager.create_admin_manager(app)
+
+    # Route extensions
+    app.url_map.converters["list"] = ListConverter
 
     # Blueprints
     app.register_blueprint(about, url_prefix="/about")

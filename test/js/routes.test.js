@@ -9,11 +9,13 @@ beforeEach(() => {
 });
 
 test('ajaxDictionaryQuery', () => {
-  expect(Routes.ajaxDictionaryQuery('mw', 'nara')).toBe('/api/dictionaries/mw/nara');
+  const sources = ['apte', 'mw'];
+  expect(Routes.ajaxDictionaryQuery(sources, 'nara')).toBe('/api/dictionaries/apte,mw/nara');
 });
 
 test('dictionaryQuery', () => {
-  expect(Routes.dictionaryQuery('mw', 'nara')).toBe('/tools/dictionaries/mw/nara');
+  const sources = ['apte', 'mw'];
+  expect(Routes.dictionaryQuery(sources, 'nara')).toBe('/tools/dictionaries/apte,mw/nara');
 });
 
 test('parseData', () => {
@@ -25,12 +27,17 @@ test('getTextSlug', () => {
   expect(Routes.getTextSlug()).toBe('ramayana');
 });
 
-test('parseDictionaryURL returns fields with valid URL', () => {
+test('parseDictionaryURL returns fields with a valid single-source URL', () => {
   window.location.pathname = '/tools/dictionaries/apte/deva',
-  expect(Routes.parseDictionaryURL()).toEqual({ source: "apte", query: "deva" });
+  expect(Routes.parseDictionaryURL()).toEqual({ sources: ["apte"], query: "deva" });
 });
 
-test('parseDictionaryURL returns nulls with invalid URL', () => {
+test('parseDictionaryURL returns fields with a valid multi-source URL', () => {
+  window.location.pathname = '/tools/dictionaries/apte,mw/deva',
+  expect(Routes.parseDictionaryURL()).toEqual({ sources: ["apte", "mw"], query: "deva" });
+});
+
+test('parseDictionaryURL returns nulls with an invalid URL', () => {
   window.location.pathname = '/tools/dictionaries/',
-  expect(Routes.parseDictionaryURL()).toEqual({ source: null, query: null });
+  expect(Routes.parseDictionaryURL()).toEqual({ sources: null, query: null });
 });

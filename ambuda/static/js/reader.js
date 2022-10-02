@@ -28,7 +28,7 @@ import Routes from './routes';
 async function searchDictionary(version, query, contentScript) {
   $('#dict--form input[name=q]').value = query;
 
-  const url = Routes.ajaxDictionaryQuery(version, query);
+  const url = Routes.ajaxDictionaryQuery([version], query);
   const $container = $('#dict--response');
   const resp = await fetch(url);
   if (resp.ok) {
