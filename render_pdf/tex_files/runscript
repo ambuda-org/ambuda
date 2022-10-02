@@ -1,4 +1,0 @@
-lualatex output.tex
-rm *.out
-rm *.log
-rm *.aux
