@@ -24,7 +24,7 @@ export default () => ({
   query: '',
   // The user's search history, from least to most recent.
   history: [],
-  // If show, show the source multiselect widget.
+  // If true, show the source multiselect widget.
   showSourceSelector: false,
 
   init() {
