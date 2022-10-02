@@ -1,0 +1,5 @@
+python make_latex.py
+cd outputs/
+find *.tex | latexmk -pdfxe
+mv *.pdf ../../pdf_outputs/
+rm *

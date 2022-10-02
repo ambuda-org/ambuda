@@ -24,8 +24,12 @@ def get_title(root, alt_root):
 
 def get_author(root):
     try:
-        return root.find(tagname("titleStmt"))\
-                .find(tagname("author")).text
+            tag = root.find(tagname("teiHeader"))\
+                    .find(tagname("fileDesc")) \
+                    .find(tagname("titleStmt"))
+            author = tag.find(tagname("author")).text
+            return author
+ 
     except:
         return ""
 
@@ -100,10 +104,9 @@ def parse_from_string(inpt: str) -> (dict, dict):
 def parse_from_root(root) -> (dict, dict):
     global root_url
     root_url = root.tag.replace("TEI","").replace("{","").replace("}","")
-    print(f"[PARSING] {get_text_div(get_body(root))}")
     body = get_body(root)
     verses, analysis = parse_text(get_text_div(body))
-    return verses, analysis, get_title(body, root), get_author(body)
+    return verses, analysis, get_title(body, root), get_author(root)
 
 
 # probably need to use asyncio here? 
@@ -123,7 +126,5 @@ def parse(url=None, xmlString = None, data_location = None):
 if __name__ == "__main__":
     link = "https://raw.githubusercontent.com/ambuda-org/gretil/main/1_sanskr/tei/sa_zivopaniSad.xml"
     verses, analysis, title = parse(url=link)
-    print(json.dumps(verses, indent=4))
-    print(title)
 
 

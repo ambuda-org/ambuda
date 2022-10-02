@@ -12,24 +12,18 @@ data = {
         'analysis': []
     }
 
-os.chdir("../tex_files")
 latex_jinja_env = jinja2.Environment(
-        block_start_string = '((*',
-        block_end_string = '*))',
-        variable_start_string = '(((',
-        variable_end_string = ')))',
-        comment_start_string = '((=',
-        comment_end_string = '=))',
+        block_start_string = '<*',
+        block_end_string = '*>',
+        variable_start_string = '<<',
+        variable_end_string = '>>',
+        comment_start_string = '<=',
+        comment_end_string = '=>',
         loader = jinja2.FileSystemLoader(os.path.abspath('.'))
     )
 template = latex_jinja_env.get_template('template.tex')
 
 ## TODO add an argument for receiving language, default is sanskrit + devanagari
-
-def write_tex(tex: str):
-    os.chdir("../tex_files")
-    with open("./template.tex", 'w') as f:
-        f.write(tex)
 
 def generate_fields(link: str, lipi: Union["SKT","IAST"], author: str) -> tuple[list, str, str]:
     # TODO handle lipi input
@@ -63,28 +57,22 @@ def generate_texfile(link, lipi, author):
     # TODO Author can either be passed in or extracted. Some texts don't have this. 
     # Need to standardize input texts. 
     body, analysis, title, author = generate_fields(link, lipi, author)
-    print(f"[Title] {title}")
-    print(f"[Author] {author}")
     global data
     data['body'] = body
-    data['title'] = title
-    data['author'] = author
+    data['title'] = title.lower()
+    data['author'] = author.lower()
     data['analysis'] = analysis
     if analysis == []:
         data['hasAnalysis'] = False
     else:
         data['hasAnalysis'] = True
     rendered = template.render(data)
-    with open("../tex_files/output.tex", 'w') as f:
+    with open(f"./outputs/{data['title']}-{data['author']}.tex", 'w') as f:
         f.write(rendered)
-def generate_pdf(link: str, lipi: Union["SKT","IAST"], author: str):
-    generate_texfile(link, lipi, author)
-    os.chdir("../tex_files")
-    os.system("fish runscript")
 
 def main():
     link = "https://raw.githubusercontent.com/ambuda-org/gretil/main/1_sanskr/tei/sa_kAlidAsa-kumArasaMbhava.xml"
-    generate_pdf(link, "IAST", "apauruṣeya") 
+    generate_texfile(link, "IAST", "") 
    
 if __name__ == "__main__":
     main()

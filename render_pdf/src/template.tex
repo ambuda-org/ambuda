@@ -1,0 +1,26 @@
+\documentclass{article}
+
+\title{<<title>>}
+
+\author{<<author>>}
+
+%\date{28 March 2010} % without \date command, current date is supplied
+
+
+\usepackage[parfill]{parskip}
+\usepackage{fontspec}
+
+\begin{document}
+\maketitle
+
+<* for line in body *>
+    <* set lineloop = loop *>
+	%\begin{<<language>>}
+	<* for seg in line *>
+	    <* set segloop = loop *>
+		<< seg >> <* if hasanalysis *> | << analysis[lineloop.index] >> <* endif *>
+    <* endfor *>
+	%\end{<<language>>}
+<* endfor *>
+
+\end{document}
