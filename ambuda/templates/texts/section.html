@@ -138,13 +138,17 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
           <input type="submit" value="{{ _('Search') }}"
           class="bg-zinc-800 text-white p-2 rounded-tr rounded-br"></input>
         </div>
-        <select id="dict--version" name="version"
-            class="text-sm bg-white lg:bg-zinc-100 text-zinc-400 hover:text-zinc-800 p-1"
-            x-model="dictVersion"
-            @change="submitDictionaryQuery"
-            >
-          {% include "include/dict-options.html" %}
-        </select>
+
+        <div x-cloak @click.outside="onClickOutsideOfSourceSelector"
+            class="relative text-sm select-none inline-block">
+          <div class="f-select bg-white lg:bg-slate-100 px-2 cursor-pointer inline-block"
+               @click.prevent="toggleSourceSelector">
+              {{ _('(choose dictionary)') }} <span class="text-xs">&#x25BC;</span>
+          </div>
+          <div x-show="showDictSourceSelector" class="dropdown-pane p-2 w-64 !static lg:!absolute">
+            {{ m_dict.source_multiselect(x_model='dictSources') }}
+          </div>
+        </div>
       </form>
     </div>
     <div>
