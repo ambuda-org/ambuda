@@ -157,9 +157,17 @@ test('toggleSourceSelector works', () => {
   expect(d.showSourceSelector).toBe(true);
 });
 
-test('onClickOutsideOfSourceSelector works', () => {
+test('onClickOutsideOfSourceSelector works if selector is open', () => {
   const d = Dictionary();
   d.showSourceSelector = true;
+  d.onClickOutsideOfSourceSelector();
+  expect(d.showSourceSelector).toBe(false);
+});
+
+
+test('onClickOutsideOfSourceSelector is a no-op otherwise', () => {
+  const d = Dictionary();
+  expect(d.showSourceSelector).toBe(false);
   d.onClickOutsideOfSourceSelector();
   expect(d.showSourceSelector).toBe(false);
 });
