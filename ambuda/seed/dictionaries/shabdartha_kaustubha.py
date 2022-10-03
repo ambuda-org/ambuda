@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Add the śabdārthakaustubha dictionary to the database.
 
-(Sanskrit-Kannada, as requested by Vishvas Vasuki).
+(Sanskrit-Kannada)
 """
 
 import re
@@ -13,7 +13,20 @@ from ambuda.seed.utils.cdsl_utils import create_from_scratch
 from ambuda.seed.utils.data_utils import create_db, fetch_text
 from ambuda.utils.dict_utils import standardize_key
 
-RAW_URL = "https://github.com/indic-dict/stardict-sanskrit/raw/master/sa-head/other-indic-entries/shabdArtha_kaustubha/shabdArtha_kaustubha.babylon"
+RAW_URL = "https://raw.githubusercontent.com/indic-dict/stardict-sanskrit/raw/master/sa-head/other-indic-entries/shabdArtha_kaustubha/shabdArtha_kaustubha.babylon"
+
+
+def _create_entries(key, body):
+    if not re.match(r"^[a-zA-Z|]+$", key):
+        print(f"  bad key: {key}")
+        return
+
+    body = re.sub(r"\[(.*)\]", r"<lb/><b>\1</b>", body)
+
+    # Per vishvas, '|' divides headwords.
+    for key in key.split("|"):
+        key = standardize_key(key)
+        yield key, f"<s>{body}</s>"
 
 
 def sak_generator(dict_blob: str):
@@ -30,18 +43,11 @@ def sak_generator(dict_blob: str):
             buf.append(line)
         elif buf:
             key, body = buf
-            if not re.match(r"^[a-zA-Z|]+$", key):
-                print(f"  bad key: {key}")
-                buf = []
-                continue
-
-            body = re.sub(r"\[(.*)\]", r"<lb/><b>\1</b>", body)
-
-            # Per vishvas, '|' divides headwords.
-            for key in key.split("|"):
-                key = standardize_key(key)
-                yield key, f"<s>{body}</s>"
+            yield from _create_entries(key, body)
             buf = []
+    if buf:
+        key, body = buf
+        yield from _create_entries(key, body)
 
 
 @click.command()
