@@ -2,7 +2,6 @@
 {% set discord = "https://discord.gg/7rGdTyWY7Z" %}
 {% set github = "https://github.com/ambuda-org/ambuda" %}
 {% set reddit = "https://reddit.com/u/learnsanskrit-org" %}
-{% set paypal = "https://www.paypal.com/donate/?hosted_button_id=932UCTBER9RHA" %}
 {% set twitter = "https://twitter.com/ambuda_org" %}
 {% set support = url_for('site.support') %}
 <footer class="bg-sky-100 text-slate-700 a-hover-underline text-sm p-4 md:p-12 md:flex justify-between border-t">
@@ -28,8 +27,8 @@
       <li><a href="{{ url_for('texts.index') }}">{{ _('Texts') }}</a>
       <li><a href="{{ url_for('dictionaries.index') }}">{{ _('Dictionaries') }}</a>
       <li><a href="{{ url_for('proofing.index') }}">{{ _('Proofing') }}</a>
+      <li><a href="{{ url_for('site.donate') }}">{{ _('Donate') }}</a>
       <li><a href="{{ url_for('site.support') }}">{{ _('Support') }}</a>
-      <li><a href="{{ paypal }}">{{ _('Donate') }}</a>
       <li><a href="{{ url_for('about.contact') }}">{{ _('Contact') }}</a>
     </ul>
   </section>

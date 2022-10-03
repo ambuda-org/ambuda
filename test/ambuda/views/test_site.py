@@ -11,6 +11,11 @@ def test_about(client):
     assert "<h1>About</h1>" in resp.text
 
 
+def test_donate(client):
+    resp = client.get("/donate")
+    assert "Donate today" in resp.text
+
+
 def test_support(client):
     resp = client.get("/support")
     assert "<h1>Support</h1>" in resp.text
