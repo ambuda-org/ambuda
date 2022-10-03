@@ -163,3 +163,10 @@ test('onClickOutsideOfSourceSelector works', () => {
   d.onClickOutsideOfSourceSelector();
   expect(d.showSourceSelector).toBe(false);
 });
+
+test('onClickOutsideOfSourceSelector is a no-op otherwise', () => {
+  const d = Dictionary();
+  expect(d.showSourceSelector).toBe(false);
+  d.onClickOutsideOfSourceSelector();
+  expect(d.showSourceSelector).toBe(false);
+});
