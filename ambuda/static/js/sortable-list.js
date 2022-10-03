@@ -38,15 +38,13 @@ export default (defaultField) => ({
 
   /** Filter the list by the user's query string. */
   filter() {
-    let newKeys = null;
-    if (this.query) {
-      const query = this.query.toLowerCase();
-      // toLowerCase for case-insensitive matching.
-      newKeys = this.data.filter((x) => x.title.includes(query)).map((x) => x.key);
-    } else {
-      newKeys = this.data.map((x) => x.key);
-    }
+    if (!this.query) return;
 
+    const query = this.query.toLowerCase();
+    // toLowerCase for case-insensitive matching.
+    const newKeys = this.data
+          .filter((x) => x.title.includes(query))
+          .map((x) => x.key);
     this.displayed = new Set(newKeys);
   },
 
