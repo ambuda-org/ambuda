@@ -82,7 +82,7 @@ pluggy==1.0.0
 prometheus-client==0.14.1
 prompt-toolkit==3.0.30
 proto-plus==1.22.0
-protobuf==3.20.1
+protobuf==4.21.7
 psutil==5.9.1
 py==1.11.0
 pyasn1==0.4.8
