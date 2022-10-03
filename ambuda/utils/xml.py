@@ -223,12 +223,25 @@ apte_cologne_xml = {
     # TODO: keep attrs
     "span": elem("span"),
 }
+
 vacaspatyam_xml = {
     "body": elem("li", {"class": "dict-entry"}),
     "s": sanskrit_text,
     "lb": elem("div", {"class": "h-2"}, " "),
     "b": elem("b"),
 }
+
+amarakosha_xml = {
+    "body": elem("li", {"class": "dict-entry"}),
+    "lex": elem("span", {"class": "lex"}),
+    "s": sanskrit_text,
+    "lb": elem("div", {"class": "h-2"}, " "),
+    "quote": elem("blockquote", {"class": "ml-4"}),
+    "lg": elem("p"),
+    "l": elem("span", {"class": "block"}),
+}
+
+
 #: Transforms for Apte's Sanskrit-Hindi dictionary from the University of
 #: Hyderabad.
 apte_uoh_xml = {
@@ -266,7 +279,6 @@ tei_header_xml = {
     "licence": elem("p"),
     "ref": Rule("a", _rename({"target": "href"})),
 }
-
 
 # Defined against the TEI spec
 tei_xml = {
@@ -323,6 +335,12 @@ def transform_vacaspatyam(blob: str) -> str:
     """Transform XML for the Vacaspatyam."""
     xml = ET.fromstring(blob)
     return transform(xml, vacaspatyam_xml)
+
+
+def transform_amarakosha(blob: str) -> str:
+    """Transform XML for the Amarakosha."""
+    xml = ET.fromstring(blob)
+    return transform(xml, amarakosha_xml)
 
 
 def _text_of(xml: ET.Element, path: str, default: str) -> str:

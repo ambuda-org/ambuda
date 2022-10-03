@@ -14,7 +14,7 @@ If a source list is invalid, we raise a 404 error.
 
 import functools
 
-from flask import Blueprint, abort, redirect, render_template, url_for
+from flask import Blueprint, abort, redirect, render_template, request, url_for
 from indic_transliteration import detect, sanscript
 
 import ambuda.queries as q
@@ -56,6 +56,7 @@ def _fetch_entries(sources: list[str], query: str) -> dict[str, str]:
         "shabdartha-kaustubha": xml.transform_sak,
         "mw": xml.transform_mw,
         "vacaspatyam": xml.transform_vacaspatyam,
+        "amara": xml.transform_amarakosha,
         "shabdakalpadruma": xml.transform_mw,
     }
 
@@ -67,8 +68,23 @@ def _fetch_entries(sources: list[str], query: str) -> dict[str, str]:
     return results
 
 
+def _handle_form_submission(sources, query):
+    if request.args:
+        source = request.args.get("source")
+        if source:
+            sources = [source]
+        query = request.args.get("q", query)
+    if sources and query:
+        return redirect(url_for("dictionaries.entry", sources=sources, query=query))
+    else:
+        return redirect(url_for("dictionaries.index"))
+
+
 @bp.route("/")
 def index():
+    if request.args:
+        return _handle_form_submission()
+
     """Show the dictionary lookup tool."""
     dictionaries = _get_dictionary_data()
     return render_template("dictionaries/index.html", dictionaries=dictionaries)
@@ -87,6 +103,9 @@ def index_with_sources(sources):
 @bp.route("/<list:sources>/<query>")
 def entry(sources, query):
     """Show a specific dictionary entry."""
+    if request.args:
+        return _handle_form_submission(sources, query)
+
     dictionaries = _get_dictionary_data()
     sources = [s for s in sources if s in dictionaries]
     if not sources:
