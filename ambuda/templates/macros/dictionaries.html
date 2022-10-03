@@ -59,7 +59,7 @@
 
 
 {# JS-only source selection widget. #}
-{% macro source_multiselect(x_model) %}
+{% macro source_multiselect(x_model = 'sources') %}
 <fieldset>
   <legend class="font-bold my-2">{{ _('Sanskrit-English') }}</legend>
   {{ _checkboxes(sources['en'], x_model) }}
