@@ -164,7 +164,6 @@ test('onClickOutsideOfSourceSelector works if selector is open', () => {
   expect(d.showSourceSelector).toBe(false);
 });
 
-
 test('onClickOutsideOfSourceSelector is a no-op otherwise', () => {
   const d = Dictionary();
   expect(d.showSourceSelector).toBe(false);
