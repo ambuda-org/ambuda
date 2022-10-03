@@ -2,7 +2,6 @@
 {% import "macros/components.html" as m %}
 
 
-{% set paypal = "https://www.paypal.com/donate/?hosted_button_id=932UCTBER9RHA" %}
 {% set contact = url_for("about.contact") %}
 {% set mission = url_for("about.mission") %}
 {% set values = url_for("about.values") %}
@@ -66,7 +65,7 @@ hosting costs with a small donation:
 {% endtrans %}</p>
 
 <div class="text-center my-4 py-8 bg-slate-100">
-  <a href="{{ paypal }}" class="btn bg-black text-white p-4">
+  <a href="{{ url_for('site.donate') }}" class="btn bg-black text-white p-4">
     {{ _('Donate to Ambuda') }}
   </a>
 </div>
