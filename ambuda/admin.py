@@ -57,7 +57,6 @@ class DictionaryView(BaseView):
 
 class SponsorshipView(ModeratorBaseView):
     column_list = form_columns = ["sa_title", "en_title", "description"]
-    list_template = "admin/sponsorship_list.html"
     create_template = "admin/sponsorship_create.html"
     edit_template = "admin/sponsorship_edit.html"
 
@@ -66,7 +65,7 @@ def create_admin_manager(app):
     session = q.get_session_class()
     admin = Admin(
         app,
-        name="Ambuda",
+        name="Admin",
         index_view=AmbudaIndexView(),
         base_template="admin/master.html",
     )
