@@ -5,12 +5,12 @@
 {% block title %}Download: {{ project.title }} | Ambuda{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
 {{ m.project_header_nested('Download', project) }}
-{{ m.project_nav(project=project, active='download', is_mod=current_user.is_moderator) }}
+{{ m.project_nav(project=project, active='download') }}
 
 <div class="prose">
   <p>{% trans %}

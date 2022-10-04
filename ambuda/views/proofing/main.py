@@ -1,5 +1,6 @@
 """Views for basic site pages."""
 
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from flask import Blueprint, current_app, flash, render_template
@@ -16,7 +17,7 @@ from ambuda import database as db
 from ambuda import queries as q
 from ambuda.enums import SitePageStatus
 from ambuda.tasks import projects as project_tasks
-from ambuda.views.proofing.decorators import p2_required
+from ambuda.views.proofing.decorators import p2_required, moderator_required
 
 bp = Blueprint("proofing", __name__)
 
@@ -283,3 +284,45 @@ def talk():
     all_threads.sort(key=lambda x: x[1].updated_at, reverse=True)
 
     return render_template("proofing/talk.html", all_threads=all_threads)
+
+
+@bp.route("/admin/dashboard/")
+@moderator_required
+def dashboard():
+    now = datetime.now()
+    days_ago_30d = now - timedelta(days=30)
+    days_ago_7d = now - timedelta(days=7)
+    days_ago_1d = now - timedelta(days=1)
+
+    session = q.get_session()
+    bot = session.query(db.User).filter_by(username=consts.BOT_USERNAME).one()
+    bot_id = bot.id
+
+    revisions_30d = (
+        session.query(db.Revision)
+        .filter(
+            (db.Revision.created >= days_ago_30d) & (db.Revision.author_id != bot_id)
+        )
+        .options(orm.load_only(db.Revision.created, db.Revision.author_id))
+        .order_by(db.Revision.created)
+        .all()
+    )
+    revisions_7d = [x for x in revisions_30d if x.created >= days_ago_7d]
+    revisions_1d = [x for x in revisions_7d if x.created >= days_ago_1d]
+    num_revisions_30d = len(revisions_30d)
+    num_revisions_7d = len(revisions_7d)
+    num_revisions_1d = len(revisions_1d)
+
+    num_contributors_30d = len({x.author_id for x in revisions_30d})
+    num_contributors_7d = len({x.author_id for x in revisions_7d})
+    num_contributors_1d = len({x.author_id for x in revisions_1d})
+
+    return render_template(
+        "proofing/dashboard.html",
+        num_revisions_30d=num_revisions_30d,
+        num_revisions_7d=num_revisions_7d,
+        num_revisions_1d=num_revisions_1d,
+        num_contributors_30d=num_contributors_30d,
+        num_contributors_7d=num_contributors_7d,
+        num_contributors_1d=num_contributors_1d,
+    )
