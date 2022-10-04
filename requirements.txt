@@ -98,7 +98,7 @@ pyOpenSSL==22.0.0
 pyparsing==3.0.9
 PySocks==1.7.1
 pytest==7.1.2
-pytest-cov==3.0.0
+pytest-cov==4.0.0
 pytest-cover==3.0.0
 pytest-coverage==0.0
 python-dateutil==2.8.2
