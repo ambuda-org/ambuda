@@ -30,6 +30,9 @@
       {{ mf.field(field) }}
     {% endfor %}
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Functional admin
     {{ mf.submit("Save changes") }}
   </form>
   {% endblock %}
@@ -39,9 +42,12 @@
   <form method="POST" action="{{ get_url('.delete_view', id=id) }}"
       class="p-4 border border-red-400 rounded my-4">
     <input type="submit" class="btn text-white bg-red-600" value="Delete row" />
+<<<<<<< HEAD
 =======
     {{ mf.submit("Create") }}
 >>>>>>> Templates
+=======
+>>>>>>> Functional admin
   </form>
   {% endblock %}
 {% endblock %}
