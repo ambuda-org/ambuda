@@ -1,5 +1,19 @@
 #!/usr/bin/env python3
-"""Add the Amarakosha to the database."""
+"""Add the Amarakosha to the database.
+
+Our input data file is a stardict file, which prints entries in a simple file
+format:
+
+    <key1>
+    <value1>
+
+    <key2>
+    <value2>
+
+    [...]
+
+where each `value` is on a single line.
+"""
 
 import re
 from typing import Iterator
@@ -15,29 +29,45 @@ RAW_URL = "https://raw.githubusercontent.com/indic-dict/stardict-sanskrit/master
 
 
 def _create_entries(deva_key: str, body: str) -> Iterator[tuple[str, str]]:
+    """For the given startdict, yield at most one entry.
+
+    We use `yield` because this simplifies our calling logic. Callers can simply
+    use `yield from ...` to yield data if it's present.
+    """
     if "_" in deva_key:
         print(f"  bad key: {deva_key}")
-        buf = []
         return
 
+    # In other stardict files, "|" separates multiple key words. So, check that
+    # we have exactly one here.
     assert "|" not in deva_key
 
+    # In the input files, separate lines are consistently separated with a
+    # double <br>.
     lines = [x.strip() for x in body.split("<br><br>")]
+    # There are other fields here, but these five are most essential.
     key_and_lex, meaning, synonyms, citation, verse = lines[:5]
     lex_key, lex = key_and_lex.split()
     assert deva_key == lex_key
 
+    # Create a standardized lookup key.
     key = sanscript.transliterate(deva_key, sanscript.DEVANAGARI, sanscript.SLP1)
-    lex = lex.replace("।", "॰")
-    synonyms = synonyms.replace(",", ", ").replace(":", " — ")
+    key = standardize_key(key)
 
+    # The lexical data uses the danda to abbreviate the entry. Instead, use the
+    # lāghava, which is more appropriate.
+    lex = lex.replace("।", "॰")
+
+    # Improve the display of synomym and verse data.
+    synonyms = synonyms.replace(",", ", ").replace(":", " — ")
     verse = verse.replace(".।", "॥")
     verse = verse.replace("॥", " ॥")
-    verse_xml_fragment = re.sub("।\s*", " ।</l><l>", verse)
 
+    # Reshape data to XML, which we can interpret at serving time.
+    verse_xml_fragment = re.sub("।\s*", " ।</l><l>", verse)
     entry = "".join(
         [
-            f"<body><s>",
+            "<body><s>",
             f"<p>{deva_key} <lex>{lex}</lex> {meaning}। {synonyms}।</p><lb/>",
             f"<quote><lg><l>{verse_xml_fragment}</l></lg><lb/>"
             f"<cite>{citation}</cite></quote></s></body>",
@@ -47,8 +77,13 @@ def _create_entries(deva_key: str, body: str) -> Iterator[tuple[str, str]]:
 
 
 def amara_generator(dict_blob: str) -> Iterator[tuple[str, str]]:
+    """Iterate over all entries in the dictionary.
+
+    :param dict_blob: the full dictionary string.
+    """
     buf = []
     for line in dict_blob.splitlines():
+        # Ignore comments.
         if line.startswith("#"):
             continue
 
