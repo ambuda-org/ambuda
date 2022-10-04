@@ -22,7 +22,7 @@
     </ul>
   </nav>
 
-  <table class="w-full border">
+  <table class="min-w-full border">
     <thead class="cf border-b bg-slate-100 text-slate-700 text-sm uppercase">
       <tr>
         <th></th>
@@ -37,7 +37,7 @@
           {% set row_id = get_pk_value(row) %}
           {% set edit_url = get_url(".edit_view", id=row_id) %}
           <td class="text-center text-lg text-slate-400">
-            <a href="{{ edit_url }}" class="hover:bg-slate-100">&#x270E;</a>
+            <a href="{{ edit_url }}" class="block py-1 hover:bg-slate-100">&#x270E;</a>
           </td>
         {% for c, name in list_columns %}
           <td class="p-2">{{ row[c] }}</td>

@@ -26,7 +26,9 @@ https://github.com/flask-admin/flask-admin/blob/master/flask_admin/templates/boo
   <div>
     <nav class="bg-sky-800 text-white flex" role="navigation">
       {% block brand %}
-        <a class="font-bold p-4 text-lg" href="{{ admin_view.admin.url }}">{{ admin_view.admin.name }}</a>
+        <a class="font-bold p-4 text-lg" href="{{ url_for('site.index') }}">
+          {{ admin_view.admin.name }}
+        </a>
       {% endblock %}
       {% block main_menu %}
         {{ m.nav_menu(admin_view) }}
@@ -40,9 +42,10 @@ https://github.com/flask-admin/flask-admin/blob/master/flask_admin/templates/boo
 
     {# store the jinja2 context for form_rules rendering logic #}
     {% set render_ctx = h.resolve_ctx() %}
-    <div class="max-w-4xl mt-16 mx-auto">
+    <div class="max-w-4xl mt-16 mx-auto p-2">
       {% block messages %}{{ m.messages() }}{% endblock %}
-      {% block body %}{% endblock %}
+      {% block body %}
+      {% endblock %}
     </div>
   </div>
 {% endblock %}
