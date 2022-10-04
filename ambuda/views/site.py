@@ -23,12 +23,6 @@ def donate():
     return render_template("donate.html")
 
 
-@bp.route("/sponsor")
-def sponsor():
-    sponsorships = q.sponsorships()
-    return render_template("sponsor.html", sponsorships=sponsorships)
-
-
 @bp.route("/support")
 def support():
     return render_template("support.html")
