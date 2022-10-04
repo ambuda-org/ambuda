@@ -12,7 +12,7 @@ import ambuda.queries as q
 class AmbudaIndexView(AdminIndexView):
     @expose("/")
     def index(self):
-        if not current_user.is_moderator:
+        if not current_user.is_admin:
             # Abort so that a malicious scraper can't infer that there's an
             # interesting page here.
             abort(404)
@@ -22,14 +22,6 @@ class AmbudaIndexView(AdminIndexView):
 class BaseView(sqla.ModelView):
     def is_accessible(self):
         return current_user.is_admin
-
-    def inaccessible_callback(self, name, **kw):
-        abort(404)
-
-
-class ModeratorBaseView(sqla.ModelView):
-    def is_accessible(self):
-        return current_user.is_moderator
 
     def inaccessible_callback(self, name, **kw):
         abort(404)
