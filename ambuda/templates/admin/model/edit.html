@@ -29,7 +29,15 @@
     {% for field in form %}
       {{ mf.field(field) }}
     {% endfor %}
-    {{ mf.submit("Create") }}
+    {{ mf.submit("Save changes") }}
+  </form>
+  {% endblock %}
+
+  {% block delete_form %}
+  {% set id = request.args.get('id') %}
+  <form method="POST" action="{{ get_url('.delete_view', id=id) }}"
+      class="p-4 border border-red-400 rounded my-4">
+    <input type="submit" class="btn text-white bg-red-600" value="Delete row" />
   </form>
   {% endblock %}
 {% endblock %}
