@@ -12,3 +12,22 @@
   {% endfor %}
   </ul>
 {% endmacro %}
+
+
+{# Show flashed messages #}
+{% macro messages() %}
+  {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+      {% for category, m in messages %}
+        {% set mapping = {
+            'error': 'bg-red-200 text-red-800',
+            'message': 'bg-yellow-200 text-yellow-800',
+            'success': 'bg-green-200 text-green-800',
+        } %}
+        <div class="p-2 {{ mapping.get(category, "") }} alert-dismissable">
+          {{ m }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+{% endmacro %}
