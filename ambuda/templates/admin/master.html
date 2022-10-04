@@ -38,6 +38,7 @@ https://github.com/flask-admin/flask-admin/blob/master/flask_admin/templates/boo
         <a class="font-bold p-4 text-lg" href="{{ url_for('site.index') }}">
           {{ admin_view.admin.name }}
         </a>
+<<<<<<< HEAD
 =======
     <nav class="bg-sky-100 text-sky-800 flex" role="navigation">
 =======
@@ -45,6 +46,8 @@ https://github.com/flask-admin/flask-admin/blob/master/flask_admin/templates/boo
 >>>>>>> Templates
       {% block brand %}
         <a class="font-bold p-4 text-lg" href="{{ admin_view.admin.url }}">{{ admin_view.admin.name }}</a>
+>>>>>>> WIP
+=======
 >>>>>>> WIP
       {% endblock %}
       {% block main_menu %}
@@ -72,6 +75,7 @@ https://github.com/flask-admin/flask-admin/blob/master/flask_admin/templates/boo
 
     {# store the jinja2 context for form_rules rendering logic #}
     {% set render_ctx = h.resolve_ctx() %}
+<<<<<<< HEAD
     <div class="max-w-4xl mt-16 mx-auto">
 <<<<<<< HEAD
     {% block body %}{% endblock %}
@@ -80,6 +84,12 @@ https://github.com/flask-admin/flask-admin/blob/master/flask_admin/templates/boo
       {% block messages %}{{ m.messages() }}{% endblock %}
       {% block body %}{% endblock %}
 >>>>>>> Templates
+=======
+    <div class="max-w-4xl mt-16 mx-auto p-2">
+      {% block messages %}{{ m.messages() }}{% endblock %}
+      {% block body %}
+      {% endblock %}
+>>>>>>> WIP
     </div>
   </div>
 {% endblock %}
