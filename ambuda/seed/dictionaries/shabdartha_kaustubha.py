@@ -2,6 +2,19 @@
 """Add the śabdārthakaustubha dictionary to the database.
 
 (Sanskrit-Kannada)
+
+Our input data file is a stardict file, which prints entries in a simple file
+format:
+
+    <key1>
+    <value1>
+
+    <key2>
+    <value2>
+
+    [...]
+
+where each `value` is on a single line.
 """
 
 import re
@@ -23,7 +36,7 @@ def _create_entries(key, body):
 
     body = re.sub(r"\[(.*)\]", r"<lb/><b>\1</b>", body)
 
-    # Per vishvas, '|' divides headwords.
+    # Per Vishvas, '|' divides headwords.
     for key in key.split("|"):
         key = standardize_key(key)
         yield key, f"<s>{body}</s>"
