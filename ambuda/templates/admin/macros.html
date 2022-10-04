@@ -1,0 +1,14 @@
+{# Show models in the menu bar. #}
+{% macro nav_menu(admin_view) %}
+  <ul class="flex items-center a-hover-underline">
+  {% for item in admin_view.admin.menu() %}
+    {% if item.is_accessible() and item.is_visible() %}
+      {% set url = item.get_url() %}
+      {% set active = item.is_active(admin_view) %}
+      <li>
+        <a class="block p-2" href="{{ url }}">{{ item.name }}</a>
+      </li>
+    {% endif %}
+  {% endfor %}
+  </ul>
+{% endmacro %}

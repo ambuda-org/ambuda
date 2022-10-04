@@ -3,6 +3,7 @@
 from flask import Blueprint, redirect, render_template, session, url_for
 
 from ambuda.consts import LOCALES
+from ambuda import queries as q
 
 bp = Blueprint("site", __name__)
 
@@ -20,6 +21,12 @@ def contact():
 @bp.route("/donate")
 def donate():
     return render_template("donate.html")
+
+
+@bp.route("/sponsor")
+def sponsor():
+    sponsorships = q.sponsorships()
+    return render_template("sponsor.html", sponsorships=sponsorships)
 
 
 @bp.route("/support")

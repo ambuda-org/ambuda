@@ -1,0 +1,54 @@
+{# Replacement base template for flask-admin.
+
+Copied from:
+https://github.com/flask-admin/flask-admin/blob/master/flask_admin/templates/bootstrap4/admin/base.html
+#}
+{% import 'admin/macros.html' as m -%}
+{% import 'admin/layout.html' as layout with context -%}
+{% import 'admin/static.html' as admin_static with context %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{% block meta_description -%}
+  A breakthrough Sanskrit library. Read our library of traditional Sanskrit texts with word-by-word analysis, integrated dictionary support, and so much more.
+  {%- endblock %}">
+  <link rel="stylesheet" type="text/css" href="{{ asset('gen/style.css') }}">
+  <link rel="icon" href="data:,">
+  <title>{% block title %}{% if admin_view.category %}{{ admin_view.category }} - {% endif %}{{ admin_view.name }} - {{ admin_view.admin.name }}{% endblock %}</title>
+  {% block head_css %}{% endblock %}
+  {% block head %}{% endblock %}
+  {% block head_tail %}{% endblock %}
+  </head>
+<body>
+{% block page_body %}
+  <div>
+    <nav class="bg-sky-100 text-sky-800 flex" role="navigation">
+      {% block brand %}
+        <a class="font-bold p-4 text-lg" href="{{ admin_view.admin.url }}">{{ admin_view.admin.name }}</a>
+      {% endblock %}
+      {% block main_menu %}
+        {{ m.nav_menu(admin_view) }}
+      {% endblock %}
+
+      {% block menu_links %}{% endblock %}
+      {% block access_control %} {% endblock %}
+      </div>
+    </nav>
+
+    {% block messages %}{{ layout.messages() }}{% endblock %}
+
+    {# store the jinja2 context for form_rules rendering logic #}
+    {% set render_ctx = h.resolve_ctx() %}
+    <div class="max-w-4xl mt-16 mx-auto">
+    {% block body %}{% endblock %}
+    </div>
+  </div>
+{% endblock %}
+
+  {% block tail_js %}{% endblock %}
+  {% block tail %}{% endblock %}
+  </body>
+</html>
