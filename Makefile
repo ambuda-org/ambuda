@@ -55,9 +55,7 @@ db-seed-all: py-venv-check
 	python -m ambuda.seed.texts.ramayana
 	python -m ambuda.seed.texts.mahabharata
 	python -m ambuda.seed.dcs
-	python -m ambuda.seed.dictionaries.amarakosha
 	python -m ambuda.seed.dictionaries.apte
-	python -m ambuda.seed.dictionaries.apte_sanskrit_hindi
 	python -m ambuda.seed.dictionaries.monier
 	python -m ambuda.seed.dictionaries.shabdakalpadruma
 	python -m ambuda.seed.dictionaries.shabdartha_kaustubha
