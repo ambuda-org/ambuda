@@ -69,44 +69,8 @@ def _fetch_entries(sources: list[str], query: str) -> dict[str, str]:
     return results
 
 
-def _handle_form_submission(
-    url_sources: Optional[list[str]] = None, url_query: Optional[str] = None
-):
-    """Handle a search request defined with query parameters.
-
-    If a user with JavaScript disabled clicks the Search button, the user's query
-    will be encoded as URL parameters. Some examples:
-
-    - https://ambuda.org/tools/dictionaries?source=mw&q=deva
-    - https://ambuda.org/tools/dictionaries/apte/svarga?source=mw&q=deva
-
-    This function makes a reasonable effort to rewrite such URLs into a
-    standard form:
-
-        https://ambuda.org/tools/dictionaries/mw/deva
-
-    :param sources: sources already encoded in the URL
-    :param url_query: query already encoded in the URL
-    """
-    sources = url_sources
-    query = url_query
-
-    if request.args:
-        source = request.args.get("source")
-        if source:
-            sources = [source]
-        query = request.args.get("q", query)
-    if sources and query:
-        return redirect(url_for("dictionaries.entry", sources=sources, query=query))
-    else:
-        return redirect(url_for("dictionaries.index"))
-
-
 @bp.route("/")
 def index():
-    if request.args:
-        return _handle_form_submission()
-
     """Show the dictionary lookup tool."""
     dictionaries = _get_dictionary_data()
     return render_template("dictionaries/index.html", dictionaries=dictionaries)
@@ -114,9 +78,6 @@ def index():
 
 @bp.route("/<list:sources>/")
 def index_with_sources(sources):
-    if request.args:
-        return _handle_form_submission(sources)
-
     safe_sources = [s for s in sources if s in _get_dictionary_data()]
     if not safe_sources:
         abort(404)
@@ -128,8 +89,6 @@ def index_with_sources(sources):
 @bp.route("/<list:sources>/<query>")
 def entry(sources, query):
     """Show a specific dictionary entry."""
-    if request.args:
-        return _handle_form_submission(sources, query)
 
     dictionaries = _get_dictionary_data()
     sources = [s for s in sources if s in dictionaries]
