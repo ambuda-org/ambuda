@@ -68,6 +68,4 @@ def create_admin_manager(app):
     admin.add_view(TextBlockView(db.TextBlock, session))
     admin.add_view(TextView(db.Text, session))
     admin.add_view(UserView(db.User, session))
-
-    admin.add_view(SponsorshipView(db.Sponsorship, session))
     return admin
