@@ -3,7 +3,6 @@
 from flask import Blueprint, redirect, render_template, session, url_for
 
 from ambuda.consts import LOCALES
-from ambuda import queries as q
 
 bp = Blueprint("site", __name__)
 
