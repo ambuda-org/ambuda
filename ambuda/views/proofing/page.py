@@ -76,7 +76,8 @@ def edit(project_slug, page_slug):
     status_names = {s.id: s.name for s in q.page_statuses()}
     form.status.data = status_names[cur.status_id]
 
-    if cur.revisions:
+    has_edits = bool(cur.revisions)
+    if has_edits:
         latest_revision = cur.revisions[-1]
         form.content.data = latest_revision.content
 
@@ -89,6 +90,7 @@ def edit(project_slug, page_slug):
         prev=prev,
         cur=cur,
         next=next,
+        has_edits=has_edits,
         is_r0=is_r0,
     )
 
