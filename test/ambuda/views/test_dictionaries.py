@@ -1,3 +1,6 @@
+import pytest
+
+
 def test_index(client):
     resp = client.get("/tools/dictionaries/")
     assert "Dictionary lookup</h1>" in resp.text
@@ -60,3 +63,21 @@ def test_entry_htmx__bad_key(client):
     resp = client.get("/api/dictionaries/dict-1/unknown")
     assert resp.status_code == 200
     assert "No results found" in resp.text
+
+
+@pytest.mark.parametrize(
+    "before,after",
+    [
+        ("/tools/dictionaries/?source=mw&q=deva", "/tools/dictionaries/mw/deva"),
+        ("/tools/dictionaries/apte/?source=mw&q=deva", "/tools/dictionaries/mw/deva"),
+        (
+            "/tools/dictionaries/apte/nara?source=mw&q=deva",
+            "/tools/dictionaries/mw/deva",
+        ),
+        ("/tools/dictionaries/apte/nara?source=mw", "/tools/dictionaries/mw/nara"),
+        ("/tools/dictionaries/apte/nara?q=deva", "/tools/dictionaries/apte/deva"),
+    ],
+)
+def test_handle_form_submission(client, before, after):
+    resp = client.get(before)
+    assert resp.location == after
