@@ -1,0 +1,48 @@
+{% extends 'admin/master.html' %}
+{% import "macros/forms.html" as mf %}
+{% import 'admin/lib.html' as lib with context %}
+{% from 'admin/lib.html' import extra with context %} {# backward compatible #}
+
+
+{% block head %}
+  {{ super() }}
+  {{ lib.form_css() }}
+{% endblock %}
+
+
+{% block body %}
+  {% block navlinks %}
+  <nav class="rounded border my-4 a-hover-underline">
+    <ul class="flex items-center">
+      <li>
+        <a class="block p-2" href="{{ return_url }}">{{ _gettext('List') }}</a>
+      </li>
+      <li class="active">
+        <a class="block p-2" href="javascript:void(0)">{{ _gettext('Create') }}</a>
+      </li>
+    </ul>
+  </nav>
+  {% endblock %}
+
+  {% block edit_form %}
+  <form method="POST" action="" class="bg-slate-100 rounded p-4">
+    {% for field in form %}
+      {{ mf.field(field) }}
+    {% endfor %}
+    {{ mf.submit("Save changes") }}
+  </form>
+  {% endblock %}
+
+  {% block delete_form %}
+  {% set id = request.args.get('id') %}
+  <form method="POST" action="{{ get_url('.delete_view', id=id) }}"
+      class="p-4 border border-red-400 rounded my-4">
+    <input type="submit" class="btn text-white bg-red-600" value="Delete row" />
+  </form>
+  {% endblock %}
+{% endblock %}
+
+{% block tail %}
+  {{ super() }}
+  {{ lib.form_js() }}
+{% endblock %}

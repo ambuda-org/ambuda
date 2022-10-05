@@ -28,7 +28,7 @@ class BaseView(sqla.ModelView):
 
 
 class UserView(BaseView):
-    column_list = form_columns = ["username", "password_hash", "email"]
+    column_list = form_columns = ["username", "email"]
 
 
 class TextBlockView(BaseView):
@@ -49,7 +49,12 @@ class DictionaryView(BaseView):
 
 def create_admin_manager(app):
     session = q.get_session_class()
-    admin = Admin(app, name="Ambuda", index_view=AmbudaIndexView())
+    admin = Admin(
+        app,
+        name="Ambuda",
+        index_view=AmbudaIndexView(),
+        base_template="admin/master.html",
+    )
     admin.add_view(DictionaryView(db.Dictionary, session))
     admin.add_view(ProjectView(db.Project, session))
     admin.add_view(TextBlockView(db.TextBlock, session))
