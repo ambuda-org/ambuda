@@ -47,6 +47,13 @@ upgrade:
 	. env/bin/activate; alembic upgrade head
 	. env/bin/activate; python -m ambuda.seed.lookup
 
+# Seed the database with a minimal dataset for CI. We fetch data only if it is
+# hosted on GitHub. Other resources are less predictable.
+db-seed-ci: py-venv-check
+	python -m ambuda.seed.lookup
+	python -m ambuda.seed.texts.gretil
+	python -m ambuda.seed.dcs
+
 # Seed the database with just enough data for the devserver to be interesting.
 db-seed-basic: py-venv-check
 	python -m ambuda.seed.lookup
