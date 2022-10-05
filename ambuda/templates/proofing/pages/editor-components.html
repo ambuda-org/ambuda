@@ -48,7 +48,7 @@ these components in our help text and documentation.
 
 
 {# Page information and navigation options. #}
-{% macro navigation_bar(ctx, page_title, image_title, num_images) %}
+{% macro navigation_bar(ctx, page_number, image_number, num_images) %}
 {% set project = ctx.project %}
 <header class="py-2 a-hover-underline">
   <div class="flex justify-between items-center">
@@ -56,11 +56,11 @@ these components in our help text and documentation.
   <h1 class="text pr-4">
     <a class="text-black font-bold text-xl"
         href="{{ url_for("proofing.project.summary", slug=project.slug) }}">
-      {{ project.title }}</a> / {{ image_title }}</a>
+      {{ project.title }}</a> / {{ image_number }}</a>
     <span class="block text-sm text-slate-500">
-      Image {{ image_title }} of {{ num_images }}
-      {% if image_title != page_title %}
-        (Page {{ page_title }})
+      Image {{ image_number }} of {{ num_images }}
+      {% if image_title != page_number %}
+        (Page {{ page_number }})
       {% endif %}
     </span>
   </h1>

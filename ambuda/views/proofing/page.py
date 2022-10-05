@@ -1,3 +1,8 @@
+"""Routes related to project pages.
+
+The main route here is `edit`, which defines the page editor and the edit flow.
+"""
+
 from dataclasses import dataclass
 from typing import Optional
 
@@ -32,18 +37,23 @@ class PageContext:
     project: db.Project
     #: The current page.
     cur: db.Page
-    #: The previous page.
+    #: The page before `cur`, if it exists.
     prev: Optional[db.Page]
-    #: The next page.
+    #: The page after `cur`, if it exists.
     next: Optional[db.Page]
 
 
 class EditPageForm(FlaskForm):
+    #: An optional summary that describes the revision.
     summary = StringField(_l("Edit summary (optional)"))
+    #: The page version. Versions are monotonically increasing: if A < B, then
+    #: A is older than B.
     version = HiddenField(_l("Page version"))
+    #: The page content.
     content = StringField(
         _l("Page content"), widget=TextArea(), validators=[DataRequired()]
     )
+    #: The page status.
     status = RadioField(
         _l("Status"),
         choices=[
@@ -58,8 +68,9 @@ class EditPageForm(FlaskForm):
 def _get_page_context(project_slug: str, page_slug: str) -> Optional[PageContext]:
     """Get the previous, current, and next pages for the given project.
 
-    :param pages: all of the pages in this project.
-    :param slug: the slug for the current page.
+    :param project_slug: slug for the current project
+    :param page_slug: slug for a page within the current project.
+    :return: a `PageContext` if the project and page can be found, else ``None``.
     """
     project_ = q.project(project_slug)
     if project_ is None:
@@ -82,7 +93,12 @@ def _get_page_context(project_slug: str, page_slug: str) -> Optional[PageContext
     return PageContext(project=project_, cur=cur, prev=prev, next=next)
 
 
-def _get_page_title(project_: db.Project, page_: db.Page) -> str:
+def _get_page_number(project_: db.Project, page_: db.Page) -> str:
+    """Get the page number for the given page.
+
+    We define page numbers through a page spec. For now, just interpret the
+    full page spec. In the future, we might store this in its own column.
+    """
     if not project_.page_numbers:
         return page_.slug
 
@@ -98,6 +114,12 @@ def _get_page_title(project_: db.Project, page_: db.Page) -> str:
 
 @bp.route("/<project_slug>/<page_slug>/", methods=["GET", "POST"])
 def edit(project_slug, page_slug):
+    """The page editor.
+
+    - On GET, display the page.
+    - On POST, try to create a new revision. If we fail, signal an edit
+      conflict to the user.
+    """
     ctx = _get_page_context(project_slug, page_slug)
     if ctx is None:
         abort(404)
@@ -135,8 +157,8 @@ def edit(project_slug, page_slug):
             form.content.data = latest_revision.content
 
     is_r0 = cur.status.name == SitePageStatus.R0
-    image_title = cur.slug
-    page_title = _get_page_title(ctx.project, cur)
+    image_number = cur.slug
+    page_number = _get_page_number(ctx.project, cur)
 
     has_edits = bool(cur.revisions)
     is_r0 = cur.status.name == SitePageStatus.R0
@@ -153,15 +175,18 @@ def edit(project_slug, page_slug):
         cur=ctx.cur,
         page_context=ctx,
         conflict=conflict,
-        image_title=image_title,
-        page_title=page_title,
+        image_number=image_number,
+        page_number=page_number,
         is_r0=is_r0,
     )
 
 
 @site.route("/static/uploads/<project_slug>/pages/<page_slug>.jpg")
 def page_image(project_slug, page_slug):
-    # In production, serve this directly via nginx.
+    """(Debug only) Serve an image from the filesystem.
+
+    In production, we serve images directly from nginx.
+    """
     assert current_app.debug
     image_path = get_page_image_filepath(project_slug, page_slug)
     return send_file(image_path)
@@ -169,6 +194,7 @@ def page_image(project_slug, page_slug):
 
 @bp.route("/<project_slug>/<page_slug>/history")
 def history(project_slug, page_slug):
+    """View the full revision history for the given page."""
     ctx = _get_page_context(project_slug, page_slug)
     if ctx is None:
         abort(404)

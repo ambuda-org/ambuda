@@ -32,7 +32,7 @@
   {%- endif %}
 
   {% set num_images = project.pages|length %}
-  {{ editor.navigation_bar(page_context, page_title, image_title, num_images) }}
+  {{ editor.navigation_bar(page_context, page_number, image_number, num_images) }}
   {{ site_components.flash_messages() }}
 
   {% if conflict %}
