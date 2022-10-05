@@ -18,7 +18,7 @@ if [ ! -f $DB_FILE_PATH ]; then
     python -m scripts.initialize_db
 
     # Add some starter data with a few basic seed scripts.
-    make db-seed-basic
+    make db-seed-ci
 
     # Create Alembic's migrations table.
     alembic ensure_version
