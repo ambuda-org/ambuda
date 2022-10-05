@@ -37,7 +37,7 @@ install-i18n: py-venv-check
 	#     "catalog <file>.po" is marked as fuzzy, skipping"
 	#
 	# There's probably a nicer workaround for this, but `-f` works and unblocks
-	# this command for now..
+	# this command for now.
 	pybabel compile -d ambuda/translations -f
 
 # Upgrade an existing setup.
