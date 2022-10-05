@@ -136,6 +136,7 @@ def edit_post(project_slug, page_slug):
         prev=prev,
         cur=cur,
         next=next,
+        has_edits=True,
         conflict=conflict,
     )
 
