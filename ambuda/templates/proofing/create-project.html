@@ -96,13 +96,25 @@ coming from?</p>
       {{ form.local_file }}
     </div>
 
-    <p class="my-4">We also need a title for this PDF:</p>
-    {{ form.local_title(class_="p-2 block w-full", placeholder="My cool title") }}
   </div>
 </fieldset>
 
 
-{{ step(3, "Verify") }}
+{{ step(3, "Describe") }}
+
+
+<div class="prose">
+<p>What is the title of this book? Please use the full title as it appears on
+the book's cover or title page.</p>
+</div>
+
+<fieldset class="p-4 bg-slate-100">
+  {{ form.local_title(class_="p-2 block w-full", placeholder="My book title") }}
+  <p></p>
+</fieldset>
+
+
+{{ step(4, "Verify") }}
 
 <div class="prose">
 <p>To the best of your knowledge, what is the license of this book?</p>
