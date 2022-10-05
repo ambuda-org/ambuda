@@ -31,7 +31,7 @@
   {% endtrans %}{% endcall %}
   {%- endif %}
 
-  {{ editor.navigation_bar(project, cur=cur, prev=prev, next=next) }}
+  {{ editor.navigation_bar(page_context, page_title, image_title) }}
   {{ site_components.flash_messages() }}
 
   {% if conflict %}

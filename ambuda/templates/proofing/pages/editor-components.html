@@ -48,26 +48,30 @@ these components in our help text and documentation.
 
 
 {# Page information and navigation options. #}
-{% macro navigation_bar(project, cur, prev, next) %}
+{% macro navigation_bar(ctx, page_title, image_title) %}
+{% set project = ctx.project %}
 <header class="py-2 a-hover-underline">
   <div class="flex justify-between items-center">
   <h1 class="text pr-4">
     <a class="text-black font-bold"
         href="{{ url_for("proofing.project.summary", slug=project.slug) }}">
        {{ project.title }}</a>
-    / {{ cur.slug }}
+    /
+    <span class="p-1 bg-slate-100 text-slate-700 text-sm">
+      image {{ image_title }} | page {{ page_title }}
+    </span>
   </h1>
 
-  {% set history_url = url_for("proofing.page.history", project_slug=project.slug, page_slug=cur.slug) %}
+  {% set history_url = url_for("proofing.page.history", project_slug=project.slug, page_slug=ctx.cur.slug) %}
   <nav class="flex text-slate-700 text-md">
     <a class="block p-2" href="{{ history_url }}">{{ _('History') }}</a>
-    {% set prev_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=prev.slug) %}
-    {% set next_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=next.slug) %}
+    {% set prev_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=ctx.prev.slug) %}
+    {% set next_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=ctx.next.slug) %}
     <a class="block p-2" href="{{ prev_url }}">&larr;</a>
     <a class="block p-2" href="{{ next_url }}">&rarr;</a>
   </nav>
   </div>
-  {{ status_badge(cur.status.name) }}
+  {{ status_badge(ctx.cur.status.name) }}
 </header>
 {% endmacro %}
 
