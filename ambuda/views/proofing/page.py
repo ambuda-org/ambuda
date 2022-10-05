@@ -112,13 +112,49 @@ def _get_page_number(project_: db.Project, page_: db.Page) -> str:
     return page.slug
 
 
-@bp.route("/<project_slug>/<page_slug>/", methods=["GET", "POST"])
+@bp.route("/<project_slug>/<page_slug>/")
 def edit(project_slug, page_slug):
-    """The page editor.
+    """Display the page editor."""
+    ctx = _get_page_context(project_slug, page_slug)
+    if ctx is None:
+        abort(404)
 
-    - On GET, display the page.
-    - On POST, try to create a new revision. If we fail, signal an edit
-      conflict to the user.
+    cur = ctx.cur
+    form = EditPageForm()
+    form.version.data = cur.version
+
+    # FIXME: less hacky approach?
+    status_names = {s.id: s.name for s in q.page_statuses()}
+    form.status.data = status_names[cur.status_id]
+
+    if cur.revisions:
+        latest_revision = cur.revisions[-1]
+        form.content.data = latest_revision.content
+
+    is_r0 = cur.status.name == SitePageStatus.R0
+    image_number = cur.slug
+    page_number = _get_page_number(ctx.project, cur)
+
+    return render_template(
+        "proofing/pages/edit.html",
+        form=form,
+        project=ctx.project,
+        cur=ctx.cur,
+        page_context=ctx,
+        conflict=None,
+        image_number=image_number,
+        page_number=page_number,
+        is_r0=is_r0,
+    )
+
+
+@bp.route("/<project_slug>/<page_slug>/", methods=["POST"])
+@login_required
+def edit_post(project_slug, page_slug):
+    """Submit changes through the page editor.
+
+    Since `edit` is public on GET and needs auth on `POST`, it's cleaner to
+    separate the logic here into two views.
     """
     ctx = _get_page_context(project_slug, page_slug)
     if ctx is None:
@@ -145,16 +181,6 @@ def edit(project_slug, page_slug):
             flash("Edit conflict. Please incorporate the changes below:")
             conflict = cur.revisions[-1]
             form.version.data = cur.version
-    else:
-        form.version.data = cur.version
-
-        # FIXME: less hacky approach?
-        status_names = {s.id: s.name for s in q.page_statuses()}
-        form.status.data = status_names[cur.status_id]
-
-        if cur.revisions:
-            latest_revision = cur.revisions[-1]
-            form.content.data = latest_revision.content
 
     is_r0 = cur.status.name == SitePageStatus.R0
     image_number = cur.slug
