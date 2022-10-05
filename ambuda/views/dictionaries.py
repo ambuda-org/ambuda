@@ -13,8 +13,9 @@ If a source list is invalid, we raise a 404 error.
 
 
 import functools
+from typing import Optional
 
-from flask import Blueprint, abort, redirect, render_template, url_for
+from flask import Blueprint, abort, redirect, render_template, request, url_for
 from indic_transliteration import detect, sanscript
 
 import ambuda.queries as q
@@ -56,6 +57,7 @@ def _fetch_entries(sources: list[str], query: str) -> dict[str, str]:
         "shabdartha-kaustubha": xml.transform_sak,
         "mw": xml.transform_mw,
         "vacaspatyam": xml.transform_vacaspatyam,
+        "amara": xml.transform_amarakosha,
         "shabdakalpadruma": xml.transform_mw,
     }
 
@@ -87,6 +89,7 @@ def index_with_sources(sources):
 @bp.route("/<list:sources>/<query>")
 def entry(sources, query):
     """Show a specific dictionary entry."""
+
     dictionaries = _get_dictionary_data()
     sources = [s for s in sources if s in dictionaries]
     if not sources:

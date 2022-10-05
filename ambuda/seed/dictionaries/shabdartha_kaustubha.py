@@ -1,10 +1,24 @@
 #!/usr/bin/env python3
 """Add the śabdārthakaustubha dictionary to the database.
 
-(Sanskrit-Kannada, as requested by Vishvas Vasuki).
+(Sanskrit-Kannada)
+
+Our input data file is a stardict file, which prints entries in a simple file
+format:
+
+    <key1>
+    <value1>
+
+    <key2>
+    <value2>
+
+    [...]
+
+where each `value` is on a single line.
 """
 
 import re
+from typing import Iterator
 
 import click
 from indic_transliteration import sanscript
@@ -13,7 +27,23 @@ from ambuda.seed.utils.cdsl_utils import create_from_scratch
 from ambuda.seed.utils.data_utils import create_db, fetch_text
 from ambuda.utils.dict_utils import standardize_key
 
-RAW_URL = "https://github.com/indic-dict/stardict-sanskrit/raw/master/sa-head/other-indic-entries/shabdArtha_kaustubha/shabdArtha_kaustubha.babylon"
+RAW_URL = "https://raw.githubusercontent.com/indic-dict/stardict-sanskrit/raw/master/sa-head/other-indic-entries/shabdArtha_kaustubha/shabdArtha_kaustubha.babylon"
+
+
+def create_entries(key: str, body: str) -> Iterator[tuple[str, str]]:
+    # Skip keys that have characters we don't recognize.
+    # a-zA-Z -- Sanskrit letters
+    # | -- separator (for multiple headwords)
+    if not re.match(r"^[a-zA-Z|]+$", key):
+        print(f"  bad key: {key}")
+        return
+
+    body = re.sub(r"\[(.*)\]", r"<lb/><b>\1</b>", body)
+
+    # Per Vishvas, '|' divides headwords.
+    for key in key.split("|"):
+        key = standardize_key(key)
+        yield key, f"<s>{body}</s>"
 
 
 def sak_generator(dict_blob: str):
@@ -30,18 +60,11 @@ def sak_generator(dict_blob: str):
             buf.append(line)
         elif buf:
             key, body = buf
-            if not re.match(r"^[a-zA-Z|]+$", key):
-                print(f"  bad key: {key}")
-                buf = []
-                continue
-
-            body = re.sub(r"\[(.*)\]", r"<lb/><b>\1</b>", body)
-
-            # Per vishvas, '|' divides headwords.
-            for key in key.split("|"):
-                key = standardize_key(key)
-                yield key, f"<s>{body}</s>"
+            yield from create_entries(key, body)
             buf = []
+    if buf:
+        key, body = buf
+        yield from create_entries(key, body)
 
 
 @click.command()
