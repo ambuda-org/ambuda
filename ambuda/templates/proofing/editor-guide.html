@@ -1,5 +1,5 @@
 {% extends 'proofing/base-sidebar.html' %}
-{% import "macros/components.html" as components %}
+{% import "macros/components.html" as mc %}
 {% import "macros/proofing.html" as m %}
 {% import "macros/proofing-guides.html" as m_guide %}
 {% import "proofing/pages/editor-components.html" as editor %}
@@ -9,7 +9,7 @@
 {% macro _button(text) %}<span class="p-1 bg-slate-200">{{ text|safe }}</span>{% endmacro %}
 
 
-{% block title %}Editor manual| Ambuda{% endblock %}
+{% block title %}{{ mc.title(_('Editor manual')) }}{% endblock %}
 
 
 {% block sidebar %}{{ m.main_nav('manual', current_user=current_user) }}{% endblock %}
@@ -42,7 +42,7 @@ can see below:</p>
         "cur": { "slug": "14", "status": { "name": "reviewed-1" }},
         "prev": {},
         "next": {}
-    }, page_title="14", image_title="14") }}
+    }, page_title="14", image_title="14", num_images=200) }}
 {% endcall %}
 
 <div class="prose">

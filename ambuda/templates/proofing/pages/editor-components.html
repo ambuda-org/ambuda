@@ -48,20 +48,24 @@ these components in our help text and documentation.
 
 
 {# Page information and navigation options. #}
-{% macro navigation_bar(ctx, page_title, image_title) %}
+{% macro navigation_bar(ctx, page_title, image_title, num_images) %}
 {% set project = ctx.project %}
 <header class="py-2 a-hover-underline">
   <div class="flex justify-between items-center">
+
   <h1 class="text pr-4">
-    <a class="text-black font-bold"
+    <a class="text-black font-bold text-xl"
         href="{{ url_for("proofing.project.summary", slug=project.slug) }}">
-       {{ project.title }}</a>
-    /
-    <span class="p-1 bg-slate-100 text-slate-700 text-sm">
-      image {{ image_title }} | page {{ page_title }}
+      {{ project.title }}</a> / {{ image_title }}</a>
+    <span class="block text-sm text-slate-500">
+      Image {{ image_title }} of {{ num_images }}
+      {% if image_title != page_title %}
+        (Page {{ page_title }})
+      {% endif %}
     </span>
   </h1>
 
+  <div>
   {% set history_url = url_for("proofing.page.history", project_slug=project.slug, page_slug=ctx.cur.slug) %}
   <nav class="flex text-slate-700 text-md">
     <a class="block p-2" href="{{ history_url }}">{{ _('History') }}</a>
@@ -70,8 +74,11 @@ these components in our help text and documentation.
     <a class="block p-2" href="{{ prev_url }}">&larr;</a>
     <a class="block p-2" href="{{ next_url }}">&rarr;</a>
   </nav>
+    <div class="text-right">
+    {{ status_badge(ctx.cur.status.name) }}
+    </div>
   </div>
-  {{ status_badge(ctx.cur.status.name) }}
+  </div>
 </header>
 {% endmacro %}
 
