@@ -6,8 +6,6 @@
 {% import 'admin/model/row_actions.html' as row_actions with context %}
 
 {% block head %}
-<<<<<<< HEAD
-<<<<<<< HEAD
   {{ super() }}
   {{ lib.form_css() }}
 {% endblock %}
@@ -25,7 +23,6 @@
   </nav>
 
   <table class="min-w-full border">
-<<<<<<< HEAD
     <thead class="cf border-b bg-slate-100 text-slate-700 text-sm uppercase">
       <tr>
         <th></th>
@@ -49,87 +46,4 @@
       {% endfor %}
     </tbody>
   </table>
-=======
-    {{ super() }}
-    {{ lib.form_css() }}
-=======
-  {{ super() }}
-  {{ lib.form_css() }}
->>>>>>> Templates
-{% endblock %}
-
-{% block body %}
-
-  <nav class="rounded border my-4 a-hover-underline">
-    <ul class="flex items-center">
-      <li class="p-2">{{ count }} row(s)</li>
-      {% if admin_view.can_create %}
-      <li><a class="block p-2 ml-2 border-l border-slate-300"
-              href="{{ get_url('.create_view') }}">Create</a></li>
-      {% endif %}
-    </ul>
-  </nav>
-
-  <table class="w-full border">
-=======
->>>>>>> WIP
-    <thead class="cf border-b bg-slate-100 text-slate-700 text-sm uppercase">
-      <tr>
-        <th></th>
-        {% for c, name in list_columns %}
-          <th class="p-2 text-left">{{ name }}</th>
-        {% endfor %}
-      </tr>
-    </thead>
-    <tbody>
-      {% for row in data %}
-        <tr>
-          {% set row_id = get_pk_value(row) %}
-          {% set edit_url = get_url(".edit_view", id=row_id) %}
-          <td class="text-center text-lg text-slate-400">
-            <a href="{{ edit_url }}" class="block py-1 hover:bg-slate-100">&#x270E;</a>
-          </td>
-        {% for c, name in list_columns %}
-          <td class="p-2">{{ row[c] }}</td>
-        {% endfor %}
-<<<<<<< HEAD
-    </table>
-    </div>
-    {% block list_pager %}
-    {% if num_pages is not none %}
-    {{ lib.pager(page, num_pages, pager_url) }}
-    {% else %}
-    {{ lib.simple_pager(page, data|length == page_size, pager_url) }}
-    {% endif %}
-    {% endblock %}
-    {% endblock %}
-
-    {{ actionlib.form(actions, get_url('.action_view')) }}
-
-    {%- if admin_view.edit_modal or admin_view.create_modal or admin_view.details_modal -%}
-        {{ lib.add_modal_window() }}
-    {%- endif -%}
-{% endblock %}
-
-{% block tail %}
-    {{ super() }}
-
-    {% if filter_groups %}
-      <div id="filter-groups-data" style="display:none;">{{ filter_groups|tojson|safe }}</div>
-      <div id="active-filters-data" style="display:none;">{{ active_filters|tojson|safe }}</div>
-    {% endif %}
-
-    {{ lib.form_js() }}
-    <script src="{{ admin_static.url(filename='admin/js/filters.js', v='1.0.0') }}"></script>
-
-    {{ actionlib.script(_gettext('Please select at least one record.'),
-                        actions,
-                        actions_confirmation) }}
->>>>>>> WIP
-=======
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
->>>>>>> Templates
 {% endblock %}

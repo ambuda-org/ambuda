@@ -4,13 +4,6 @@ Copied from:
 https://github.com/flask-admin/flask-admin/blob/master/flask_admin/templates/bootstrap4/admin/base.html
 #}
 {% import 'admin/macros.html' as m -%}
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-{% import 'admin/layout.html' as layout with context -%}
->>>>>>> WIP
-=======
->>>>>>> Templates
 {% import 'admin/static.html' as admin_static with context %}
 
 <!doctype html>
@@ -31,24 +24,11 @@ https://github.com/flask-admin/flask-admin/blob/master/flask_admin/templates/boo
 <body>
 {% block page_body %}
   <div>
-<<<<<<< HEAD
-<<<<<<< HEAD
     <nav class="bg-sky-800 text-white flex" role="navigation">
       {% block brand %}
         <a class="font-bold p-4 text-lg" href="{{ url_for('site.index') }}">
           {{ admin_view.admin.name }}
         </a>
-<<<<<<< HEAD
-=======
-    <nav class="bg-sky-100 text-sky-800 flex" role="navigation">
-=======
-    <nav class="bg-sky-800 text-white flex" role="navigation">
->>>>>>> Templates
-      {% block brand %}
-        <a class="font-bold p-4 text-lg" href="{{ admin_view.admin.url }}">{{ admin_view.admin.name }}</a>
->>>>>>> WIP
-=======
->>>>>>> WIP
       {% endblock %}
       {% block main_menu %}
         {{ m.nav_menu(admin_view) }}
@@ -59,8 +39,6 @@ https://github.com/flask-admin/flask-admin/blob/master/flask_admin/templates/boo
       </div>
     </nav>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 
     {# store the jinja2 context for form_rules rendering logic #}
     {% set render_ctx = h.resolve_ctx() %}
@@ -68,36 +46,10 @@ https://github.com/flask-admin/flask-admin/blob/master/flask_admin/templates/boo
       {% block messages %}{{ m.messages() }}{% endblock %}
       {% block body %}
       {% endblock %}
-=======
-    {% block messages %}{{ layout.messages() }}{% endblock %}
-=======
->>>>>>> Templates
-
-    {# store the jinja2 context for form_rules rendering logic #}
-    {% set render_ctx = h.resolve_ctx() %}
-<<<<<<< HEAD
-    <div class="max-w-4xl mt-16 mx-auto">
-<<<<<<< HEAD
-    {% block body %}{% endblock %}
->>>>>>> WIP
-=======
-      {% block messages %}{{ m.messages() }}{% endblock %}
-      {% block body %}{% endblock %}
->>>>>>> Templates
-=======
-    <div class="max-w-4xl mt-16 mx-auto p-2">
-      {% block messages %}{{ m.messages() }}{% endblock %}
-      {% block body %}
-      {% endblock %}
->>>>>>> WIP
     </div>
   </div>
 {% endblock %}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Templates
   {% block tail_js %}
     <script src="{{ admin_static.url(filename='vendor/jquery.min.js', v='3.5.1') }}" type="text/javascript"></script>
     <script src="{{ admin_static.url(filename='bootstrap/bootstrap4/js/popper.min.js') }}" type="text/javascript"></script>
@@ -117,12 +69,6 @@ https://github.com/flask-admin/flask-admin/blob/master/flask_admin/templates/boo
     {% endif %}
   {% endblock %}
 
-<<<<<<< HEAD
-=======
-  {% block tail_js %}{% endblock %}
->>>>>>> WIP
-=======
->>>>>>> Templates
   {% block tail %}{% endblock %}
   </body>
 </html>
