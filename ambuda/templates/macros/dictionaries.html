@@ -8,6 +8,9 @@
     ("vacaspatyam", _('Vācaspatyam (1873)')),
     ("shabdakalpadruma", _('Śabdakalpadrumaḥ (1886)')),
   ],
+  "koshas": [
+    ("amara", _("Amarakosha")),
+  ],
   "hi": [
     ("apte-sh", _("Apte Sanskrit-Hindi Kosh (1966)")),
   ],
@@ -49,6 +52,9 @@
 <optgroup label="{{ _('Sanskrit-Sanskrit') }}">
   {{ _options(sources['sa']) }}
 </optgroup>
+<optgroup label="{{ _('Koshas') }}">
+  {{ _options(sources['koshas']) }}
+</optgroup>
 <optgroup label="{{ _('Sanskrit-Hindi') }}">
   {{ _options(sources['hi']) }}
 </optgroup>
@@ -67,6 +73,10 @@
 <fieldset>
   <legend class="font-bold my-2">{{ _('Sanskrit-Sanskrit') }}</legend>
   {{ _checkboxes(sources['sa'], x_model) }}
+</fieldset>
+<fieldset>
+  <legend class="font-bold my-2">{{ _('Koshas') }}</legend>
+  {{ _checkboxes(sources['koshas'], x_model) }}
 </fieldset>
 <fieldset>
   <legend class="font-bold my-2">{{ _('Sanskrit-Hindi') }}</legend>

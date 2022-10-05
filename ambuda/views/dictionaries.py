@@ -57,6 +57,7 @@ def _fetch_entries(sources: list[str], query: str) -> dict[str, str]:
         "shabdartha-kaustubha": xml.transform_sak,
         "mw": xml.transform_mw,
         "vacaspatyam": xml.transform_vacaspatyam,
+        "amara": xml.transform_amarakosha,
         "shabdakalpadruma": xml.transform_mw,
     }
 

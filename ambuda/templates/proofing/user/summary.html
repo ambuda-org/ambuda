@@ -6,13 +6,13 @@
 {% block title %}User: {{ user.username }} | Ambuda{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('talk', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
 {{ m.title_and_subtitle(user.username) }}
 
-{{ m.user_tabs(user=user, active='about', is_mod=current_user.is_moderator) }}
+{{ m.user_tabs(user=user, active='about') }}
 
 {% if user.description %}
 <div class="prose border p-4 my-8">

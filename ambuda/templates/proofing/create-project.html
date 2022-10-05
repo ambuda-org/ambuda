@@ -22,7 +22,7 @@
 {% block title %}Create project | Ambuda{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('create') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('create', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
