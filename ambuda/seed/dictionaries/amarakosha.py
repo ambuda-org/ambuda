@@ -28,7 +28,7 @@ from ambuda.utils.dict_utils import standardize_key
 RAW_URL = "https://raw.githubusercontent.com/indic-dict/stardict-sanskrit/master/sa-head/sa-entries/amara-onto/amara-onto.babylon"
 
 
-def _create_entries(deva_key: str, body: str) -> Iterator[tuple[str, str]]:
+def create_entries(deva_key: str, body: str) -> Iterator[tuple[str, str]]:
     """For the given startdict, yield at most one entry.
 
     We use `yield` because this simplifies our calling logic. Callers can simply
@@ -64,7 +64,7 @@ def _create_entries(deva_key: str, body: str) -> Iterator[tuple[str, str]]:
     verse = verse.replace("॥", " ॥")
 
     # Reshape data to XML, which we can interpret at serving time.
-    verse_xml_fragment = re.sub("।\s*", " ।</l><l>", verse)
+    verse_xml_fragment = re.sub(r"।\s*", " ।</l><l>", verse)
     entry = "".join(
         [
             "<body><s>",
@@ -92,11 +92,11 @@ def amara_generator(dict_blob: str) -> Iterator[tuple[str, str]]:
             buf.append(line)
         elif buf:
             key, body = buf
-            yield from _create_entries(key, body)
+            yield from create_entries(key, body)
             buf = []
     if buf:
         key, body = buf
-        yield from _create_entries(key, body)
+        yield from create_entries(key, body)
 
 
 @click.command()

@@ -18,6 +18,7 @@ where each `value` is on a single line.
 """
 
 import re
+from typing import Iterator
 
 import click
 from indic_transliteration import sanscript
@@ -29,7 +30,10 @@ from ambuda.utils.dict_utils import standardize_key
 RAW_URL = "https://raw.githubusercontent.com/indic-dict/stardict-sanskrit/raw/master/sa-head/other-indic-entries/shabdArtha_kaustubha/shabdArtha_kaustubha.babylon"
 
 
-def _create_entries(key, body):
+def create_entries(key: str, body: str) -> Iterator[tuple[str, str]]:
+    # Skip keys that have characters we don't recognize.
+    # a-zA-Z -- Sanskrit letters
+    # | -- separator (for multiple headwords)
     if not re.match(r"^[a-zA-Z|]+$", key):
         print(f"  bad key: {key}")
         return
@@ -56,11 +60,11 @@ def sak_generator(dict_blob: str):
             buf.append(line)
         elif buf:
             key, body = buf
-            yield from _create_entries(key, body)
+            yield from create_entries(key, body)
             buf = []
     if buf:
         key, body = buf
-        yield from _create_entries(key, body)
+        yield from create_entries(key, body)
 
 
 @click.command()
