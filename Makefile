@@ -31,6 +31,14 @@ install-python:
 # Fetch and build all i18n files.
 install-i18n: py-venv-check
 	python -m ambuda.scripts.fetch_i18n_files
+	# Force a build with `-f`. Transifex files have a `fuzzy` annotation, so if
+	# we build without this flag, then all of the files will be skipped with:
+	#
+	#     "catalog <file>.po" is marked as fuzzy, skipping"
+	#
+	# There's probably a nicer workaround for this, but `-f` works and unblocks
+	# this command for now.
+	pybabel compile -d ambuda/translations -f
 
 # Upgrade an existing setup.
 upgrade:
