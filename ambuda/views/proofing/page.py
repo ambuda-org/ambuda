@@ -127,7 +127,8 @@ def edit(project_slug, page_slug):
     status_names = {s.id: s.name for s in q.page_statuses()}
     form.status.data = status_names[cur.status_id]
 
-    if cur.revisions:
+    has_edits = bool(cur.revisions)
+    if has_edits:
         latest_revision = cur.revisions[-1]
         form.content.data = latest_revision.content
 
@@ -137,14 +138,15 @@ def edit(project_slug, page_slug):
 
     return render_template(
         "proofing/pages/edit.html",
-        form=form,
-        project=ctx.project,
-        cur=ctx.cur,
-        page_context=ctx,
         conflict=None,
+        cur=ctx.cur,
+        form=form,
+        has_edits=has_edits,
         image_number=image_number,
-        page_number=page_number,
         is_r0=is_r0,
+        page_context=ctx,
+        page_number=page_number,
+        project=ctx.project,
     )
 
 
@@ -194,16 +196,15 @@ def edit_post(project_slug, page_slug):
     # functions don't have any obvious cutting points.
     return render_template(
         "proofing/pages/edit.html",
-        form=form,
-        project=ctx.project,
-        prev=ctx.prev,
-        has_edits=True,
-        cur=ctx.cur,
-        page_context=ctx,
         conflict=conflict,
+        cur=ctx.cur,
+        form=form,
+        has_edits=True,
         image_number=image_number,
-        page_number=page_number,
         is_r0=is_r0,
+        page_context=ctx,
+        page_number=page_number,
+        project=ctx.project,
     )
 
 
