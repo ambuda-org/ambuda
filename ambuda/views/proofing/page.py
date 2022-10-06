@@ -76,7 +76,8 @@ def edit(project_slug, page_slug):
     status_names = {s.id: s.name for s in q.page_statuses()}
     form.status.data = status_names[cur.status_id]
 
-    if cur.revisions:
+    has_edits = bool(cur.revisions)
+    if has_edits:
         latest_revision = cur.revisions[-1]
         form.content.data = latest_revision.content
 
@@ -89,6 +90,7 @@ def edit(project_slug, page_slug):
         prev=prev,
         cur=cur,
         next=next,
+        has_edits=has_edits,
         is_r0=is_r0,
     )
 
@@ -127,6 +129,12 @@ def edit_post(project_slug, page_slug):
             conflict = cur.revisions[-1]
             form.version.data = cur.version
 
+    has_edits = bool(cur.revisions)
+    is_r0 = cur.status.name == SitePageStatus.R0
+
+    # Keep args in sync with `edit`. (We can't unify these functions easily
+    # because one function requires login but the other doesn't. Helper
+    # functions don't have any obvious cutting points.
     return render_template(
         "proofing/pages/edit.html",
         form=form,
@@ -134,6 +142,7 @@ def edit_post(project_slug, page_slug):
         prev=prev,
         cur=cur,
         next=next,
+        has_edits=True,
         conflict=conflict,
     )
 

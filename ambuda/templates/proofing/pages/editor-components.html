@@ -1,3 +1,14 @@
+        {#
+      <button
+          type="button"
+          class="btn bg-sky-700 text-white m-2 hover:bg-sky-900"
+          @click="runOCR"
+          :disabled="isRunningOCR"
+          x-text="isRunningOCR ? '{{ _("Running OCR ...") }}' : '{{ _("Run OCR") }}'">
+        {{ _("Run OCR") }}
+      </button>
+      #}
+
 {# Components of the page editor.
 
 We use these macros both to keep `pages/edit` readable and so that we can embed
@@ -124,6 +135,23 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
     </div>
   </div>
 
+  <div x-data="{open: false}" class="relative">
+    <button class="{{ button_css }}"
+       @click.prevent="open=!open"
+       @click.outside="open=false">{{ _('Tools') }}</button>
+    <div x-show="open" class="dropdown-pane w-48">
+      <ul class="text-sm" @click.prevent="open=false">
+        <li>
+          <button class="dropdown-item"
+                  @click.prevent="runOCR"
+                  :disabled="isRunningOCR"
+                  x-text="isRunningOCR ? '{{ _("Running OCR ...") }}' : '{{ _("Run OCR") }}'">
+              </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
   <div x-data="{open: false}" class="relative" @click.outside="open=false">
     <button class="{{ button_css }}"
        @click.prevent="open=!open">{{ _('Transliterator') }}</button>
@@ -191,17 +219,6 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
 {% macro text_box(data) %}
 <div class="flex flex-col flex-1 border border-r-slate-400">
   <div class="bg-slate-200 flex justify-between">
-    <div>
-      <button
-          type="button"
-          class="btn bg-sky-700 text-white m-2 hover:bg-sky-900"
-          @click="runOCR"
-          :disabled="isRunningOCR"
-          {# i18n: When clicked, run OCR #}
-          x-text="isRunningOCR ? '{{ _("Running OCR ...") }}' : '{{ _("Run OCR") }}'">
-        {{ _("Run OCR") }}
-      </button>
-    </div>
     <div>
       {{ alpine_button("A<sup>+</sup>", "increaseTextSize") }}
       {{ alpine_button("A<sup>-</sup>", "decreaseTextSize") }}
