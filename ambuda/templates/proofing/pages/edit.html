@@ -92,7 +92,5 @@
 
 <script src="https://cdn.jsdelivr.net/npm/openseadragon@3.1/build/openseadragon/openseadragon.min.js"></script>
 {% set image_url = url_for("site.page_image", project_slug=project.slug, page_slug=cur.slug) %}
-<script type="text/javascript">
-const IMAGE_URL = "{{ image_url }}";
-</script>
+<script type="application/json" id="image_url">"{{ image_url }}"</script>
 {% endblock %}

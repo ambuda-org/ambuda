@@ -12,6 +12,7 @@ import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask, session
 from flask_babel import Babel, pgettext
+from flask_talisman import Talisman
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy import exc
 
@@ -94,6 +95,23 @@ def create_app(config_env: str):
         _initialize_sentry(config_spec.SENTRY_DSN)
 
     app = Flask(__name__)
+
+    csp = {
+        "default-src": ["'self'"],
+        "script-src": [
+            "'self'",
+            "https://cdn.jsdelivr.net",
+            "https://www.google.com",
+            "https://www.gstatic.com",
+            "https://plausible.io",
+            "'unsafe-eval'",
+        ],
+        "frame-src": ["https://www.google.com"],
+        "img-src": ["'self'", "data:"],
+        "style-src": ["'self'", "'unsafe-inline'"],
+    }
+
+    Talisman(app, content_security_policy=csp, force_https=config_env != config.TESTING)
 
     # Config
     app.config.from_object(config_spec)

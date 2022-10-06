@@ -35,6 +35,7 @@ Flask-Babel==2.0.0
 Flask-Bcrypt==1.0.1
 Flask-Login==0.6.1
 Flask-Mail==0.9.1
+flask-talisman==1.0.0
 Flask-WTF==1.0.1
 fonttools==4.33.3
 gevent==21.12.0

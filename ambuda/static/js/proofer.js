@@ -64,6 +64,8 @@ export default () => ({
     this.loadSettings();
     this.layoutClasses = this.getLayoutClasses();
 
+    const IMAGE_URL = JSON.parse(document.getElementById('image_url').innerText);
+
     // Set `imageZoom` only after the viewer is fully initialized.
     this.imageViewer = initializeImageViewer(IMAGE_URL);
     this.imageViewer.addHandler('open', () => {
