@@ -18,8 +18,7 @@ from wtforms.widgets import TextArea
 from ambuda import database as db
 from ambuda import queries as q
 from ambuda.enums import SitePageStatus
-from ambuda.utils import google_ocr
-from ambuda.utils import project_utils
+from ambuda.utils import google_ocr, project_utils
 from ambuda.utils.assets import get_page_image_filepath
 from ambuda.utils.diff import revision_diff
 from ambuda.utils.revisions import EditException, add_revision
