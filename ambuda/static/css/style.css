@@ -72,7 +72,6 @@
   /* TEI <lg>, i.e. a Sanskrit verse. */
   s-lg {
     @apply block x-deva leading-normal;
-    @apply cursor-pointer;
   }
   /* TEI <l>, i.e. a line of Sanskrit verse. */
   s-l {

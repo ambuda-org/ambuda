@@ -201,13 +201,18 @@ export default () => ({
   getParseLayoutClasses() {
     if (this.parseLayout === 'side-by-side') {
       return 'md:max-w-3xl';
+    } else {
+      return 'md:max-w-lg ';
     }
   },
-  getParseLayoutClassesForBlock() {
-    if (this.parseLayout === 'side-by-side') {
-      return 'flex flex-wrap justify-between w-max';
+  getBlockClasses(b) {
+    if (b.showParse) {
+      if (this.parseLayout === 'side-by-side') {
+        return 'flex flex-wrap justify-between w-max';
+      }
+    } else {
+      return 'cursor-pointer';
     }
-    return '';
   },
   getParseLayoutTogglerText() {
     if (this.parseLayout === 'side-by-side') {
