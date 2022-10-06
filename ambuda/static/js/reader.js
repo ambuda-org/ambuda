@@ -16,7 +16,7 @@
  */
 
 import {
-  transliterateElement, transliterateHTMLString, $,
+  transliterateHTMLString, $,
 } from './core.ts';
 import Routes from './routes';
 
@@ -25,77 +25,15 @@ import Routes from './routes';
  * Future PRs will migrate this code to Alpine.
  */
 
-async function searchDictionary(sources, query, contentScript) {
-  $('#dict--form input[name=q]').value = query;
-
-  const url = Routes.ajaxDictionaryQuery(sources, query);
-  const $container = $('#dict--response');
-  const resp = await fetch(url);
-  if (resp.ok) {
-    const text = await resp.text();
-    $container.innerHTML = transliterateHTMLString(text, contentScript);
-  } else {
-    // FIXME: add i18n support
-    $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
-  }
-}
-
 function getBlockSlug(blockID) {
   // Slice to remove text XML id.
   return blockID.split('.').slice(1).join('.');
-}
-
-async function showParsedBlock(block, contentScript, onFailure) {
-  if (block.parse) {
-    // Parse has already been fetched. Toggle state.
-    block.showParse = !block.showParse;
-    return;
-  }
-
-  const blockSlug = getBlockSlug(block.id);
-  const textSlug = Routes.getTextSlug();
-  const url = Routes.parseData(textSlug, blockSlug);
-
-  // Fetch parsed data.
-  let resp;
-  try {
-    resp = await fetch(url);
-  } catch (e) {
-    return;
-  }
-
-  if (resp.ok) {
-    const text = await resp.text();
-    block.parse = text;
-    block.showParse = true;
-  } else {
-    const $container = $('#parse--response');
-    // FIXME: add i18n support
-    $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
-    onFailure();
-  }
 }
 
 /* Alpine code
  * ===========
  * Future PRs will merge the legacy code above into the application below.
  */
-
-/**
- * Switch the script used in the reader.
- */
-function switchScript(oldScript, newScript) {
-  if (oldScript === newScript) return;
-
-  const $textContent = $('#text--content');
-  if ($textContent) {
-    transliterateElement($textContent, oldScript, newScript);
-  }
-  const $content = $('#sidebar');
-  if ($content) {
-    transliterateElement($content, oldScript, newScript);
-  }
-}
 
 const READER_CONFIG_KEY = 'reader';
 export default () => ({
@@ -115,6 +53,8 @@ export default () => ({
   // AJAX data
   // ---------
   blocks: [],
+  dictionaryResponse: '',
+  parseDescription: '',
 
   // Transient data
   // --------------
@@ -134,7 +74,6 @@ export default () => ({
 
   init() {
     this.loadSettings();
-    switchScript('devanagari', this.script);
 
     // Sync UI with application state. See comments on `uiScript` for details.
     this.uiScript = this.script;
@@ -190,8 +129,18 @@ export default () => ({
     }
   },
 
+  async searchDictionary() {
+    const url = Routes.ajaxDictionaryQuery(this.dictSources, this.dictQuery);
+    const resp = await fetch(url);
+    if (resp.ok) {
+      this.dictionaryResponse = await resp.text();
+    } else {
+      // FIXME: add i18n support
+      this.dictionaryResponse = '<p>Sorry, this content is not available right now.</p>';
+    }
+  },
+
   updateScript() {
-    switchScript(this.script, this.uiScript);
     this.script = this.uiScript;
     this.saveSettings();
   },
@@ -261,10 +210,40 @@ export default () => ({
     // Block: show parse data for this block.
     const $block = e.target.closest('s-block');
     if ($block) {
-      const block = this.blocks.find((b) => b.id == $block.id);
-      showParsedBlock(block, this.script, () => {
-        this.showSidebar = true;
-      });
+      this.showParsedBlock($block.id);
+    }
+  },
+
+  async showParsedBlock(blockID) {
+    const block = this.blocks.find((b) => b.id == blockID);
+
+    if (block.parse) {
+      // Parse has already been fetched. Toggle state.
+      block.showParse = !block.showParse;
+      return;
+    }
+
+    const blockSlug = getBlockSlug(block.id);
+    const textSlug = Routes.getTextSlug();
+    const url = Routes.parseData(textSlug, blockSlug);
+
+    // Fetch parsed data.
+    let resp;
+    try {
+      resp = await fetch(url);
+    } catch (e) {
+      return;
+    }
+
+    if (resp.ok) {
+      const text = await resp.text();
+      block.parse = text;
+      block.showParse = true;
+    } else {
+      const $container = $('#parse--response');
+      // FIXME: add i18n support
+      $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
+      this.showSidebar = true;
     }
   },
 
@@ -275,7 +254,7 @@ export default () => ({
     const parse = $word.getAttribute('parse');
     this.dictQuery = Sanscript.t(lemma, 'slp1', this.script);
 
-    await searchDictionary(this.dictSources, this.dictQuery, this.script);
+    await this.searchDictionary();
     this.setSidebarWord(form, lemma, parse);
     this.showSidebar = true;
   },
@@ -284,12 +263,11 @@ export default () => ({
   setSidebarWord(form, lemma, parse) {
     const niceForm = Sanscript.t(form, 'slp1', this.script);
     const niceLemma = Sanscript.t(lemma, 'slp1', this.script);
-    const html = `
+    this.parseDescription = `
     <header>
       <h1 class="text-xl" lang="sa">${niceForm}</h1>
       <p class="mb-8"><span lang="sa">${niceLemma}</span> ${parse}</p>
     </header>`;
-    $('#parse--response').innerHTML = html;
   },
 
   // Search a word in the dictionary and display the results to the user.

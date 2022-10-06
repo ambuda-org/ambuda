@@ -127,18 +127,9 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
   <div>
     <div>
       <button class="block text-2xl p-2" @click="showSidebar = false">&times;</button>
-      <div id="parse--response" class="text-sm"></div>
+      <div class="text-sm" x-html="parseDescription"></div>
 
       <form id="dict--form" class="mb-4" @submit.prevent="submitDictionaryQuery">
-        <div class="flex mb-2 hidden lg:block">
-          <input name="q" type="text" placeholder="राम, ರಾಮ, ma, rAma, ..."
-              class="p-2 flex-1 bg-zinc-100 rounded-tl rounded-bl"
-              x-model="dictQuery"
-              ></input>
-          <input type="submit" value="{{ _('Search') }}"
-          class="bg-zinc-800 text-white p-2 rounded-tr rounded-br"></input>
-        </div>
-
         <div x-cloak @click.outside="onClickOutsideOfSourceSelector"
             class="relative text-sm select-none inline-block">
           <div class="f-select bg-white lg:bg-slate-100 px-2 cursor-pointer inline-block"
@@ -151,9 +142,7 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
         </div>
       </form>
     </div>
-    <div>
-      {{ m_dict.dict_target() }}
-    </div>
+    <div x-html="transliterated(dictionaryResponse)"></div>
   </div>
 </div>
 {% endmacro %}
