@@ -172,7 +172,7 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 {# FIXME: unify <article> and these three <div>s into fewer elements. #}
 <article lang="sa" class="flex justify-around mb-32" x-data="reader" @click="onClick">
   {# Note: the "parseLayout" class must be kept in sync with the .side-by-side selector in the css file. #}
-  <div id="text--content" class="md:text-xl mx-4 md:max-w-lg pb-16 lg:flex-1" :class="parseLayout">
+  <div id="text--content" class="md:text-xl mx-4 md:max-w-lg pb-16 lg:flex-1" :class="getParseLayoutClasses">
   <div :class="fontSize">
 
   {{ header() }}
@@ -189,10 +189,12 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
   {# Client-side logic. This is what most readers will see and use. #}
   <template x-for="b in blocks">
     <s-block :id="b.id">
-      <div x-show="!b.showParse" class="mula" x-html="b.mula"></div>
-      <div x-show="b.showParse" x-html="b.parse"></div>
+      <div :class="getParseLayoutClassesForBlock">
+        <div x-show="showBlockMula(b)" :class="getMulaClasses" x-html="b.mula"></div>
+        <div x-show="b.showParse" x-html="b.parse"></div>
+      </div>
       <span class="text-sm text-zinc-400 hover:underline" x-show="b.showParse">
-        <a href="#">Show original</a>
+        <a href="#" x-text="getParseLayoutTogglerText"></a>
       </span>
     </s-block>
   </template>

@@ -198,6 +198,41 @@ export default () => ({
     this.saveSettings();
   },
 
+  getParseLayoutClasses() {
+    if (this.parseLayout === 'side-by-side') {
+      return 'md:max-w-3xl';
+    }
+  },
+  getParseLayoutClassesForBlock() {
+    if (this.parseLayout === 'side-by-side') {
+      return 'flex flex-wrap justify-between w-max';
+    }
+    return '';
+  },
+  getParseLayoutTogglerText() {
+    if (this.parseLayout === 'side-by-side') {
+      return 'Hide parse';
+    } else {
+      return 'Show original';
+    }
+  },
+  getMulaClasses() {
+    if (this.parseLayout === 'side-by-side') {
+      return 'mr-4';
+    }
+    return '';
+  },
+
+
+  showBlockMula(b) {
+    // in-place --> showParse
+    // otherwise --> true
+    if (this.parseLayout === 'in-place') {
+      return !b.showParse;
+    }
+    return true;
+  },
+
   // Generic click handler for multiple objects in the reader.
   async onClick(e) {
     // Don't run e.preventDefault by default, as the user might be clicking an
@@ -206,11 +241,14 @@ export default () => ({
     // Parsed word: show details for this word.
     const $word = e.target.closest('s-w');
     if ($word) {
+        console.log('1');
       this.showWordPanel($word);
       return;
     }
+
     // "Hide parse" link: hide the displayed parse.
     if (e.target.closest('.js--source')) {
+        console.log('2');
       e.preventDefault();
       const $block = e.target.closest('s-block');
       $block.classList.remove('show-parsed');
@@ -219,6 +257,7 @@ export default () => ({
     // Block: show parse data for this block.
     const $block = e.target.closest('s-block');
     if ($block) {
+        console.log('3');
       const block = this.blocks.find((b) => b.id == $block.id);
       showParsedBlock(block, this.script, () => {
         this.showSidebar = true;
