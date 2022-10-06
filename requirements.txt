@@ -22,7 +22,7 @@ click-plugins==1.1.1
 click-repl==0.2.0
 conllu==4.5.2
 coverage==6.4.1
-cryptography==37.0.2
+cryptography==38.0.1
 Deprecated==1.2.13
 dnspython==2.2.1
 docutils==0.17.1
@@ -82,7 +82,7 @@ pluggy==1.0.0
 prometheus-client==0.14.1
 prompt-toolkit==3.0.30
 proto-plus==1.22.0
-protobuf==3.20.1
+protobuf==4.21.6
 psutil==5.9.1
 py==1.11.0
 pyasn1==0.4.8
