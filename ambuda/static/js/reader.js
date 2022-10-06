@@ -3,16 +3,31 @@
 /**
  * Application code for our Sanskrit reading environment.
  *
- * The reading environment supports several user preferences, including script,
- * font size, and layout features for secondary content like parse data.
+ * Our reading environment displays Sanskrit text with various rich features:
  *
- * As with our other applications, we prefer storing application state in
- * markup in accordance with HATEOAS. Where this is cumbersome, we instead
- * store application state within the object we export further below.
+ * - script, font size, and basic layout preferences
+ * - padaccheda with word-by-word parse data
+ * - dictionary search across a variety of standard dictionaries
  *
- * NOTE: our migration to Alpine is in progress, and much of this file includes
- * legacy code from our older vanilla JS approach. We will migrate this code to
- * Alpine over time.
+ *
+ * # Design
+ *
+ * The reader is essentialy a single-page application (SPA) implemented in
+ * Alpine. Certain components, such as text blocks and dictionary entries,
+ * are rendered on the server and returned as HTML blobs.
+ *
+ * Most of the code follows normal Alpine idioms. We still have some legacy
+ * code that does direct element manipulation (in particular, see our use of
+ * the `$` function), but we will remove these over time.
+ *
+ * Known issues:
+ * - JS replacement of server-side content isn't smooth.
+ *
+ *
+ * # Technical terms
+ *
+ * - mula: the original verse (mūlam)
+ * - slug: human-readable ID that appears in the URL.
  */
 
 import {
@@ -20,52 +35,84 @@ import {
 } from './core.ts';
 import Routes from './routes';
 
-/* Legacy code
- * ===========
- * Future PRs will migrate this code to Alpine.
- */
+// Script options. We enumerate only the ones we need to refer to internally
+const Script = {
+  Devanagari: 'devanagari',
+  SLP1: 'slp1',
+};
 
-function getBlockSlug(blockID) {
+// Layout option for parse data
+export const Layout = {
+  // Parse data replaces the original text. (default)
+  InPlace: 'in-place',
+  // Original block on the left, parse data on the right.
+  SideBySide: 'side-by-side',
+};
+
+export function getBlockSlug(blockID) {
   // Slice to remove text XML id.
   return blockID.split('.').slice(1).join('.');
 }
 
 /* Alpine code
  * ===========
- * Future PRs will merge the legacy code above into the application below.
  */
 
+// Dictionary key for localstorage.
 const READER_CONFIG_KEY = 'reader';
+
+// The main application.
 export default () => ({
 
-  // User preferences
-  // ----------------
+  // User settings
+  // -------------
+  // Persistent user-specific data that we store in localStorage.
 
-  // Text size for body text in the reader.
+  // Text size for body text.
   fontSize: 'md:text-xl',
-  // Script for Sanskrit text in the reader.
-  script: 'devanagari',
+  // Script for Sanskrit text.
+  script: Script.Devanagari,
   // How to display parse data to the user.
-  parseLayout: 'in-place',
+  parseLayout: Layout.InPlace,
   // The dictionary sources to use when fetching.
   dictSources: ['mw'],
 
-  // AJAX data
-  // ---------
+  // Server data
+  // -----------
+  // Text or dictionary data fetched from the server.
+
+  // Blocks of text content
+  //
+  // Structure ("?" indicates an optional field):
+  // [
+  //   {
+  //     id: "Text.1.2",
+  //     mula: "<div>...</div>",
+  //     parse?: "<div>...</div>",
+  //     showParse?: true,
+  //   },
+  // ]
+  // FIXME: enforce a schema with TypeScript.
   blocks: [],
+
+  // The current dictionary response.
   dictionaryResponse: '',
-  parseDescription: '',
+  // Analysis of a word clicked by the user.
+  wordAnalysis: {
+    // The inflected form
+    form: null,
+    // The form lemma
+    lemma: null,
+    // The English parse (gender, case, ...) of this form.
+    parse: null,
+  },
 
   // Transient data
   // --------------
+  // Internal application data that manages the application state.
 
-  // Script value as stored on the <select> widget. We store this separately
-  // from `script` since we currently need to know both fields in order to
-  // transliterate.
-  uiScript: null,
   // If true, show the sidebar.
   showSidebar: false,
-
   // Text in the dictionary search field. This field is visible only on wide
   // screens.
   dictQuery: '',
@@ -74,23 +121,17 @@ export default () => ({
 
   init() {
     this.loadSettings();
+    const data = JSON.parse(document.getElementById('payload').textContent);
+    this.blocks = data.blocks;
 
-    // Sync UI with application state. See comments on `uiScript` for details.
-    this.uiScript = this.script;
-
-    // Allow sidebar to be shown. (We add `hidden` by default so that the
-    // sidebar doesn't display while JS is loading. Alpine's show/hide seems
-    // not to work if the element has this class hidden, which is why we don't
-    // just use "this.showSidebar = true" here.)
-    const $sidebar = $('#sidebar');
-    if ($sidebar) {
-      $sidebar.classList.remove('hidden');
-    }
-
-    this.loadAjax();
+    // FIXME: enable this in a follow-up PR.
+    // this.loadAjax();
   },
 
-  // Parse application settings from local storage.
+  // Settings
+  // ========
+
+  /** Load user settings from local storage. */
   loadSettings() {
     const settingsStr = localStorage.getItem(READER_CONFIG_KEY);
     if (settingsStr) {
@@ -107,7 +148,7 @@ export default () => ({
     }
   },
 
-  // Save application settings to local storage.
+  /** Save user settings to local storage. */
   saveSettings() {
     const settings = {
       fontSize: this.fontSize,
@@ -118,18 +159,47 @@ export default () => ({
     localStorage.setItem(READER_CONFIG_KEY, JSON.stringify(settings));
   },
 
+  // Utility functions
+  // =================
+
+  /**
+   * Transliterate an HTML blob to the user's preferred script.
+   *
+   * This function ignores attributes and content within tags.
+   */
+  transliterateHTML(devanagariHTML) {
+    return transliterateHTMLString(devanagariHTML, this.script);
+  },
+
+  /** Transliterate a Devanagari string to the user's preferred script. */
+  transliterateStr(devanagariStr) {
+    if (!devanagariStr) return '';
+    return Sanscript.t(devanagariStr, Script.Devanagari, this.script);
+  },
+
+  // AJAX requests
+  // =============
+
+  /** Load text data from the server. */
   async loadAjax() {
-    const url = '/api/texts/json/kumarasambhavam/1';
+    // HACK: just use the pathname.
+    const url = `/api${window.location.pathname}`;
+
     const resp = await fetch(url);
     if (resp.ok) {
       const json = await resp.json();
       this.blocks = json.blocks;
     } else {
-      console.log('unhandled exception');
+      // Loading failed -- just use the server-side.
+      // FIXME: make the non-JS experience smoother.
     }
   },
 
+  /** Query the dictionary and populate the sidebar. */
   async searchDictionary() {
+    if (!this.dictQuery || this.dictSources.length === 0) {
+      return;
+    }
     const url = Routes.ajaxDictionaryQuery(this.dictSources, this.dictQuery);
     const resp = await fetch(url);
     if (resp.ok) {
@@ -140,51 +210,57 @@ export default () => ({
     }
   },
 
-  updateScript() {
-    this.script = this.uiScript;
-    this.saveSettings();
-  },
+  // `parseLayout` CSS
+  // =================
 
-  transliterated(devanagariHTML) {
-    return transliterateHTMLString(devanagariHTML, this.script);
-  },
+  /** Get CSS related to the `parseLayout` setting. */
   getParseLayoutClasses() {
-    if (this.parseLayout === 'side-by-side') {
-      return 'md:max-w-3xl';
+    if (this.parseLayout === Layout.SideBySide) {
+      // Extra wide to fit the side-by-side view.
+      // '!' to take priority over existing styles.
+      return 'md:!max-w-3xl';
     }
-    return 'md:max-w-lg ';
+    return '';
   },
   getBlockClasses(b) {
     if (b.showParse) {
-      if (this.parseLayout === 'side-by-side') {
+      if (this.parseLayout === Layout.SideBySide) {
+        // Show side-by-side.
         return 'flex flex-wrap justify-between w-full';
       }
+      return '';
     }
+    // Otherwise, indicate that the verse is clickable.
     return 'cursor-pointer';
   },
   getParseLayoutTogglerText() {
-    if (this.parseLayout === 'side-by-side') {
+    if (this.parseLayout === Layout.SideBySide) {
       return 'Hide parse';
     }
     return 'Show original';
   },
   getMulaClasses() {
-    if (this.parseLayout === 'side-by-side') {
+    if (this.parseLayout === Layout.SideBySide) {
+      // Extra margin for better readability.
       return 'mr-4';
     }
     return '';
   },
-
   showBlockMula(b) {
-    // in-place --> showParse
-    // otherwise --> true
-    if (this.parseLayout === 'in-place') {
+    if (this.parseLayout === Layout.InPlace) {
+      // For this layout, show the mula iff the parse is not visible.
       return !b.showParse;
     }
+    // By default, always show the mula.
     return true;
   },
 
-  // Generic click handler for multiple objects in the reader.
+  // Click handlers
+  // ==============
+  // For clicked words. Over time, we will move more of the state here from the
+  // DOM into the Alpine object.
+
+  /** Generic click handler for multiple objects in the reader. */
   async onClick(e) {
     // Don't run e.preventDefault by default, as the user might be clicking an
     // actual link.
@@ -196,13 +272,6 @@ export default () => ({
       return;
     }
 
-    // "Hide parse" link: hide the displayed parse.
-    if (e.target.closest('.js--source')) {
-      e.preventDefault();
-      const $block = e.target.closest('s-block');
-      $block.classList.remove('show-parsed');
-      return;
-    }
     // Block: show parse data for this block.
     const $block = e.target.closest('s-block');
     if ($block) {
@@ -245,32 +314,19 @@ export default () => ({
 
   // Show information for a clicked word.
   async showWordPanel($word) {
-    const lemma = $word.getAttribute('lemma');
-    const form = $word.textContent;
+    const form = Sanscript.t($word.textContent, this.script, Script.Devanagari);
+    const lemma = Sanscript.t($word.getAttribute('lemma'), Script.SLP1, Script.Devanagari);
     const parse = $word.getAttribute('parse');
-    this.dictQuery = Sanscript.t(lemma, 'slp1', this.script);
 
+    this.dictQuery = Sanscript.t(lemma, Script.SLP1, this.script);
     await this.searchDictionary();
-    this.setSidebarWord(form, lemma, parse);
+
+    this.wordAnalysis = { form, lemma, parse };
     this.showSidebar = true;
   },
 
-  // Display a specific word in the sidebar.
-  setSidebarWord(form, lemma, parse) {
-    const niceForm = Sanscript.t(form, 'slp1', this.script);
-    const niceLemma = Sanscript.t(lemma, 'slp1', this.script);
-    this.parseDescription = `
-    <header>
-      <h1 class="text-xl" lang="sa">${niceForm}</h1>
-      <p class="mb-8"><span lang="sa">${niceLemma}</span> ${parse}</p>
-    </header>`;
-  },
-
-  // Search a word in the dictionary and display the results to the user.
-  submitDictionaryQuery() {
-    if (!this.dictQuery) return;
-    this.searchDictionary(this.dictSources, this.dictQuery, this.script);
-  },
+  // Dropdown handlers
+  // =================
 
   /** Toggle the source selection widget's visibility. */
   toggleSourceSelector() {
@@ -284,7 +340,7 @@ export default () => ({
     // selector is not visible, this method is best left as a no-op.
     if (this.showDictSourceSelector) {
       this.saveSettings();
-      this.submitDictionaryQuery();
+      this.searchDictionary();
       this.showDictSourceSelector = false;
     }
   },

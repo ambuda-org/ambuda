@@ -66,7 +66,7 @@ or in their own modal window. #}
   </div>
   <div class="text-sm border-r px-4">
     <span class="hidden md:inline">{{ _('Script:') }}</span>
-    <select id="switch-sa" class="p-1" @change="updateScript" x-model="uiScript">
+    <select id="switch-sa" class="p-1" @change="saveSettings" x-model="script">
       {% include 'include/script-options.html' %}
     </select>
   </div>
@@ -115,7 +115,7 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 #}
 {% macro sidebar() %}
 <div id="sidebar" class="
-    hidden overscroll-contain
+    overscroll-contain
     fixed top-1/2 bottom-0 left-0 right-0
     flex flex-col flex-1
     p-4 overflow-auto
@@ -123,13 +123,21 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
     md:text-base lg:border-t-0 lg:bg-white
     lg:sticky lg:top-10 lg:max-w-lg lg:h-full-minus-nav lg:mr-8 lg:pl-8 lg:border-l
     lg:z-0"
-    x-show="showSidebar" x-transition.opacity>
+    x-show="showSidebar" x-transition.opacity x-cloak>
   <div>
     <div>
       <button class="block text-2xl p-2" @click="showSidebar = false">&times;</button>
-      <div class="text-sm" x-html="parseDescription"></div>
+      <div class="text-sm" x-show="wordAnalysis.form">
+        <header>
+          <h1 class="text-xl" lang="sa" x-text="transliterateStr(wordAnalysis.form)"></h1>
+          <p class="mb-8">
+            <span lang="sa" x-text="transliterateStr(wordAnalysis.lemma)"></span>
+            <span x-text="wordAnalysis.parse"></span>
+          </p>
+        </header>
+      </div>
 
-      <form id="dict--form" class="mb-4" @submit.prevent="submitDictionaryQuery">
+      <form id="dict--form" class="mb-4" @submit.prevent="searchDictionary">
 
         {# Dictionary input field (desktop only, to save space) #}
         <div class="mb-2 hidden lg:flex">
@@ -153,7 +161,7 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
         </div>
       </form>
     </div>
-    <div x-html="transliterated(dictionaryResponse)"></div>
+    <div x-html="transliterateHTML(dictionaryResponse)"></div>
   </div>
 </div>
 {% endmacro %}
@@ -171,7 +179,8 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 {% block main %}
 {# FIXME: unify <article> and these three <div>s into fewer elements. #}
 <article lang="sa" class="flex justify-around mb-32" x-data="reader" @click="onClick">
-  <div id="text--content" class="md:text-xl mx-4 pb-16 lg:flex-1" :class="getParseLayoutClasses">
+  <div id="text--content" class="md:text-xl mx-4 pb-16 lg:flex-1 md:max-w-xl"
+      :class="getParseLayoutClasses">
   <div :class="fontSize">
 
   {{ header() }}
@@ -180,7 +189,7 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
   <div x-show="blocks.length === 0">
     {% for block_ in html_blocks %}
     <s-block id="{{ block_.id }}">
-      <div class="mula">{{ block_.html|safe }}</div>
+      <div class="mula">{{ block_.mula|safe }}</div>
     </s-block>
     {% endfor %}
   </div>
@@ -189,8 +198,8 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
   <template x-for="b in blocks">
     <s-block :id="b.id">
       <div :class="getBlockClasses(b)">
-        <div x-show="showBlockMula(b)" :class="getMulaClasses" x-html="transliterated(b.mula)"></div>
-        <div x-show="b.showParse" x-html="transliterated(b.parse)"></div>
+        <div x-show="showBlockMula(b)" :class="getMulaClasses" x-html="transliterateHTML(b.mula)"></div>
+        <div x-show="b.showParse" x-html="transliterateHTML(b.parse)"></div>
       </div>
       <span class="text-sm text-zinc-400 hover:underline" x-show="b.showParse">
         <a @click.prevent href="#" x-text="getParseLayoutTogglerText"></a>
@@ -203,6 +212,9 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
   {{ footer() }}
   {{ sidebar() }}
 </article>
+
+{# Serialize the data above so we can use it without a second network call. #}
+<script id="payload" type="application/json">{{ json_payload|safe }}</script>
 {% endblock %}
 
 {# Hide footer because we have a position:fixed nav "footer" already. #}
