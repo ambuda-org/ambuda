@@ -12,51 +12,91 @@ different languages.
 {%- endblock %}
 
 
-{% block content %}
-<h1 class="text-xl font-bold my-4">{{ _('Dictionary lookup') }}</h1>
-
+{% macro dictionary_form() %}
 <form
     id="dict--form"
     class="mb-4"
-    x-data="dictionary"
     @submit.prevent="searchDictionary">
   <div class="flex mb-2">
     <input
         name="q"
         type="text"
-        placeholder="राम, ರಾಮ, rāma, rAma, ..."
-        class="p-2 flex-1 bg-zinc-100 rounded-tl rounded-bl"
+        placeholder="{{ _('राम, ರಾಮ, rāma, rAma, ...') }}"
+        class="p-2 flex-1 bg-slate-100 rounded-tl rounded-bl"
         x-model="query"
     >
     </input>
     <input type="submit" value="{{ _('Search') }}"
-        class="cursor-pointer bg-zinc-800 text-white p-2 rounded-tr rounded-br"></input>
+        class="cursor-pointer btn-submit p-2 rounded-tr rounded-br"></input>
   </div>
-  <select
-      id="dict--version"
-      name="version"
-      class="text-sm bg-zinc-100
-      text-zinc-400 hover:text-zinc-800 p-1"
-      @change="setSource($event.target.value)">
+
+  <noscript>
+  <select id="dict--version" name="source" class="f-select">
     {% include "include/dict-options.html" %}
   </select>
+  </noscript>
+  <div x-cloak @click.outside="onClickOutsideOfSourceSelector"
+      class="relative text-sm select-none inline-block">
+    <div class="f-select px-2 cursor-pointer inline-block"
+         @click.prevent="toggleSourceSelector">
+        {{ _('(choose dictionary)') }} <span class="text-xs">&#x25BC;</span>
+    </div>
+    <div x-show="showSourceSelector" class="dropdown-pane p-2 w-64">
+      {{ m.source_multiselect('sources') }}
+    </div>
+  </div>
+
   <select
       id="dict--script"
-      class="text-sm bg-zinc-100 text-zinc-400 hover:text-zinc-800 p-1"
+      class="f-select"
       x-model="uiScript"
       @change="updateScript">
     {% include 'include/script-options.html' %}
   </select>
 </form>
+{% endmacro %}
 
+
+{% macro dictionary_history() %}
+<div class="text-sm my-4 pb-2 border-b text-slate-500
+     flex items-start justify-between"
+     x-cloak x-show="history.length">
+  <div class="flex flex-1 overflow-hidden">
+    <h3 class="font-bold mb-2">{{ _('History:') }}</h3>
+    <ul class="a-hover-underline flex">
+      <template x-for="q in history.slice().reverse()">
+        <li class="px-1">
+          <a href="#" x-text="q" @click.prevent="searchFor(q)"></a>
+        </li>
+      </template>
+    </ul>
+  </div>
+  <button class="btn btn-basic text-xs !p-0.5" @click.prevent="clearHistory">
+    Clear
+  </button>
+</div>
+{% endmacro %}
+
+
+{% macro dictionary_response(query, entries) %}
 <div id="dict--response">
 {% if query or entries %}
-  {% with query=query, entries=entries %}
+  {% with query=query, entries=entries, dictionaries=dictionaries %}
     {% include "htmx/dictionary-results.html" %}
   {% endwith %}
 {% else  %}
   {% include 'include/dictionary-help.html' %}
 {% endif %}
 </div>
+{% endmacro %}
 
+
+{% block content %}
+<h1 class="text-xl font-bold my-4">{{ _('Dictionary lookup') }}</h1>
+
+<div x-data="dictionary">
+  {{ dictionary_form() }}
+  {{ dictionary_history() }}
+  {{ dictionary_response(query, entries) }}
+</div>
 {% endblock %}

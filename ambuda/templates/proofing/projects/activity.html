@@ -7,12 +7,12 @@
 {% block title %}Activity: {{ project.title }} | Ambuda{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
 {{ m.project_header_nested('Activity', project) }}
-{{ m.project_nav(project=project, active='activity', is_mod=current_user.is_moderator) }}
+{{ m.project_nav(project=project, active='activity') }}
 {% set search_url = url_for("proofing.project.search", slug=project.slug)  %}
 
 {{ m.activity_log(recent_activity) }}

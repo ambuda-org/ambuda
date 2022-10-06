@@ -17,19 +17,34 @@
 
 
 {% macro nested_header(label, title, url) %}
+{% set css = "text-slate-400" %}
 <header class="a-hover-underline font-bold text-3xl mb-4">
-  <h1>{{ label }}: <a class="text-slate-400" href="{{ url }}">{{ title }}</a></h1>
+  <h1>
+  {{ _('%(label)s: <a class="%(css)s" href="%(url)s">%(title)s</a>',
+    label=label, css=css, url=url, title=title) }}
+</h1>
 </header>
 {% endmacro %}
 
-
-{# Main-level sidebar. #}
-{% macro main_nav(active = none) %}
+{# Sidebar link #}
 {% macro _link(label, route, text) -%}
 {% if active == label %}<li class="font-bold text-black">{% else %}<li>{% endif %}
 <a href="{{ url_for(route) }}">{{ text }}</a>
 </li>
 {%- endmacro %}
+
+
+{# Sidebar shown on most proofing pages. #}
+{% macro main_nav(active, current_user) %}
+
+{% if current_user.is_moderator %}
+<nav class="rounded bg-slate-200 text-slate-500 mb-2 p-4 a-hover-underline text-sm">
+<h1 class="font-bold">{{ _('Moderation') }}</h1>
+<ul class="list-disc pl-6">
+  {{ _link('stats', "proofing.dashboard", _("Dashboard")) }}
+</ul>
+</nav>
+{% endif %}
 
 <nav class="rounded bg-slate-100 text-slate-500 p-4 a-hover-underline text-sm">
 <h1 class="font-bold">{{ _('Help') }}</h1>
@@ -131,8 +146,8 @@
   <span class="{{ revision_colors(r.status.name) }} inline-block w-2 h-2 mr-0.5 rounded-sm"></span>
   <a class="text-slate-400 text-sm p-0.5 rounded"
       href="{{ revision_url }}">{{ r.created.strftime("%Y-%m-%d %H:%M") }}</a>
-  <a href="{{ page_url }}">{{ page_title }}</a>
-  by <a href="{{ author_url }}">{{ author }}</a>
+  {{ _('<a href="%(page_url)s">%(page_title)s</a> by <a href="%(author_url)s">%(author)s</a>',
+    page_url=page_url, page_title=page_title, author_url=author_url, author=author) }}
   {% if r.summary %}<i>({{ r.summary }})</i>{% endif %}
 </li>
 {% endmacro %}
@@ -142,13 +157,15 @@
 {% macro project_li(p) %}
 <li class="my-2 flex justify-between">
   {% set project_url = url_for('proofing.project.summary', slug=p.slug) %}
+  {% set title = p.title %}
   {% set creator = p.creator.username %}
   {% set creator_url = url_for('proofing.user.summary', username=creator) %}
   <div>
     <span class="border border-slate-500 inline-block w-2 h-2 mr-0.5 rounded-sm"></span>
     <a class="text-slate-400 text-sm p-0.5 rounded"
         href="{{ project_url }}">{{ p.created_at.strftime("%Y-%m-%d %H:%M") }}</a>
-    {{ p.title }} created by <a href="{{ creator_url }}">{{ creator }}</a>
+    {{ _('%(title)s created by <a href="%(creator_url)s">%(creator)s</a>',
+        title=title, creator_url=creator_url, creator=creator) }}
 </li>
 {% endmacro %}
 

@@ -25,16 +25,17 @@ import Routes from './routes';
  * Future PRs will migrate this code to Alpine.
  */
 
-async function searchDictionary(version, query, contentScript) {
+async function searchDictionary(sources, query, contentScript) {
   $('#dict--form input[name=q]').value = query;
 
-  const url = Routes.ajaxDictionaryQuery(version, query);
+  const url = Routes.ajaxDictionaryQuery(sources, query);
   const $container = $('#dict--response');
   const resp = await fetch(url);
   if (resp.ok) {
     const text = await resp.text();
     $container.innerHTML = transliterateHTMLString(text, contentScript);
   } else {
+    // FIXME: add i18n support
     $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
   }
 }
@@ -45,22 +46,25 @@ function getBlockSlug(blockID) {
 }
 
 async function showParsedBlock(blockID, contentScript, onFailure) {
-  const blockSlug = getBlockSlug(blockID);
-  const $container = $('#parse--response');
-  const textSlug = Routes.getTextSlug();
-
   const $block = $(`#${blockID.replaceAll('.', '\\.')}`);
-
   if ($block.classList.contains('has-parsed')) {
     // Text has already been parsed. Show it if necessary.
     $block.classList.add('show-parsed');
     return;
   }
-  $block.classList.add('has-parsed');
+
+  const blockSlug = getBlockSlug(blockID);
+  const textSlug = Routes.getTextSlug();
+  const url = Routes.parseData(textSlug, blockSlug);
 
   // Fetch parsed data.
-  const url = Routes.parseData(textSlug, blockSlug);
-  const resp = await fetch(url);
+  let resp;
+  try {
+    resp = await fetch(url);
+  } catch (e) {
+    return;
+  }
+
   if (resp.ok) {
     const text = await resp.text();
     const parsedNode = document.createElement('div');
@@ -71,12 +75,15 @@ async function showParsedBlock(blockID, contentScript, onFailure) {
     const link = document.createElement('a');
     link.className = 'text-sm text-zinc-400 hover:underline js--source';
     link.href = '#';
+    // FIXME: add i18n support
     link.innerHTML = '<span class=\'shown-side-by-side\'>Hide</span><span class=\'hidden-side-by-side\'>Show original</span>';
     parsedNode.firstChild.appendChild(link);
 
+    $block.classList.add('has-parsed');
     $block.classList.add('show-parsed');
   } else {
-    $block.classList.remove('has-parsed');
+    const $container = $('#parse--response');
+    // FIXME: add i18n support
     $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
     onFailure();
   }
@@ -111,8 +118,8 @@ export default () => ({
   script: 'devanagari',
   // How to display parse data to the user.
   parseLayout: 'in-place',
-  // The dictionary version to use.
-  dictVersion: 'mw',
+  // The dictionary sources to use when fetching.
+  dictSources: ['mw'],
 
   // (transient data)
 
@@ -120,11 +127,14 @@ export default () => ({
   // from `script` since we currently need to know both fields in order to
   // transliterate.
   uiScript: null,
+  // If true, show the sidebar.
+  showSidebar: false,
+
   // Text in the dictionary search field. This field is visible only on wide
   // screens.
   dictQuery: '',
-  // If true, show the sidebar.
-  showSidebar: false,
+  // If true, show the dictionary selection widget.
+  showDictSourceSelector: false,
 
   init() {
     this.loadSettings();
@@ -152,7 +162,7 @@ export default () => ({
         this.fontSize = settings.fontSize || this.fontSize;
         this.script = settings.script || this.script;
         this.parseLayout = settings.parseLayout || this.parseLayout;
-        this.dictVersion = settings.dictVersion || this.dictVersion;
+        this.dictSources = settings.dictSources || this.dictSources;
       } catch (error) {
         // Old settings are invalid -- rewrite with valid values.
         this.saveSettings();
@@ -166,7 +176,7 @@ export default () => ({
       fontSize: this.fontSize,
       script: this.script,
       parseLayout: this.parseLayout,
-      dictVersion: this.dictVersion,
+      dictSources: this.dictSources,
     };
     localStorage.setItem(READER_CONFIG_KEY, JSON.stringify(settings));
   },
@@ -211,7 +221,7 @@ export default () => ({
     const parse = $word.getAttribute('parse');
     this.dictQuery = Sanscript.t(lemma, 'slp1', this.script);
 
-    await searchDictionary(this.dictVersion, this.dictQuery, this.script);
+    await searchDictionary(this.dictSources, this.dictQuery, this.script);
     this.setSidebarWord(form, lemma, parse);
     this.showSidebar = true;
   },
@@ -231,6 +241,23 @@ export default () => ({
   // Search a word in the dictionary and display the results to the user.
   submitDictionaryQuery() {
     if (!this.dictQuery) return;
-    searchDictionary(this.dictVersion, this.dictQuery, this.script);
+    searchDictionary(this.dictSources, this.dictQuery, this.script);
+  },
+
+  /** Toggle the source selection widget's visibility. */
+  toggleSourceSelector() {
+    this.showDictSourceSelector = !this.showDictSourceSelector;
+  },
+
+  /** Close the source selection widget and re-run the query as needed. */
+  onClickOutsideOfSourceSelector() {
+    // NOTE: With our current bindings, this method will run *every* time we
+    // click outside of the selector even if the selector is not open. If the
+    // selector is not visible, this method is best left as a no-op.
+    if (this.showDictSourceSelector) {
+      this.saveSettings();
+      this.submitDictionaryQuery();
+      this.showDictSourceSelector = false;
+    }
   },
 });

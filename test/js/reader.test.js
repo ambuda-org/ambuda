@@ -48,7 +48,7 @@ test('loadSettings works if localStorage data is empty', () => {
   expect(r.fontSize).toBe('md:text-xl');
   expect(r.script).toBe('devanagari');
   expect(r.parseLayout).toBe('in-place');
-  expect(r.dictVersion).toBe('mw');
+  expect(r.dictSources).toEqual(['mw']);
 });
 
 test('loadSettings works if localStorage data is corrupt', () => {

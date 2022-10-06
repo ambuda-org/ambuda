@@ -1,6 +1,9 @@
 """Views for basic site pages."""
 
-from flask import Blueprint, redirect, render_template, session, url_for
+from flask import Blueprint, redirect, render_template, request, session, url_for
+
+from ambuda.consts import LOCALES
+from ambuda import queries as q
 
 bp = Blueprint("site", __name__)
 
@@ -15,9 +18,25 @@ def contact():
     return redirect(url_for("about.contact"))
 
 
+@bp.route("/donate")
+def donate():
+    return render_template("site/donate.html")
+
+
+@bp.route("/donate/<title>/<cost>")
+def donate_for_project(title, cost):
+    return render_template("site/donate-for-project.html", title=title, cost=cost)
+
+
+@bp.route("/sponsor")
+def sponsor():
+    sponsorships = q.project_sponsorships()
+    return render_template("site/sponsor.html", sponsorships=sponsorships)
+
+
 @bp.route("/support")
 def support():
-    return render_template("support.html")
+    return render_template("site/support.html")
 
 
 @bp.route("/test-sentry-500")
@@ -46,7 +65,10 @@ def internal_server_error(e):
     return render_template("500.html"), 500
 
 
-@bp.route("/language/<language>")
-def set_language(language=None):
-    session["locale"] = language
+@bp.route("/language/<slug>")
+def set_language(slug=None):
+    locale = [L for L in LOCALES if slug == L.slug]
+    if locale:
+        locale = locale[0]
+        session["locale"] = locale.code
     return redirect(url_for("site.index"))

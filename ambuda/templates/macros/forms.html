@@ -40,6 +40,12 @@
 {% endmacro %}
 
 
+{# Submit button for general forms. #}
+{% macro submit(text) %}
+<input type="submit" class="btn btn-submit" value="{{ text }}" />
+{% endmacro %}
+
+
 {# Label for an auth field. #}
 {% macro auth_label(field) %}
 {{ field.label(class_="block text-slate-600") }}
@@ -52,6 +58,7 @@
 {% endmacro %}
 
 
+{# Submit button for the authentication flow. #}
 {% macro auth_submit(text) %}
 <input type="submit" class="btn text-white bg-brand w-full" value="{{ text }}" />
 {% endmacro %}
