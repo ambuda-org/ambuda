@@ -4,7 +4,8 @@
 {% set reddit = "https://reddit.com/u/learnsanskrit-org" %}
 {% set twitter = "https://twitter.com/ambuda_org" %}
 {% set support = url_for('site.support') %}
-<footer class="bg-sky-100 text-slate-700 a-hover-underline text-sm p-4 md:p-12 md:flex justify-between border-t">
+<footer class="bg-sky-100 text-slate-700 a-hover-underline text-sm p-4 md:p-12 border-t">
+<div class="md:flex justify-between max-w-6xl mx-auto">
   <div class="md:max-w-xs md:mr-8">
     <p class="a-underline">{% trans %}
     Ambuda is run entirely by volunteers for the public benefit. Learn more
@@ -20,8 +21,8 @@
     <p class="my-2">{{ 'satyaM vada dharmaM cara |'|devanagari }}</p>
   </div>
 
-  <div class="md:flex flex-wrap flex-1">
-  <section class="mr-24 mb-4 basis-20">
+  <div class="md:flex flex-wrap justify-between flex-1 max-w-2xl">
+  <section class="mr-4 mb-4 basis-28">
     <h3 class="font-bold mb-2"><a href="{{ url_for('site.index') }}">{{ _('Ambuda') }}</a></h3>
     <ul>
       <li><a href="{{ url_for('texts.index') }}">{{ _('Texts') }}</a>
@@ -31,7 +32,7 @@
     </ul>
   </section>
 
-  <section class="mr-24 mb-4 basis-20">
+  <section class="mr-4 mb-4 basis-28">
     <h3 class="font-bold mb-2"><a href="{{ url_for('site.donate') }}">{{ _('Join Us') }}</a></h3>
     <ul>
       <li><a href="{{ url_for('site.donate') }}">{{ _('Donate') }}</a>
@@ -40,7 +41,7 @@
     </ul>
   </section>
 
-  <section class="mr-24 mb-4 basis-20">
+  <section class="mr-4 mb-4 basis-28">
     <h3 class="font-bold mb-2"><a href="{{ url_for('about.index') }}">{{ _('About') }}</a></h3>
     <ul>
       <li><a href="{{ url_for('about.mission') }}">{{ _('Mission') }}</a>
@@ -52,7 +53,7 @@
     </ul>
   </section>
 
-  <section class="mb-4 basis-20">
+  <section class="mb-4 basis-28">
     <h3 class="font-bold mb-2">{{ _('Community') }}</h3>
     <ul>
       <li><a href="{{ blog }}">{{ _('Blog') }}</a>
@@ -62,5 +63,6 @@
       <li><a href="{{ twitter }}">{{ _('Twitter') }}</a>
     </ul>
   </section>
+  </div>
 </div>
 </footer>

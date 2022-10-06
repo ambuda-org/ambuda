@@ -3,12 +3,12 @@
 {% import "macros/forms.html" as mf %}
 
 
-{% block title %}{{ m.title(_('Sponsor')) }}{% endblock %}
+{% block title %}{{ m.title(_('Sponsor a Book')) }}{% endblock %}
 
 
 {% block content %}
 
-<h1 class="text-center font-bold text-5xl my-8">{{ _('Sponsor a book') }}</h1>
+<h1 class="text-center font-bold text-5xl my-8">{{ _('Sponsor a Book') }}</h1>
 
 {% if current_user.is_moderator %}
 {% call m.p_note() %}
@@ -54,10 +54,17 @@ sponsorships.
   </div>
 
   {% set cost = "₹{}".format(s.cost_inr) %}
-  <a href="{{ url_for('site.donate', project='aoeu') }}"
+  <a href="{{ url_for('site.donate_for_project', title=title, cost=s.cost_inr) }}"
     class="btn btn-submit p-3">{% trans %}
     Sponsor this book for {{ cost }}
   {% endtrans %}</a>
+</article>
+{% else %}
+<article class="prose border-t-2 my-8 pt-8">
+  <p>{% trans %}
+  There are no books available for sponsorships at this time. Please check
+  back soon.
+  {% endtrans %}</p>
 </article>
 {% endfor %}
 
