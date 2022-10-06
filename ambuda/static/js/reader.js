@@ -112,6 +112,10 @@ function switchScript(oldScript, newScript) {
 
 const READER_CONFIG_KEY = 'reader';
 export default () => ({
+
+  // User preferences
+  // ----------------
+
   // Text size for body text in the reader.
   fontSize: 'md:text-xl',
   // Script for Sanskrit text in the reader.
@@ -121,7 +125,12 @@ export default () => ({
   // The dictionary sources to use when fetching.
   dictSources: ['mw'],
 
-  // (transient data)
+  // AJAX data
+  // ---------
+  blocks: [],
+
+  // Transient data
+  // --------------
 
   // Script value as stored on the <select> widget. We store this separately
   // from `script` since we currently need to know both fields in order to
@@ -151,6 +160,8 @@ export default () => ({
     if ($sidebar) {
       $sidebar.classList.remove('hidden');
     }
+
+    this.loadAjax();
   },
 
   // Parse application settings from local storage.
@@ -179,6 +190,18 @@ export default () => ({
       dictSources: this.dictSources,
     };
     localStorage.setItem(READER_CONFIG_KEY, JSON.stringify(settings));
+  },
+
+  async loadAjax() {
+    const url = '/api/texts/json/catuhshloki/all';
+    const resp = await fetch(url);
+    if (resp.ok) {
+      const json = await resp.json();
+      console.log(json.blocks);
+      this.blocks = json.blocks;
+    } else {
+      console.log("unhandled exception");
+    }
   },
 
   updateScript() {

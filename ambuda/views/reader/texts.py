@@ -1,6 +1,6 @@
 """Views related to texts: title pages, sections, verses, etc."""
 
-from flask import Blueprint, abort, render_template
+from flask import Blueprint, abort, render_template, jsonify
 from indic_transliteration import sanscript
 
 import ambuda.database as db
@@ -165,3 +165,17 @@ def block_htmx(text_slug, block_slug):
         "htmx/text-block.html",
         block=html_block,
     )
+
+
+@api.route("/texts/json/<text_slug>/<section_slug>")
+def reader_json(text_slug, section_slug):
+    text_ = q.text(text_slug)
+    if text_ is None:
+        abort(404)
+
+    cur = q.text_section(text_.id, section_slug)
+    with q.get_session() as _:
+        html_blocks = [xml.transform_text_block(b.xml) for b in cur.blocks]
+
+    data = {"blocks": html_blocks}
+    return jsonify(data)

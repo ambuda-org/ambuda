@@ -160,4 +160,15 @@ def create_app(config_env: str):
         }
     )
 
+    from flask import json
+    import dataclasses
+
+    class AmbudaJSONEncoder(json.JSONEncoder):
+        def default(self, o):
+            if dataclasses.is_dataclass(o):
+                return dataclasses.asdict(o)
+            return super().default(o)
+
+    app.json_encoder = AmbudaJSONEncoder
+
     return app

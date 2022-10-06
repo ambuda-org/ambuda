@@ -174,16 +174,24 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
   {# Note: the "parseLayout" class must be kept in sync with the .side-by-side selector in the css file. #}
   <div id="text--content" class="md:text-xl mx-4 md:max-w-lg pb-16 lg:flex-1" :class="parseLayout">
   <div :class="fontSize">
-  <div lang="sa">
-    {{ header() }}
+
+  {{ header() }}
+
+  {# Server-side logic. This will be hidden once the application loads. #}
+  <div x-show="blocks.length === 0">
     {% for block_ in html_blocks %}
     <s-block id="{{ block_.id }}">
       <div class="mula">{{ block_.html|safe }}</div>
     </s-block>
     {% endfor %}
   </div>
-  </div>
-  </div>
+
+  {# Client-side logic. This is what most readers will see and use. #}
+  <template x-for="b in blocks">
+    <s-block :id="b.id">
+      <div class="mula" x-html="b.mula"></div>
+    </s-block>
+  </template>
 
   {{ footer() }}
   {{ sidebar() }}
