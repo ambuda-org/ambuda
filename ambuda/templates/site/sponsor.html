@@ -1,0 +1,71 @@
+{% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
+{% import "macros/forms.html" as mf %}
+
+
+{% block title %}{{ m.title(_('Sponsor a Book')) }}{% endblock %}
+
+
+{% block content %}
+
+<h1 class="text-center font-bold text-5xl my-8">{{ _('Sponsor a Book') }}</h1>
+
+{% if current_user.is_moderator %}
+{% call m.p_note() %}
+{% set url = url_for('projectsponsorship.index_view') %}
+Moderators: <a class="underline" href="{{ url }}">Click here</a> to edit
+sponsorships.
+{% endcall %}
+{% endif %}
+
+<article class="prose">
+  <p>{% trans %}
+  Give the gift of knowledge today by sponsoring a book that is important to
+  you. Your support helps us hire expert proofreaders in India to transcribe
+  your book of choice and make it accessible to all.
+  {% endtrans %}</p>
+
+  <p>{% trans %}
+  Partial sponsorships are more than welcome. We are grateful for any support
+  you can provide.
+  {% endtrans %}</p>
+
+  {% set contact_url = url_for('site.contact') %}
+  <p>{% trans %}
+  If you want to sponsor a book that is not on this list, please <a href="{{
+  contact_url }}">reach out to us</a> and tell us about your choice. We welcome
+  any Sanskrit book or translation that has a public domain edition.
+  {% endtrans %}</p>
+</article>
+
+{% for s in sponsorships %}
+{% set title = s.sa_title or s.en_title %}
+{% set subtitle = s.en_title if s.sa_title else "" %}
+<article class="my-8 pt-8 border-t-2">
+  <header class="mb-4">
+    <h1 class="text-xl font-bold mb-2">{{ title }}</h1>
+    {% if subtitle %}
+      <p class="text-slate-500">{{ subtitle }}</p>
+    {% endif %}
+  </header>
+
+  <div class="prose mb-8">
+  {{ s.description|markdown|safe }}
+  </div>
+
+  {% set cost = "₹{}".format(s.cost_inr) %}
+  <a href="{{ url_for('site.donate_for_project', title=title, cost=s.cost_inr) }}"
+    class="btn btn-submit p-3">{% trans %}
+    Sponsor this book for {{ cost }}
+  {% endtrans %}</a>
+</article>
+{% else %}
+<article class="prose border-t-2 my-8 pt-8">
+  <p>{% trans %}
+  There are no books available for sponsorships at this time. Please check
+  back soon.
+  {% endtrans %}</p>
+</article>
+{% endfor %}
+
+{% endblock %}

@@ -12,7 +12,7 @@ import ambuda.queries as q
 class AmbudaIndexView(AdminIndexView):
     @expose("/")
     def index(self):
-        if not current_user.is_admin:
+        if not current_user.is_moderator:
             # Abort so that a malicious scraper can't infer that there's an
             # interesting page here.
             abort(404)
@@ -22,6 +22,14 @@ class AmbudaIndexView(AdminIndexView):
 class BaseView(sqla.ModelView):
     def is_accessible(self):
         return current_user.is_admin
+
+    def inaccessible_callback(self, name, **kw):
+        abort(404)
+
+
+class ModeratorBaseView(sqla.ModelView):
+    def is_accessible(self):
+        return current_user.is_moderator
 
     def inaccessible_callback(self, name, **kw):
         abort(404)
@@ -47,6 +55,16 @@ class DictionaryView(BaseView):
     column_list = form_columns = ["slug", "title"]
 
 
+class SponsorshipView(ModeratorBaseView):
+    column_labels = dict(
+        sa_title="Sanskrit title",
+        en_title="English title",
+        cost_inr="Estimated cost (INR)",
+    )
+    create_template = "admin/sponsorship_create.html"
+    edit_template = "admin/sponsorship_edit.html"
+
+
 def create_admin_manager(app):
     session = q.get_session_class()
     admin = Admin(
@@ -60,4 +78,6 @@ def create_admin_manager(app):
     admin.add_view(TextBlockView(db.TextBlock, session))
     admin.add_view(TextView(db.Text, session))
     admin.add_view(UserView(db.User, session))
+
+    admin.add_view(SponsorshipView(db.ProjectSponsorship, session))
     return admin

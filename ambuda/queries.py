@@ -243,3 +243,9 @@ def blog_posts() -> list[db.BlogPost]:
     """Fetch all blog posts."""
     session = get_session()
     return session.query(db.BlogPost).order_by(db.BlogPost.created_at.desc()).all()
+
+
+def project_sponsorships() -> list[db.ProjectSponsorship]:
+    session = get_session()
+    results = session.query(db.ProjectSponsorship).all()
+    return sorted(results, key=lambda s: s.sa_title or s.en_title)
