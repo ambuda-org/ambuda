@@ -157,7 +157,7 @@ export default () => ({
   getBlockClasses(b) {
     if (b.showParse) {
       if (this.parseLayout === 'side-by-side') {
-        return 'flex flex-wrap justify-between w-max';
+        return 'flex flex-wrap justify-between w-full';
       }
     }
     return 'cursor-pointer';
