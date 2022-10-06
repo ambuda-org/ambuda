@@ -65,8 +65,7 @@ async function showParsedBlock(block, contentScript, onFailure) {
   }
 
   if (resp.ok) {
-    const rawText = await resp.text();
-    const text = transliterateHTMLString(rawText, contentScript);
+    const text = await resp.text();
     block.parse = text;
     block.showParse = true;
   } else {
@@ -185,7 +184,6 @@ export default () => ({
     const resp = await fetch(url);
     if (resp.ok) {
       const json = await resp.json();
-      console.log(json.blocks);
       this.blocks = json.blocks;
     } else {
       console.log("unhandled exception");
@@ -198,6 +196,9 @@ export default () => ({
     this.saveSettings();
   },
 
+  transliterated(devanagariHTML) {
+    return transliterateHTMLString(devanagariHTML, this.script);
+  },
   getParseLayoutClasses() {
     if (this.parseLayout === 'side-by-side') {
       return 'md:max-w-3xl';
@@ -246,14 +247,12 @@ export default () => ({
     // Parsed word: show details for this word.
     const $word = e.target.closest('s-w');
     if ($word) {
-        console.log('1');
       this.showWordPanel($word);
       return;
     }
 
     // "Hide parse" link: hide the displayed parse.
     if (e.target.closest('.js--source')) {
-        console.log('2');
       e.preventDefault();
       const $block = e.target.closest('s-block');
       $block.classList.remove('show-parsed');
@@ -262,7 +261,6 @@ export default () => ({
     // Block: show parse data for this block.
     const $block = e.target.closest('s-block');
     if ($block) {
-        console.log('3');
       const block = this.blocks.find((b) => b.id == $block.id);
       showParsedBlock(block, this.script, () => {
         this.showSidebar = true;

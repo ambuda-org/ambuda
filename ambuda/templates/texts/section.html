@@ -190,8 +190,8 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
   <template x-for="b in blocks">
     <s-block :id="b.id">
       <div :class="getBlockClasses(b)">
-        <div x-show="showBlockMula(b)" :class="getMulaClasses" x-html="b.mula"></div>
-        <div x-show="b.showParse" x-html="b.parse"></div>
+        <div x-show="showBlockMula(b)" :class="getMulaClasses" x-html="transliterated(b.mula)"></div>
+        <div x-show="b.showParse" x-html="transliterated(b.parse)"></div>
       </div>
       <span class="text-sm text-zinc-400 hover:underline" x-show="b.showParse">
         <a href="#" x-text="getParseLayoutTogglerText"></a>
