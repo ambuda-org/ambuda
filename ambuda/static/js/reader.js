@@ -125,7 +125,7 @@ export default () => ({
       const json = await resp.json();
       this.blocks = json.blocks;
     } else {
-      console.log("unhandled exception");
+      console.log('unhandled exception');
     }
   },
 
@@ -151,25 +151,22 @@ export default () => ({
   getParseLayoutClasses() {
     if (this.parseLayout === 'side-by-side') {
       return 'md:max-w-3xl';
-    } else {
-      return 'md:max-w-lg ';
     }
+    return 'md:max-w-lg ';
   },
   getBlockClasses(b) {
     if (b.showParse) {
       if (this.parseLayout === 'side-by-side') {
         return 'flex flex-wrap justify-between w-max';
       }
-    } else {
-      return 'cursor-pointer';
     }
+    return 'cursor-pointer';
   },
   getParseLayoutTogglerText() {
     if (this.parseLayout === 'side-by-side') {
       return 'Hide parse';
-    } else {
-      return 'Show original';
     }
+    return 'Show original';
   },
   getMulaClasses() {
     if (this.parseLayout === 'side-by-side') {
@@ -177,7 +174,6 @@ export default () => ({
     }
     return '';
   },
-
 
   showBlockMula(b) {
     // in-place --> showParse
@@ -215,7 +211,7 @@ export default () => ({
   },
 
   async showParsedBlock(blockID) {
-    const block = this.blocks.find((b) => b.id == blockID);
+    const block = this.blocks.find((b) => b.id === blockID);
 
     if (block.parse) {
       // Parse has already been fetched. Toggle state.
@@ -273,7 +269,7 @@ export default () => ({
   // Search a word in the dictionary and display the results to the user.
   submitDictionaryQuery() {
     if (!this.dictQuery) return;
-    searchDictionary(this.dictSources, this.dictQuery, this.script);
+    this.searchDictionary(this.dictSources, this.dictQuery, this.script);
   },
 
   /** Toggle the source selection widget's visibility. */
