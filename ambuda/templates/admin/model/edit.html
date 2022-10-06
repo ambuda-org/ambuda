@@ -36,8 +36,8 @@
   {% block delete_form %}
   {% set id = request.args.get('id') %}
   <form method="POST" action="{{ get_url('.delete_view', id=id) }}"
-      class="p-4 border border-red-400 rounded my-4">
-    <input type="submit" class="btn text-white bg-red-600" value="Delete row" />
+      class="p-4 border border-red-400 rounded my-4 text-right">
+    <input type="submit" class="btn text-white bg-red-600" value="Delete" />
   </form>
   {% endblock %}
 {% endblock %}

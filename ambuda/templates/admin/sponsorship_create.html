@@ -8,7 +8,7 @@
   {% if field.name != "description" %}{{ mf.field(field) }}{% endif %}
   {% endfor %}
   {{ mf.markdown_field(form.description) }}
-  
+
   {{ mf.submit("Create") }}
 </form>
 {% endblock %}

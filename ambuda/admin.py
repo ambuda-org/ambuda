@@ -56,10 +56,10 @@ class DictionaryView(BaseView):
 
 
 class SponsorshipView(ModeratorBaseView):
-    column_list = form_columns = ["sa_title", "en_title", "description"]
     column_labels = dict(
         sa_title="Sanskrit title",
         en_title="English title",
+        cost_inr="Estimated cost (INR)",
     )
     create_template = "admin/sponsorship_create.html"
     edit_template = "admin/sponsorship_edit.html"
@@ -79,5 +79,5 @@ def create_admin_manager(app):
     admin.add_view(TextView(db.Text, session))
     admin.add_view(UserView(db.User, session))
 
-    admin.add_view(SponsorshipView(db.Sponsorship, session))
+    admin.add_view(SponsorshipView(db.ProjectSponsorship, session))
     return admin

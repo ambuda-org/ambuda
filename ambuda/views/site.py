@@ -25,8 +25,11 @@ def donate():
 
 @bp.route("/sponsor")
 def sponsor():
-    sponsorships = q.sponsorships()
-    return render_template("sponsor.html", sponsorships=sponsorships)
+    from flask import current_app as ca
+
+    print(ca.url_map, flush=True)
+    sponsorships = q.project_sponsorships()
+    return render_template("site/sponsor.html", sponsorships=sponsorships)
 
 
 @bp.route("/support")

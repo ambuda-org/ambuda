@@ -4,18 +4,17 @@ The idea is that a trusted user can edit site content directly without waiting
 for a site deploy.
 """
 
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, Integer, String
 from sqlalchemy import Text as Text_
-from sqlalchemy.orm import declarative_base
 
-from ambuda.models.base import Base, foreign_key, pk
+from ambuda.models.base import Base, pk
 
 
-class Sponsorship(Base):
+class ProjectSponsorship(Base):
 
-    """Models a project that a donor can sponsor."""
+    """A project that a donor can sponsor."""
 
-    __tablename__ = "site_sponsorship"
+    __tablename__ = "site_project_sponsorship"
 
     #: Primary key.
     id = pk()
@@ -25,3 +24,5 @@ class Sponsorship(Base):
     en_title = Column(String, nullable=False)
     #: Description.
     description = Column(Text_, nullable=False)
+    #: The estimated cost of this project in INR.
+    cost_inr = Column(Integer, nullable=False)
