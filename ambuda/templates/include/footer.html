@@ -1,68 +1,74 @@
-{% set blog = url_for('blog.index') %}
-{% set discord = "https://discord.gg/7rGdTyWY7Z" %}
-{% set github = "https://github.com/ambuda-org/ambuda" %}
-{% set reddit = "https://reddit.com/u/learnsanskrit-org" %}
-{% set twitter = "https://twitter.com/ambuda_org" %}
-{% set support = url_for('site.support') %}
-<footer class="bg-sky-100 text-slate-700 a-hover-underline text-sm p-4 md:p-12 border-t">
-<div class="md:flex justify-between max-w-6xl mx-auto">
-  <div class="md:max-w-xs md:mr-8">
+{%- set index = url_for('site.index') -%}
+{%- set blog = url_for('blog.index') -%}
+{%- set discord = "https://discord.gg/7rGdTyWY7Z" -%}
+{%- set github = "https://github.com/ambuda-org/ambuda" -%}
+{%- set reddit = "https://reddit.com/u/learnsanskrit-org" -%}
+{%- set twitter = "https://twitter.com/ambuda_org" -%}
+{%- set support = url_for('site.support') -%}
+
+
+{%- macro _column(title_url, title, items) -%}
+<section class="mr-4 mb-4 basis-32">
+  <h3 class="font-bold mb-4"><a href="{{ title_url }}">{{ title }}</a></h3>
+  <ul>
+    {%- for url, name in items -%}
+    <li><a href="{{ url }}">{{ name }}</a>
+    {%- endfor -%}
+  </ul>
+</section>
+{%- endmacro -%}
+
+
+<footer class="bg-slate-200 text-slate-800 a-hover-underline
+    text-sm p-4 md:p-12 xl:p-24 border-t
+    md:flex justify-between">
+  <div class="md:max-w-xs md:mr-8 mb-4">
+    <a class="block font-bold text-3xl text-slate-500 mb-2" href="{{ index }}">{{ _('Ambuda') }}</a>
     <p class="a-underline">{% trans %}
     Ambuda is run entirely by volunteers for the public benefit. Learn more
     about how you can <a href="{{ support }}"> help Ambuda grow</a>.
     {% endtrans %}</p>
+  </div>
 
-    <ul class="my-2 float list-disc ml-4">
+  <div class="md:flex flex-1 flex-wrap max-w-3xl">
+  {{ _column(url_for('site.index'), _('Ambuda'), [
+      (url_for('texts.index'), _('Texts')),
+      (url_for('dictionaries.index'), _('Dictionaries')),
+      (url_for('proofing.index'), _('Proofing')),
+      (url_for('about.contact'), _('Contact')),
+  ]) }}
+
+  {{ _column(url_for("about.index"), _('About'), [
+      (url_for('about.mission'), _('Mission')),
+      (url_for('about.values'), _('Values')),
+      (url_for('about.people'), _('People')),
+      (url_for('about.code_and_data'), _('Code and Data')),
+      (url_for('about.terms'), _('Terms of Use')),
+      (url_for('about.privacy'), _('Privacy Policy')),
+  ]) }}
+
+  {{ _column(url_for('site.donate'), _('Join Us'), [
+      (url_for('site.donate'), _('Donate')),
+      (url_for('site.sponsor'), _('Sponsor a book')),
+      (url_for('site.support'), _('Support')),
+  ]) }}
+
+  {{ _column(none, _('Community'), [
+      (blog, _('Blog')),
+      (discord, _('Discord')),
+      (github, _('GitHub')),
+      (reddit, _('Reddit')),
+      (twitter, _('Twitter')),
+  ]) }}
+
+  <section class="mr-4 mb-4">
+    <h3 class="font-bold mb-4">{{ _('Languages') }}</h3>
+    <ul>
       {% for L in ambuda_locales %}
       <li><a href="{{ url_for('site.set_language', slug=L.slug) }}">{{ L.text }}</a></li>
       {% endfor %}
     </ul>
-
-    <p class="my-2">{{ 'satyaM vada dharmaM cara |'|devanagari }}</p>
-  </div>
-
-  <div class="md:flex flex-wrap justify-between flex-1 max-w-2xl">
-  <section class="mr-4 mb-4 basis-28">
-    <h3 class="font-bold mb-2"><a href="{{ url_for('site.index') }}">{{ _('Ambuda') }}</a></h3>
-    <ul>
-      <li><a href="{{ url_for('texts.index') }}">{{ _('Texts') }}</a>
-      <li><a href="{{ url_for('dictionaries.index') }}">{{ _('Dictionaries') }}</a>
-      <li><a href="{{ url_for('proofing.index') }}">{{ _('Proofing') }}</a>
-      <li><a href="{{ url_for('about.contact') }}">{{ _('Contact') }}</a>
-    </ul>
-  </section>
-
-  <section class="mr-4 mb-4 basis-28">
-    <h3 class="font-bold mb-2"><a href="{{ url_for('site.donate') }}">{{ _('Join Us') }}</a></h3>
-    <ul>
-      <li><a href="{{ url_for('site.donate') }}">{{ _('Donate') }}</a>
-      <li><a href="{{ url_for('site.sponsor') }}">{{ _('Sponsor a book') }}</a>
-      <li><a href="{{ url_for('site.support') }}">{{ _('Support') }}</a>
-    </ul>
-  </section>
-
-  <section class="mr-4 mb-4 basis-28">
-    <h3 class="font-bold mb-2"><a href="{{ url_for('about.index') }}">{{ _('About') }}</a></h3>
-    <ul>
-      <li><a href="{{ url_for('about.mission') }}">{{ _('Mission') }}</a>
-      <li><a href="{{ url_for('about.values') }}">{{ _('Values') }}</a>
-      <li><a href="{{ url_for('about.people') }}">{{ _('People') }}</a>
-      <li><a href="{{ url_for('about.code_and_data') }}">{{ _('Code and Data') }}</a>
-      <li><a href="{{ url_for('about.terms') }}">{{ _('Terms of Use') }}</a>
-      <li><a href="{{ url_for('about.privacy') }}">{{ _('Privacy Policy') }}</a>
-    </ul>
-  </section>
-
-  <section class="mb-4 basis-28">
-    <h3 class="font-bold mb-2">{{ _('Community') }}</h3>
-    <ul>
-      <li><a href="{{ blog }}">{{ _('Blog') }}</a>
-      <li><a href="{{ discord }}">{{ _('Discord') }}</a>
-      <li><a href="{{ github }}">{{ _('GitHub') }}</a>
-      <li><a href="{{ reddit }}">{{ _('Reddit') }}</a>
-      <li><a href="{{ twitter }}">{{ _('Twitter') }}</a>
-    </ul>
   </section>
   </div>
-</div>
+
 </footer>
