@@ -189,7 +189,11 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
   {# Client-side logic. This is what most readers will see and use. #}
   <template x-for="b in blocks">
     <s-block :id="b.id">
-      <div class="mula" x-html="b.mula"></div>
+      <div x-show="!b.showParse" class="mula" x-html="b.mula"></div>
+      <div x-show="b.showParse" x-html="b.parse"></div>
+      <span class="text-sm text-zinc-400 hover:underline" x-show="b.showParse">
+        <a href="#">Show original</a>
+      </span>
     </s-block>
   </template>
 

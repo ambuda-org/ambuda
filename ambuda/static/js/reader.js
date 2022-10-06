@@ -45,15 +45,14 @@ function getBlockSlug(blockID) {
   return blockID.split('.').slice(1).join('.');
 }
 
-async function showParsedBlock(blockID, contentScript, onFailure) {
-  const $block = $(`#${blockID.replaceAll('.', '\\.')}`);
-  if ($block.classList.contains('has-parsed')) {
-    // Text has already been parsed. Show it if necessary.
-    $block.classList.add('show-parsed');
+async function showParsedBlock(block, contentScript, onFailure) {
+  if (block.parse) {
+    // Parse has already been fetched. Toggle state.
+    block.showParse = !block.showParse;
     return;
   }
 
-  const blockSlug = getBlockSlug(blockID);
+  const blockSlug = getBlockSlug(block.id);
   const textSlug = Routes.getTextSlug();
   const url = Routes.parseData(textSlug, blockSlug);
 
@@ -66,21 +65,10 @@ async function showParsedBlock(blockID, contentScript, onFailure) {
   }
 
   if (resp.ok) {
-    const text = await resp.text();
-    const parsedNode = document.createElement('div');
-    parsedNode.classList.add('parsed');
-    parsedNode.innerHTML = transliterateHTMLString(text, contentScript);
-    $block.appendChild(parsedNode);
-
-    const link = document.createElement('a');
-    link.className = 'text-sm text-zinc-400 hover:underline js--source';
-    link.href = '#';
-    // FIXME: add i18n support
-    link.innerHTML = '<span class=\'shown-side-by-side\'>Hide</span><span class=\'hidden-side-by-side\'>Show original</span>';
-    parsedNode.firstChild.appendChild(link);
-
-    $block.classList.add('has-parsed');
-    $block.classList.add('show-parsed');
+    const rawText = await resp.text();
+    const text = transliterateHTMLString(rawText, contentScript);
+    block.parse = text;
+    block.showParse = true;
   } else {
     const $container = $('#parse--response');
     // FIXME: add i18n support
@@ -193,7 +181,7 @@ export default () => ({
   },
 
   async loadAjax() {
-    const url = '/api/texts/json/catuhshloki/all';
+    const url = '/api/texts/json/kumarasambhavam/1';
     const resp = await fetch(url);
     if (resp.ok) {
       const json = await resp.json();
@@ -231,7 +219,8 @@ export default () => ({
     // Block: show parse data for this block.
     const $block = e.target.closest('s-block');
     if ($block) {
-      showParsedBlock($block.id, this.script, () => {
+      const block = this.blocks.find((b) => b.id == $block.id);
+      showParsedBlock(block, this.script, () => {
         this.showSidebar = true;
       });
     }
