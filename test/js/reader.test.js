@@ -29,20 +29,29 @@ window.IMAGE_URL = 'IMAGE_URL';
 window.Sanscript = {
   t: jest.fn((s, from, to) => `${s}:${to}`),
 }
+// Mocks for all API requests.
 window.fetch = jest.fn(async (url) => {
-  if (url === '/api/texts/sample-text/error') {
-    return { ok: false };
-  }
-  if (url === '/api/texts/sample-text/1') {
-    return {
-      ok: true,
+  const mapping = {
+    '/api/texts/sample-text/1': {
       json: async () => ({
-          blocks: [
-            { id: "1.1", mula: "text for 1.1" },
-            { id: "1.2", mula: "text for 1.2" },
-          ],
+        blocks: [
+          { id: "A.1.1", mula: "text for 1.1" },
+          { id: "A.1.2", mula: "text for 1.2" },
+        ]
       })
-    }
+    },
+    "/api/parses/sample-text/1.1": {
+      text: async() => "<p>parse for 1.1</p>",
+    },
+    "/api/dictionaries/mw/padam": {
+      text: async () => "<p>entry:padam</p>",
+    },
+  };
+
+  if (url in mapping) {
+    return { ok: true, ...mapping[url] };
+  } else {
+    return { ok: false };
   }
 });
 
@@ -87,24 +96,75 @@ test('loadSettings works if localStorage data is corrupt', () => {
   // No error -- OK
 });
 
-test('loadAjax sets properties correctly', async () => {
+// Ajax calls
+
+test('fetchBlocks sets properties correctly', async () => {
   window.location = new URL('https://ambuda.org/texts/sample-text/1');
 
   const r = Reader();
-  await r.loadAjax();
+  await r.fetchBlocks();
   expect(r.blocks).toEqual([
-    { id: "1.1", mula: "text for 1.1" },
-    { id: "1.2", mula: "text for 1.2" },
+    { id: "A.1.1", mula: "text for 1.1" },
+    { id: "A.1.2", mula: "text for 1.2" },
   ]);
 });
 
-test("loadAjax doesn't throw an error on a bad URL", async () => {
+test("fetchBlocks doesn't throw an error on a bad URL", async () => {
   window.location = new URL('https://ambuda.org/texts/sample-text/error');
 
   const r = Reader();
-  await r.loadAjax();
+  await r.fetchBlocks();
   expect(r.blocks).toEqual([]);
 });
+
+test("searchDictionary works with a valid source and query", async () => {
+  const r = Reader();
+  r.dictQuery = "padam";
+  r.dictSources = ["mw"];
+
+  await r.searchDictionary();
+  expect(r.dictionaryResponse).toMatch("entry:padam");
+});
+
+test("searchDictionary shows an error if the word can't be found", async () => {
+  const r = Reader();
+  r.dictQuery = "unknown";
+  r.dictSources = ["mw"];
+
+  await r.searchDictionary();
+  expect(r.dictionaryResponse).toMatch("Sorry");
+});
+
+test("searchDictionary is a no-op otherwise", async () => {
+  const r = Reader();
+
+  await r.searchDictionary();
+  expect(r.dictionaryResponse).toBe(null);
+});
+
+test("fetchBlockParse works on a normal case", async () => {
+  window.location = new URL('https://ambuda.org/texts/sample-text/1');
+
+  const r = Reader();
+  await r.fetchBlocks();
+
+  const [html, ok] = await r.fetchBlockParse("A.1.1")
+  expect(html).toBe("<p>parse for 1.1</p>");
+  expect(ok).toBe(true);
+});
+
+test("fetchBlockParse shows an error if the word can't be found", async () => {
+  window.location = new URL('https://ambuda.org/texts/sample-text/1');
+
+  const r = Reader();
+  await r.fetchBlocks();
+
+  const [html, ok] = await r.fetchBlockParse("A.unknown")
+  expect(html).toMatch("Sorry");
+  expect(ok).toBe(false);
+});
+
+// Utilities
 
 test('transliterateHTML transliterates with the current script', () => {
   const r = Reader();

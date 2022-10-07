@@ -96,7 +96,7 @@ export default () => ({
   blocks: [],
 
   // The current dictionary response.
-  dictionaryResponse: '',
+  dictionaryResponse: null,
   // Analysis of a word clicked by the user.
   wordAnalysis: {
     // The inflected form
@@ -125,7 +125,7 @@ export default () => ({
     this.blocks = data.blocks;
 
     // FIXME: enable this in a follow-up PR.
-    // this.loadAjax();
+    // this.fetchBlocks();
   },
 
   // Settings
@@ -181,7 +181,7 @@ export default () => ({
   // =============
 
   /** Load text data from the server. */
-  async loadAjax() {
+  async fetchBlocks() {
     // HACK: just use the pathname.
     const url = `/api${window.location.pathname}`;
 
@@ -207,6 +207,29 @@ export default () => ({
     } else {
       // FIXME: add i18n support
       this.dictionaryResponse = '<p>Sorry, this content is not available right now.</p>';
+    }
+  },
+
+  async fetchBlockParse(blockID) {
+    const blockSlug = getBlockSlug(blockID);
+    const textSlug = Routes.getTextSlug();
+    const url = Routes.parseData(textSlug, blockSlug);
+
+    // Fetch parsed data.
+    let resp;
+    try {
+      resp = await fetch(url);
+    } catch (e) {
+      return [null, false];
+    }
+
+    if (resp.ok) {
+      const html = await resp.text();
+      return [html, true];
+    } else {
+      // FIXME: add i18n support
+      const html = '<p>Sorry, this content is not available right now. (Server error)</p>';
+      return [html, false];
     }
   },
 
@@ -288,21 +311,9 @@ export default () => ({
       return;
     }
 
-    const blockSlug = getBlockSlug(block.id);
-    const textSlug = Routes.getTextSlug();
-    const url = Routes.parseData(textSlug, blockSlug);
-
-    // Fetch parsed data.
-    let resp;
-    try {
-      resp = await fetch(url);
-    } catch (e) {
-      return;
-    }
-
-    if (resp.ok) {
-      const text = await resp.text();
-      block.parse = text;
+    const [html, ok] = await this.fetchBlockParse(block.id);
+    if (ok) {
+      block.parse = html;
       block.showParse = true;
 
       // FIXME: move to alpine
@@ -311,8 +322,7 @@ export default () => ({
     } else {
       // FIXME: move to alpine
       const $container = $('#parse--response');
-      // FIXME: add i18n support
-      $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
+      $container.innerHTML = html;
       this.showSidebar = true;
     }
   },
