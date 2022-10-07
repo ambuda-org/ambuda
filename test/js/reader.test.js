@@ -6,6 +6,7 @@ const sampleHTML = `
   <div id="text--content">
     <p lang="sa">granthaH</p>
   </div>
+  <div id="parse--response"></div>
   <form id="dict--form">
     <input type="text" name="q"></input>
   </form>
@@ -96,6 +97,27 @@ test('loadSettings works if localStorage data is corrupt', () => {
   // No error -- OK
 });
 
+// Utility functions
+
+test('transliterateHTML transliterates with the current script', () => {
+  const r = Reader();
+  r.script = 'kannada';
+  expect(r.transliterateHTML('<div>test</div>')).toBe('<div>test:kannada</div>');
+});
+
+test('transliterateStr transliterates with the current script', () => {
+  const r = Reader();
+  r.script = 'kannada';
+  expect(r.transliterateStr('test')).toBe('test:kannada');
+  expect(r.transliterateStr('')).toBe('');
+});
+
+test('getBlockSlug works', () => {
+  expect(getBlockSlug('A.1.1')).toBe('1.1');
+  expect(getBlockSlug('A.1')).toBe('1');
+  expect(getBlockSlug('A.all')).toBe('all');
+});
+
 // Ajax calls
 
 test('fetchBlocks sets properties correctly', async () => {
@@ -164,28 +186,7 @@ test("fetchBlockParse shows an error if the word can't be found", async () => {
   expect(ok).toBe(false);
 });
 
-// Utilities
-
-test('transliterateHTML transliterates with the current script', () => {
-  const r = Reader();
-  r.script = 'kannada';
-  expect(r.transliterateHTML('<div>test</div>')).toBe('<div>test:kannada</div>');
-});
-
-test('transliterateStr transliterates with the current script', () => {
-  const r = Reader();
-  r.script = 'kannada';
-  expect(r.transliterateStr('test')).toBe('test:kannada');
-  expect(r.transliterateStr('')).toBe('');
-});
-
-test('getBlockSlug works', () => {
-  expect(getBlockSlug('A.1.1')).toBe('1.1');
-  expect(getBlockSlug('A.1')).toBe('1');
-  expect(getBlockSlug('A.all')).toBe('all');
-});
-
-// Layout tests
+// `parseLayout` CSS tests
 
 test('CSS for parse layout is as expected', () => {
   const r = Reader();
@@ -213,7 +214,20 @@ test('CSS for parse layout is as expected', () => {
   expect(r.getBlockClasses({ showParse: true })).toMatch('flex');
 });
 
-// Sidebar tests
+// Click handlers
+
+test('showParseBlock works as expected on normal data', async () => {
+  window.location = new URL('https://ambuda.org/texts/sample-text/1');
+
+  const r = Reader();
+  await r.fetchBlocks();
+  await r.showParsedBlock("A.1.1");
+
+  expect(r.blocks[0].parse).toBe("<p>parse for 1.1</p>");
+  expect(r.blocks[0].showParse).toBe(true);
+});
+
+// Dropdown handlers
 
 test('toggleSourceSelector works', () => {
   const r = Reader();

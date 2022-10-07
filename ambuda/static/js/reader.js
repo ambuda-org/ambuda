@@ -177,7 +177,7 @@ export default () => ({
     return Sanscript.t(devanagariStr, Script.Devanagari, this.script);
   },
 
-  // AJAX requests
+  // Ajax requests
   // =============
 
   /** Load text data from the server. */
