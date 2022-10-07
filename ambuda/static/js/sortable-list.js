@@ -43,8 +43,8 @@ export default (defaultField) => ({
     const query = this.query.toLowerCase();
     // toLowerCase for case-insensitive matching.
     const newKeys = this.data
-          .filter((x) => x.title.includes(query))
-          .map((x) => x.key);
+      .filter((x) => x.title.includes(query))
+      .map((x) => x.key);
     this.displayed = new Set(newKeys);
   },
 
