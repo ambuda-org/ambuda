@@ -304,7 +304,12 @@ export default () => ({
       const text = await resp.text();
       block.parse = text;
       block.showParse = true;
+
+      // FIXME: move to alpine
+      const $container = $('#parse--response');
+      $container.innerHTML = '';
     } else {
+      // FIXME: move to alpine
       const $container = $('#parse--response');
       // FIXME: add i18n support
       $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
