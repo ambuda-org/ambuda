@@ -216,14 +216,27 @@ test('CSS for parse layout is as expected', () => {
 
 // Click handlers
 
-test('showParseBlock works as expected on normal data', async () => {
+test('onClickBlock fetches and displays parse data', async () => {
   window.location = new URL('https://ambuda.org/texts/sample-text/1');
 
   const r = Reader();
   await r.fetchBlocks();
-  await r.showParsedBlock("A.1.1");
+  await r.onClickBlock("A.1.1");
 
   expect(r.blocks[0].parse).toBe("<p>parse for 1.1</p>");
+  expect(r.blocks[0].showParse).toBe(true);
+});
+
+
+test('onClickBlock toggles if parse data already exists', async () => {
+  window.location = new URL('https://ambuda.org/texts/sample-text/1');
+
+  const r = Reader();
+  await r.fetchBlocks();
+  await r.onClickBlock("A.1.1");
+  r.blocks[0].showParse = false;
+
+  r.onClickBlock("A.1.1");
   expect(r.blocks[0].showParse).toBe(true);
 });
 
@@ -237,5 +250,22 @@ test('toggleSourceSelector works', () => {
   expect(r.showDictSourceSelector).toBe(true);
 
   r.toggleSourceSelector();
+  expect(r.showDictSourceSelector).toBe(false);
+});
+
+test('onClickOutsideOfSourceSelector toggles if visible', async () => {
+  const r = Reader();
+  r.showDictSourceSelector = true;
+  r.dictionaryResponse = null;
+
+  await r.onClickOutsideOfSourceSelector();
+  expect(r.showDictSourceSelector).toBe(false);
+});
+
+test('onClickOutsideOfSourceSelector is a no-op otherwise', async () => {
+  const r = Reader();
+  r.showDictSourceSelector = false;
+
+  await r.onClickOutsideOfSourceSelector();
   expect(r.showDictSourceSelector).toBe(false);
 });

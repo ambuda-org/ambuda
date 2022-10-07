@@ -291,23 +291,23 @@ export default () => ({
     // Parsed word: show details for this word.
     const $word = e.target.closest('s-w');
     if ($word) {
-      this.showWordPanel($word);
+      this.onClickWord($word);
       return;
     }
 
     // Block: show parse data for this block.
     const $block = e.target.closest('s-block');
     if ($block) {
-      this.showParsedBlock($block.id);
+      this.onClickBlock($block.id);
     }
   },
 
-  async showParsedBlock(blockID) {
+  async onClickBlock(blockID) {
     const block = this.blocks.find((b) => b.id === blockID);
 
+    // If we have parse data already, display it then return.
     if (block.parse) {
-      // Parse has already been fetched. Toggle state.
-      block.showParse = !block.showParse;
+      block.showParse = true;
       return;
     }
 
@@ -328,7 +328,7 @@ export default () => ({
   },
 
   // Show information for a clicked word.
-  async showWordPanel($word) {
+  async onClickWord($word) {
     const form = Sanscript.t($word.textContent, this.script, Script.Devanagari);
     const lemma = Sanscript.t($word.getAttribute('lemma'), Script.SLP1, Script.Devanagari);
     const parse = $word.getAttribute('parse');
