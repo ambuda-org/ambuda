@@ -46,7 +46,9 @@ jobs:
           make lint-check
   
       - name: Build docs
-        run: make docs
+        run: |
+          source env/bin/activate
+          make docs
 
   docker-setup:
     runs-on: ubuntu-22.04
