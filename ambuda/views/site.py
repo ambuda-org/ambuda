@@ -1,9 +1,9 @@
 """Views for basic site pages."""
 
-from flask import Blueprint, redirect, render_template, request, session, url_for
+from flask import Blueprint, redirect, render_template, session, url_for
 
-from ambuda.consts import LOCALES
 from ambuda import queries as q
+from ambuda.consts import LOCALES
 
 bp = Blueprint("site", __name__)
 

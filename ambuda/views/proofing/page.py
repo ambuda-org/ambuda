@@ -129,8 +129,8 @@ def edit_post(project_slug, page_slug):
             conflict = cur.revisions[-1]
             form.version.data = cur.version
 
-    has_edits = bool(cur.revisions)
-    is_r0 = cur.status.name == SitePageStatus.R0
+    _ = bool(cur.revisions)
+    _ = cur.status.name == SitePageStatus.R0
 
     # Keep args in sync with `edit`. (We can't unify these functions easily
     # because one function requires login but the other doesn't. Helper
