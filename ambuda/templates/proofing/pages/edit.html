@@ -33,7 +33,7 @@
 
   {% set num_images = project.pages|length %}
   {{ editor.navigation_bar(page_context, page_number, image_number, num_images) }}
-  {{ site_components.flash_messages() }}
+  {{ mc.flash_messages() }}
 
   {% if conflict %}
   <pre class="p-2 bg-slate-100 my-4">{{ conflict.content }}</pre>
@@ -46,7 +46,7 @@
     {% if not has_edits %}
       {# i18n: This should match the "Tools" and "Run OCR" translations in the proofing tool. #}
       {% set command = _("Tools &rarr; Run OCR") %}
-      {% call site_components.p_note() %}{% trans %}
+      {% call mc.p_note() %}{% trans %}
       This page has not been edited yet. Run <i>{{ command }}</i> to get started.
       {% endtrans %}{% endcall %}
     {% endif %}
