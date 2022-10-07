@@ -31,7 +31,8 @@
   {% endtrans %}{% endcall %}
   {%- endif %}
 
-  {{ editor.navigation_bar(project, cur=cur, prev=prev, next=next) }}
+  {% set num_images = project.pages|length %}
+  {{ editor.navigation_bar(page_context, page_number, image_number, num_images) }}
   {{ site_components.flash_messages() }}
 
   {% if conflict %}
