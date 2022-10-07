@@ -130,7 +130,7 @@ coverage:
 
 # Generate Ambuda's technical documentation.
 # After the command completes, open "docs/_build/index.html".
-docs:
+docs: py-venv-check
 	cd docs && make html
 
 
