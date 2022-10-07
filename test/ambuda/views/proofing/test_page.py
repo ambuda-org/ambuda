@@ -10,6 +10,7 @@ def test_get_image_filesystem_path(flask_app):
 def test_edit__unauth(client):
     r = client.get("/proofing/test-project/1/")
     assert "Since you are not logged in" in r.text
+    assert "Publish changes" not in r.text
 
 
 def test_edit__auth(rama_client):
