@@ -95,22 +95,22 @@ start-docker:
 celery: 
 	celery -A ambuda.tasks worker --loglevel=INFO
 
-# Check py imports
+# Check imports in Python code
 lint-isort:
 	@echo "Running Python isort to organize module imports"
 	@git ls-files '*.py' | xargs isort --check 2>&1
 
-# Check py files formatting
+# Check formatting in Python code
 lint-black:
 	@echo "Running Python Black to check formatting"
 	@git ls-files '*.py' | xargs black 2>&1
 
-# Check python files comply with PEP8
+# Check Python code complyies with PEP8
 lint-flake8:
 	@echo "Running Python flake8 to conform with PEP8"	
 	@git ls-files '*.py' | xargs flake8 --config=./.flake8 2>&1
 
-# Add isort when imports are organized better
+# Link checks on Python code
 py-lint: py-venv-check lint-black lint-isort lint-flake8
 	@echo "Python lint completed"
 
