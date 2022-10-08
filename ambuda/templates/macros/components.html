@@ -55,9 +55,9 @@
   <ul class="flex a-hover-underline">
     {% for name, label, url in urls %}
     {% if name == active %}
-    <li class="p-4 font-bold p-4 border-b-2 border-black">{{ label }}</li>
+    <li class="p-4 font-semibold border-b-2 border-black">{{ label }}</li>
     {% else %}
-    <li class="border-b-2 border-transparent text-slate-700">
+    <li class="font-semibold border-b-2 border-transparent text-slate-400">
       <a class="block p-4" href="{{ url }}">{{ label }}</a>
     </li>
     {% endif %}

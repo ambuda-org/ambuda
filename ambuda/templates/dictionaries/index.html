@@ -1,4 +1,4 @@
-{% extends 'base-text.html' %}
+{% extends 'header-main-footer.html' %}
 {% import "macros/components.html" as mc %}
 {% import 'macros/dictionaries.html' as m %}
 
@@ -17,12 +17,12 @@ different languages.
     id="dict--form"
     class="mb-4"
     @submit.prevent="searchDictionary">
-  <div class="flex mb-2">
+  <div class="flex mb-2 drop-shadow-sm">
     <input
         name="q"
         type="text"
         placeholder="{{ _('राम, ರಾಮ, rāma, rAma, ...') }}"
-        class="p-2 flex-1 bg-slate-100 rounded-tl rounded-bl"
+        class="border border-slate-200 text-lg p-2 flex-1 bg-slate-100 text-slate-900 rounded-tl rounded-bl placeholder:text-slate-400"
         x-model="query"
     >
     </input>
@@ -39,7 +39,7 @@ different languages.
       class="relative text-sm select-none inline-block">
     <div class="f-select px-2 cursor-pointer inline-block"
          @click.prevent="toggleSourceSelector">
-        {{ _('(choose dictionary)') }} <span class="text-xs">&#x25BC;</span>
+        {{ _('(choose dictionaries)') }} <span class="text-xs">&#x25BC;</span>
     </div>
     <div x-show="showSourceSelector" class="dropdown-pane p-2 w-64">
       {{ m.source_multiselect('sources') }}
@@ -91,12 +91,17 @@ different languages.
 {% endmacro %}
 
 
-{% block content %}
-<h1 class="text-xl font-bold my-4">{{ _('Dictionary lookup') }}</h1>
-
+{% block main %}
+<article class="mx-4 md:mx-auto max-w-2xl md:mt-12 mb-24 md:mb-36">
+<header>
+  <h1 class="text-2xl md:text-4xl font-bold text-slate-300 my-4">
+    {{ _('Dictionary lookup') }}
+  </h1>
+</header>
 <div x-data="dictionary">
   {{ dictionary_form() }}
   {{ dictionary_history() }}
   {{ dictionary_response(query, entries) }}
 </div>
+</article>
 {% endblock %}

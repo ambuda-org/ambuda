@@ -4,7 +4,7 @@
 
 @layer components {
   ::selection {
-    @apply text-black bg-yellow-300;
+    @apply text-black bg-yellow-200;
   }
   body, html {
     /* For sticky footers. */
@@ -103,13 +103,12 @@
   .dict-entry {max-width: 700px; margin: 0.5em 0;}
   .dict-entry .lex {font-weight: bold; }
   .dict-entry cite {
-    @apply bg-zinc-100;
-    @apply text-zinc-400;
+    @apply text-sm text-slate-400;
   }
 
   /* Vacaspatyam */
   .dict-entry q {
-    @apply text-zinc-400;
+    @apply text-slate-400;
   }
   .mw-entry [lang=sa] {
     @apply text-green-600;
