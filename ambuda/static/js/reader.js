@@ -128,8 +128,8 @@ export default () => ({
   init() {
     this.loadSettings();
     this.data = JSON.parse(document.getElementById('payload').textContent);
-    this.pushHistoryState(window.location.pathname);
 
+    this.replaceHistoryState();
     window.addEventListener('popstate', this.onPopHistoryState.bind(this));
   },
 
@@ -184,20 +184,35 @@ export default () => ({
 
   // Browser history
   // ===============
+  // For a useful summary of the API and gotchas, see::
+  //
+  // https://blog.twitter.com/engineering/en_us/a/2012/implementing-pushstate-for-twittercom
+
+  createHistoryState(scrollTop) {
+    // `this.data` is a proxy object and cannot be cloned directly. So instead,
+    // clone it by building a new object from its JSON string.
+    const dataClone = JSON.parse(JSON.stringify(this.data));
+    return { data: dataClone, scrollTop: document.documentElement.scrollTop };
+  },
+  /**
+   * Save the history state for the current URL.
+   *
+   * Call this method just after the initial full-page load.
+   */
+  replaceHistoryState() {
+    const url = window.location.pathname;
+    const state = this.createHistoryState();
+    window.history.replaceState(state, '', url);
+  },
 
   /**
-   * Save the history state for the given URL.
+   * Save the history state for the current URL.
    *
-   * This function should be called:
-   * - on page load (for the current URL)
-   * - when a reader link (<< or >>) is clicked.
+   * Call this method to nagivate to a new reader page.
    */
   pushHistoryState(url) {
-    // First, clone `this.data`. `this.data` is a proxy object and cannot be
-    // cloned directly. So instead, clone it by building a new object from its
-    // JSON string.
-    const dataClone = JSON.parse(JSON.stringify(this.data));
-    const state = { data: dataClone, scrollTop: document.documentElement.scrollTop };
+    document.documentElement.scrollTop = 0;
+    const state = this.createHistoryState();
     window.history.pushState(state, '', url);
   },
 
@@ -208,7 +223,10 @@ export default () => ({
     }
     const { data, scrollTop } = e.state;
     this.data = data;
-    document.documentElement.scrollTop = scrollTop;
+
+    // FIXME: this line doesn't seem to take effect, perhaps because it runs
+    // before the content above has rendered.
+    // document.documentElement.scrollTop = scrollTop;
   },
 
   // Ajax requests
@@ -216,12 +234,18 @@ export default () => ({
 
   /** Load text data from the server. */
   async fetchSection(url) {
+    if (!url) return;
+
     // HACK: just prepend "/api".
     const apiURL = `/api${url}`;
     const resp = await fetch(apiURL);
 
     if (resp.ok) {
+      // Replace state to retain scroll position.
+      this.replaceHistoryState();
+
       this.data = await resp.json();
+
       this.pushHistoryState(url);
     } else {
       // Loading failed -- just use the server-side.
