@@ -163,8 +163,8 @@ def section(text_slug, section_slug):
         )
 
     data = Section(
-        text_title=text_.title,
-        section_title=cur.title,
+        text_title=_hk_to_dev(text_.title),
+        section_title=_hk_to_dev(cur.title),
         blocks=blocks,
         prev_url=_make_section_url(text_, prev),
         next_url=_make_section_url(text_, next_),
@@ -214,8 +214,8 @@ def reader_json(text_slug, section_slug):
         html_blocks = [xml.transform_text_block(b.xml) for b in cur.blocks]
 
     data = Section(
-        text_title=text_.title,
-        section_title=cur.title,
+        text_title=_hk_to_dev(text_.title),
+        section_title=_hk_to_dev(cur.title),
         blocks=blocks,
         prev_url=_make_section_url(text, prev),
         next_url=_make_section_url(text, next_),
