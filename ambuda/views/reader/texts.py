@@ -1,6 +1,5 @@
 """Views related to texts: title pages, sections, verses, etc."""
 
-import dataclasses
 import json
 from typing import Optional
 
@@ -209,14 +208,18 @@ def reader_json(text_slug, section_slug):
     if text_ is None:
         abort(404)
 
-    cur = q.text_section(text_.id, section_slug)
+    try:
+        prev, cur, next_ = _prev_cur_next(text_.sections, section_slug)
+    except ValueError:
+        abort(404)
+
     with q.get_session() as _:
         html_blocks = [xml.transform_text_block(b.xml) for b in cur.blocks]
 
     data = Section(
         text_title=_hk_to_dev(text_.title),
         section_title=_hk_to_dev(cur.title),
-        blocks=blocks,
+        blocks=html_blocks,
         prev_url=_make_section_url(text, prev),
         next_url=_make_section_url(text, next_),
     )
