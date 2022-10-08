@@ -37,14 +37,18 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python3 -m pip install -r requirements.txt
+          make install-python
           npm ci
       
       - name: Lint
-        run: make lint-check
+        run: |
+          source env/bin/activate
+          make lint-check
   
       - name: Build docs
-        run: make docs
+        run: |
+          source env/bin/activate
+          make docs
 
   docker-setup:
     runs-on: ubuntu-22.04

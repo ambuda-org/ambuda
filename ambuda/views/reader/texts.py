@@ -1,6 +1,5 @@
 """Views related to texts: title pages, sections, verses, etc."""
 
-import dataclasses
 import json
 from typing import Optional
 
@@ -130,7 +129,7 @@ def _create_section_data(text_: db.Text, cur, prev, next_) -> Section:
     cur = q.text_section(text_.id, cur.slug)
 
     with q.get_session() as _:
-        db_blocks = cur.blocks
+        _ = cur.blocks
 
     blocks = []
     for block in cur.blocks:
@@ -217,6 +216,5 @@ def reader_json(text_slug, section_slug):
     except ValueError:
         abort(404)
 
-    cur = q.text_section(text_.id, section_slug)
     data = _create_section_data(text_, cur, prev, next_)
     return jsonify(data)
