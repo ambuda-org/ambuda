@@ -43,3 +43,13 @@ def test_block_htmx(client):
     # Test is unchanged because we assume that the source text already in
     # Devanagari, so we don't apply transliteration.
     assert "<section>agniH</section>" in resp.text
+
+
+def test_reader_json(client):
+    resp = client.get("/api/texts/pariksha/1")
+    assert resp.status_code == 200
+
+    data = resp.json
+    assert data["text_title"]
+    assert data["section_title"]
+    assert data["blocks"]
