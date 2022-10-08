@@ -149,7 +149,7 @@ def section(text_slug, section_slug):
     cur = q.text_section(text_.id, section_slug)
 
     with q.get_session() as _:
-        db_blocks = cur.blocks
+        _ = cur.blocks
 
     blocks = []
     for block in cur.blocks:
