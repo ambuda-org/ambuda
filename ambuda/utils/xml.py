@@ -30,7 +30,6 @@ from xml.etree import ElementTree as ET
 
 from indic_transliteration import sanscript
 
-
 Attributes = NewType("Attributes", dict[str, str])
 
 

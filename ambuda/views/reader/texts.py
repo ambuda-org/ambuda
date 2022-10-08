@@ -15,7 +15,6 @@ from ambuda.utils.json_serde import AmbudaJSONEncoder
 from ambuda.views.api import bp as api
 from ambuda.views.reader.schema import Block, Section
 
-
 bp = Blueprint("texts", __name__)
 
 # A hacky list that decides which texts have parse data.
