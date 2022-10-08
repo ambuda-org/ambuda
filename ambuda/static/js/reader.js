@@ -226,11 +226,10 @@ export default () => ({
     if (resp.ok) {
       const html = await resp.text();
       return [html, true];
-    } else {
-      // FIXME: add i18n support
-      const html = '<p>Sorry, this content is not available right now. (Server error)</p>';
-      return [html, false];
     }
+    // FIXME: add i18n support
+    const html = '<p>Sorry, this content is not available right now. (Server error)</p>';
+    return [html, false];
   },
 
   // `parseLayout` logic

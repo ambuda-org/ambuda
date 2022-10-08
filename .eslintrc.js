@@ -15,6 +15,7 @@ module.exports = {
   rules: {
     "no-console": ['error', { allow: ['error'] }],
     // Temporarily disabled while we set up JS modules.
-    "no-unused-vars": "off"
+    "no-unused-vars": "off",
+    "no-param-reassign": 0,
   },
 };
