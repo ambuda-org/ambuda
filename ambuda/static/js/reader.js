@@ -233,8 +233,8 @@ export default () => ({
     }
   },
 
-  // `parseLayout` CSS
-  // =================
+  // `parseLayout` logic
+  // ===================
 
   /** Get CSS related to the `parseLayout` setting. */
   getParseLayoutClasses() {
@@ -277,6 +277,9 @@ export default () => ({
     // By default, always show the mula.
     return true;
   },
+  hideParse(b) {
+    b.showParse = false;
+  },
 
   // Click handlers
   // ==============
@@ -292,6 +295,12 @@ export default () => ({
     const $word = e.target.closest('s-w');
     if ($word) {
       this.onClickWord($word);
+      return;
+    }
+
+    const $a = e.target.closest('a');
+    if ($a) {
+      // HACK for "show original" link inside block.
       return;
     }
 
