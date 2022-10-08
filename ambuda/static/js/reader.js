@@ -133,6 +133,7 @@ export default () => ({
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
     // FIXME: enable this in a follow-up PR.
@@ -143,7 +144,16 @@ export default () => ({
 =======
     console.log(this.data);
 >>>>>>> Add ajax fetch
+<<<<<<< HEAD
 >>>>>>> 24d1748... Add ajax fetch
+=======
+=======
+
+    window.addEventListener('popstate', (e) => {
+      console.log('state', event.state);
+    });
+>>>>>>> WIP -- ajax
+>>>>>>> 39cbafd... WIP -- ajax
   },
 
   // Settings
@@ -199,13 +209,29 @@ export default () => ({
   // =============
 
   /** Load text data from the server. */
-  async fetchBlocks(url) {
-    // HACK: just use the pathname.
+  async fetchSection(url) {
+    // HACK: just prepend "/api".
     const apiURL = `/api${url}`;
-
     const resp = await fetch(apiURL);
+
     if (resp.ok) {
+      const oldData = this.data;
       this.data = await resp.json();
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+      console.log(this.data);
+        console.log('succ');
+>>>>>>> works, about to implement ajax
+=======
+>>>>>>> Remove logs
+=======
+      window.history.pushState(this.oldData, '', url);
+>>>>>>> WIP -- ajax
+>>>>>>> 39cbafd... WIP -- ajax
     } else {
       // Loading failed -- just use the server-side.
       // FIXME: make the non-JS experience smoother.
@@ -294,14 +320,6 @@ export default () => ({
   },
   hideParse(b) {
     b.showParse = false;
-  },
-
-  // Section navigation
-  // ==================
-
-  /** On click, change AJAX data and section. */
-  changeSection(url) {
-    this.fetchBlocks(url);
   },
 
   // Click handlers

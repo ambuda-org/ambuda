@@ -119,13 +119,13 @@ or in their own modal window. #}
       <a class="block rounded text-2xl h-12 w-12 leading-[3rem] text-center"
           :href="data.prev_url"
           :class="data.prev_url ? 'hover:bg-slate-100' : 'text-slate-300'"
-          @click.prevent="changeSection(data.prev_url)">
+          @click.prevent="fetchSection(data.prev_url)">
         &laquo;
       </a>
       <a class="block rounded text-2xl h-12 w-12 leading-[3rem] text-center"
           :href="data.next_url"
           :class="data.next_url ? 'hover:bg-slate-100' : 'text-slate-300'"
-          @click.prevent="changeSection(data.next_url)">
+          @click.prevent="fetchSection(data.next_url)">
         &raquo;
       </a>
     </div>
