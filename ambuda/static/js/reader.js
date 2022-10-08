@@ -128,11 +128,9 @@ export default () => ({
   init() {
     this.loadSettings();
     this.data = JSON.parse(document.getElementById('payload').textContent);
-    window.addEventListener('popstate', (e) => {
-      const { data, scrollTop } = e.state;
-      this.data = data;
-      document.documentElement.scrollTop = scrollTop;
-    });
+    this.pushHistoryState(window.location.pathname);
+
+    window.addEventListener('popstate', this.onPopHistoryState.bind(this));
   },
 
   // Settings
@@ -184,6 +182,35 @@ export default () => ({
     return Sanscript.t(devanagariStr, Script.Devanagari, this.script);
   },
 
+  // Browser history
+  // ===============
+
+  /**
+   * Save the history state for the given URL.
+   *
+   * This function should be called:
+   * - on page load (for the current URL)
+   * - when a reader link (<< or >>) is clicked.
+   */
+  pushHistoryState(url) {
+    // First, clone `this.data`. `this.data` is a proxy object and cannot be
+    // cloned directly. So instead, clone it by building a new object from its
+    // JSON string.
+    const dataClone = JSON.parse(JSON.stringify(this.data));
+    const state = { data: dataClone, scrollTop: document.documentElement.scrollTop };
+    window.history.pushState(state, '', url);
+  },
+
+  /** Handler for the `popstate` event. */
+  onPopHistoryState(e) {
+    if (!e.state) {
+      return;
+    }
+    const { data, scrollTop } = e.state;
+    this.data = data;
+    document.documentElement.scrollTop = scrollTop;
+  },
+
   // Ajax requests
   // =============
 
@@ -194,12 +221,8 @@ export default () => ({
     const resp = await fetch(apiURL);
 
     if (resp.ok) {
-      const oldData = JSON.parse(JSON.stringify(this.data));
       this.data = await resp.json();
-
-      // Update URL and history only after we get the new data.
-      const state = { data: oldData, scrollTop: document.documentElement.scrollTop };
-      window.history.pushState(state, '', url);
+      this.pushHistoryState(url);
     } else {
       // Loading failed -- just use the server-side.
       // FIXME: make the non-JS experience smoother.
