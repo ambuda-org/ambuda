@@ -41,14 +41,11 @@
       {{ _('Explore the library') }}
   </a>
 
-  {% set locales = [
-    ('sa', 'saMskRtam'|d),
-    ('en', 'English'),
-  ] %}
-
   <ul class="flex text-slate-300 justify-center mt-24 a-hover-underline">
-    {% for code, text in locales %}
-    <li><a class="p-2" href="{{ url_for('site.set_language', language=code) }}">{{ text }}</a></li>
+    {% for L in ambuda_locales %}
+    <li><a class="p-2" href="{{ url_for('site.set_language', slug=L.slug) }}">
+      {{ L.text }}
+    </a></li>
     {% endfor %}
   </ul>
 

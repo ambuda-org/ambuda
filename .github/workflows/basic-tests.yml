@@ -53,15 +53,14 @@ jobs:
         uses: actions/checkout@v3
       
       - name: Build and run Docker images
-        run: docker-compose up --build --force-recreate -d
+        run: docker-compose up -V --build --force-recreate -d
 
-# TODO: fix
-#       - name: Check that site is running
-#         run: curl --fail-with-body localhost:5000
+      - name: Check that site is running
+        run: timeout 2m bash -c 'until curl --fail-with-body localhost:5000; do sleep 1; done'
         
       - name: Show logs on fail
         if: ${{ failure() }}
-        run: docker logs ambuda_app_1
+        run: docker logs -t ambuda_app_1
 
   run-py-tests:
     runs-on: ubuntu-22.04

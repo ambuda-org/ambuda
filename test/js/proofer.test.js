@@ -36,6 +36,9 @@ window.fetch = jest.fn(async (url) => {
     }
   }
 });
+navigator.clipboard = {
+  writeText: jest.fn((s) => {}),
+}
 
 beforeEach(() => {
   window.location = null;
@@ -82,6 +85,17 @@ test('loadSettings works if localStorage data is corrupt', () => {
   const p = Proofer();
   p.loadSettings();
   // No error -- OK
+});
+
+test('onBeforeUnload shows text if changes are present.', () => {
+  const p = Proofer();
+  p.hasUnsavedChanges = true;
+  expect(p.onBeforeUnload()).toBe(true);
+});
+
+test('onBeforeUnload shows no text if no changes have been made.', () => {
+  const p = Proofer();
+  expect(p.onBeforeUnload()).toBe(null);
 });
 
 test('runOCR handles a valid server response', async () => {
@@ -204,25 +218,30 @@ function markupFixtures(text) {
 }
 
 test('markAsError works', () => {
-  const {p, $text } = markupFixtures();
+  const { p, $text } = markupFixtures();
   p.markAsError()
   expect($text.value).toBe('This is <error>sample</error> text.')
 });
 
 test('markAsFix works', () => {
-  const {p, $text } = markupFixtures();
+  const { p, $text } = markupFixtures();
   p.markAsFix()
   expect($text.value).toBe('This is <fix>sample</fix> text.')
 });
 
 test('markAsUnclear works', () => {
-  const {p, $text } = markupFixtures();
+  const { p, $text } = markupFixtures();
   p.markAsUnclear()
   expect($text.value).toBe('This is <flag>sample</flag> text.')
 });
 
 test('markAsFootnoteNumber works', () => {
-  const {p, $text } = markupFixtures();
+  const { p, $text } = markupFixtures();
   p.markAsFootnoteNumber()
   expect($text.value).toBe('This is [^sample] text.')
+});
+
+test('copyCharacter works', () => {
+  const { p } = markupFixtures();
+  p.copyCharacter({ target: { textContent: 'foo' }});
 });

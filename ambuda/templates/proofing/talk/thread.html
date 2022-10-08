@@ -34,12 +34,12 @@
 {% block title %}{{ mc.title(thread.title) }}{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('talk', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
 {{ m.project_header_nested("Talk", project) }}
-{{ m.project_nav(project=project, active='talk', is_mod=current_user.is_moderator) }}
+{{ m.project_nav(project=project, active='talk') }}
 
 <header class="flex justify-between items-center bg-slate-100 p-4">
   <h1 class="text-xl font-bold">{{ thread.title }}</h1>

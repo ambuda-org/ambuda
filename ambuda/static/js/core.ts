@@ -29,11 +29,16 @@ function transliterateElement($el, from: string, to: string) {
   });
 }
 
-// Transliterate mixed English/Sanskrit content.
-function transliterateHTMLString(s: string, outputScript: string) {
+// Transliterate mixed Latin/Devanagari content.
+function transliterateHTMLString(source: string, to: string) {
+  const from = 'devanagari';
+  if (from === to) return source;
+
   const $div = document.createElement('div');
-  $div.innerHTML = s;
-  transliterateElement($div, 'devanagari', outputScript);
+  $div.innerHTML = source;
+  $div.querySelectorAll('*').forEach((elem) => {
+    forEachSanskritTextNode(elem, (s) => Sanscript.t(s, from, to));
+  });
   return $div.innerHTML;
 }
 

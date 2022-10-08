@@ -19,8 +19,11 @@ import config
 from ambuda import admin as admin_manager
 from ambuda import auth as auth_manager
 from ambuda import checks, filters, queries
+from ambuda.consts import LOCALES
 from ambuda.mail import mailer
 from ambuda.utils import assets
+from ambuda.utils.json_serde import AmbudaJSONEncoder
+from ambuda.utils.url_converters import ListConverter
 from ambuda.views.about import bp as about
 from ambuda.views.api import bp as api
 from ambuda.views.auth import bp as auth
@@ -97,6 +100,7 @@ def create_app(config_env: str):
     app.config.from_object(config_spec)
 
     # Sanity checks
+    assert config_env == config_spec.AMBUDA_ENVIRONMENT
     if config_env != config.TESTING:
         with app.app_context():
             checks.check_database(config_spec.SQLALCHEMY_DATABASE_URI)
@@ -121,6 +125,9 @@ def create_app(config_env: str):
 
     with app.app_context():
         _ = admin_manager.create_admin_manager(app)
+
+    # Route extensions
+    app.url_map.converters["list"] = ListConverter
 
     # Blueprints
     app.register_blueprint(about, url_prefix="/about")
@@ -150,7 +157,9 @@ def create_app(config_env: str):
         {
             "asset": assets.hashed_static,
             "pgettext": pgettext,
+            "ambuda_locales": LOCALES,
         }
     )
 
+    app.json_encoder = AmbudaJSONEncoder
     return app

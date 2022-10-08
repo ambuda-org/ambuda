@@ -65,11 +65,19 @@ def test_register__unauth_post__ok(client):
         r = client.post("/register", data=data)
         assert r.status_code == 302
         assert current_user.username == "krishna"
+        assert current_user.is_ok
 
 
 def test_register__auth(rama_client):
     r = rama_client.get("/register")
     assert r.status_code == 302
+
+
+def test_register__banned(banned_client):
+    with banned_client:
+        r = banned_client.get("/register")
+        assert r.status_code == 200
+        assert current_user.is_anonymous
 
 
 def test_sign_in__unauth(client):
@@ -113,6 +121,13 @@ def test_sign_in__unauth_post__bad_password(client):
 def test_sign_in__auth(rama_client):
     r = rama_client.get("/sign-in")
     assert r.status_code == 302
+
+
+def test_sign_in__banned(banned_client):
+    with banned_client:
+        r = banned_client.get("/sign-in")
+        assert r.status_code == 200
+        assert current_user.is_anonymous
 
 
 def test_sign_out__unauth(client):

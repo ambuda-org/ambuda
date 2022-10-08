@@ -3,147 +3,137 @@
 /**
  * Application code for our Sanskrit reading environment.
  *
- * The reading environment supports several user preferences, including script,
- * font size, and layout features for secondary content like parse data.
+ * Our reading environment displays Sanskrit text with various rich features:
  *
- * As with our other applications, we prefer storing application state in
- * markup in accordance with HATEOAS. Where this is cumbersome, we instead
- * store application state within the object we export further below.
+ * - script, font size, and basic layout preferences
+ * - padaccheda with word-by-word parse data
+ * - dictionary search across a variety of standard dictionaries
  *
- * NOTE: our migration to Alpine is in progress, and much of this file includes
- * legacy code from our older vanilla JS approach. We will migrate this code to
- * Alpine over time.
+ *
+ * # Design
+ *
+ * The reader is essentialy a single-page application (SPA) implemented in
+ * Alpine. Certain components, such as text blocks and dictionary entries,
+ * are rendered on the server and returned as HTML blobs.
+ *
+ * Most of the code follows normal Alpine idioms. We still have some legacy
+ * code that does direct element manipulation (in particular, see our use of
+ * the `$` function), but we will remove these over time.
+ *
+ * Known issues:
+ * - JS replacement of server-side content isn't smooth.
+ *
+ *
+ * # Technical terms
+ *
+ * - mula: the original verse (mūlam)
+ * - slug: human-readable ID that appears in the URL.
  */
 
 import {
-  transliterateElement, transliterateHTMLString, $,
+  transliterateHTMLString, $,
 } from './core.ts';
 import Routes from './routes';
 
-/* Legacy code
- * ===========
- * Future PRs will migrate this code to Alpine.
- */
+// Script options. We enumerate only the ones we need to refer to internally
+const Script = {
+  Devanagari: 'devanagari',
+  SLP1: 'slp1',
+};
 
-async function searchDictionary(version, query, contentScript) {
-  $('#dict--form input[name=q]').value = query;
+// Layout option for parse data
+export const Layout = {
+  // Parse data replaces the original text. (default)
+  InPlace: 'in-place',
+  // Original block on the left, parse data on the right.
+  SideBySide: 'side-by-side',
+};
 
-  const url = Routes.ajaxDictionaryQuery(version, query);
-  const $container = $('#dict--response');
-  const resp = await fetch(url);
-  if (resp.ok) {
-    const text = await resp.text();
-    $container.innerHTML = transliterateHTMLString(text, contentScript);
-  } else {
-    $container.innerHTML = '<p>Sorry, this content is not available right now.</p>';
-  }
-}
-
-function getBlockSlug(blockID) {
+export function getBlockSlug(blockID) {
   // Slice to remove text XML id.
   return blockID.split('.').slice(1).join('.');
 }
 
-async function showParsedBlock(blockID, contentScript, onFailure) {
-  const blockSlug = getBlockSlug(blockID);
-  const $container = $('#parse--response');
-  const textSlug = Routes.getTextSlug();
-
-  const $block = $(`#${blockID.replaceAll('.', '\\.')}`);
-
-  if ($block.classList.contains('has-parsed')) {
-    // Text has already been parsed. Show it if necessary.
-    $block.classList.add('show-parsed');
-    return;
-  }
-  $block.classList.add('has-parsed');
-
-  // Fetch parsed data.
-  const url = Routes.parseData(textSlug, blockSlug);
-  const resp = await fetch(url);
-  if (resp.ok) {
-    const text = await resp.text();
-    const parsedNode = document.createElement('div');
-    parsedNode.classList.add('parsed');
-    parsedNode.innerHTML = transliterateHTMLString(text, contentScript);
-    $block.appendChild(parsedNode);
-
-    const link = document.createElement('a');
-    link.className = 'text-sm text-zinc-400 hover:underline js--source';
-    link.href = '#';
-    link.innerHTML = '<span class=\'shown-side-by-side\'>Hide</span><span class=\'hidden-side-by-side\'>Show original</span>';
-    parsedNode.firstChild.appendChild(link);
-
-    $block.classList.add('show-parsed');
-  } else {
-    $block.classList.remove('has-parsed');
-    $container.innerHTML = '<p>Sorry, this content is not available right now. (Server error)</p>';
-    onFailure();
-  }
-}
-
 /* Alpine code
  * ===========
- * Future PRs will merge the legacy code above into the application below.
  */
 
-/**
- * Switch the script used in the reader.
- */
-function switchScript(oldScript, newScript) {
-  if (oldScript === newScript) return;
-
-  const $textContent = $('#text--content');
-  if ($textContent) {
-    transliterateElement($textContent, oldScript, newScript);
-  }
-  const $content = $('#sidebar');
-  if ($content) {
-    transliterateElement($content, oldScript, newScript);
-  }
-}
-
+// Dictionary key for localstorage.
 const READER_CONFIG_KEY = 'reader';
+
+// The main application.
 export default () => ({
-  // Text size for body text in the reader.
+
+  // User settings
+  // -------------
+  // Persistent user-specific data that we store in localStorage.
+
+  // Text size for body text.
   fontSize: 'md:text-xl',
-  // Script for Sanskrit text in the reader.
-  script: 'devanagari',
+  // Script for Sanskrit text.
+  script: Script.Devanagari,
   // How to display parse data to the user.
-  parseLayout: 'in-place',
-  // The dictionary version to use.
-  dictVersion: 'mw',
+  parseLayout: Layout.InPlace,
+  // The dictionary sources to use when fetching.
+  dictSources: ['mw'],
 
-  // (transient data)
+  // Server data
+  // -----------
+  // Text or dictionary data fetched from the server.
 
-  // Script value as stored on the <select> widget. We store this separately
-  // from `script` since we currently need to know both fields in order to
-  // transliterate.
-  uiScript: null,
+  // Blocks of text content
+  //
+  // Structure ("?" indicates an optional field):
+  // [
+  //   {
+  //     id: "Text.1.2",
+  //     mula: "<div>...</div>",
+  //     parse?: "<div>...</div>",
+  //     showParse?: true,
+  //   },
+  // ]
+  // FIXME: enforce a schema with TypeScript.
+  data: {
+    text_title: null,
+    section_title: null,
+    blocks: [],
+    prev_url: null,
+    next_url: null,
+  },
+
+  // The current dictionary response.
+  dictionaryResponse: null,
+  // Analysis of a word clicked by the user.
+  wordAnalysis: {
+    // The inflected form
+    form: null,
+    // The form lemma
+    lemma: null,
+    // The English parse (gender, case, ...) of this form.
+    parse: null,
+  },
+
+  // Transient data
+  // --------------
+  // Internal application data that manages the application state.
+
+  // If true, show the sidebar.
+  showSidebar: false,
   // Text in the dictionary search field. This field is visible only on wide
   // screens.
   dictQuery: '',
-  // If true, show the sidebar.
-  showSidebar: false,
+  // If true, show the dictionary selection widget.
+  showDictSourceSelector: false,
 
   init() {
     this.loadSettings();
-    switchScript('devanagari', this.script);
-
-    // Sync UI with application state. See comments on `uiScript` for details.
-    this.uiScript = this.script;
-
-    // Allow sidebar to be shown. (We add `hidden` by default so that the
-    // sidebar doesn't display while JS is loading. Alpine's show/hide seems
-    // not to work if the element has this class hidden, which is why we don't
-    // just use "this.showSidebar = true" here.)
-    const $sidebar = $('#sidebar');
-    if ($sidebar) {
-      $sidebar.classList.remove('hidden');
-    }
+    this.data = JSON.parse(document.getElementById('payload').textContent);
   },
 
-  // Parse application settings from local storage.
+  // Settings
+  // ========
+
+  /** Load user settings from local storage. */
   loadSettings() {
     const settingsStr = localStorage.getItem(READER_CONFIG_KEY);
     if (settingsStr) {
@@ -152,7 +142,7 @@ export default () => ({
         this.fontSize = settings.fontSize || this.fontSize;
         this.script = settings.script || this.script;
         this.parseLayout = settings.parseLayout || this.parseLayout;
-        this.dictVersion = settings.dictVersion || this.dictVersion;
+        this.dictSources = settings.dictSources || this.dictSources;
       } catch (error) {
         // Old settings are invalid -- rewrite with valid values.
         this.saveSettings();
@@ -160,24 +150,142 @@ export default () => ({
     }
   },
 
-  // Save application settings to local storage.
+  /** Save user settings to local storage. */
   saveSettings() {
     const settings = {
       fontSize: this.fontSize,
       script: this.script,
       parseLayout: this.parseLayout,
-      dictVersion: this.dictVersion,
+      dictSources: this.dictSources,
     };
     localStorage.setItem(READER_CONFIG_KEY, JSON.stringify(settings));
   },
 
-  updateScript() {
-    switchScript(this.script, this.uiScript);
-    this.script = this.uiScript;
-    this.saveSettings();
+  // Utility functions
+  // =================
+
+  /**
+   * Transliterate an HTML blob to the user's preferred script.
+   *
+   * This function ignores attributes and content within tags.
+   */
+  transliterateHTML(devanagariHTML) {
+    return transliterateHTMLString(devanagariHTML, this.script);
   },
 
-  // Generic click handler for multiple objects in the reader.
+  /** Transliterate a Devanagari string to the user's preferred script. */
+  transliterateStr(devanagariStr) {
+    if (!devanagariStr) return '';
+    return Sanscript.t(devanagariStr, Script.Devanagari, this.script);
+  },
+
+  // Ajax requests
+  // =============
+
+  /** Load text data from the server. */
+  async fetchBlocks() {
+    // HACK: just use the pathname.
+    const url = `/api${window.location.pathname}`;
+
+    const resp = await fetch(url);
+    if (resp.ok) {
+      this.data = await resp.json();
+    } else {
+      // Loading failed -- just use the server-side.
+      // FIXME: make the non-JS experience smoother.
+    }
+  },
+
+  /** Query the dictionary and populate the sidebar. */
+  async searchDictionary() {
+    if (!this.dictQuery || this.dictSources.length === 0) {
+      return;
+    }
+    const url = Routes.ajaxDictionaryQuery(this.dictSources, this.dictQuery);
+    const resp = await fetch(url);
+    if (resp.ok) {
+      this.dictionaryResponse = await resp.text();
+    } else {
+      // FIXME: add i18n support
+      this.dictionaryResponse = '<p>Sorry, this content is not available right now.</p>';
+    }
+  },
+
+  async fetchBlockParse(blockSlug) {
+    const textSlug = Routes.getTextSlug();
+    const url = Routes.parseData(textSlug, blockSlug);
+
+    // Fetch parsed data.
+    let resp;
+    try {
+      resp = await fetch(url);
+    } catch (e) {
+      return [null, false];
+    }
+
+    if (resp.ok) {
+      const html = await resp.text();
+      return [html, true];
+    }
+    // FIXME: add i18n support
+    const html = '<p>Sorry, this content is not available right now. (Server error)</p>';
+    return [html, false];
+  },
+
+  // `parseLayout` logic
+  // ===================
+
+  /** Get CSS related to the `parseLayout` setting. */
+  getParseLayoutClasses() {
+    if (this.parseLayout === Layout.SideBySide) {
+      // Extra wide to fit the side-by-side view.
+      // '!' to take priority over existing styles.
+      return 'md:!max-w-3xl';
+    }
+    return '';
+  },
+  getBlockClasses(b) {
+    if (b.showParse) {
+      if (this.parseLayout === Layout.SideBySide) {
+        // Show side-by-side.
+        return 'flex flex-wrap justify-between w-full';
+      }
+      return '';
+    }
+    // Otherwise, indicate that the verse is clickable.
+    return 'cursor-pointer';
+  },
+  getParseLayoutTogglerText() {
+    if (this.parseLayout === Layout.SideBySide) {
+      return 'Hide parse';
+    }
+    return 'Show original';
+  },
+  getMulaClasses() {
+    if (this.parseLayout === Layout.SideBySide) {
+      // Extra margin for better readability.
+      return 'mr-4';
+    }
+    return '';
+  },
+  showBlockMula(b) {
+    if (this.parseLayout === Layout.InPlace) {
+      // For this layout, show the mula iff the parse is not visible.
+      return !b.showParse;
+    }
+    // By default, always show the mula.
+    return true;
+  },
+  hideParse(b) {
+    b.showParse = false;
+  },
+
+  // Click handlers
+  // ==============
+  // For clicked words. Over time, we will move more of the state here from the
+  // DOM into the Alpine object.
+
+  /** Generic click handler for multiple objects in the reader. */
   async onClick(e) {
     // Don't run e.preventDefault by default, as the user might be clicking an
     // actual link.
@@ -185,52 +293,78 @@ export default () => ({
     // Parsed word: show details for this word.
     const $word = e.target.closest('s-w');
     if ($word) {
-      this.showWordPanel($word);
+      this.onClickWord($word);
       return;
     }
-    // "Hide parse" link: hide the displayed parse.
-    if (e.target.closest('.js--source')) {
-      e.preventDefault();
-      const $block = e.target.closest('s-block');
-      $block.classList.remove('show-parsed');
+
+    const $a = e.target.closest('a');
+    if ($a) {
+      // HACK for "show original" link inside block.
       return;
     }
+
     // Block: show parse data for this block.
     const $block = e.target.closest('s-block');
     if ($block) {
-      showParsedBlock($block.id, this.script, () => {
-        this.showSidebar = true;
-      });
+      this.onClickBlock($block.dataset.slug);
+    }
+  },
+
+  async onClickBlock(blockSlug) {
+    const block = this.data.blocks.find((b) => b.slug === blockSlug);
+
+    // If we have parse data already, display it then return.
+    if (block.parse) {
+      block.showParse = true;
+      return;
+    }
+
+    const [html, ok] = await this.fetchBlockParse(blockSlug);
+    if (ok) {
+      block.parse = html;
+      block.showParse = true;
+
+      // FIXME: move to alpine
+      const $container = $('#parse--response');
+      $container.innerHTML = '';
+    } else {
+      // FIXME: move to alpine
+      const $container = $('#parse--response');
+      $container.innerHTML = html;
+      this.showSidebar = true;
     }
   },
 
   // Show information for a clicked word.
-  async showWordPanel($word) {
-    const lemma = $word.getAttribute('lemma');
-    const form = $word.textContent;
+  async onClickWord($word) {
+    const form = Sanscript.t($word.textContent, this.script, Script.Devanagari);
+    const lemma = Sanscript.t($word.getAttribute('lemma'), Script.SLP1, Script.Devanagari);
     const parse = $word.getAttribute('parse');
-    this.dictQuery = Sanscript.t(lemma, 'slp1', this.script);
 
-    await searchDictionary(this.dictVersion, this.dictQuery, this.script);
-    this.setSidebarWord(form, lemma, parse);
+    this.dictQuery = Sanscript.t(lemma, Script.SLP1, this.script);
+    await this.searchDictionary();
+
+    this.wordAnalysis = { form, lemma, parse };
     this.showSidebar = true;
   },
 
-  // Display a specific word in the sidebar.
-  setSidebarWord(form, lemma, parse) {
-    const niceForm = Sanscript.t(form, 'slp1', this.script);
-    const niceLemma = Sanscript.t(lemma, 'slp1', this.script);
-    const html = `
-    <header>
-      <h1 class="text-xl" lang="sa">${niceForm}</h1>
-      <p class="mb-8"><span lang="sa">${niceLemma}</span> ${parse}</p>
-    </header>`;
-    $('#parse--response').innerHTML = html;
+  // Dropdown handlers
+  // =================
+
+  /** Toggle the source selection widget's visibility. */
+  toggleSourceSelector() {
+    this.showDictSourceSelector = !this.showDictSourceSelector;
   },
 
-  // Search a word in the dictionary and display the results to the user.
-  submitDictionaryQuery() {
-    if (!this.dictQuery) return;
-    searchDictionary(this.dictVersion, this.dictQuery, this.script);
+  /** Close the source selection widget and re-run the query as needed. */
+  onClickOutsideOfSourceSelector() {
+    // NOTE: With our current bindings, this method will run *every* time we
+    // click outside of the selector even if the selector is not open. If the
+    // selector is not visible, this method is best left as a no-op.
+    if (this.showDictSourceSelector) {
+      this.saveSettings();
+      this.searchDictionary();
+      this.showDictSourceSelector = false;
+    }
   },
 });

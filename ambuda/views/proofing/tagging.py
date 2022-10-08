@@ -75,7 +75,7 @@ def edit_block(text_slug, block_slug):
     if block_parse is None:
         abort(404)
 
-    mula = xml.transform_text_block(block.xml).html
+    mula = xml.transform_text_block(block.xml)
     tokens = word_parses.extract_tokens(block_parse.data)
 
     form = EditBlockForm()

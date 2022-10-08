@@ -106,26 +106,18 @@ project, and you can also upload `.po` files per locale.
 4. Add translations to the app
 ------------------------------
 
-Finally, we download the `.po` files created by Transifex and add them to the
-`ambuda` repo. All of our translation files should be named with this
-convention::
+Next, we download the `.po` files created by Transifex, add them to the
+`ambuda` repo, and compile them into the `.mo` files that Flask-Babel uses.
 
-    ambuda/translations/<locale>/LC_MESSAGES/messages.po
+We can do all of this with the following command::
 
-where `<locale>` is a short locale code like `sa`.
-
-The Ambuda application cannot use these files directly. Instead, we must first
-compile these `.po` files into `.mo` (machine object) files, which are
-optimized for machine usage. You can do so with::
-
-    make babel-compile
+    # NOTE: you must run this command within a virtual environment.
+    make install-i18n
 
 
 5. Update the app UI
 --------------------
 
 Finally, we update the app UI so that our new locale is available to the end
-user.
-
-As of 10 September 2022, our UI is a simple list of links in the Ambuda footer.
-Just update the footer and verify that everything works on your dev server.
+user. To do so, just update the list in `ambuda.consts.LOCALES` then verify
+that everything works on your dev server.

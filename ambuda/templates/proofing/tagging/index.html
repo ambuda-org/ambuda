@@ -3,7 +3,7 @@
 {% import "macros/proofing.html" as m %}
 
 
-{% block sidebar %}{{ m.main_nav('tagging') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('tagging', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}

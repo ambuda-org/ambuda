@@ -7,7 +7,7 @@
 {% block title %}Create thread on {{ project.title }} | Ambuda{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('talk', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}

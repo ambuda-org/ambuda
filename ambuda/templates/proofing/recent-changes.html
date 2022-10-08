@@ -5,7 +5,7 @@
 {% block title %}Recent changes | Ambuda{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('changes') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('changes', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}

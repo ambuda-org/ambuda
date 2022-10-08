@@ -1,6 +1,6 @@
 {% extends 'proofing/base.html' %}
 {% import "macros/proofing.html" as m %}
-{% import "macros/components.html" as site_components %}
+{% import "macros/components.html" as mc %}
 {% import "proofing/pages/editor-components.html" as editor %}
 
 
@@ -22,17 +22,18 @@
 
 {% block main %}
 <article class="p-4">
-  {% if not current_user.is_authenticated %}
-  {% call site_components.p_warning() %}
+  {% if not current_user.is_authenticated -%}
   {% set url = url_for('auth.register') %}
+  {% call mc.p_warning() %}{% trans %}
   Since you are not logged in, some functions (such as the OCR button) have
   been disabled. To use all website features, please <a class="underline"
   href="{{ url }}">create an account</a>.
-  {% endcall %}
-  {% endif %}
+  {% endtrans %}{% endcall %}
+  {%- endif %}
 
-  {{ editor.navigation_bar(project, cur=cur, prev=prev, next=next) }}
-  {{ site_components.flash_messages() }}
+  {% set num_images = project.pages|length %}
+  {{ editor.navigation_bar(page_context, page_number, image_number, num_images) }}
+  {{ mc.flash_messages() }}
 
   {% if conflict %}
   <pre class="p-2 bg-slate-100 my-4">{{ conflict.content }}</pre>
@@ -42,15 +43,24 @@
     {{ form.csrf_token }}
     {{ form.version }}
 
+    {% if not has_edits %}
+      {# i18n: This should match the "Tools" and "Run OCR" translations in the proofing tool. #}
+      {% set command = _("Tools &rarr; Run OCR") %}
+      {% call mc.p_note() %}{% trans %}
+      This page has not been edited yet. Run <i>{{ command }}</i> to get started.
+      {% endtrans %}{% endcall %}
+    {% endif %}
+
     {{ editor.menu_bar() }}
     <div :class="layoutClasses">
       {{ editor.text_box(form.content.data or "") }}
       {{ editor.image_box() }}
     </div>
 
-    <div class="mt-8 p-4 border bg-slate-200">
+    <div class="my-8 p-4 border bg-slate-200 rounded">
       {{ form.summary.label(class_="text-slate-600 mb-2 block") }}
-      {{ form.summary(class_="block rounded bg-white w-full mb-4 p-2", placeholder="Fixed various OCR errors") }}
+      {{ form.summary(class_="block rounded bg-white w-full mb-4 p-2",
+          placeholder=_("Fixed various OCR errors")) }}
 
       {{ form.status.label(class_="block") }}
       {% set radios = form.status|list %}
@@ -67,17 +77,30 @@
         "peer-checked:bg-slate-100 peer-checked:text-gray-800 peer-checked:border-gray-300") }}
       </div>
 
+      {% if current_user.is_authenticated %}
       {% set cc0 = "https://creativecommons.org/publicdomain/zero/1.0/" %}
-      <p class="my-4 text-sm">By saving your changes, you agree to release your
-      contribution under the <a class="underline" href="{{ cc0 }}">CC0 (public
-      domain) license</a>.</p>
+      <p class="my-4 text-sm">{% trans %}
+      By saving your changes, you agree to release your contribution under the
+      <a class="underline" href="{{ cc0 }}">CC0 (public domain) license</a>.
+      {% endtrans %}</p>
+
       <input class="btn btn-submit"
              type="submit"
              value="{{ _('Publish changes') }}"
              @click="hasUnsavedChanges = false">
+      {% endif %}
     </div>
   </form>
 
+  {% if not current_user.is_authenticated %}
+  {% set create = url_for("auth.register") %}
+  {% set log_in = url_for("auth.sign_in") %}
+  {% call mc.p_warning() %}
+  Only registered users can save changes. <a href="{{ create }}">Create an
+      account</a> or <a href="{{ log_in }}">sign in</a> to save your
+  changes.
+  {% endcall %}
+  {% endif %}
 </article>
 
 <script src="https://cdn.jsdelivr.net/npm/openseadragon@3.1/build/openseadragon/openseadragon.min.js"></script>
