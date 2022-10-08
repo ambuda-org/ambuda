@@ -12,6 +12,10 @@ from ambuda.consts import TEXT_CATEGORIES
 from ambuda.utils import xml
 from ambuda.utils.json_serde import AmbudaJSONEncoder
 from ambuda.views.api import bp as api
+from ambuda.views.reader.schema import Block, Section
+
+
+bp = Blueprint("texts", __name__)
 
 # A hacky list that decides which texts have parse data.
 HAS_NO_PARSE = {
@@ -29,9 +33,6 @@ HAS_NO_PARSE = {
 #: kandas). For simplicity, we represent such texts as having one section that
 #: we just call "all." All such texts are called *single-section texts.*
 SINGLE_SECTION_SLUG = "all"
-
-
-bp = Blueprint("texts", __name__)
 
 
 def _prev_cur_next(sections: list[db.TextSection], slug: str):
@@ -134,15 +135,25 @@ def section(text_slug, section_slug):
         if section_slug != SINGLE_SECTION_SLUG:
             abort(404)
 
+    has_no_parse = text.slug in HAS_NO_PARSE
+
     # Fetch with content blocks
     cur = q.text_section(text.id, section_slug)
 
     with q.get_session() as _:
-        html_blocks = [xml.transform_text_block(b.xml) for b in cur.blocks]
+        db_blocks = cur.blocks
 
-    has_no_parse = text.slug in HAS_NO_PARSE
+    blocks = []
+    for block in cur.blocks:
+        blocks.append(
+            Block(
+                slug=block.slug,
+                mula=xml.transform_text_block(block.xml),
+            )
+        )
 
-    json_payload = json.dumps({"blocks": html_blocks}, cls=AmbudaJSONEncoder)
+    data = Section(blocks=blocks)
+    json_payload = json.dumps(data, cls=AmbudaJSONEncoder)
 
     return render_template(
         "texts/section.html",
@@ -151,7 +162,7 @@ def section(text_slug, section_slug):
         section=cur,
         next=next_,
         json_payload=json_payload,
-        html_blocks=html_blocks,
+        html_blocks=data.blocks,
         has_no_parse=has_no_parse,
         is_single_section_text=is_single_section_text,
     )
@@ -186,5 +197,5 @@ def reader_json(text_slug, section_slug):
     with q.get_session() as _:
         html_blocks = [xml.transform_text_block(b.xml) for b in cur.blocks]
 
-    data = {"blocks": html_blocks}
+    data = ReaderData(blocks=html_blocks)
     return jsonify(data)

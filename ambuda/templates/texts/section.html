@@ -190,7 +190,7 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
   {# Server-side logic. This will be hidden once the application loads. #}
   <div x-show="blocks.length === 0">
     {% for block_ in html_blocks %}
-    <s-block id="{{ block_.id }}">
+    <s-block data-slug="{{ block_.slug }}">
       <div class="mula">{{ block_.mula|safe }}</div>
     </s-block>
     {% endfor %}
@@ -198,7 +198,7 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 
   {# Client-side logic. This is what most readers will see and use. #}
   <template x-for="b in blocks">
-    <s-block :id="b.id">
+    <s-block :data-slug="b.slug">
       <div :class="getBlockClasses(b)">
         <div x-show="showBlockMula(b)" :class="getMulaClasses" x-html="transliterateHTML(b.mula)"></div>
         <div x-show="b.showParse" x-html="transliterateHTML(b.parse)"></div>

@@ -210,8 +210,7 @@ export default () => ({
     }
   },
 
-  async fetchBlockParse(blockID) {
-    const blockSlug = getBlockSlug(blockID);
+  async fetchBlockParse(blockSlug) {
     const textSlug = Routes.getTextSlug();
     const url = Routes.parseData(textSlug, blockSlug);
 
@@ -306,12 +305,13 @@ export default () => ({
     // Block: show parse data for this block.
     const $block = e.target.closest('s-block');
     if ($block) {
-      this.onClickBlock($block.id);
+      this.onClickBlock($block.dataset.slug);
     }
   },
 
-  async onClickBlock(blockID) {
-    const block = this.blocks.find((b) => b.id === blockID);
+  async onClickBlock(blockSlug) {
+    console.log('slug', blockSlug);
+    const block = this.blocks.find((b) => b.slug === blockSlug);
 
     // If we have parse data already, display it then return.
     if (block.parse) {
@@ -319,7 +319,7 @@ export default () => ({
       return;
     }
 
-    const [html, ok] = await this.fetchBlockParse(block.id);
+    const [html, ok] = await this.fetchBlockParse(blockSlug);
     if (ok) {
       block.parse = html;
       block.showParse = true;
