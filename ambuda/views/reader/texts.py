@@ -125,31 +125,7 @@ def text_resources(slug):
     return render_template("texts/text-resources.html", text=text)
 
 
-<<<<<<< HEAD
-@bp.route("/<text_slug>/<section_slug>")
-def section(text_slug, section_slug):
-    """Show a specific section of a text."""
-    text_ = q.text(text_slug)
-    if text_ is None:
-        abort(404)
-
-    try:
-        prev, cur, next_ = _prev_cur_next(text_.sections, section_slug)
-    except ValueError:
-        abort(404)
-
-    is_single_section_text = not prev and not next_
-    if is_single_section_text:
-        # Single-section texts have exactly one section whose slug should be
-        # `SINGLE_SECTION_SLUG`. If the slug is anything else, abort.
-        if section_slug != SINGLE_SECTION_SLUG:
-            abort(404)
-
-    has_no_parse = text_.slug in HAS_NO_PARSE
-
-=======
 def _create_section_data(text_: db.Text, cur, prev, next_) -> Section:
->>>>>>> Add ajax fetch
     # Fetch with content blocks
     cur = q.text_section(text_.id, cur.slug)
 
@@ -165,42 +141,13 @@ def _create_section_data(text_: db.Text, cur, prev, next_) -> Section:
             )
         )
 
-<<<<<<< HEAD
-    data = Section(
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    data = Section(
-        text_title=_hk_to_dev(text_.title),
-        section_title=_hk_to_dev(cur.title),
-=======
-    data = Section(
-<<<<<<< HEAD
-        text_title=text_.title,
-        section_title=cur.title,
->>>>>>> works, about to implement ajax
-=======
-=======
     return Section(
->>>>>>> Add ajax fetch
->>>>>>> 24d1748... Add ajax fetch
         text_title=_hk_to_dev(text_.title),
         section_title=_hk_to_dev(cur.title),
         blocks=blocks,
         prev_url=_make_section_url(text_, prev),
         next_url=_make_section_url(text_, next_),
     )
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    data = Section(blocks=blocks)
->>>>>>> Use slug instead of id for block
-=======
->>>>>>> works, about to implement ajax
-=======
 
 
 @bp.route("/<text_slug>/<section_slug>")
@@ -224,8 +171,6 @@ def section(text_slug, section_slug):
 
     has_no_parse = text_.slug in HAS_NO_PARSE
     data = _create_section_data(text_, cur, prev, next_)
->>>>>>> Add ajax fetch
->>>>>>> 24d1748... Add ajax fetch
     json_payload = json.dumps(data, cls=AmbudaJSONEncoder)
 
     return render_template(
@@ -272,34 +217,6 @@ def reader_json(text_slug, section_slug):
     except ValueError:
         abort(404)
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    data = Section(
-        text_title=_hk_to_dev(text_.title),
-        section_title=_hk_to_dev(cur.title),
-=======
->>>>>>> 24d1748... Add ajax fetch
-    data = Section(
-        text_title=_hk_to_dev(text_.title),
-        section_title=_hk_to_dev(cur.title),
-        blocks=blocks,
-        prev_url=_make_section_url(text, prev),
-        next_url=_make_section_url(text, next_),
-    )
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-    data = ReaderData(blocks=html_blocks)
->>>>>>> Use slug instead of id for block
-=======
->>>>>>> works, about to implement ajax
-=======
     cur = q.text_section(text_.id, section_slug)
     data = _create_section_data(text_, cur, prev, next_)
->>>>>>> Add ajax fetch
->>>>>>> 24d1748... Add ajax fetch
     return jsonify(data)

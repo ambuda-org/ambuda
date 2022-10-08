@@ -128,32 +128,9 @@ export default () => ({
   init() {
     this.loadSettings();
     this.data = JSON.parse(document.getElementById('payload').textContent);
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-
-    // FIXME: enable this in a follow-up PR.
-    // this.fetchBlocks();
->>>>>>> works, about to implement ajax
-=======
->>>>>>> Remove logs
-=======
-    console.log(this.data);
->>>>>>> Add ajax fetch
-<<<<<<< HEAD
->>>>>>> 24d1748... Add ajax fetch
-=======
-=======
-
     window.addEventListener('popstate', (e) => {
       console.log('state', event.state);
     });
->>>>>>> WIP -- ajax
->>>>>>> 39cbafd... WIP -- ajax
   },
 
   // Settings
@@ -217,21 +194,7 @@ export default () => ({
     if (resp.ok) {
       const oldData = this.data;
       this.data = await resp.json();
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-      console.log(this.data);
-        console.log('succ');
->>>>>>> works, about to implement ajax
-=======
->>>>>>> Remove logs
-=======
       window.history.pushState(this.oldData, '', url);
->>>>>>> WIP -- ajax
->>>>>>> 39cbafd... WIP -- ajax
     } else {
       // Loading failed -- just use the server-side.
       // FIXME: make the non-JS experience smoother.
