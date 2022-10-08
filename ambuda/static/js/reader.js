@@ -129,7 +129,9 @@ export default () => ({
     this.loadSettings();
     this.data = JSON.parse(document.getElementById('payload').textContent);
     window.addEventListener('popstate', (e) => {
-      console.log('state', event.state);
+      const { data, scrollTop } = e.state;
+      this.data = data;
+      document.documentElement.scrollTop = scrollTop;
     });
   },
 
@@ -192,9 +194,12 @@ export default () => ({
     const resp = await fetch(apiURL);
 
     if (resp.ok) {
-      const oldData = this.data;
+      const oldData = JSON.parse(JSON.stringify(this.data));
       this.data = await resp.json();
-      window.history.pushState(this.oldData, '', url);
+
+      // Update URL and history only after we get the new data.
+      const state = { data: oldData, scrollTop: document.documentElement.scrollTop };
+      window.history.pushState(state, '', url);
     } else {
       // Loading failed -- just use the server-side.
       // FIXME: make the non-JS experience smoother.
