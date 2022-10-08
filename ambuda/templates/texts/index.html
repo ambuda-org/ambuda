@@ -24,15 +24,26 @@
 analysis and integrated dictionary support for a variety of Sanskrit works.
 {%- endblock %}
 
+{% block header %}
+<div class="text-sky-900 bg-slate-100 border-b mb-4">
+  <div class="border-b border-slate-300">
+    {% include "include/header.html" %}
+  </div>
 
-{% block content %}
-<div class="prose">
-  <h1>{{ _('Texts') }}</h1>
+  <header class="text-center py-24">
+    <h1 class="font-bold text-5xl">{{ _('Texts') }}</h1>
+  </header>
 </div>
+{% endblock %}
 
+
+{% block main %}
+
+<article class="p-4 md:p-0 max-w-xl mx-auto md:my-24 md:mb-36">
 {{ text_list('upanishat', _('Upanishads')) }}
 {{ text_list('itihasa', _('Itihasas')) }}
 {{ text_list('kavya', _('Kavyas')) }}
 {{ text_list('anye', _('Other works')) }}
 
+</article>
 {% endblock %}
