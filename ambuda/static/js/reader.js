@@ -211,6 +211,7 @@ export default () => ({
    * Call this method to nagivate to a new reader page.
    */
   pushHistoryState(url) {
+    // Reset scroll position to match browser behavior.
     document.documentElement.scrollTop = 0;
     const state = this.createHistoryState();
     window.history.pushState(state, '', url);

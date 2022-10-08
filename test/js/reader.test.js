@@ -15,12 +15,12 @@ const sampleHTML = `
   <script id="payload" type="application/json">
   {
     "text_title": "Sample Text",
-    "section_title": "Sample Section",
+    "section_title": "Section 1",
     "prev_url": null,
     "next_url": "/texts/sample-text/2",
     "blocks": [
-      { "slug": "1.1", "mula": "<s-lg>verse 1</s-lg>" },
-      { "slug": "1.2", "mula": "<s-lg>verse 2</s-lg>" }
+      { "slug": "1.1", "mula": "<s-lg>verse 1.1</s-lg>" },
+      { "slug": "1.2", "mula": "<s-lg>verse 1.2</s-lg>" }
     ]
   }
   </script>
@@ -38,15 +38,15 @@ window.Sanscript = {
 // Mocks for all API requests.
 window.fetch = jest.fn(async (url) => {
   const mapping = {
-    '/api/texts/sample-text/1': {
+    '/api/texts/sample-text/2': {
       json: async () => ({
         "text_title": "Sample Text",
-        "section_title": "Sample Section",
-        "prev_url": null,
-        "next_url": "/texts/sample-text/2",
+        "section_title": "Section 2",
+        "prev_url": "/texts/sample-text/1",
+        "next_url": "/texts/sample-text/3",
         "blocks": [
-          { "slug": "1.1", "mula": "<s-lg>verse 1</s-lg>" },
-          { "slug": "1.2", "mula": "<s-lg>verse 2</s-lg>" },
+          { "slug": "2.1", "mula": "<s-lg>verse 2.1</s-lg>" },
+          { "slug": "2.2", "mula": "<s-lg>verse 2.2</s-lg>" },
         ]
       })
     },
@@ -66,6 +66,7 @@ window.fetch = jest.fn(async (url) => {
 });
 
 beforeEach(() => {
+  window.location = new URL('https://ambuda.org/texts/sample-text/1');
   window.localStorage.clear();
   document.write(sampleHTML);
 });
@@ -74,6 +75,8 @@ test('Reader can be created', () => {
   const r = Reader()
   r.init();
 });
+
+// Settings
 
 test('saveSettings and loadSettings work as expected', () => {
   const oldReader = Reader()
@@ -121,31 +124,58 @@ test('transliterateStr transliterates with the current script', () => {
   expect(r.transliterateStr('')).toBe('');
 });
 
+// Browser history
+
+test('onPopHistoryState works as expected', () => {
+  const r = Reader();
+  r.data = 'initial data';
+
+  const e = { state: { data: 'data' }};
+  r.onPopHistoryState(e);
+
+  expect(r.data).toBe('data');
+});
+
+test('onPopHistoryState is a no-op if there is no state', () => {
+  const r = Reader();
+  r.data = 'initial data';
+
+  const e = { state: null };
+  r.onPopHistoryState(e);
+
+  expect(r.data).toBe('initial data');
+});
+
 // Ajax calls
 
-test('fetchBlocks sets properties correctly', async () => {
-  window.location = new URL('https://ambuda.org/texts/sample-text/1');
-
+test('fetchSection sets properties correctly', async () => {
   const r = Reader();
-  await r.fetchBlocks();
+  r.init();
+
+  await r.fetchSection("/texts/sample-text/2");
   expect(r.data).toEqual({
     "text_title": "Sample Text",
-    "section_title": "Sample Section",
-    "prev_url": null,
-    "next_url": "/texts/sample-text/2",
+    "section_title": "Section 2",
+    "prev_url": "/texts/sample-text/1",
+    "next_url": "/texts/sample-text/3",
     "blocks": [
-      { "slug": "1.1", "mula": "<s-lg>verse 1</s-lg>" },
-      { "slug": "1.2", "mula": "<s-lg>verse 2</s-lg>" },
+      { "slug": "2.1", "mula": "<s-lg>verse 2.1</s-lg>" },
+      { "slug": "2.2", "mula": "<s-lg>verse 2.2</s-lg>" },
     ]
   });
 });
 
-test("fetchBlocks doesn't throw an error on a bad URL", async () => {
+test("fetchSection doesn't throw an error on a bad URL", async () => {
   window.location = new URL('https://ambuda.org/texts/sample-text/error');
 
   const r = Reader();
-  await r.fetchBlocks();
-  expect(r.data.blocks).toEqual([]);
+  r.init();
+
+  await r.fetchSection();
+  expect(r.data.blocks).toEqual([
+    { "slug": "1.1", "mula": "<s-lg>verse 1.1</s-lg>" },
+    { "slug": "1.2", "mula": "<s-lg>verse 1.2</s-lg>" },
+  ]);
 });
 
 test("searchDictionary works with a valid source and query", async () => {
@@ -177,7 +207,7 @@ test("fetchBlockParse works on a normal case", async () => {
   window.location = new URL('https://ambuda.org/texts/sample-text/1');
 
   const r = Reader();
-  await r.fetchBlocks();
+  await r.fetchSection();
 
   const [html, ok] = await r.fetchBlockParse("1.1")
   expect(html).toBe("<p>parse for 1.1</p>");
@@ -188,14 +218,14 @@ test("fetchBlockParse shows an error if the word can't be found", async () => {
   window.location = new URL('https://ambuda.org/texts/sample-text/1');
 
   const r = Reader();
-  await r.fetchBlocks();
+  await r.fetchSection();
 
   const [html, ok] = await r.fetchBlockParse("unknown")
   expect(html).toMatch("Sorry");
   expect(ok).toBe(false);
 });
 
-// `parseLayout` CSS tests
+// `parseLayout` logic
 
 test('CSS for parse layout is as expected', () => {
   const r = Reader();
@@ -223,13 +253,21 @@ test('CSS for parse layout is as expected', () => {
   expect(r.getBlockClasses({ showParse: true })).toMatch('flex');
 });
 
+test('hideParse works as expected', () => {
+  const r = Reader();
+  const b = { showParse: true };
+
+  r.hideParse(b);
+  expect(b.showParse).toBe(false);
+});
+
 // Click handlers
 
 test('onClickBlock fetches and displays parse data', async () => {
   window.location = new URL('https://ambuda.org/texts/sample-text/1');
 
   const r = Reader();
-  await r.fetchBlocks();
+  r.init();
   await r.onClickBlock("1.1");
 
   expect(r.data.blocks[0].parse).toBe("<p>parse for 1.1</p>");
@@ -241,7 +279,7 @@ test('onClickBlock toggles if parse data already exists', async () => {
   window.location = new URL('https://ambuda.org/texts/sample-text/1');
 
   const r = Reader();
-  await r.fetchBlocks();
+  r.init();
   await r.onClickBlock("1.1");
   r.data.blocks[0].showParse = false;
 
