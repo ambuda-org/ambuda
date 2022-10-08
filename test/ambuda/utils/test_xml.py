@@ -45,8 +45,7 @@ def test_paren_rule__text_and_child():
 def test_transform_text_block():
     blob = '<lg xml:id="Test">verse</lg>'
     block = x.transform_text_block(blob)
-    assert block.id == "Test"
-    assert block.mula == "<s-lg>verse</s-lg>"
+    assert block == "<s-lg>verse</s-lg>"
 
 
 def test_transform():

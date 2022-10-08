@@ -14,8 +14,13 @@ const sampleHTML = `
 
   <script id="payload" type="application/json">
   {
+    "text_title": "Sample Text",
+    "section_title": "Sample Section",
+    "prev_url": null,
+    "next_url": "/texts/sample-text/2",
     "blocks": [
-      { "id": "1", "mula": "<s-lg>verse 1</s-lg>" }
+      { "slug": "1.1", "mula": "<s-lg>verse 1</s-lg>" },
+      { "slug": "1.2", "mula": "<s-lg>verse 2</s-lg>" }
     ]
   }
   </script>
@@ -35,9 +40,13 @@ window.fetch = jest.fn(async (url) => {
   const mapping = {
     '/api/texts/sample-text/1': {
       json: async () => ({
-        blocks: [
-          { slug: "1.1", mula: "text for 1.1" },
-          { slug: "1.2", mula: "text for 1.2" },
+        "text_title": "Sample Text",
+        "section_title": "Sample Section",
+        "prev_url": null,
+        "next_url": "/texts/sample-text/2",
+        "blocks": [
+          { "slug": "1.1", "mula": "<s-lg>verse 1</s-lg>" },
+          { "slug": "1.2", "mula": "<s-lg>verse 2</s-lg>" },
         ]
       })
     },
@@ -119,10 +128,16 @@ test('fetchBlocks sets properties correctly', async () => {
 
   const r = Reader();
   await r.fetchBlocks();
-  expect(r.blocks).toEqual([
-    { slug: "1.1", mula: "text for 1.1" },
-    { slug: "1.2", mula: "text for 1.2" },
-  ]);
+  expect(r.data).toEqual({
+    "text_title": "Sample Text",
+    "section_title": "Sample Section",
+    "prev_url": null,
+    "next_url": "/texts/sample-text/2",
+    "blocks": [
+      { "slug": "1.1", "mula": "<s-lg>verse 1</s-lg>" },
+      { "slug": "1.2", "mula": "<s-lg>verse 2</s-lg>" },
+    ]
+  });
 });
 
 test("fetchBlocks doesn't throw an error on a bad URL", async () => {
@@ -130,7 +145,7 @@ test("fetchBlocks doesn't throw an error on a bad URL", async () => {
 
   const r = Reader();
   await r.fetchBlocks();
-  expect(r.blocks).toEqual([]);
+  expect(r.data.blocks).toEqual([]);
 });
 
 test("searchDictionary works with a valid source and query", async () => {
@@ -217,8 +232,8 @@ test('onClickBlock fetches and displays parse data', async () => {
   await r.fetchBlocks();
   await r.onClickBlock("1.1");
 
-  expect(r.blocks[0].parse).toBe("<p>parse for 1.1</p>");
-  expect(r.blocks[0].showParse).toBe(true);
+  expect(r.data.blocks[0].parse).toBe("<p>parse for 1.1</p>");
+  expect(r.data.blocks[0].showParse).toBe(true);
 });
 
 
@@ -228,10 +243,10 @@ test('onClickBlock toggles if parse data already exists', async () => {
   const r = Reader();
   await r.fetchBlocks();
   await r.onClickBlock("1.1");
-  r.blocks[0].showParse = false;
+  r.data.blocks[0].showParse = false;
 
   r.onClickBlock("1.1");
-  expect(r.blocks[0].showParse).toBe(true);
+  expect(r.data.blocks[0].showParse).toBe(true);
 });
 
 // Dropdown handlers

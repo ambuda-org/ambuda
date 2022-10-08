@@ -197,7 +197,8 @@ def block_htmx(text_slug, block_slug):
     html_block = xml.transform_text_block(block.xml)
     return render_template(
         "htmx/text-block.html",
-        block=html_block,
+        slug=block.slug,
+        html=html_block,
     )
 
 

@@ -186,6 +186,9 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 
 
 {% block main %}
+{# Serialize the data above so we can use it without a second network call. #}
+<script id="payload" type="application/json">{{ json_payload|safe }}</script>
+
 {# FIXME: unify <article> and these three <div>s into fewer elements. #}
 <article lang="sa" class="flex justify-around mb-32" x-data="reader" @click="onClick">
   <div id="text--content" class="md:text-xl mx-4 pb-16 lg:flex-1 md:max-w-xl"
@@ -221,9 +224,6 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
   {{ footer() }}
   {{ sidebar() }}
 </article>
-
-{# Serialize the data above so we can use it without a second network call. #}
-<script id="payload" type="application/json">{{ json_payload|safe }}</script>
 {% endblock %}
 
 {# Hide footer because we have a position:fixed nav "footer" already. #}
