@@ -90,6 +90,12 @@
   .prose {
     @apply tw-prose tw-prose-slate;
   }
+  .prose dt {
+    @apply uppercase text-xs font-bold text-slate-400 mb-1;
+  }
+  .prose dd {
+    @apply mb-4;
+  }
 
   /* Custom */
   .a-underline a {
