@@ -45,7 +45,7 @@ For the corresponding JavaScript bindings and logic, see `reader.js`.
 
 {# Prev/next navigation links in the page footer. #}
 {% macro _footer_nav_link(text, section, display_text) %}
-{% set base = "rounded text-2xl h-12 w-12 leading-[3rem] text-center" %}
+{% set base = "block rounded text-2xl h-12 w-12 leading-[3rem] text-center" %}
 {% if section %}
   {% set url = url_for('texts.section', text_slug=text.slug, section_slug=section.slug) %}
   <a class="{{ base }} hover:bg-slate-100" href="{{ url }}"> {{ display_text | safe }}</a>
@@ -101,11 +101,35 @@ or in their own modal window. #}
     </span>
     {% endif %}
   </div>
-  <div class="flex items-center">
-    {{ settings() }}
-    {{ _footer_nav_link(text, prev, '&laquo;') }}
-    {{ _footer_nav_link(text, next, '&raquo;') }}
+
+  {# Non-JS links #}
+  <div x-show="!data.text_title">
+    <div class="flex">
+      {{ _footer_nav_link(text, prev, '&laquo;') }}
+      {{ _footer_nav_link(text, next, '&raquo;') }}
+    </div>
   </div>
+
+  {# JS links #}
+  <template x-if="data.text_title">
+    <div class="flex items-center">
+    {{ settings() }}
+
+    <div class="flex">
+      <a class="block rounded text-2xl h-12 w-12 leading-[3rem] text-center"
+          :href="data.prev_url"
+          :class="data.prev_url ? 'hover:bg-slate-100' : 'text-slate-300'"
+          @click.prevent="changeSection(data.prev_url)">
+        &laquo;
+      </a>
+      <a class="block rounded text-2xl h-12 w-12 leading-[3rem] text-center"
+          :href="data.next_url"
+          :class="data.next_url ? 'hover:bg-slate-100' : 'text-slate-300'"
+          @click.prevent="changeSection(data.next_url)">
+        &raquo;
+      </a>
+    </div>
+  </template>
 </footer>
 {% endmacro %}
 

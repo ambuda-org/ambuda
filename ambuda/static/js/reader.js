@@ -128,6 +128,22 @@ export default () => ({
   init() {
     this.loadSettings();
     this.data = JSON.parse(document.getElementById('payload').textContent);
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+    // FIXME: enable this in a follow-up PR.
+    // this.fetchBlocks();
+>>>>>>> works, about to implement ajax
+=======
+>>>>>>> Remove logs
+=======
+    console.log(this.data);
+>>>>>>> Add ajax fetch
+>>>>>>> 24d1748... Add ajax fetch
   },
 
   // Settings
@@ -183,11 +199,11 @@ export default () => ({
   // =============
 
   /** Load text data from the server. */
-  async fetchBlocks() {
+  async fetchBlocks(url) {
     // HACK: just use the pathname.
-    const url = `/api${window.location.pathname}`;
+    const apiURL = `/api${url}`;
 
-    const resp = await fetch(url);
+    const resp = await fetch(apiURL);
     if (resp.ok) {
       this.data = await resp.json();
     } else {
@@ -278,6 +294,14 @@ export default () => ({
   },
   hideParse(b) {
     b.showParse = false;
+  },
+
+  // Section navigation
+  // ==================
+
+  /** On click, change AJAX data and section. */
+  changeSection(url) {
+    this.fetchBlocks(url);
   },
 
   // Click handlers
