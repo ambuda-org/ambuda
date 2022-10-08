@@ -16,7 +16,7 @@ def test_donate(client):
     assert "Donate today" in resp.text
 
 
-def test_donate(client):
+def test_donate_book(client):
     resp = client.get("/donate/my-book-title/100")
     assert "my-book-title" in resp.text
 
