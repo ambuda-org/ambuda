@@ -128,9 +128,6 @@ export default () => ({
   init() {
     this.loadSettings();
     this.data = JSON.parse(document.getElementById('payload').textContent);
-
-    // FIXME: enable this in a follow-up PR.
-    // this.fetchBlocks();
   },
 
   // Settings
@@ -193,10 +190,7 @@ export default () => ({
     const resp = await fetch(url);
     if (resp.ok) {
       this.data = await resp.json();
-      console.log(this.data);
-        console.log('succ');
     } else {
-        console.log('fail');
       // Loading failed -- just use the server-side.
       // FIXME: make the non-JS experience smoother.
     }
