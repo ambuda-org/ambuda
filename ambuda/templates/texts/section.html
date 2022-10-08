@@ -204,7 +204,7 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
         <div x-show="b.showParse" x-html="transliterateHTML(b.parse)"></div>
       </div>
       <span class="text-sm text-zinc-400 hover:underline" x-show="b.showParse">
-        <a @click.prevent href="#" x-text="getParseLayoutTogglerText"></a>
+        <a @click.prevent="hideParse(b)" href="#" x-text="getParseLayoutTogglerText"></a>
       </span>
     </s-block>
   </template>

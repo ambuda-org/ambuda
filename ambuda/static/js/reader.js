@@ -226,15 +226,14 @@ export default () => ({
     if (resp.ok) {
       const html = await resp.text();
       return [html, true];
-    } else {
-      // FIXME: add i18n support
-      const html = '<p>Sorry, this content is not available right now. (Server error)</p>';
-      return [html, false];
     }
+    // FIXME: add i18n support
+    const html = '<p>Sorry, this content is not available right now. (Server error)</p>';
+    return [html, false];
   },
 
-  // `parseLayout` CSS
-  // =================
+  // `parseLayout` logic
+  // ===================
 
   /** Get CSS related to the `parseLayout` setting. */
   getParseLayoutClasses() {
@@ -277,6 +276,9 @@ export default () => ({
     // By default, always show the mula.
     return true;
   },
+  hideParse(b) {
+    b.showParse = false;
+  },
 
   // Click handlers
   // ==============
@@ -292,6 +294,12 @@ export default () => ({
     const $word = e.target.closest('s-w');
     if ($word) {
       this.onClickWord($word);
+      return;
+    }
+
+    const $a = e.target.closest('a');
+    if ($a) {
+      // HACK for "show original" link inside block.
       return;
     }
 
