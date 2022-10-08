@@ -264,8 +264,6 @@ test('hideParse works as expected', () => {
 // Click handlers
 
 test('onClickBlock fetches and displays parse data', async () => {
-  window.location = new URL('https://ambuda.org/texts/sample-text/1');
-
   const r = Reader();
   r.init();
   await r.onClickBlock("1.1");
@@ -276,8 +274,6 @@ test('onClickBlock fetches and displays parse data', async () => {
 
 
 test('onClickBlock toggles if parse data already exists', async () => {
-  window.location = new URL('https://ambuda.org/texts/sample-text/1');
-
   const r = Reader();
   r.init();
   await r.onClickBlock("1.1");
@@ -285,6 +281,14 @@ test('onClickBlock toggles if parse data already exists', async () => {
 
   r.onClickBlock("1.1");
   expect(r.data.blocks[0].showParse).toBe(true);
+});
+
+test("onClickBlock shows an error if the data doesn't exist.", async () => {
+  const r = Reader();
+  r.init();
+
+  await r.onClickBlock("1.2");
+  expect(r.sidebarErrorMessage).toMatch('Sorry');
 });
 
 // Dropdown handlers

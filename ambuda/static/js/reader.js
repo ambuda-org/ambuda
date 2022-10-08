@@ -49,11 +49,6 @@ export const Layout = {
   SideBySide: 'side-by-side',
 };
 
-export function getBlockSlug(blockID) {
-  // Slice to remove text XML id.
-  return blockID.split('.').slice(1).join('.');
-}
-
 /* Alpine code
  * ===========
  */
@@ -119,6 +114,8 @@ export default () => ({
 
   // If true, show the sidebar.
   showSidebar: false,
+  // Sidebar error message (for failed fetches)
+  sidebarErrorMessage: null,
   // Text in the dictionary search field. This field is visible only on wide
   // screens.
   dictQuery: '',
@@ -381,14 +378,9 @@ export default () => ({
     if (ok) {
       block.parse = html;
       block.showParse = true;
-
-      // FIXME: move to alpine
-      const $container = $('#parse--response');
-      $container.innerHTML = '';
+      this.sidebarErrorMessage = null;
     } else {
-      // FIXME: move to alpine
-      const $container = $('#parse--response');
-      $container.innerHTML = html;
+      this.sidebarErrorMessage = html;
       this.showSidebar = true;
     }
   },

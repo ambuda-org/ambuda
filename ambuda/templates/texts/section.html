@@ -158,7 +158,7 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
   <div>
     <div>
       <button class="block text-2xl p-2" @click="showSidebar = false">&times;</button>
-      <div id="parse--response" class="text-sm"></div>
+      <div x-html="sidebarErrorMessage" class="text-sm"></div>
 
       <div class="text-sm" x-show="wordAnalysis.form">
         <header>
