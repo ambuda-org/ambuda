@@ -6,7 +6,6 @@ available. So, the code here might be slow, unsafe, etc.
 
 from flask import Blueprint, render_template
 
-
 bp = Blueprint("debug", __name__)
 
 
