@@ -22,6 +22,7 @@ from ambuda import checks, filters, queries
 from ambuda.consts import LOCALES
 from ambuda.mail import mailer
 from ambuda.utils import assets
+from ambuda.utils.json_serde import AmbudaJSONEncoder
 from ambuda.utils.url_converters import ListConverter
 from ambuda.views.about import bp as about
 from ambuda.views.api import bp as api
@@ -160,4 +161,5 @@ def create_app(config_env: str):
         }
     )
 
+    app.json_encoder = AmbudaJSONEncoder
     return app
