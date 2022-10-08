@@ -56,6 +56,8 @@ export const Layout = {
 // Dictionary key for localstorage.
 const READER_CONFIG_KEY = 'reader';
 
+const MSG_CONTENT_MISSING = '<p>Sorry, this content is not available right now.</p>';
+
 // The main application.
 export default () => ({
 
@@ -262,7 +264,7 @@ export default () => ({
       this.dictionaryResponse = await resp.text();
     } else {
       // FIXME: add i18n support
-      this.dictionaryResponse = '<p>Sorry, this content is not available right now.</p>';
+      this.dictionaryResponse = MSG_CONTENT_MISSING;
     }
   },
 
@@ -283,7 +285,7 @@ export default () => ({
       return [html, true];
     }
     // FIXME: add i18n support
-    const html = '<p>Sorry, this content is not available right now. (Server error)</p>';
+    const html = MSG_CONTENT_MISSING;
     return [html, false];
   },
 
