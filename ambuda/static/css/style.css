@@ -36,6 +36,7 @@
   }
   .btn-submit {
     @apply bg-brand text-white hover:bg-sky-500 transition;
+    @apply active:translate-y-0.5;
   }
   ::file-selector-button {
     @apply border-0 p-2 rounded bg-slate-600 text-white cursor-pointer mr-4 hover:bg-black;
