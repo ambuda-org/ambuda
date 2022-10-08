@@ -1,3 +1,9 @@
+"""Debug routes that are useful during development.
+
+NOTE: In production, this module is not imported, and these routes are not
+available. So, the code here might be slow, unsafe, etc.
+"""
+
 from flask import Blueprint, render_template
 
 

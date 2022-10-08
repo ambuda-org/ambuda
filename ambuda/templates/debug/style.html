@@ -80,9 +80,11 @@
 
 {{ category('Forms') }}
 {% call items() %}
+<form>
   <button class="btn btn-basic">Basic button</button>
   {{ mf.submit('Submit button') }}
   {{ mf.auth_submit('Auth form submit button') }}
+</form>
 {% endcall %}
 
 

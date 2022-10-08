@@ -6,4 +6,9 @@ module.exports = {
     './ambuda/utils/xml.py',
     './ambuda/views/proofing/main.py',
   ],
+  plugins: [
+    require('@tailwindcss/typography')({
+      className: 'tw-prose',
+    }),
+  ]
 }
