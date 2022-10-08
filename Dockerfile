@@ -1,4 +1,4 @@
-FROM python:3.9.13-buster as build
+FROM python:3.9.13-buster
 
 WORKDIR /app
 
@@ -14,7 +14,4 @@ RUN pip install -r requirements.txt
 COPY ./package* ./
 RUN npm ci
 
-FROM python:3.9.13-buster as deploy
-WORKDIR /app
-COPY --from=build /app /app
 CMD ["./scripts/run_devserver_docker.sh"]
