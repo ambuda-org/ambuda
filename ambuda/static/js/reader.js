@@ -93,7 +93,13 @@ export default () => ({
   //   },
   // ]
   // FIXME: enforce a schema with TypeScript.
-  blocks: [],
+  data: {
+    text_title: null,
+    section_title: null,
+    blocks: [],
+    prev_url: null,
+    next_url: null,
+  },
 
   // The current dictionary response.
   dictionaryResponse: null,
@@ -121,8 +127,7 @@ export default () => ({
 
   init() {
     this.loadSettings();
-    const data = JSON.parse(document.getElementById('payload').textContent);
-    this.blocks = data.blocks;
+    this.data = JSON.parse(document.getElementById('payload').textContent);
 
     // FIXME: enable this in a follow-up PR.
     // this.fetchBlocks();
@@ -187,9 +192,11 @@ export default () => ({
 
     const resp = await fetch(url);
     if (resp.ok) {
-      const json = await resp.json();
-      this.blocks = json.blocks;
+      this.data = await resp.json();
+      console.log(this.data);
+        console.log('succ');
     } else {
+        console.log('fail');
       // Loading failed -- just use the server-side.
       // FIXME: make the non-JS experience smoother.
     }
@@ -310,8 +317,7 @@ export default () => ({
   },
 
   async onClickBlock(blockSlug) {
-    console.log('slug', blockSlug);
-    const block = this.blocks.find((b) => b.slug === blockSlug);
+    const block = this.data.blocks.find((b) => b.slug === blockSlug);
 
     // If we have parse data already, display it then return.
     if (block.parse) {

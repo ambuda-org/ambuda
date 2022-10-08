@@ -13,5 +13,9 @@ class Block:
 
 @dataclass
 class Section:
+    text_title: str
+    section_title: str
     #: The blocks for this section.
     blocks: list[Block]
+    prev_url: str
+    next_url: str

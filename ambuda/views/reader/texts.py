@@ -2,8 +2,9 @@
 
 import dataclasses
 import json
+from typing import Optional
 
-from flask import Blueprint, abort, jsonify, render_template
+from flask import Blueprint, abort, jsonify, render_template, url_for
 from indic_transliteration import sanscript
 
 import ambuda.database as db
@@ -55,6 +56,15 @@ def _prev_cur_next(sections: list[db.TextSection], slug: str):
     cur = sections[i]
     next = sections[i + 1] if i < len(sections) - 1 else None
     return prev, cur, next
+
+
+def _make_section_url(
+    text: db.Text, section: Optional[db.TextSection]
+) -> Optional[str]:
+    if section:
+        return url_for("texts.section", text_slug=text.slug, section_slug=section.slug)
+    else:
+        return None
 
 
 def _section_groups(sections: list[db.TextSection]):
@@ -119,12 +129,12 @@ def text_resources(slug):
 @bp.route("/<text_slug>/<section_slug>")
 def section(text_slug, section_slug):
     """Show a specific section of a text."""
-    text = q.text(text_slug)
-    if text is None:
+    text_ = q.text(text_slug)
+    if text_ is None:
         abort(404)
 
     try:
-        prev, cur, next_ = _prev_cur_next(text.sections, section_slug)
+        prev, cur, next_ = _prev_cur_next(text_.sections, section_slug)
     except ValueError:
         abort(404)
 
@@ -135,10 +145,10 @@ def section(text_slug, section_slug):
         if section_slug != SINGLE_SECTION_SLUG:
             abort(404)
 
-    has_no_parse = text.slug in HAS_NO_PARSE
+    has_no_parse = text_.slug in HAS_NO_PARSE
 
     # Fetch with content blocks
-    cur = q.text_section(text.id, section_slug)
+    cur = q.text_section(text_.id, section_slug)
 
     with q.get_session() as _:
         db_blocks = cur.blocks
@@ -152,12 +162,18 @@ def section(text_slug, section_slug):
             )
         )
 
-    data = Section(blocks=blocks)
+    data = Section(
+        text_title=text_.title,
+        section_title=cur.title,
+        blocks=blocks,
+        prev_url=_make_section_url(text_, prev),
+        next_url=_make_section_url(text_, next_),
+    )
     json_payload = json.dumps(data, cls=AmbudaJSONEncoder)
 
     return render_template(
         "texts/section.html",
-        text=text,
+        text=text_,
         prev=prev,
         section=cur,
         next=next_,
@@ -197,5 +213,11 @@ def reader_json(text_slug, section_slug):
     with q.get_session() as _:
         html_blocks = [xml.transform_text_block(b.xml) for b in cur.blocks]
 
-    data = ReaderData(blocks=html_blocks)
+    data = Section(
+        text_title=text_.title,
+        section_title=cur.title,
+        blocks=blocks,
+        prev_url=_make_section_url(text, prev),
+        next_url=_make_section_url(text, next_),
+    )
     return jsonify(data)
