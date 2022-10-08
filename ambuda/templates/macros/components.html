@@ -65,3 +65,17 @@
   </ul>
 </nav>
 {% endmacro %}
+
+
+{# A basic header. #}
+{% macro basic_header(title) %}
+<div class="text-sky-900 bg-slate-100 border-b border-slate-200 mb-4">
+  <div class="border-slate-300">
+    {% include "include/header.html" %}
+  </div>
+
+  <header class="text-center py-16">
+    <h1 class="font-bold text-5xl">{{ title }}</h1>
+  </header>
+</div>
+{% endmacro %}
