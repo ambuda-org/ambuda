@@ -90,7 +90,7 @@ class Block:
     #: The block's HTML id.
     id: str
     #: HTML content for the given block.
-    html: str
+    mula: str
 
 
 def _delete(xml: ET.Element):
@@ -390,4 +390,4 @@ def transform_text_block(block_blob: str) -> Block:
     # namespaces. So, hard-code it like this:
     id = xml.attrib.get("{http://www.w3.org/XML/1998/namespace}id", "")
     html = transform(xml, transforms=tei_xml)
-    return Block(id=id, html=html)
+    return Block(id=id, mula=html)

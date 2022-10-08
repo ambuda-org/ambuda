@@ -46,7 +46,7 @@ def test_transform_text_block():
     blob = '<lg xml:id="Test">verse</lg>'
     block = x.transform_text_block(blob)
     assert block.id == "Test"
-    assert block.html == "<s-lg>verse</s-lg>"
+    assert block.mula == "<s-lg>verse</s-lg>"
 
 
 def test_transform():

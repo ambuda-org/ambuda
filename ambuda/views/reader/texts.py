@@ -1,12 +1,16 @@
 """Views related to texts: title pages, sections, verses, etc."""
 
-from flask import Blueprint, abort, render_template
+import dataclasses
+import json
+
+from flask import Blueprint, abort, jsonify, render_template
 from indic_transliteration import sanscript
 
 import ambuda.database as db
 import ambuda.queries as q
 from ambuda.consts import TEXT_CATEGORIES
 from ambuda.utils import xml
+from ambuda.utils.json_serde import AmbudaJSONEncoder
 from ambuda.views.api import bp as api
 
 # A hacky list that decides which texts have parse data.
@@ -138,12 +142,15 @@ def section(text_slug, section_slug):
 
     has_no_parse = text.slug in HAS_NO_PARSE
 
+    json_payload = json.dumps({"blocks": html_blocks}, cls=AmbudaJSONEncoder)
+
     return render_template(
         "texts/section.html",
         text=text,
         prev=prev,
         section=cur,
         next=next_,
+        json_payload=json_payload,
         html_blocks=html_blocks,
         has_no_parse=has_no_parse,
         is_single_section_text=is_single_section_text,
@@ -165,3 +172,19 @@ def block_htmx(text_slug, block_slug):
         "htmx/text-block.html",
         block=html_block,
     )
+
+
+@api.route("/texts/<text_slug>/<section_slug>")
+def reader_json(text_slug, section_slug):
+    # NOTE: currently unused, since we bootstrap from a JSON blob in the
+    # original request.
+    text_ = q.text(text_slug)
+    if text_ is None:
+        abort(404)
+
+    cur = q.text_section(text_.id, section_slug)
+    with q.get_session() as _:
+        html_blocks = [xml.transform_text_block(b.xml) for b in cur.blocks]
+
+    data = {"blocks": html_blocks}
+    return jsonify(data)
