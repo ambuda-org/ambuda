@@ -1,5 +1,5 @@
 import { $ } from '@/core.ts';
-import Reader, { Layout, getBlockSlug } from '@/reader';
+import Reader, { Layout } from '@/reader';
 
 const sampleHTML = `
 <body>
@@ -14,8 +14,13 @@ const sampleHTML = `
 
   <script id="payload" type="application/json">
   {
+    "text_title": "Sample Text",
+    "section_title": "Sample Section",
+    "prev_url": null,
+    "next_url": "/texts/sample-text/2",
     "blocks": [
-      { "id": "1", "mula": "<s-lg>verse 1</s-lg>" }
+      { "slug": "1.1", "mula": "<s-lg>verse 1</s-lg>" },
+      { "slug": "1.2", "mula": "<s-lg>verse 2</s-lg>" }
     ]
   }
   </script>
@@ -35,9 +40,13 @@ window.fetch = jest.fn(async (url) => {
   const mapping = {
     '/api/texts/sample-text/1': {
       json: async () => ({
-        blocks: [
-          { id: "A.1.1", mula: "text for 1.1" },
-          { id: "A.1.2", mula: "text for 1.2" },
+        "text_title": "Sample Text",
+        "section_title": "Sample Section",
+        "prev_url": null,
+        "next_url": "/texts/sample-text/2",
+        "blocks": [
+          { "slug": "1.1", "mula": "<s-lg>verse 1</s-lg>" },
+          { "slug": "1.2", "mula": "<s-lg>verse 2</s-lg>" },
         ]
       })
     },
@@ -112,12 +121,6 @@ test('transliterateStr transliterates with the current script', () => {
   expect(r.transliterateStr('')).toBe('');
 });
 
-test('getBlockSlug works', () => {
-  expect(getBlockSlug('A.1.1')).toBe('1.1');
-  expect(getBlockSlug('A.1')).toBe('1');
-  expect(getBlockSlug('A.all')).toBe('all');
-});
-
 // Ajax calls
 
 test('fetchBlocks sets properties correctly', async () => {
@@ -125,10 +128,16 @@ test('fetchBlocks sets properties correctly', async () => {
 
   const r = Reader();
   await r.fetchBlocks();
-  expect(r.blocks).toEqual([
-    { id: "A.1.1", mula: "text for 1.1" },
-    { id: "A.1.2", mula: "text for 1.2" },
-  ]);
+  expect(r.data).toEqual({
+    "text_title": "Sample Text",
+    "section_title": "Sample Section",
+    "prev_url": null,
+    "next_url": "/texts/sample-text/2",
+    "blocks": [
+      { "slug": "1.1", "mula": "<s-lg>verse 1</s-lg>" },
+      { "slug": "1.2", "mula": "<s-lg>verse 2</s-lg>" },
+    ]
+  });
 });
 
 test("fetchBlocks doesn't throw an error on a bad URL", async () => {
@@ -136,7 +145,7 @@ test("fetchBlocks doesn't throw an error on a bad URL", async () => {
 
   const r = Reader();
   await r.fetchBlocks();
-  expect(r.blocks).toEqual([]);
+  expect(r.data.blocks).toEqual([]);
 });
 
 test("searchDictionary works with a valid source and query", async () => {
@@ -170,7 +179,7 @@ test("fetchBlockParse works on a normal case", async () => {
   const r = Reader();
   await r.fetchBlocks();
 
-  const [html, ok] = await r.fetchBlockParse("A.1.1")
+  const [html, ok] = await r.fetchBlockParse("1.1")
   expect(html).toBe("<p>parse for 1.1</p>");
   expect(ok).toBe(true);
 });
@@ -181,7 +190,7 @@ test("fetchBlockParse shows an error if the word can't be found", async () => {
   const r = Reader();
   await r.fetchBlocks();
 
-  const [html, ok] = await r.fetchBlockParse("A.unknown")
+  const [html, ok] = await r.fetchBlockParse("unknown")
   expect(html).toMatch("Sorry");
   expect(ok).toBe(false);
 });
@@ -221,10 +230,10 @@ test('onClickBlock fetches and displays parse data', async () => {
 
   const r = Reader();
   await r.fetchBlocks();
-  await r.onClickBlock("A.1.1");
+  await r.onClickBlock("1.1");
 
-  expect(r.blocks[0].parse).toBe("<p>parse for 1.1</p>");
-  expect(r.blocks[0].showParse).toBe(true);
+  expect(r.data.blocks[0].parse).toBe("<p>parse for 1.1</p>");
+  expect(r.data.blocks[0].showParse).toBe(true);
 });
 
 
@@ -233,11 +242,11 @@ test('onClickBlock toggles if parse data already exists', async () => {
 
   const r = Reader();
   await r.fetchBlocks();
-  await r.onClickBlock("A.1.1");
-  r.blocks[0].showParse = false;
+  await r.onClickBlock("1.1");
+  r.data.blocks[0].showParse = false;
 
-  r.onClickBlock("A.1.1");
-  expect(r.blocks[0].showParse).toBe(true);
+  r.onClickBlock("1.1");
+  expect(r.data.blocks[0].showParse).toBe(true);
 });
 
 // Dropdown handlers

@@ -85,14 +85,6 @@ def _rename(mapping: dict[str, str]) -> Callable:
     return inner
 
 
-@dataclass
-class Block:
-    #: The block's HTML id.
-    id: str
-    #: HTML content for the given block.
-    mula: str
-
-
 def _delete(xml: ET.Element):
     xml.clear()
     xml.tag = None
@@ -380,14 +372,13 @@ def transform_sak(blob: str) -> str:
     return transform(xml, vacaspatyam_xml)
 
 
-def transform_text_block(block_blob: str) -> Block:
-    """Transform XML for a TEI document."""
+def transform_text_block(block_blob: str) -> str:
+    """Transform XML for a TEI document.
+
+    :param block_blob: the original XML blob for this block.
+    :return: the HTML transform of that XML blob
+    """
     # FIXME: leaky abstraction. We should return just a string blob here and
     # get the XML ID from `database.Block` instead.
     xml = ET.fromstring(block_blob)
-
-    # "xml:id" can't be specified directly due to how ElementTree treats
-    # namespaces. So, hard-code it like this:
-    id = xml.attrib.get("{http://www.w3.org/XML/1998/namespace}id", "")
-    html = transform(xml, transforms=tei_xml)
-    return Block(id=id, mula=html)
+    return transform(xml, transforms=tei_xml)

@@ -93,7 +93,13 @@ export default () => ({
   //   },
   // ]
   // FIXME: enforce a schema with TypeScript.
-  blocks: [],
+  data: {
+    text_title: null,
+    section_title: null,
+    blocks: [],
+    prev_url: null,
+    next_url: null,
+  },
 
   // The current dictionary response.
   dictionaryResponse: null,
@@ -121,11 +127,7 @@ export default () => ({
 
   init() {
     this.loadSettings();
-    const data = JSON.parse(document.getElementById('payload').textContent);
-    this.blocks = data.blocks;
-
-    // FIXME: enable this in a follow-up PR.
-    // this.fetchBlocks();
+    this.data = JSON.parse(document.getElementById('payload').textContent);
   },
 
   // Settings
@@ -187,8 +189,7 @@ export default () => ({
 
     const resp = await fetch(url);
     if (resp.ok) {
-      const json = await resp.json();
-      this.blocks = json.blocks;
+      this.data = await resp.json();
     } else {
       // Loading failed -- just use the server-side.
       // FIXME: make the non-JS experience smoother.
@@ -210,8 +211,7 @@ export default () => ({
     }
   },
 
-  async fetchBlockParse(blockID) {
-    const blockSlug = getBlockSlug(blockID);
+  async fetchBlockParse(blockSlug) {
     const textSlug = Routes.getTextSlug();
     const url = Routes.parseData(textSlug, blockSlug);
 
@@ -306,12 +306,12 @@ export default () => ({
     // Block: show parse data for this block.
     const $block = e.target.closest('s-block');
     if ($block) {
-      this.onClickBlock($block.id);
+      this.onClickBlock($block.dataset.slug);
     }
   },
 
-  async onClickBlock(blockID) {
-    const block = this.blocks.find((b) => b.id === blockID);
+  async onClickBlock(blockSlug) {
+    const block = this.data.blocks.find((b) => b.slug === blockSlug);
 
     // If we have parse data already, display it then return.
     if (block.parse) {
@@ -319,7 +319,7 @@ export default () => ({
       return;
     }
 
-    const [html, ok] = await this.fetchBlockParse(block.id);
+    const [html, ok] = await this.fetchBlockParse(blockSlug);
     if (ok) {
       block.parse = html;
       block.showParse = true;

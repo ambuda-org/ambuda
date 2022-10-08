@@ -2,8 +2,9 @@
 
 import dataclasses
 import json
+from typing import Optional
 
-from flask import Blueprint, abort, jsonify, render_template
+from flask import Blueprint, abort, jsonify, render_template, url_for
 from indic_transliteration import sanscript
 
 import ambuda.database as db
@@ -12,6 +13,9 @@ from ambuda.consts import TEXT_CATEGORIES
 from ambuda.utils import xml
 from ambuda.utils.json_serde import AmbudaJSONEncoder
 from ambuda.views.api import bp as api
+from ambuda.views.reader.schema import Block, Section
+
+bp = Blueprint("texts", __name__)
 
 # A hacky list that decides which texts have parse data.
 HAS_NO_PARSE = {
@@ -29,9 +33,6 @@ HAS_NO_PARSE = {
 #: kandas). For simplicity, we represent such texts as having one section that
 #: we just call "all." All such texts are called *single-section texts.*
 SINGLE_SECTION_SLUG = "all"
-
-
-bp = Blueprint("texts", __name__)
 
 
 def _prev_cur_next(sections: list[db.TextSection], slug: str):
@@ -54,6 +55,15 @@ def _prev_cur_next(sections: list[db.TextSection], slug: str):
     cur = sections[i]
     next = sections[i + 1] if i < len(sections) - 1 else None
     return prev, cur, next
+
+
+def _make_section_url(
+    text: db.Text, section: Optional[db.TextSection]
+) -> Optional[str]:
+    if section:
+        return url_for("texts.section", text_slug=text.slug, section_slug=section.slug)
+    else:
+        return None
 
 
 def _section_groups(sections: list[db.TextSection]):
@@ -118,12 +128,12 @@ def text_resources(slug):
 @bp.route("/<text_slug>/<section_slug>")
 def section(text_slug, section_slug):
     """Show a specific section of a text."""
-    text = q.text(text_slug)
-    if text is None:
+    text_ = q.text(text_slug)
+    if text_ is None:
         abort(404)
 
     try:
-        prev, cur, next_ = _prev_cur_next(text.sections, section_slug)
+        prev, cur, next_ = _prev_cur_next(text_.sections, section_slug)
     except ValueError:
         abort(404)
 
@@ -134,24 +144,40 @@ def section(text_slug, section_slug):
         if section_slug != SINGLE_SECTION_SLUG:
             abort(404)
 
+    has_no_parse = text_.slug in HAS_NO_PARSE
+
     # Fetch with content blocks
-    cur = q.text_section(text.id, section_slug)
+    cur = q.text_section(text_.id, section_slug)
 
     with q.get_session() as _:
-        html_blocks = [xml.transform_text_block(b.xml) for b in cur.blocks]
+        db_blocks = cur.blocks
 
-    has_no_parse = text.slug in HAS_NO_PARSE
+    blocks = []
+    for block in cur.blocks:
+        blocks.append(
+            Block(
+                slug=block.slug,
+                mula=xml.transform_text_block(block.xml),
+            )
+        )
 
-    json_payload = json.dumps({"blocks": html_blocks}, cls=AmbudaJSONEncoder)
+    data = Section(
+        text_title=_hk_to_dev(text_.title),
+        section_title=_hk_to_dev(cur.title),
+        blocks=blocks,
+        prev_url=_make_section_url(text_, prev),
+        next_url=_make_section_url(text_, next_),
+    )
+    json_payload = json.dumps(data, cls=AmbudaJSONEncoder)
 
     return render_template(
         "texts/section.html",
-        text=text,
+        text=text_,
         prev=prev,
         section=cur,
         next=next_,
         json_payload=json_payload,
-        html_blocks=html_blocks,
+        html_blocks=data.blocks,
         has_no_parse=has_no_parse,
         is_single_section_text=is_single_section_text,
     )
@@ -170,7 +196,8 @@ def block_htmx(text_slug, block_slug):
     html_block = xml.transform_text_block(block.xml)
     return render_template(
         "htmx/text-block.html",
-        block=html_block,
+        slug=block.slug,
+        html=html_block,
     )
 
 
@@ -186,5 +213,11 @@ def reader_json(text_slug, section_slug):
     with q.get_session() as _:
         html_blocks = [xml.transform_text_block(b.xml) for b in cur.blocks]
 
-    data = {"blocks": html_blocks}
+    data = Section(
+        text_title=_hk_to_dev(text_.title),
+        section_title=_hk_to_dev(cur.title),
+        blocks=blocks,
+        prev_url=_make_section_url(text, prev),
+        next_url=_make_section_url(text, next_),
+    )
     return jsonify(data)

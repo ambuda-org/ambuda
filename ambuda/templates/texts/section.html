@@ -17,8 +17,12 @@ For the corresponding JavaScript bindings and logic, see `reader.js`.
 <header class="my-8">
   <div class="text-center pb-4 font-bold border-b">
     {% if prev or next %}
-      <h1 class="text-2xl md:text-4xl">{{ section.title | devanagari }}</h1>
-      <a class="block text-sm hover:text-green-600" href="{{ url }}">
+      <h1 class="text-2xl md:text-4xl"
+          x-text="transliterateStr(data.section_title)">
+        {{ section.title | devanagari }}
+      </h1>
+      <a class="block text-sm hover:text-green-600" href="{{ url }}"
+          x-text="transliterateStr(data.text_title)">
         {{ text.title | devanagari }}
       </a>
     {% else %}
@@ -44,9 +48,9 @@ For the corresponding JavaScript bindings and logic, see `reader.js`.
 {% set base = "rounded text-2xl h-12 w-12 leading-[3rem] text-center" %}
 {% if section %}
   {% set url = url_for('texts.section', text_slug=text.slug, section_slug=section.slug) %}
-  <a class="js--paginate {{ base }} hover:bg-zinc-100" href="{{ url }}"> {{ display_text | safe }}</a>
+  <a class="{{ base }} hover:bg-slate-100" href="{{ url }}"> {{ display_text | safe }}</a>
 {% else %}
-<span class="{{ base }} text-zinc-300">{{ display_text | safe }}</span>
+<span class="{{ base }} text-slate-300">{{ display_text | safe }}</span>
 {% endif %}
 {% endmacro %}
 
@@ -56,7 +60,7 @@ or in their own modal window. #}
 {% macro settings() %}
   <div class="hidden md:inline text-sm border-r px-4">
     <span>{{ _('Font Size:') }}</span>
-    <select class="p-1" x-model="fontSize" @change="saveSettings">
+    <select class="f-select" x-model="fontSize" @change="saveSettings">
       <option value="md:text-base">{{ _('Tiny') }}</option>
       <option value="md:text-lg">{{ _('Small') }}</option>
       <option value="md:text-xl" selected>{{ _('Medium') }}</option>
@@ -66,14 +70,14 @@ or in their own modal window. #}
   </div>
   <div class="text-sm border-r px-4">
     <span class="hidden md:inline">{{ _('Script:') }}</span>
-    <select id="switch-sa" class="p-1" @change="saveSettings" x-model="script">
+    <select id="switch-sa" class="f-select" @change="saveSettings" x-model="script">
       {% include 'include/script-options.html' %}
     </select>
   </div>
   {% if not has_no_parse %}
   <div class="hidden md:inline text-sm border-r px-4">
     <span>{{ _('Parsed View:') }}</span>
-    <select id="switch-parse-options" class="p-1" x-model="parseLayout" @change="saveSettings">
+    <select id="switch-parse-options" class="f-select" x-model="parseLayout" @change="saveSettings">
       <option value="in-place" selected>{{ _('In place') }}</option>
       <option value="side-by-side">{{ _('Side by side') }}</option>
     </select>
@@ -87,11 +91,14 @@ or in their own modal window. #}
 {# z-50 so that the footer renders on top of the sidebar. #}
 <footer class="flex items-center justify-between fixed bg-white left-0 right-0 bottom-0 h-12 border-t z-50">
   <div class="text-sm pl-4">
-    <a class="hover:underline" href="{{ url_for('texts.text', slug=text.slug) }}">
+    <a class="hover:underline" href="{{ url_for('texts.text', slug=text.slug) }}"
+        x-text="transliterateStr(data.text_title)">
       {{ text.title | devanagari }}
     </a>
     {% if not is_single_section_text %}
+    <span x-text="transliterateStr(data.section_title)">
       {{ section.title | devanagari }}
+    </span>
     {% endif %}
   </div>
   <div class="flex items-center">
@@ -179,6 +186,9 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 
 
 {% block main %}
+{# Serialize the data above so we can use it without a second network call. #}
+<script id="payload" type="application/json">{{ json_payload|safe }}</script>
+
 {# FIXME: unify <article> and these three <div>s into fewer elements. #}
 <article lang="sa" class="flex justify-around mb-32" x-data="reader" @click="onClick">
   <div id="text--content" class="md:text-xl mx-4 pb-16 lg:flex-1 md:max-w-xl"
@@ -188,17 +198,17 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
   {{ header() }}
 
   {# Server-side logic. This will be hidden once the application loads. #}
-  <div x-show="blocks.length === 0">
+  <div x-show="!data.blocks.length">
     {% for block_ in html_blocks %}
-    <s-block id="{{ block_.id }}">
+    <s-block data-slug="{{ block_.slug }}">
       <div class="mula">{{ block_.mula|safe }}</div>
     </s-block>
     {% endfor %}
   </div>
 
   {# Client-side logic. This is what most readers will see and use. #}
-  <template x-for="b in blocks">
-    <s-block :id="b.id">
+  <template x-for="b in data.blocks">
+    <s-block :data-slug="b.slug">
       <div :class="getBlockClasses(b)">
         <div x-show="showBlockMula(b)" :class="getMulaClasses" x-html="transliterateHTML(b.mula)"></div>
         <div x-show="b.showParse" x-html="transliterateHTML(b.parse)"></div>
@@ -214,9 +224,6 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
   {{ footer() }}
   {{ sidebar() }}
 </article>
-
-{# Serialize the data above so we can use it without a second network call. #}
-<script id="payload" type="application/json">{{ json_payload|safe }}</script>
 {% endblock %}
 
 {# Hide footer because we have a position:fixed nav "footer" already. #}
