@@ -6,11 +6,6 @@ def test_index(client):
     assert "Explore the library" in resp.text
 
 
-def test_about(client):
-    resp = client.get("/about/")
-    assert "<h1>About</h1>" in resp.text
-
-
 def test_donate(client):
     resp = client.get("/donate")
     assert "Donate today" in resp.text
