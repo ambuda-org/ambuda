@@ -12,6 +12,16 @@ COPY pyproject.toml ./
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get update && apt-get install -y nodejs swig
 
+# Old style with requirements
+# COPY requirements.txt ./
+# RUN pip install -r requirements.txt
+
+# Second stage start
+FROM python:3.9.13-slim-buster as deploy
+COPY --from=build /app/ /app/
+ENV PATH /app/env/bin/:$PATH
+WORKDIR /app/
+
 # Install Node dependencies.
 COPY ./package* ./
 RUN npm ci
@@ -20,19 +30,7 @@ RUN npm ci
 RUN python -m venv --copies /app/env
 RUN . /app/env/bin/activate && poetry install 
 
-# Old style with requirements
-# COPY requirements.txt ./
-# RUN pip install -r requirements.txt
-
-
 # Install code
 CMD ["./scripts/install_devserver_docker.sh"]
-
-
-# Second stage start
-FROM python:3.9.13-slim-buster as deploy
-COPY --from=build /app/ /app/
-ENV PATH /app/env/bin/:$PATH
-WORKDIR /app/
 
 CMD ["./scripts/run_devserver_docker.sh"]
