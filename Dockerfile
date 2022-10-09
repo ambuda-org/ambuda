@@ -6,7 +6,7 @@ ENV PATH /root/.poetry/bin:$PATH
 
 
 WORKDIR /app
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml ./
 
 # Install Node.
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
