@@ -10,7 +10,7 @@ COPY pyproject.toml ./
 
 # Install Node.
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get update && apt-get install -y nodejs swig freetype
+RUN apt-get update && apt-get install -y nodejs swig
 
 # Install Node dependencies.
 COPY ./package* ./
