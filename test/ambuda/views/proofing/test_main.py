@@ -31,6 +31,11 @@ def test_complete_guide(client):
     assert "Complete guide" in resp.text
 
 
+def test_editor_guide(client):
+    resp = client.get("/proofing/help/editor-guide")
+    assert "Editor" in resp.text
+
+
 def test_recent_changes(client):
     resp = client.get("/proofing/recent-changes")
     assert ">Recent changes<" in resp.text

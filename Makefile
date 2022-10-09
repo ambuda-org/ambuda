@@ -95,29 +95,29 @@ start-docker:
 celery: 
 	celery -A ambuda.tasks worker --loglevel=INFO
 
+# Check imports in Python code
 lint-isort:
 	@echo "Running Python isort to organize module imports"
 	@git ls-files '*.py' | xargs isort --check 2>&1
 
+# Check formatting in Python code
 lint-black:
 	@echo "Running Python Black to check formatting"
 	@git ls-files '*.py' | xargs black 2>&1
 
+# Check Python code complyies with PEP8
 lint-flake8:
 	@echo "Running Python flake8 to conform with PEP8"	
 	@git ls-files '*.py' | xargs flake8 --config=./.flake8 2>&1
 
-# Add isort when imports are organized better
+# Link checks on Python code
 py-lint: py-venv-check lint-black lint-isort lint-flake8
 	@echo "Python lint completed"
 
-# Lint our Python and JavaScript code.
-lint: js-lint py-lint
-	@echo 'Lint completed'
-
 # Lint our Python and JavaScript code. Fail on any issues.
-lint-check: js-lint
+lint-check: js-lint py-lint
 	black . --diff
+	@echo 'Lint completed'
 
 # Run all Python unit tests.
 test: py-venv-check
@@ -130,7 +130,7 @@ coverage:
 
 # Generate Ambuda's technical documentation.
 # After the command completes, open "docs/_build/index.html".
-docs:
+docs: py-venv-check
 	cd docs && make html
 
 

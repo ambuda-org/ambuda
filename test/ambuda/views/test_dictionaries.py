@@ -3,7 +3,7 @@ import pytest
 
 def test_index(client):
     resp = client.get("/tools/dictionaries/")
-    assert "Dictionary lookup</h1>" in resp.text
+    assert "Dictionary lookup" in resp.text
 
 
 def test_source__known(client):

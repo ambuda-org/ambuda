@@ -108,7 +108,7 @@ def _get_page_number(project_: db.Project, page_: db.Page) -> str:
             return title
 
     # We shouldn't reach this case, but if we do, reuse the page's slug.
-    return page.slug
+    return page_.slug
 
 
 @bp.route("/<project_slug>/<page_slug>/")
@@ -186,9 +186,6 @@ def edit_post(project_slug, page_slug):
     is_r0 = cur.status.name == SitePageStatus.R0
     image_number = cur.slug
     page_number = _get_page_number(ctx.project, cur)
-
-    has_edits = bool(cur.revisions)
-    is_r0 = cur.status.name == SitePageStatus.R0
 
     # Keep args in sync with `edit`. (We can't unify these functions easily
     # because one function requires login but the other doesn't. Helper

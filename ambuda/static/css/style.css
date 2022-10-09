@@ -4,7 +4,7 @@
 
 @layer components {
   ::selection {
-    @apply text-black bg-yellow-300;
+    @apply text-black bg-yellow-200;
   }
   body, html {
     /* For sticky footers. */
@@ -36,6 +36,7 @@
   }
   .btn-submit {
     @apply bg-brand text-white hover:bg-sky-500 transition;
+    @apply active:translate-y-0.5;
   }
   ::file-selector-button {
     @apply border-0 p-2 rounded bg-slate-600 text-white cursor-pointer mr-4 hover:bg-black;
@@ -86,19 +87,15 @@
     @apply underline;
   }
 
-  /* Prose context */
-  .prose a { @apply text-sky-700 underline hover:text-sky-900; }
-  .prose blockquote { @apply border-l pl-4; }
-  .prose dt { @apply font-bold; }
-  .prose dd { @apply mb-4; }
-  .prose dfn { @apply font-bold not-italic; }
-  .prose h1 { @apply font-bold text-2xl md:text-4xl my-4; }
-  .prose h2 { @apply font-bold text-xl md:text-2xl mt-8 mb-4; }
-  .prose h3 { @apply font-bold mt-8 mb-2; }
-  .prose kbd { @apply bg-slate-100 p-1; }
-  .prose p { @apply mb-4; }
-  .prose ol { @apply list-decimal pl-8 my-4; }
-  .prose ul { @apply list-disc pl-8 my-4; }
+  .prose {
+    @apply tw-prose tw-prose-slate;
+  }
+  .prose dt {
+    @apply uppercase text-xs font-bold text-slate-400 mb-1;
+  }
+  .prose dd {
+    @apply mb-4;
+  }
 
   /* Custom */
   .a-underline a {
@@ -112,13 +109,12 @@
   .dict-entry {max-width: 700px; margin: 0.5em 0;}
   .dict-entry .lex {font-weight: bold; }
   .dict-entry cite {
-    @apply bg-zinc-100;
-    @apply text-zinc-400;
+    @apply text-sm text-slate-400;
   }
 
   /* Vacaspatyam */
   .dict-entry q {
-    @apply text-zinc-400;
+    @apply text-slate-400;
   }
   .mw-entry [lang=sa] {
     @apply text-green-600;

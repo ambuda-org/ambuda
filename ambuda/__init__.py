@@ -140,6 +140,12 @@ def create_app(config_env: str):
     app.register_blueprint(site)
     app.register_blueprint(texts, url_prefix="/texts")
 
+    # Debug-only routes for local development.
+    if app.debug:
+        from ambuda.views.debug import bp as debug_bp
+
+        app.register_blueprint(debug_bp, url_prefix="/debug")
+
     # i18n string trimming
     app.jinja_env.policies["ext.i18n.trimmed"] = True
     # Template functions and filters
