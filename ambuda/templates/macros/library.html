@@ -1,5 +1,13 @@
 {% import 'macros/components.html' as components %}
 
+
+{% macro text_header(text) %}
+<h1 class="text-center font-bold text-5xl x-deva my-16">
+  {{ text.title | devanagari }}
+</h1>
+{% endmacro %}
+
+
 {% macro text_tabs(text, active) %}
 {% set routes = [
   ("contents",         _("Contents"),       url_for("texts.text", slug=text.slug)),

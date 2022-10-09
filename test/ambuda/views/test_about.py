@@ -1,6 +1,6 @@
 def test_index(client):
     resp = client.get("/about/")
-    assert "<h1>About</h1>" in resp.text
+    assert ">About</h1>" in resp.text
 
 
 def test_mission(client):

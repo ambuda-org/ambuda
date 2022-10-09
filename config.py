@@ -172,6 +172,9 @@ class DevelopmentConfig(BaseConfig):
 
     AMBUDA_ENVIRONMENT = DEVELOPMENT
     DEBUG = True
+    #: If set, automatically reload Flask templates (including imports) when
+    #: they change on disk.
+    TEMPLATES_AUTO_RELOAD = True
 
     #: Logger setup
     LOG_LEVEL = logging.INFO

@@ -191,7 +191,8 @@ lg:top-10 is to vertically center the sidebar when sticky scrolling.
 
 {# FIXME: unify <article> and these three <div>s into fewer elements. #}
 <article lang="sa" class="flex justify-around mb-32" x-data="reader" @click="onClick">
-  <div id="text--content" class="md:text-xl mx-4 pb-16 lg:flex-1 md:max-w-xl"
+  {# w-full to avoid ugly rendering for long text on mobile. #}
+  <div class="px-4 pb-16 w-full md:max-w-xl"
       :class="getParseLayoutClasses">
   <div :class="fontSize">
 
