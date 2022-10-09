@@ -1,0 +1,46 @@
+{% extends 'proofing/base-sidebar.html' %}
+{% import "macros/components.html" as mc %}
+{% import "macros/proofing.html" as m %}
+
+
+{% macro _number(n, label) %}
+<li class="flex-1">
+  <div class="font-bold text-3xl">{{ n }}</div>
+  <div class="text-slate-500 text-sm">{{ label }}</div>
+</li>
+{% endmacro %}
+
+
+{% block title %}{{ mc.title(_('Dashboard')) }}{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}
+
+
+{% block content %}
+{{ m.title_and_subtitle(
+    "Dashboard",
+    "A summary of our proofing work") }}
+
+<div class="prose">
+<h2>Revisions</h2>
+</div>
+
+<ul class="flex text-center justify-between">
+  {{ _number(num_revisions_30d, "Last 30 days") }}
+  {{ _number(num_revisions_7d, "Last 7 days") }}
+  {{ _number(num_revisions_1d, "Last 1 day") }}
+</ul>
+
+
+<div class="prose">
+<h2>Contributors</h2>
+</div>
+
+<ul class="flex text-center justify-between">
+  {{ _number(num_contributors_30d, "Last 30 days") }}
+  {{ _number(num_contributors_7d, "Last 7 days") }}
+  {{ _number(num_contributors_1d, "Last 1 day") }}
+</ul>
+
+{% endblock %}

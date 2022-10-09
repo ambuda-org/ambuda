@@ -7,14 +7,12 @@
 {% block title %}{{ project.title }} | Ambuda{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
-{{ components.flash_messages() }}
-
 <h1 class="font-bold text-3xl mb-4">{{ project.title }}</h1>
-{{ m.project_nav(project=project, active='summary', is_mod=current_user.is_moderator) }}
+{{ m.project_nav(project=project, active='summary') }}
 
 {% if project.description %}
 <div class="prose">

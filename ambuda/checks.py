@@ -134,6 +134,7 @@ def _check_lookup_tables(session) -> list[str]:
 def _check_bot_user(session) -> list[str]:
     """Check that the ambuda-bot user exists."""
     username = consts.BOT_USERNAME
+    # Assume bot user is active
     bot_user = session.query(db.User).filter_by(username=username).first()
     if bot_user:
         return []

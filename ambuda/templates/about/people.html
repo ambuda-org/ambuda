@@ -19,38 +19,70 @@
 <div class="prose">
 <h1>{{ _('People') }}</h1>
 
-<p>Ambuda is run by volunteers who are passionate about making Sanskrit
-accessible to all.</p>
+{% set proofers_url = url_for('proofing.recent_changes') %}
+{% set coders_url = 'https://github.com/ambuda-org/ambuda/graphs/contributors' %}
+{% set translators_url = 'https://transifex.com/ambuda/ambuda' %}
+
+<p>{% trans %}
+Ambuda receives contributions from dozens of volunteer <a href="{{ proofers_url }}">proofers</a>,
+<a href="{{ translators_url }}">translators</a>, and <a href="{{ coders_url }}">programmers</a>
+who are passionate about making Sanskrit accessible to all.
+{% endtrans %}</p>
+
+<p>{% trans %}
+Our core team builds and maintains the overall project:
+{% endtrans %}</p>
 </div>
 
 
 {# Bios are in alphabetical order, which is simple and non-political. #}
 
-{% call bio("Arun Prasad", "Founder and Project Lead") %}
-<p>Arun is the creator of <a href="https://learnsanskrit.org">learnsanskrit.org</a>
-and the Sanskrit short story project <a href="https://en.amarahasa.com">Amarahasa</a>.
+{% call bio(_("Arun Prasad"), _("Founder and Project Lead")) %}
+{% set lso = "https://learnsanskrit.org" %}
+{% set amarahasa = "https://en.amarahasa.com" %}
+<p>{% trans %}
+Arun is the creator of <a href="{{ lso }}">learnsanskrit.org</a> and the
+Sanskrit short story project <a href="{{ amarahasa }}">Amarahasa</a>.
 Broadly, his work explores how software and digital tools can make Sanskrit
 literature radically accessible. Arun has an MS in Computer Science and a minor
 in Classics with a focus on Homeric Greek, both from Stanford University.
 By profession, he is a former Google Research engineer that works in climate
-fintech.</p>
+fintech.
+{% endtrans %}</p>
 {% endcall %}
 
 
-{% call bio("Ashwin Ramaswami", "Core Engineering") %}
-<p>Ashwin has worked on a variety of projects around open source software
+{% call bio(_("Ashwin Ramaswami"), _("Core Engineering")) %}
+<p>{% trans %}
+Ashwin has worked on a variety of projects around open source software
 development, digital humanities, cloud infrastructure and architecture, and
 cybersecurity. His interests in Sanskrit include Vedic texts and Vedantic
 commentaries. Ashwin holds a B.S. in Computer Science in Stanford University
 and is currently pursuing a J.D. degree at Georgetown University Law Center,
-where he works on technology law and policy.</p>
+where he works on technology law and policy.
+{% endtrans %}</p>
+{% endcall %}
+
+
+{% set sf = "http://www.saraswatifilms.org/" %}
+{% call bio(_("Kishore Chitrapu"), _("Core Engineering")) %}
+<p>{% trans %}
+Kishore contributes to <a href="{{ sf }}">Saraswati Films</a> and related
+projects. He is interested in learning methods and building free tools for
+sādhanā and sustainable living. He enjoys learning from Vedic wisdom.
+Professionally, he works as a Director of Engineering and is currently building
+finance data platforms. Finally, Kishore enjoys any time with his family and
+friends and is grateful for their support.
+{% endtrans %}</p>
 {% endcall %}
 
 
 {% set schmidt = "https://schmidtsciencefellows.org/fellow/suhas-mahesh/" %}
 {% set rhodes = "https://www.rhodeshouse.ox.ac.uk/scholars/rhodes-scholars-class-of-2016/suhas-mahesh/" %}
-{% call bio("Suhas Mahesh", "Text Curation and Sourcing") %}
-<p>Suhas Mahesh is a <a href="{{ schmidt }}">Schmidt Science Fellow</a> at the
+
+{% call bio(_("Suhas Mahesh"), _("Text Curation and Sourcing")) %}
+<p>{% trans %}
+Suhas Mahesh is a <a href="{{ schmidt }}">Schmidt Science Fellow</a> at the
 University of Toronto, where his research explores building bespoke materials
 for a low-carbon future. Suhas has a PhD in physics from the University of
 Oxford, where he was a <a href="{{ rhodes }}">Rhodes scholar</a>. Suhas is a
@@ -58,7 +90,8 @@ expert on Sanskrit and Prakrit literature, and his current projects include an
 anthology of Sanskrit and Prakrit love poetry in translation (HarperCollins
 2023), and a translation of the <cite>Nilakantha-vijaya-champu</cite>, an
 ornate retelling of the myth of the churning of the ocean (Murty Classical
-Library of India).</p>
+Library of India).
+{% endtrans %}</p>
 {% endcall %}
 
 

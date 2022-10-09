@@ -1,3 +1,89 @@
+{% set sources = {
+  "en": [
+    ("apte", _("Apte (1890)")),
+    ("mw", _('Monier-Williams (1899)')),
+    ("shabdasagara", _('Shabdasagara (1900)')),
+  ],
+  "sa": [
+    ("vacaspatyam", _('Vācaspatyam (1873)')),
+    ("shabdakalpadruma", _('Śabdakalpadrumaḥ (1886)')),
+  ],
+  "koshas": [
+    ("amara", _("Amarakosha")),
+  ],
+  "hi": [
+    ("apte-sh", _("Apte Sanskrit-Hindi Kosh (1966)")),
+  ],
+  "kn": [
+    ("shabdartha-kaustubha", _('Shabdarthakaustubha')),
+  ],
+} %}
+
+
 {% macro dict_target() %}
-<ul id="dict--response"></ul>
+<div id="dict--response"></div>
+{% endmacro %}
+
+
+{% macro _options(sourcces) %}
+{% for slug, title in sources %}
+
+{% endfor %}
+{% endmacro %}
+
+
+{% macro _checkboxes(sources, x_model='sources') %}
+{% for slug, title in sources %}
+  {% set field_name = "source-" + slug %}
+  <div>
+    <input type="checkbox" id="{{ field_name }}" name="{{ field_name }}"
+        value="{{ slug }}" x-model="{{ x_model }}">
+    <label for="{{ field_name }}">{{ title }}</label>
+  </div>
+{% endfor %}
+{% endmacro %}
+
+
+{# Non-JS source selection widget. #}
+{% macro source_single_select() %}
+<optgroup label="{{ _('Sanskrit-English') }}">
+  {{ _options(sources['en']) }}
+</optgroup>
+<optgroup label="{{ _('Sanskrit-Sanskrit') }}">
+  {{ _options(sources['sa']) }}
+</optgroup>
+<optgroup label="{{ _('Koshas') }}">
+  {{ _options(sources['koshas']) }}
+</optgroup>
+<optgroup label="{{ _('Sanskrit-Hindi') }}">
+  {{ _options(sources['hi']) }}
+</optgroup>
+<optgroup label="{{ _('Sanskrit-Kannada') }}">
+  {{ _options(sources['kn']) }}
+</optgroup>
+{% endmacro %}
+
+
+{# JS-only source selection widget. #}
+{% macro source_multiselect(x_model = 'sources') %}
+<fieldset>
+  <legend class="font-bold my-2">{{ _('Sanskrit-English') }}</legend>
+  {{ _checkboxes(sources['en'], x_model) }}
+</fieldset>
+<fieldset>
+  <legend class="font-bold my-2">{{ _('Sanskrit-Sanskrit') }}</legend>
+  {{ _checkboxes(sources['sa'], x_model) }}
+</fieldset>
+<fieldset>
+  <legend class="font-bold my-2">{{ _('Koshas') }}</legend>
+  {{ _checkboxes(sources['koshas'], x_model) }}
+</fieldset>
+<fieldset>
+  <legend class="font-bold my-2">{{ _('Sanskrit-Hindi') }}</legend>
+  {{ _checkboxes(sources['hi'], x_model) }}
+</fieldset>
+<fieldset>
+  <legend class="font-bold my-2">{{ _('Sanskrit-Kannada') }}</legend>
+  {{ _checkboxes(sources['kn'], x_model) }}
+</fieldset>
 {% endmacro %}

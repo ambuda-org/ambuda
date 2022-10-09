@@ -31,6 +31,10 @@ class AmbudaAnonymousUser(AnonymousUserMixin):
     def is_admin(self) -> bool:
         return False
 
+    @property
+    def is_ok(self) -> bool:
+        return True
+
 
 class AmbudaUserMixin(UserMixin):
     def has_role(self, role: SiteRole) -> bool:
@@ -59,3 +63,7 @@ class AmbudaUserMixin(UserMixin):
     @property
     def is_admin(self) -> bool:
         return self.has_role(SiteRole.ADMIN)
+
+    @property
+    def is_ok(self) -> bool:
+        return not (self.is_deleted or self.is_banned)

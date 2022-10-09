@@ -43,3 +43,15 @@ test('transliterateElement transliterates Sanskrit fields', () => {
   </div>
   `;
 });
+
+test('transliterateHTMLString transliterates Devanagari to HK', () => {
+  const text = '<div>संस्कृतम्</div>';
+  const output = core.transliterateHTMLString(text, 'hk');
+  expect(output).toBe('<div>संस्कृतम्:hk</div>');
+});
+
+test('transliterateHTMLString is a no-op if transliterating to Devanagari', () => {
+  const text = '<div>संस्कृतम्</div>';
+  const output = core.transliterateHTMLString(text, 'devanagari');
+  expect(output).toBe(text);
+});

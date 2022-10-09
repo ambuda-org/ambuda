@@ -20,11 +20,6 @@ def values():
     return render_template("about/values.html")
 
 
-@bp.route("/roadmap")
-def roadmap():
-    return render_template("about/roadmap.html")
-
-
 @bp.route("/people")
 def people():
     return render_template("about/people.html")

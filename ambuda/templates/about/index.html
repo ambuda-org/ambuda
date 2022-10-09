@@ -15,10 +15,13 @@
 {% block title %}{{ m.title(_('About')) }}{% endblock %}
 
 
+{% block header %}
+{{ m.basic_header(_('About')) }}
+{% endblock %}
+
+
 {% block content %}
 <div class="prose">
-<h1>{{ _('About') }}</h1>
-
 <p>{% trans %}
 Ambuda's mission is to make the Sanskrit tradition radically accessible. Formal
 work on Ambuda began on 1 June 2022, but our team of volunteers has been
@@ -36,7 +39,6 @@ directly</a>.
 <ul>
   {{ link('about.mission', _('Mission')) }}
   {{ link('about.values', _('Values')) }}
-  {{ link('about.roadmap', _('Roadmap')) }}
   {{ link('about.people', _('People')) }}
   {{ link('about.code_and_data', _('Code and Data')) }}
   {{ link('about.name', _('Our Name')) }}

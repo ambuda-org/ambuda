@@ -7,6 +7,19 @@ from ambuda.consts import BOT_USERNAME, TEXT_CATEGORIES
 from ambuda.queries import get_engine, get_session
 
 
+def _add_dictionaries(session):
+    """Add dummy dictionary data."""
+    d1 = db.Dictionary(slug="dict-1", title="Test Dictionary 1")
+    d2 = db.Dictionary(slug="dict-2", title="Test Dictionary 2")
+    session.add_all([d1, d2])
+    session.flush()
+
+    e1 = db.DictionaryEntry(dictionary_id=d1.id, key="agni", value="<div>fire</div>")
+    e2 = db.DictionaryEntry(dictionary_id=d2.id, key="agni", value="<div>ignis</div>")
+    session.add_all([e1, e2])
+    session.flush()
+
+
 def initialize_test_db():
     engine = get_engine()
     assert ":memory:" in engine.url
@@ -45,15 +58,7 @@ def initialize_test_db():
     )
     session.add(parse)
 
-    # Dictionaries
-    dictionary = db.Dictionary(slug="test-dict", title="Test Dictionary")
-    session.add(dictionary)
-    session.flush()
-
-    dictionary_entry = db.DictionaryEntry(
-        dictionary_id=dictionary.id, key="agni", value="<div>fire</div>"
-    )
-    session.add(dictionary_entry)
+    _add_dictionaries(session)
 
     # Bot
     bot = db.User(username=BOT_USERNAME, email="ambuda-bot@ambuda.org")
@@ -79,6 +84,19 @@ def initialize_test_db():
     session.add(admin)
     session.flush()
 
+    # Deleted and Banned
+    deleted_admin = db.User(username="sandrocottus-deleted", email="cgm@ambuda.org")
+    deleted_admin.set_password("maurya")
+    deleted_admin.set_is_deleted(True)
+
+    banned = db.User(username="sikander-banned", email="alex@ambuda.org")
+    banned.set_password("onesicritus")
+    banned.set_is_banned(True)
+
+    session.add(deleted_admin)
+    session.add(banned)
+    session.flush()
+
     # Roles
     p1_role = db.Role(name=db.SiteRole.P1.value)
     p2_role = db.Role(name=db.SiteRole.P2.value)
@@ -93,9 +111,13 @@ def initialize_test_db():
     rama.roles = [p1_role, p2_role]
     moderator.roles = [p1_role, p2_role, moderator_role]
     admin.roles = [p1_role, p2_role, admin_role]
+    deleted_admin.roles = [p1_role, p2_role, admin_role]
+    banned.roles = [p1_role]
     session.add(rama)
     session.add(moderator)
     session.add(admin)
+    session.add(deleted_admin)
+    session.add(banned)
     session.flush()
 
     # Blog
@@ -178,4 +200,18 @@ def moderator_client(flask_app):
 def admin_client(flask_app):
     session = get_session()
     user = session.query(db.User).filter_by(username="u-admin").first()
+    return flask_app.test_client(user=user)
+
+
+@pytest.fixture()
+def deleted_client(flask_app):
+    session = get_session()
+    user = session.query(db.User).filter_by(username="sandrocottus-deleted").first()
+    return flask_app.test_client(user=user)
+
+
+@pytest.fixture()
+def banned_client(flask_app):
+    session = get_session()
+    user = session.query(db.User).filter_by(username="sikander-banned").first()
     return flask_app.test_client(user=user)

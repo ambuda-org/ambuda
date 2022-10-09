@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% import "macros/components.html" as mc %}
+{% import "macros/forms.html" as mf %}
+{% import "macros/proofing.html" as mp %}
+
+
+{% macro category(text) %}
+<div class="p-8">
+  <h1 class="font-bold text-6xl">{{ text }}</h1>
+</div>
+{% endmacro %}
+
+{% macro items() %}
+<div class="bg-white m-8 border">
+  {{ caller() }}
+</div>
+{% endmacro %}
+
+
+{% block body %}
+<body class="bg-slate-300">
+
+{{ category('Default styles') }}
+{% call items() %}
+<p>This is <mark>mark</mark>, <ins>insertion</ins>, <del>deletion</del>.</p>
+{% endcall %}
+
+
+{{ category('Includes') }}
+{% call items() %}
+  {% include "include/header.html" %}
+  {% include "include/footer.html" %}
+{% endcall %}
+
+{{ category('Prose') }}
+{% call items() %}
+<div class="prose">
+  <h1>Heading 1</h1>
+  <h2>Heading 2</h2>
+  <h3>Heading 3</h3>
+  <p>Paragraph.</p>
+  <p>Paragraph.</p>
+
+  <p>This is <strong>strong</strong>, <em>emphasis</em>, <kbd>keyboard</kbd>,
+  <dfn>definition</dfn>, <a href="#">anchor</a>.</p>
+
+  <blockquote>
+    <p>Blockquote.</p>
+  </blockquote>
+
+  <p>Ordered list:</p>
+
+  <ol>
+      <li>Item 1</li>
+      <li>Item 2</li>
+      <li>Item 3</li>
+  </ol>
+
+  <p>Unordered list:</p>
+
+  <ul>
+      <li>Item 1</li>
+      <li>Item 2</li>
+      <li>Item 3</li>
+  </ul>
+
+</div>
+{% endcall %}
+
+
+{{ category('Components') }}
+{% call items() %}
+  {% call mc.p_warning() %}Warning paragraph{% endcall %}
+  {% call mc.div_warning() %}Warning box{% endcall %}
+  {% call mc.p_note() %}Note paragraph{% endcall %}
+  {% call mc.div_note() %}Note box{% endcall %}
+
+  {{ mc.tabs([('a', 'Active', ''), ('b', 'Tab 1', ''), ('c', 'Tab 2', '')], 'a') }}
+{% endcall %}
+
+{{ category('Forms') }}
+{% call items() %}
+<form>
+  <button class="btn btn-basic">Basic button</button>
+  {{ mf.submit('Submit button') }}
+  {{ mf.auth_submit('Auth form submit button') }}
+</form>
+{% endcall %}
+
+
+{{ category('Proofing') }}
+{% call items() %}
+{{ mp.title_and_subtitle('Title', 'Subtitle') }}
+{% endcall %}
+
+</body>
+{% endblock %}

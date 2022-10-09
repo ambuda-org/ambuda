@@ -129,6 +129,7 @@ class ResetPasswordFromTokenForm(FlaskForm):
 @bp.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
+        logout_if_not_ok()
         return redirect(url_for("site.index"))
 
     form = SignupForm()
@@ -152,6 +153,7 @@ def register():
 @bp.route("/sign-in", methods=["GET", "POST"])
 def sign_in():
     if current_user.is_authenticated:
+        logout_if_not_ok()
         return redirect(url_for("site.index"))
 
     form = SignInForm()
@@ -163,6 +165,13 @@ def sign_in():
         else:
             flash("Invalid username or password.")
     return render_template("auth/sign-in.html", form=form)
+
+
+def logout_if_not_ok():
+    # Check if user is now deleted or banned
+    user = q.user(username=current_user.username)
+    if user and not user.is_ok:
+        logout_user()
 
 
 @bp.route("/sign-out")

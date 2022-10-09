@@ -1,6 +1,6 @@
 def test_index(client):
     resp = client.get("/about/")
-    assert "<h1>About</h1>" in resp.text
+    assert ">About</h1>" in resp.text
 
 
 def test_mission(client):
@@ -11,11 +11,6 @@ def test_mission(client):
 def test_values(client):
     resp = client.get("/about/values")
     assert "<h1>Values</h1>" in resp.text
-
-
-def test_roadmap(client):
-    resp = client.get("/about/roadmap")
-    assert "<h1>Roadmap</h1>" in resp.text
 
 
 def test_people(client):

@@ -3,13 +3,13 @@
 
 {# Small warning box, e.g. for form errors. #}
 {% macro p_warning() %}
-<p class="p-2 bg-red-100 text-red-900 rounded my-4">
+<p class="p-2 bg-red-100 text-red-900 rounded my-4 a-underline">
   {{ caller() }}
 </p>
 {% endmacro %}
 
 
-{# Small warning box, e.g. for form errors. #}
+{# Large warning box, e.g. for form errors. #}
 {% macro div_warning() %}
 <div class="p-2 md:p-4 bg-red-100 border border-red-200 text-red-900 rounded my-4">
   {{ caller() }}
@@ -17,9 +17,17 @@
 {% endmacro %}
 
 
+{# Small notes box, e.g. for form info messages. #}
+{% macro p_note() %}
+<p class="p-2 bg-yellow-200 text-yellow-900 rounded my-4">
+  {{ caller() }}
+</p>
+{% endmacro %}
+
+
 {# Large notes box, e.g. for form info messages. #}
 {% macro div_note() %}
-<div class="p-2 md:p-4 bg-yellow-100 border border-yellow-300 rounded my-4">
+<div class="p-2 md:p-4 bg-yellow-200 text-yellow-900 rounded my-4">
   {{ caller() }}
 </div>
 {% endmacro %}
@@ -47,13 +55,27 @@
   <ul class="flex a-hover-underline">
     {% for name, label, url in urls %}
     {% if name == active %}
-    <li class="p-4 font-bold p-4 border-b-2 border-black">{{ label }}</li>
+    <li class="p-4 font-semibold border-b-2 border-black">{{ label }}</li>
     {% else %}
-    <li class="border-b-2 border-transparent text-slate-700">
+    <li class="font-semibold border-b-2 border-transparent text-slate-400">
       <a class="block p-4" href="{{ url }}">{{ label }}</a>
     </li>
     {% endif %}
     {% endfor %}
   </ul>
 </nav>
+{% endmacro %}
+
+
+{# A basic header. #}
+{% macro basic_header(title) %}
+<div class="text-sky-900 bg-slate-50 border-b border-slate-200 mb-4">
+  <div class="border-slate-300">
+    {% include "include/header.html" %}
+  </div>
+
+  <header class="text-center py-16">
+    <h1 class="font-bold text-5xl">{{ title }}</h1>
+  </header>
+</div>
 {% endmacro %}

@@ -6,13 +6,13 @@
 {% block title %}User: {{ user.username }} | Ambuda{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('talk', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
 {% set url = url_for('proofing.user.summary', username=user.username) %}
 {{ m.nested_header('Admin', user.username, url) }}
-{{ m.user_tabs(user=user, active='admin', is_mod=current_user.is_moderator) }}
+{{ m.user_tabs(user=user, active='admin') }}
 
 <p class="my-4">Set user permissions:</p>
 

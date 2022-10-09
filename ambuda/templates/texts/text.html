@@ -1,6 +1,7 @@
 {% extends 'base-text.html' %}
 {% import 'macros/library.html' as m %}
 
+
 {% macro section_grid(sections) %}
 <ul class="grid grid-cols-5 md:grid-cols-10 gap-4 my-8 text-center">
 {% for s in sections %}
@@ -16,10 +17,7 @@
 {% block title %}{{ text.title | devanagari }} {{ _('| Ambuda') }}{% endblock %}
 
 {% block content %}
-<h1 class="text-center font-bold text-4xl x-deva">
-    {{ text.title | devanagari }}
-</h1>
-
+{{ m.text_header(text) }}
 {{ m.text_tabs(text=text, active='contents') }}
 
 {% if text.sections|length == 1 %}
