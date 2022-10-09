@@ -8,10 +8,6 @@ ENV PATH /root/.poetry/bin:$PATH
 WORKDIR /app
 COPY pyproject.toml ./
 
-# Install Node.
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get update && apt-get install -y nodejs swig
-
 # Old style with requirements
 # COPY requirements.txt ./
 # RUN pip install -r requirements.txt
@@ -21,6 +17,10 @@ FROM python:3.9.13-slim-buster as deploy
 COPY --from=build /app/ /app/
 ENV PATH /app/env/bin/:$PATH
 WORKDIR /app/
+
+# Install Node.
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
+RUN apt-get update && apt-get install -y nodejs swig
 
 # Install Node dependencies.
 COPY ./package* ./
