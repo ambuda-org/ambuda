@@ -31,6 +31,14 @@ install-python:
 # Fetch and build all i18n files.
 install-i18n: py-venv-check
 	python -m ambuda.scripts.fetch_i18n_files
+	# Force a build with `-f`. Transifex files have a `fuzzy` annotation, so if
+	# we build without this flag, then all of the files will be skipped with:
+	#
+	#     "catalog <file>.po" is marked as fuzzy, skipping"
+	#
+	# There's probably a nicer workaround for this, but `-f` works and unblocks
+	# this command for now.
+	pybabel compile -d ambuda/translations -f
 
 # Upgrade an existing setup.
 upgrade:
@@ -38,6 +46,13 @@ upgrade:
 	. env/bin/activate; make install-i18n
 	. env/bin/activate; alembic upgrade head
 	. env/bin/activate; python -m ambuda.seed.lookup
+
+# Seed the database with a minimal dataset for CI. We fetch data only if it is
+# hosted on GitHub. Other resources are less predictable.
+db-seed-ci: py-venv-check
+	python -m ambuda.seed.lookup
+	python -m ambuda.seed.texts.gretil
+	python -m ambuda.seed.dcs
 
 # Seed the database with just enough data for the devserver to be interesting.
 db-seed-basic: py-venv-check
@@ -55,7 +70,9 @@ db-seed-all: py-venv-check
 	python -m ambuda.seed.texts.ramayana
 	python -m ambuda.seed.texts.mahabharata
 	python -m ambuda.seed.dcs
+	python -m ambuda.seed.dictionaries.amarakosha
 	python -m ambuda.seed.dictionaries.apte
+	python -m ambuda.seed.dictionaries.apte_sanskrit_hindi
 	python -m ambuda.seed.dictionaries.monier
 	python -m ambuda.seed.dictionaries.shabdakalpadruma
 	python -m ambuda.seed.dictionaries.shabdartha_kaustubha
@@ -78,29 +95,29 @@ start-docker:
 celery: 
 	celery -A ambuda.tasks worker --loglevel=INFO
 
+# Check imports in Python code
 lint-isort:
 	@echo "Running Python isort to organize module imports"
 	@git ls-files '*.py' | xargs isort --check 2>&1
 
+# Check formatting in Python code
 lint-black:
 	@echo "Running Python Black to check formatting"
 	@git ls-files '*.py' | xargs black 2>&1
 
+# Check Python code complyies with PEP8
 lint-flake8:
 	@echo "Running Python flake8 to conform with PEP8"	
 	@git ls-files '*.py' | xargs flake8 --config=./.flake8 2>&1
 
-# Add isort when imports are organized better
+# Link checks on Python code
 py-lint: py-venv-check lint-black lint-isort lint-flake8
 	@echo "Python lint completed"
 
-# Lint our Python and JavaScript code.
-lint: js-lint py-lint
-	@echo 'Lint completed'
-
 # Lint our Python and JavaScript code. Fail on any issues.
-lint-check: js-lint
+lint-check: js-lint py-lint
 	black . --diff
+	@echo 'Lint completed'
 
 # Run all Python unit tests.
 test: py-venv-check
@@ -113,7 +130,7 @@ coverage:
 
 # Generate Ambuda's technical documentation.
 # After the command completes, open "docs/_build/index.html".
-docs:
+docs: py-venv-check
 	cd docs && make html
 
 

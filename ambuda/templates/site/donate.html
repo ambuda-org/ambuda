@@ -1,0 +1,20 @@
+{% extends 'site/base-donate.html' %}
+
+
+{% block header %}
+<h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold">{{ _('Support the future of Sanskrit') }}</h1>
+<div class="mx-auto text-lg max-w-xl">
+  <p class="my-4">{{ _('Ambuda is a breakthrough digital library of Sanskrit literature.') }}</p>
+  <p class="my-4">{{ _('Donate today and help us make Sanskrit accessible to all.') }}</p>
+  <p class="italic my-4 text-sm">{{ _('Ambuda is run entirely by volunteers for the public benefit.') }}</p>
+</div>
+{% endblock %}
+
+
+{% block post_form %}
+{% set sponsor_url = url_for('site.sponsor') %}
+<p class="text-center">
+  {{ _('You can also support our work by sponsoring a book.') }}
+  <a class="underline" href="{{ sponsor_url }}">{{ _('Click here to learn more.') }}</a>
+</p>
+{% endblock %}

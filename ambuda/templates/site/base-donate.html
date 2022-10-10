@@ -1,0 +1,31 @@
+{% extends 'header-main-footer.html' %}
+{% import "macros/components.html" as m %}
+
+
+{% block title %}{{ m.title(_('Donate')) }}{% endblock %}
+
+
+{% block body %}
+<body class="bg-slate-100 text-sky-900">
+
+<nav class="md:flex justify-between items-center a-hover-underline mb-4">
+  <a class="p-4 font-bold text-lg" href="{{ url_for('site.index') }}">{{ _('Ambuda') }}</a>
+</nav>
+
+<header class="max-w-4xl mx-auto mt-16 mb-4 p-4 text-center">
+  {% block header %}{% endblock %}
+</header>
+
+<main class="pb-24">
+  {# The Donorbox widget renders off-center by default. To fix:
+      1. Decrease the iframe width to 425px.
+      2. Add `class="mx-auto"` to the iframe.
+  #}
+  <script src="https://donorbox.org/widget.js" paypalExpress="false"></script>
+  <iframe src="https://donorbox.org/embed/ambuda?default_interval=o" name="donorbox" allowpaymentrequest="allowpaymentrequest" seamless="seamless" frameborder="0" scrolling="no" height="900px" width="100%" style="max-width: 425px; min-width: 250px; max-height:none!important" class="mx-auto"></iframe>
+
+  {% block post_form %}{% endblock %}
+</main>
+
+</body>
+{% endblock %}

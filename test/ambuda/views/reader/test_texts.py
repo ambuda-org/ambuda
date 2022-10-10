@@ -7,7 +7,7 @@ def d(s) -> str:
 
 def test_index(client):
     resp = client.get("/texts/")
-    assert "<h1>Texts</h1>" in resp.text
+    assert ">Texts</h1>" in resp.text
 
 
 def test_text(client):

@@ -22,6 +22,7 @@ from ambuda import checks, filters, queries
 from ambuda.consts import LOCALES
 from ambuda.mail import mailer
 from ambuda.utils import assets
+from ambuda.utils.json_serde import AmbudaJSONEncoder
 from ambuda.utils.url_converters import ListConverter
 from ambuda.views.about import bp as about
 from ambuda.views.api import bp as api
@@ -139,6 +140,12 @@ def create_app(config_env: str):
     app.register_blueprint(site)
     app.register_blueprint(texts, url_prefix="/texts")
 
+    # Debug-only routes for local development.
+    if app.debug:
+        from ambuda.views.debug import bp as debug_bp
+
+        app.register_blueprint(debug_bp, url_prefix="/debug")
+
     # i18n string trimming
     app.jinja_env.policies["ext.i18n.trimmed"] = True
     # Template functions and filters
@@ -160,4 +167,5 @@ def create_app(config_env: str):
         }
     )
 
+    app.json_encoder = AmbudaJSONEncoder
     return app

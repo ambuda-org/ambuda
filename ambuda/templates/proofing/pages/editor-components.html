@@ -1,3 +1,14 @@
+        {#
+      <button
+          type="button"
+          class="btn bg-sky-700 text-white m-2 hover:bg-sky-900"
+          @click="runOCR"
+          :disabled="isRunningOCR"
+          x-text="isRunningOCR ? '{{ _("Running OCR ...") }}' : '{{ _("Run OCR") }}'">
+        {{ _("Run OCR") }}
+      </button>
+      #}
+
 {# Components of the page editor.
 
 We use these macros both to keep `pages/edit` readable and so that we can embed
@@ -37,26 +48,37 @@ these components in our help text and documentation.
 
 
 {# Page information and navigation options. #}
-{% macro navigation_bar(project, cur, prev, next) %}
+{% macro navigation_bar(ctx, page_number, image_number, num_images) %}
+{% set project = ctx.project %}
 <header class="py-2 a-hover-underline">
   <div class="flex justify-between items-center">
+
   <h1 class="text pr-4">
-    <a class="text-black font-bold"
+    <a class="text-black font-bold text-xl"
         href="{{ url_for("proofing.project.summary", slug=project.slug) }}">
-       {{ project.title }}</a>
-    / {{ cur.slug }}
+      {{ project.title }}</a> / {{ image_number }}</a>
+    <span class="block text-sm text-slate-500">
+      Image {{ image_number }} of {{ num_images }}
+      {% if image_title != page_number %}
+        (Page {{ page_number }})
+      {% endif %}
+    </span>
   </h1>
 
-  {% set history_url = url_for("proofing.page.history", project_slug=project.slug, page_slug=cur.slug) %}
+  <div>
+  {% set history_url = url_for("proofing.page.history", project_slug=project.slug, page_slug=ctx.cur.slug) %}
   <nav class="flex text-slate-700 text-md">
     <a class="block p-2" href="{{ history_url }}">{{ _('History') }}</a>
-    {% set prev_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=prev.slug) %}
-    {% set next_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=next.slug) %}
+    {% set prev_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=ctx.prev.slug) %}
+    {% set next_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=ctx.next.slug) %}
     <a class="block p-2" href="{{ prev_url }}">&larr;</a>
     <a class="block p-2" href="{{ next_url }}">&rarr;</a>
   </nav>
+    <div class="text-right">
+    {{ status_badge(ctx.cur.status.name) }}
+    </div>
   </div>
-  {{ status_badge(cur.status.name) }}
+  </div>
 </header>
 {% endmacro %}
 
@@ -121,6 +143,23 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
         {{ _dropdown_item('markAsUnclear', _('Mark as unclear')) }}
         {{ _dropdown_item('markAsFootnoteNumber', _('Mark as footnote number')) }}
         {{ _dropdown_item('replaceColonVisarga', _(': (colon) → ः (visarga)')) }}        
+      </ul>
+    </div>
+  </div>
+
+  <div x-data="{open: false}" class="relative">
+    <button class="{{ button_css }}"
+       @click.prevent="open=!open"
+       @click.outside="open=false">{{ _('Tools') }}</button>
+    <div x-show="open" class="dropdown-pane w-48">
+      <ul class="text-sm" @click.prevent="open=false">
+        <li>
+          <button class="dropdown-item"
+                  @click.prevent="runOCR"
+                  :disabled="isRunningOCR"
+                  x-text="isRunningOCR ? '{{ _("Running OCR ...") }}' : '{{ _("Run OCR") }}'">
+              </button>
+        </li>
       </ul>
     </div>
   </div>
@@ -192,17 +231,6 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
 {% macro text_box(data) %}
 <div class="flex flex-col flex-1 border border-r-slate-400">
   <div class="bg-slate-200 flex justify-between">
-    <div>
-      <button
-          type="button"
-          class="btn bg-sky-700 text-white m-2 hover:bg-sky-900"
-          @click="runOCR"
-          :disabled="isRunningOCR"
-          {# i18n: When clicked, run OCR #}
-          x-text="isRunningOCR ? '{{ _("Running OCR ...") }}' : '{{ _("Run OCR") }}'">
-        {{ _("Run OCR") }}
-      </button>
-    </div>
     <div>
       {{ alpine_button("A<sup>+</sup>", "increaseTextSize") }}
       {{ alpine_button("A<sup>-</sup>", "decreaseTextSize") }}

@@ -3,7 +3,7 @@
 
 
 {% macro text_list(key, title) %}
-<h2 class="font-bold text-2xl py-2 mt-8 mb-4 border-b">{{ title }}</h2>
+<h2 class="font-bold text-2xl pb-2 mt-12 mb-4 border-b border-slate-200 text-slate-400">{{ title }}</h2>
 
 <ul>
 {% for slug in categories[key] if slug in texts %}
@@ -25,14 +25,18 @@ analysis and integrated dictionary support for a variety of Sanskrit works.
 {%- endblock %}
 
 
-{% block content %}
-<div class="prose">
-  <h1>{{ _('Texts') }}</h1>
-</div>
+{% block header %}
+{{ m.basic_header(_('Texts')) }}
+{% endblock %}
 
+
+{% block main %}
+
+<article class="p-4 md:p-0 max-w-xl mx-auto md:my-24 md:mb-36">
 {{ text_list('upanishat', _('Upanishads')) }}
 {{ text_list('itihasa', _('Itihasas')) }}
 {{ text_list('kavya', _('Kavyas')) }}
 {{ text_list('anye', _('Other works')) }}
 
+</article>
 {% endblock %}

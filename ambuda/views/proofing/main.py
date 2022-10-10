@@ -17,7 +17,7 @@ from ambuda import database as db
 from ambuda import queries as q
 from ambuda.enums import SitePageStatus
 from ambuda.tasks import projects as project_tasks
-from ambuda.views.proofing.decorators import p2_required, moderator_required
+from ambuda.views.proofing.decorators import moderator_required, p2_required
 
 bp = Blueprint("proofing", __name__)
 

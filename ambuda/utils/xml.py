@@ -85,14 +85,6 @@ def _rename(mapping: dict[str, str]) -> Callable:
     return inner
 
 
-@dataclass
-class Block:
-    #: The block's HTML id.
-    id: str
-    #: HTML content for the given block.
-    html: str
-
-
 def _delete(xml: ET.Element):
     xml.clear()
     xml.tag = None
@@ -223,12 +215,25 @@ apte_cologne_xml = {
     # TODO: keep attrs
     "span": elem("span"),
 }
+
 vacaspatyam_xml = {
     "body": elem("li", {"class": "dict-entry"}),
     "s": sanskrit_text,
     "lb": elem("div", {"class": "h-2"}, " "),
     "b": elem("b"),
 }
+
+amarakosha_xml = {
+    "body": elem("li", {"class": "dict-entry"}),
+    "lex": elem("span", {"class": "lex"}),
+    "s": sanskrit_text,
+    "lb": elem("div", {"class": "h-2"}, " "),
+    "quote": elem("blockquote", {"class": "ml-4"}),
+    "lg": elem("p"),
+    "l": elem("span", {"class": "block"}),
+}
+
+
 #: Transforms for Apte's Sanskrit-Hindi dictionary from the University of
 #: Hyderabad.
 apte_uoh_xml = {
@@ -266,7 +271,6 @@ tei_header_xml = {
     "licence": elem("p"),
     "ref": Rule("a", _rename({"target": "href"})),
 }
-
 
 # Defined against the TEI spec
 tei_xml = {
@@ -325,6 +329,12 @@ def transform_vacaspatyam(blob: str) -> str:
     return transform(xml, vacaspatyam_xml)
 
 
+def transform_amarakosha(blob: str) -> str:
+    """Transform XML for the Amarakosha."""
+    xml = ET.fromstring(blob)
+    return transform(xml, amarakosha_xml)
+
+
 def _text_of(xml: ET.Element, path: str, default: str) -> str:
     """Get the text of the given XML element."""
     try:
@@ -362,14 +372,13 @@ def transform_sak(blob: str) -> str:
     return transform(xml, vacaspatyam_xml)
 
 
-def transform_text_block(block_blob: str) -> Block:
-    """Transform XML for a TEI document."""
+def transform_text_block(block_blob: str) -> str:
+    """Transform XML for a TEI document.
+
+    :param block_blob: the original XML blob for this block.
+    :return: the HTML transform of that XML blob
+    """
     # FIXME: leaky abstraction. We should return just a string blob here and
     # get the XML ID from `database.Block` instead.
     xml = ET.fromstring(block_blob)
-
-    # "xml:id" can't be specified directly due to how ElementTree treats
-    # namespaces. So, hard-code it like this:
-    id = xml.attrib.get("{http://www.w3.org/XML/1998/namespace}id", "")
-    html = transform(xml, transforms=tei_xml)
-    return Block(id=id, html=html)
+    return transform(xml, transforms=tei_xml)
