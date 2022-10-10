@@ -142,7 +142,6 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
         {{ _dropdown_item('markAsFix', _('Mark as fix')) }}
         {{ _dropdown_item('markAsUnclear', _('Mark as unclear')) }}
         {{ _dropdown_item('markAsFootnoteNumber', _('Mark as footnote number')) }}
-        {{ _dropdown_item('replaceColonVisarga', _(': (colon) → ः (visarga)')) }}        
       </ul>
     </div>
   </div>
@@ -158,8 +157,9 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
                   @click.prevent="runOCR"
                   :disabled="isRunningOCR"
                   x-text="isRunningOCR ? '{{ _("Running OCR ...") }}' : '{{ _("Run OCR") }}'">
-              </button>
+          </button>
         </li>
+        {{ _dropdown_item('replaceColonVisarga', _(': (colon) → ः (visarga)')) }}        
       </ul>
     </div>
   </div>
