@@ -6,7 +6,7 @@ ENV PYTHONFAULTHANDLER=1 \
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y curl && curl -sL https://deb.nodesource.com/setup_16.x | bash -
+RUN apt-get update && apt-get install -y make git curl && curl -sL https://deb.nodesource.com/setup_16.x | bash -
 RUN apt-get install -y nodejs && apt-get remove -y curl && rm -rf /var/lib/apt/lists/*
 
 FROM base as build
