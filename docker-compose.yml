@@ -21,7 +21,7 @@ services:
 
   celery:
     build: .
-    command: make celery
+    command: /venv/bin/celery -A ambuda.tasks worker --loglevel=INFO
     volumes:
       - .:/app
       - /app/node_modules

@@ -1,36 +1,42 @@
-FROM python:3.9.13-buster as build
+FROM python:3.9.13-slim-buster as base
 
-ENV POETRY_VERSION=1.1.4
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-ENV PATH /root/.poetry/bin:$PATH
-
+ENV PYTHONFAULTHANDLER=1 \
+    PYTHONHASHSEED=random \
+    PYTHONUNBUFFERED=1
 
 WORKDIR /app
-COPY pyproject.toml ./
 
-# Old style with requirements
-# COPY requirements.txt ./
-# RUN pip install -r requirements.txt
+RUN apt-get update && apt-get install -y curl && curl -sL https://deb.nodesource.com/setup_16.x | bash -
+RUN apt-get install -y nodejs && apt-get remove -y curl && rm -rf /var/lib/apt/lists/*
 
-# Second stage start
-FROM python:3.9.13-slim-buster as deploy
-COPY --from=build /app/ /app/
-ENV PATH /app/env/bin/:$PATH
-WORKDIR /app/
+FROM base as build
 
-# Install Node.
-RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get update && apt-get install -y nodejs swig
+ARG WHICH_ENV
+
+ENV WHICH_ENV=${WHICH_ENV} \
+  PYTHONFAULTHANDLER=1 \
+  PYTHONUNBUFFERED=1 \
+  PYTHONHASHSEED=random \
+  PIP_NO_CACHE_DIR=1 \
+  PIP_DISABLE_PIP_VERSION_CHECK=1 \
+  PIP_DEFAULT_TIMEOUT=100 \
+  POETRY_VERSION=1.2.1
+
+RUN pip install "poetry==$POETRY_VERSION"
+RUN python -m venv /venv
+
+COPY pyproject.toml poetry.lock ./
+RUN poetry export -f requirements.txt | /venv/bin/pip install -r /dev/stdin
+
+COPY . .
+RUN poetry build && /venv/bin/pip install dist/*.whl
+
+FROM base as final
+COPY --from=build /venv /venv
 
 # Install Node dependencies.
 COPY ./package* ./
 RUN npm ci
 
-# Install Python dependencies.
-RUN python -m venv --copies /app/env
-RUN . /app/env/bin/activate && poetry install 
-
 # Install code
-CMD ["./scripts/install_devserver_docker.sh"]
-
 CMD ["./scripts/run_devserver_docker.sh"]
