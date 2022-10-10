@@ -14,4 +14,4 @@ Make that user an administrator::
 
 Create a fake proofing project::
 
-    ./cli.py create-proofing-project <title> <path-to-your-pdf-file>
+    ./cli.py create-project --title <title> --pdf-path <path-to-your-pdf-file>
