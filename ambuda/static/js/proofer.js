@@ -220,6 +220,9 @@ export default () => ({
   replaceColonVisarga() {
     this.changeSelectedText(s => s.replaceAll(':', 'ः'))
   },
+  replaceSAvagraha() {
+    this.changeSelectedText(s => s.replaceAll('S', 'ऽ'))
+  },
   transliterate() {
     this.changeSelectedText((s) => Sanscript.t(s, this.fromScript, this.toScript));
     this.saveSettings();

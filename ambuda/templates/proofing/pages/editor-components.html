@@ -159,7 +159,8 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
                   x-text="isRunningOCR ? '{{ _("Running OCR ...") }}' : '{{ _("Run OCR") }}'">
           </button>
         </li>
-        {{ _dropdown_item('replaceColonVisarga', _(': (colon) → ः (visarga)')) }}        
+        {{ _dropdown_item('replaceColonVisarga', _(': (colon) → ः (visarga)')) }}
+        {{ _dropdown_item('replaceSAvagraha', _('S → ऽ (avagraha)')) }}
       </ul>
     </div>
   </div>
