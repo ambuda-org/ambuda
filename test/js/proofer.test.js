@@ -1,5 +1,5 @@
 import { $ } from '@/core.ts';
-import Proofer from '@/proofer';
+import { Proofer } from '@/proofer.js';
 import { TextSelection } from 'prosemirror-state';
 
 const sampleHTML = `
@@ -256,12 +256,13 @@ test('markAsFootnoteNumber works', () => {
 });
 
 test('replaceColonVisarga works', () => {
-  const p = Proofer();
   const $text = $('#content');
   $text.value = 'क: खा: गि : घी:'
-  $text.setSelectionRange(3, 12);
+  const p = Proofer();
+  p.init();
+  setSelectionRange(p, 3, 12);
   p.replaceColonVisarga();
-  expect($text.value).toBe('क: खाः गि ः घी:');
+  expect(p.textValue()).toBe('क: खाः गि ः घी:');
 });
 
 test('copyCharacter works', () => {
