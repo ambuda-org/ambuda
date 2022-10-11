@@ -32,6 +32,9 @@ echo "Beginning clean install of Ambuda."
 make install-frontend
 make install-python
 
+# i18n/l10n setup
+make install-i18n
+
 # Confirm that the setup worked.
 make test
 
@@ -44,6 +47,8 @@ FLASK_ENV=development
 FLASK_UPLOAD_FOLDER="$(pwd)/data/file-uploads"
 SECRET_KEY="insecure development secret key"
 SQLALCHEMY_DATABASE_URI="sqlite:///database.db"
+
+AMBUDA_BOT_PASSWORD="insecure bot password"
 
 GOOGLE_APPLICATION_CREDENTIALS="<Google API credentials>"
 EOF

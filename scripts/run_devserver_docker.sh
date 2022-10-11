@@ -18,7 +18,7 @@ if [ ! -f $DB_FILE_PATH ]; then
     python -m scripts.initialize_db
 
     # Add some starter data with a few basic seed scripts.
-    make db-seed-basic
+    make db-seed-ci
 
     # Create Alembic's migrations table.
     alembic ensure_version
@@ -27,6 +27,10 @@ if [ ! -f $DB_FILE_PATH ]; then
     alembic stamp head
 
 fi
+
+# Update to the latest migration.
+python -m ambuda.seed.lookup
+alembic upgrade head
 
 # Run the devserver, and live reload our CSS and JS.
 # "npx concurrently" does not work on Docker, but ./node_modules/.bin/concurrently does.

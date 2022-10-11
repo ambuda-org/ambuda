@@ -1,10 +1,7 @@
-from sqlalchemy import (
-    Column,
-    String,
-)
+from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 
-from ambuda.models.base import Base, pk, foreign_key
+from ambuda.models.base import Base, foreign_key, pk
 
 
 class Dictionary(Base):

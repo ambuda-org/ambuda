@@ -1,7 +1,6 @@
 from datetime import date
 from typing import Iterator
 
-
 DOUBLE_DANDA = "\u0965"
 
 TEI_HEADER_BOILERPLATE = """
@@ -50,8 +49,11 @@ and resolve any TODOs. -->
     <body>
 """.strip()
 
+PageContent = str
+Line = str
 
-def _iter_raw_text_lines(blobs: list[str]) -> Iterator[str]:
+
+def _iter_raw_text_lines(blobs: list[PageContent]) -> Iterator[Line]:
     """Iterate over text blobs as a stream of lines."""
     for blob in blobs:
         blob = blob.strip()
@@ -59,8 +61,10 @@ def _iter_raw_text_lines(blobs: list[str]) -> Iterator[str]:
             yield line.strip()
 
 
-def iter_blocks(blobs: Iterator[str]) -> Iterator[str]:
-    """Iterate over text blobs as a stream of blocks."""
+def iter_blocks(blobs: Iterator[PageContent]) -> Iterator[list[Line]]:
+    """Iterate over text blobs as a stream of blocks.
+
+    A block is a sequence of lines separated by an empty line."""
     buf = []
     for line in _iter_raw_text_lines(blobs):
         if line:
@@ -72,12 +76,12 @@ def iter_blocks(blobs: Iterator[str]) -> Iterator[str]:
         yield buf
 
 
-def is_verse(lines: list[str]) -> bool:
+def is_verse(lines: list[Line]) -> bool:
     """Heuristically decide whether a list of lines represents a verse."""
     return lines[-1].endswith(DOUBLE_DANDA)
 
 
-def create_plain_text_block(lines: list[str]) -> str:
+def create_plain_text_block(lines: list[Line]) -> str:
     """Convert a group of lines into a well-formatted plain-text block."""
     if is_verse(lines):
         return "\n".join(lines)
@@ -98,7 +102,7 @@ def create_tei_header_boilerplate(**kw) -> str:
     return TEI_HEADER_BOILERPLATE.format(**kw)
 
 
-def create_xml_block(lines: list[str]) -> str:
+def create_xml_block(lines: list[Line]) -> str:
     """Convert a group of lines into a well-formatted TEI XML block."""
     if is_verse(lines):
         buf = ["<lg>"]
@@ -123,13 +127,13 @@ def create_xml_block(lines: list[str]) -> str:
     return "".join(buf).strip()
 
 
-def to_plain_text(blobs: list[str]) -> str:
+def to_plain_text(blobs: list[PageContent]) -> str:
     """Publish a project as plain text."""
     blocks = iter_blocks(blobs)
     return "\n\n".join(create_plain_text_block(b) for b in blocks)
 
 
-def to_tei_xml(project_meta: dict[str, str], blobs: list[str]) -> str:
+def to_tei_xml(project_meta: dict[str, str], blobs: list[PageContent]) -> str:
     """Publish a project as TEI XML."""
     project_meta.update(
         {

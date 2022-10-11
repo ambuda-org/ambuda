@@ -6,7 +6,6 @@ from dateutil.relativedelta import relativedelta
 from indic_transliteration import sanscript
 from markdown_it import MarkdownIt
 
-
 #: A markdown parser for user-generated text.
 #:
 #: - `js-default` is like Commonmark but it disables raw HTML.
@@ -41,7 +40,9 @@ def time_ago(dt: datetime, now=None) -> str:
 
     :param dt: the datetime to check
     :param now: the "now" datetime. If not set, use `utcnow()`.
+
     """
+    # FIXME: add i18n support
     now = now or datetime.utcnow()
     rd = relativedelta(now, dt)
     for name in ["years", "months", "days", "hours", "minutes", "seconds"]:

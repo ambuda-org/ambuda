@@ -3,8 +3,21 @@ from flask_login import FlaskLoginClient
 
 import ambuda.database as db
 from ambuda import create_app
-from ambuda.consts import TEXT_CATEGORIES
+from ambuda.consts import BOT_USERNAME, TEXT_CATEGORIES
 from ambuda.queries import get_engine, get_session
+
+
+def _add_dictionaries(session):
+    """Add dummy dictionary data."""
+    d1 = db.Dictionary(slug="dict-1", title="Test Dictionary 1")
+    d2 = db.Dictionary(slug="dict-2", title="Test Dictionary 2")
+    session.add_all([d1, d2])
+    session.flush()
+
+    e1 = db.DictionaryEntry(dictionary_id=d1.id, key="agni", value="<div>fire</div>")
+    e2 = db.DictionaryEntry(dictionary_id=d2.id, key="agni", value="<div>ignis</div>")
+    session.add_all([e1, e2])
+    session.flush()
 
 
 def initialize_test_db():
@@ -45,15 +58,13 @@ def initialize_test_db():
     )
     session.add(parse)
 
-    # Dictionaries
-    dictionary = db.Dictionary(slug="test-dict", title="Test Dictionary")
-    session.add(dictionary)
-    session.flush()
+    _add_dictionaries(session)
 
-    dictionary_entry = db.DictionaryEntry(
-        dictionary_id=dictionary.id, key="agni", value="<div>fire</div>"
-    )
-    session.add(dictionary_entry)
+    # Bot
+    bot = db.User(username=BOT_USERNAME, email="ambuda-bot@ambuda.org")
+    bot.set_password("password")
+    session.add(bot)
+    session.flush()
 
     # Auth
     rama = db.User(username="ramacandra", email="rama@ayodhya.com")
@@ -61,30 +72,65 @@ def initialize_test_db():
     session.add(rama)
     session.flush()
 
+    # Moderator
+    moderator = db.User(username="user-mod", email="mod@ambuda.org")
+    moderator.set_password("secret password")
+    session.add(moderator)
+    session.flush()
+
     # Admin
-    admin = db.User(username="akprasad", email="arun@ambuda.org")
+    admin = db.User(username="u-admin", email="admin@ambuda.org")
     admin.set_password("secret password")
     session.add(admin)
     session.flush()
 
+    # Deleted and Banned
+    deleted_admin = db.User(username="sandrocottus-deleted", email="cgm@ambuda.org")
+    deleted_admin.set_password("maurya")
+    deleted_admin.set_is_deleted(True)
+
+    banned = db.User(username="sikander-banned", email="alex@ambuda.org")
+    banned.set_password("onesicritus")
+    banned.set_is_banned(True)
+
+    session.add(deleted_admin)
+    session.add(banned)
+    session.flush()
+
     # Roles
-    proofreader_role = db.Role(name=db.SiteRole.P1.value)
+    p1_role = db.Role(name=db.SiteRole.P1.value)
+    p2_role = db.Role(name=db.SiteRole.P2.value)
+    moderator_role = db.Role(name=db.SiteRole.MODERATOR.value)
     admin_role = db.Role(name=db.SiteRole.ADMIN.value)
-    session.add(proofreader_role)
+    session.add(p1_role)
+    session.add(p2_role)
+    session.add(moderator_role)
     session.add(admin_role)
     session.flush()
 
-    rama_role_proofreader = db.UserRoles(user_id=rama.id, role_id=proofreader_role.id)
-    akprasad_role_proofreader = db.UserRoles(
-        user_id=admin.id, role_id=proofreader_role.id
+    rama.roles = [p1_role, p2_role]
+    moderator.roles = [p1_role, p2_role, moderator_role]
+    admin.roles = [p1_role, p2_role, admin_role]
+    deleted_admin.roles = [p1_role, p2_role, admin_role]
+    banned.roles = [p1_role]
+    session.add(rama)
+    session.add(moderator)
+    session.add(admin)
+    session.add(deleted_admin)
+    session.add(banned)
+    session.flush()
+
+    # Blog
+    post = db.BlogPost(
+        title="Sample post",
+        slug="sample-post",
+        content="This is a sample post.",
+        author_id=admin.id,
     )
-    session.add(rama_role_proofreader)
-    session.add(akprasad_role_proofreader)
+    session.add(post)
+    session.commit()
 
-    akprasad_role_admin = db.UserRoles(user_id=admin.id, role_id=admin_role.id)
-    session.add(akprasad_role_admin)
-
-    # Proofreading
+    # Proofing
     board = db.Board(title="board")
     session.add(board)
     session.flush()
@@ -144,7 +190,28 @@ def rama_client(flask_app):
 
 
 @pytest.fixture()
+def moderator_client(flask_app):
+    session = get_session()
+    moderator = session.query(db.User).filter_by(username="user-mod").first()
+    return flask_app.test_client(user=moderator)
+
+
+@pytest.fixture()
 def admin_client(flask_app):
     session = get_session()
-    user = session.query(db.User).filter_by(username="akprasad").first()
+    user = session.query(db.User).filter_by(username="u-admin").first()
+    return flask_app.test_client(user=user)
+
+
+@pytest.fixture()
+def deleted_client(flask_app):
+    session = get_session()
+    user = session.query(db.User).filter_by(username="sandrocottus-deleted").first()
+    return flask_app.test_client(user=user)
+
+
+@pytest.fixture()
+def banned_client(flask_app):
+    session = get_session()
+    user = session.query(db.User).filter_by(username="sikander-banned").first()
     return flask_app.test_client(user=user)

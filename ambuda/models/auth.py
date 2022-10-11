@@ -1,22 +1,15 @@
-from flask_login import UserMixin
 from datetime import datetime
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    String,
-    Text as Text_,
-)
+
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Text as Text_
 from sqlalchemy.orm import relationship
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
-from ambuda.enums import SiteRole
-from ambuda.models.base import Base, pk, foreign_key
+from ambuda.models.base import Base, foreign_key, pk
+from ambuda.utils.user_mixins import AmbudaUserMixin
 
 
-class User(UserMixin, Base):
+class User(AmbudaUserMixin, Base):
     """A user."""
 
     __tablename__ = "users"
@@ -35,6 +28,15 @@ class User(UserMixin, Base):
     #: The user's self-description.
     description = Column(Text_, nullable=False, default="")
 
+    #: If the user deleted their account.
+    is_deleted = Column(Boolean, nullable=False, default=False)
+
+    #: If the user was banned..
+    is_banned = Column(Boolean, nullable=False, default=False)
+
+    #: If the user has verified their email.
+    is_verified = Column(Boolean, nullable=False, default=False)
+
     #: All roles available for this user.
     roles = relationship("Role", secondary="user_roles")
 
@@ -42,20 +44,21 @@ class User(UserMixin, Base):
         """Hash and save the given password."""
         self.password_hash = generate_password_hash(raw_password)
 
+    def set_is_deleted(self, is_deleted: bool):
+        """Update is_deleted."""
+        self.is_deleted = is_deleted
+
+    def set_is_banned(self, is_banned: bool):
+        """Update is_banned."""
+        self.is_banned = is_banned
+
+    def set_is_verified(self, is_verified: bool):
+        """Update is_verified."""
+        self.is_verified = is_verified
+
     def check_password(self, raw_password: str) -> bool:
         """Check if the given password matches the user's hash."""
         return check_password_hash(self.password_hash, raw_password)
-
-    def has_role(self, role: SiteRole) -> bool:
-        return role.value in {r.name for r in self.roles}
-
-    @property
-    def is_admin(self) -> bool:
-        return self.has_role(SiteRole.ADMIN)
-
-    @property
-    def is_proofreader(self) -> bool:
-        return self.has_role(SiteRole.P1) or self.has_role(SiteRole.P2)
 
 
 class Role(Base):

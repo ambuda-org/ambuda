@@ -52,7 +52,7 @@ def test_is_valid_reset_token():
 def test_register__unauth(client):
     r = client.get("/register")
     assert r.status_code == 200
-    assert ">Create an Ambuda account<" in r.text
+    assert "Create an Ambuda account" in r.text
 
 
 def test_register__unauth_post__ok(client):
@@ -65,11 +65,19 @@ def test_register__unauth_post__ok(client):
         r = client.post("/register", data=data)
         assert r.status_code == 302
         assert current_user.username == "krishna"
+        assert current_user.is_ok
 
 
 def test_register__auth(rama_client):
     r = rama_client.get("/register")
     assert r.status_code == 302
+
+
+def test_register__banned(banned_client):
+    with banned_client:
+        r = banned_client.get("/register")
+        assert r.status_code == 200
+        assert current_user.is_anonymous
 
 
 def test_sign_in__unauth(client):
@@ -115,6 +123,13 @@ def test_sign_in__auth(rama_client):
     assert r.status_code == 302
 
 
+def test_sign_in__banned(banned_client):
+    with banned_client:
+        r = banned_client.get("/sign-in")
+        assert r.status_code == 200
+        assert current_user.is_anonymous
+
+
 def test_sign_out__unauth(client):
     with client:
         r = client.get("/sign-out")
@@ -136,18 +151,18 @@ def test_get_reset_password_token__get(client):
 
 def test_reset_password_from_token(client):
     with client:
-        user = q.user("akprasad")
+        user = q.user("u-admin")
 
     user_id = user.id
     raw_token = auth._create_reset_token(user_id)
 
-    r = client.get(f"/reset-password/akprasad/bad-token")
+    r = client.get("/reset-password/u-admin/bad_token")
     assert r.status_code == 302
 
     r = client.get(f"/reset-password/bad-user/{raw_token}")
     assert r.status_code == 302
 
-    r = client.get(f"/reset-password/akprasad/{raw_token}")
+    r = client.get(f"/reset-password/u-admin/{raw_token}")
     assert "Change password for" in r.text
 
 

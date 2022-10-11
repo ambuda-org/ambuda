@@ -76,14 +76,9 @@ let Proofer = () => ({
     window.view = this.view;
     this.view.focus();
 
-    // Warn the user if navigating away with unsaved changes.
-    window.onbeforeunload = () => {
-      if (this.hasUnsavedChanges) {
-        return 'You have unsaved changes! If you leave this page, your changes will be lost.';
-      }
-      // so that eslint doesn't complain
-      return undefined;
-    };
+    // Use `.bind(this)` so that `this` in the function refers to this app and
+    // not `window`.
+    window.onbeforeunload = this.onBeforeUnload.bind(this);
   },
 
   // Settings IO
@@ -101,11 +96,6 @@ let Proofer = () => ({
 
         this.fromScript = settings.fromScript || this.fromScript;
         this.toScript = settings.toScript || this.toScript;
-
-        // Normalize layout value to protect against some recent refactoring.
-        if (!ALL_LAYOUTS.includes(this.layout)) {
-          this.layout = LAYOUT_SIDE_BY_SIDE;
-        }
       } catch (error) {
         // Old settings are invalid -- rewrite with valid values.
         this.saveSettings();
@@ -127,6 +117,18 @@ let Proofer = () => ({
       return CLASSES_TOP_AND_BOTTOM;
     }
     return CLASSES_SIDE_BY_SIDE;
+  },
+
+  // Callbacks
+
+  /** Displays a warning dialog if the user has unsaved changes and tries to navigate away. */
+  onBeforeUnload(e) {
+    if (this.hasUnsavedChanges) {
+      // Keeps the dialog event.
+      return true;
+    }
+    // Cancels the dialog event.
+    return null;
   },
 
   // OCR controls
@@ -214,6 +216,12 @@ let Proofer = () => ({
   },
   markAsFootnoteNumber() {
     this.changeSelectedText((s) => `[^${s}]`);
+  },
+  replaceColonVisarga() {
+    this.changeSelectedText(s => s.replaceAll(':', 'ः'))
+  },
+  replaceSAvagraha() {
+    this.changeSelectedText(s => s.replaceAll('S', 'ऽ'))
   },
   transliterate() {
     this.changeSelectedText((s) => Sanscript.t(s, this.fromScript, this.toScript));

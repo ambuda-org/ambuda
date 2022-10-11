@@ -27,12 +27,12 @@
 {% block title %}Beginner's guide to proofing | Ambuda{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('beginners') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('beginners', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
 {{ m.title_and_subtitle(
-    "Beginner's guide",
+    _("Beginner's guide"),
     "A five minute guide to proofing Sanskrit texts") }}
 
 <div class="prose">

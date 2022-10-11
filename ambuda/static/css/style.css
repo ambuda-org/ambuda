@@ -4,7 +4,7 @@
 
 @layer components {
   ::selection {
-    @apply text-black bg-yellow-300;
+    @apply text-black bg-yellow-200;
   }
   body, html {
     /* For sticky footers. */
@@ -20,6 +20,9 @@
     @apply bg-red-200 text-red-700;
   }
 
+  /* Needed to support the Alpine `x-cloak` attribute. */
+  [x-cloak] { display: none !important; }
+
   /* Theme colors */
   .text-brand { color: #152b48; }
   .bg-brand { background: #152b48; }
@@ -32,7 +35,14 @@
     @apply bg-slate-100 hover:bg-slate-300;
   }
   .btn-submit {
-    @apply bg-brand text-white hover:bg-slate-200 hover:text-black transition;
+    @apply bg-brand text-white hover:bg-sky-500 transition;
+    @apply active:translate-y-0.5;
+  }
+  ::file-selector-button {
+    @apply border-0 p-2 rounded bg-slate-600 text-white cursor-pointer mr-4 hover:bg-black;
+  }
+  .f-select {
+    @apply rounded text-sm bg-slate-100 text-slate-500 hover:text-slate-800 p-1
   }
 
   /* Dropdowns (e.g. in proofing editor) */
@@ -57,10 +67,12 @@
 
   /* Custom elements. */
 
+  s-block {
+    @apply block mb-4;
+  }
   /* TEI <lg>, i.e. a Sanskrit verse. */
   s-lg {
-    @apply block x-deva leading-normal mb-4;
-    @apply cursor-pointer;
+    @apply block x-deva leading-normal;
   }
   /* TEI <l>, i.e. a line of Sanskrit verse. */
   s-l {
@@ -75,59 +87,15 @@
     @apply underline;
   }
 
-  s-block {
-    display: flex;
-    flex-wrap: wrap;
+  .prose {
+    @apply tw-prose tw-prose-slate;
   }
-  s-block > div {
-    @apply hidden;
+  .prose dt {
+    @apply uppercase text-xs font-bold text-slate-400 mb-1;
   }
-  s-block > div.mula {
-    @apply block;
+  .prose dd {
+    @apply mb-4;
   }
-
-  /* In place view */
-  .in-place s-block.show-parsed > div.mula {
-    @apply hidden;
-  }
-  .in-place s-block.show-parsed > div.parsed {
-    @apply block;
-  }
-
-  /* Side by side view */
-  .side-by-side s-block.show-parsed > div {
-    @apply block flex-1 min-w-max; /* At smaller widths, verses will wrap */
-  }
-  .side-by-side s-block.show-parsed > div.mula > s-lg {
-    @apply cursor-auto;
-  }
-  .side-by-side#text--content {
-    @apply md:max-w-3xl;
-  }
-
-  .shown-side-by-side {
-    @apply hidden;
-  }
-  .side-by-side .hidden-side-by-side {
-    @apply hidden;
-  }
-  .side-by-side .shown-side-by-side {
-    @apply hidden;
-  }
-
-  /* Prose context */
-  .prose a { @apply text-sky-700 underline hover:text-sky-900; }
-  .prose blockquote { @apply border-l pl-4; }
-  .prose dt { @apply font-bold; }
-  .prose dd { @apply mb-4; }
-  .prose dfn { @apply font-bold not-italic; }
-  .prose h1 { @apply font-bold text-2xl md:text-4xl my-4; }
-  .prose h2 { @apply font-bold text-xl md:text-2xl mt-8 mb-4; }
-  .prose h3 { @apply font-bold mt-8 mb-2; }
-  .prose kbd { @apply bg-slate-100 p-1; }
-  .prose p { @apply mb-4; }
-  .prose ol { @apply list-decimal pl-8 my-4; }
-  .prose ul { @apply list-disc pl-8 my-4; }
 
   /* Custom */
   .a-underline a {
@@ -141,13 +109,12 @@
   .dict-entry {max-width: 700px; margin: 0.5em 0;}
   .dict-entry .lex {font-weight: bold; }
   .dict-entry cite {
-    @apply bg-zinc-100;
-    @apply text-zinc-400;
+    @apply text-sm text-slate-400;
   }
 
   /* Vacaspatyam */
   .dict-entry q {
-    @apply text-zinc-400;
+    @apply text-slate-400;
   }
   .mw-entry [lang=sa] {
     @apply text-green-600;

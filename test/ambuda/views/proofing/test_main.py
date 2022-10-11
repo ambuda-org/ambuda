@@ -1,6 +1,5 @@
 import pytest
 
-
 from ambuda.views.proofing import main
 
 
@@ -30,6 +29,11 @@ def test_beginners_guide(client):
 def test_complete_guide(client):
     resp = client.get("/proofing/help/complete-guide")
     assert "Complete guide" in resp.text
+
+
+def test_editor_guide(client):
+    resp = client.get("/proofing/help/editor-guide")
+    assert "Editor" in resp.text
 
 
 def test_recent_changes(client):

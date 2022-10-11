@@ -1,4 +1,5 @@
 {% extends 'proofing/base-sidebar.html' %}
+{% import "macros/components.html" as mc %}
 {% import "macros/proofing.html" as m %}
 {% from "macros/forms.html" import field, show_errors_if_any %}
 
@@ -30,15 +31,15 @@
 {% endmacro %}
 
 
-{% block title %}{{ thread.title }} | Ambuda{% endblock %}
+{% block title %}{{ mc.title(thread.title) }}{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('talk', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
 {{ m.project_header_nested("Talk", project) }}
-{{ m.project_nav(project=project, active='talk', is_admin=current_user.is_admin) }}
+{{ m.project_nav(project=project, active='talk') }}
 
 <header class="flex justify-between items-center bg-slate-100 p-4">
   <h1 class="text-xl font-bold">{{ thread.title }}</h1>
@@ -52,7 +53,7 @@
 </div>
 
 <div class="mt-8 ml-4">
-<a href="{{ url_for('proofing.talk.create_post', project_slug=project.slug, thread_id=thread.id) }}" class="btn btn-submit">Add a post</a>
+<a href="{{ url_for('proofing.talk.create_post', project_slug=project.slug, thread_id=thread.id) }}" class="btn btn-submit">{{ _('Add a post') }}</a>
 </div>
 
 {% endblock %}

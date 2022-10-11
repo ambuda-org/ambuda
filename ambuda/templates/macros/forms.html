@@ -31,11 +31,18 @@
 <div>
   {{ label(field.label) }}
   {{ field(class_="border block p-2 w-full min-h-[200px] rounded") }}
-  <p class="text-sm text-slate-500 mt-2 mb-4">
+  {% set help_url = "https://commonmark.org/help/" %}
+  <p class="text-sm text-slate-500 mt-2 mb-4 a-underline">{% trans %}
     You can format this text with Markdown.
-    <a class="underline" href="https://commonmark.org/help/">Click here to learn more.</a>
-  </p>
+    <a href="{{ help_url }}">Click here to learn more.</a>
+  {% endtrans %}</p>
 </div>
+{% endmacro %}
+
+
+{# Submit button for general forms. #}
+{% macro submit(text) %}
+<input type="submit" class="btn btn-submit" value="{{ text }}" />
 {% endmacro %}
 
 
@@ -51,8 +58,9 @@
 {% endmacro %}
 
 
+{# Submit button for the authentication flow. #}
 {% macro auth_submit(text) %}
-<input type="submit" class="btn text-white bg-brand w-full" value="{{ text }}" />
+<input type="submit" class="btn btn-submit w-full" value="{{ text }}" />
 {% endmacro %}
 
 

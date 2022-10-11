@@ -1,13 +1,12 @@
 """Add text metadata
 
 Revision ID: 481c959deb21
-Revises: 
+Revises:
 Create Date: 2022-07-17 14:31:01.779170
 
 """
-from alembic import op
 import sqlalchemy as sa
-
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = "481c959deb21"

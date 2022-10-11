@@ -17,47 +17,38 @@
 {% set mobile_only = ["proofing.index", "site.support"] %}
 
 
-{# https://css-tricks.com/snippets/svg/svg-hamburger-menu/ #}
-{% macro hamburger() %}
-<svg fill="#fff" viewBox="0 0 100 80" width="20" height="20">
-  <rect width="100" height="10"></rect>
-  <rect y="30" width="100" height="10"></rect>
-  <rect y="60" width="100" height="10"></rect>
-</svg>
-{% endmacro %}
-
-
-{% block title %}Ambuda{% endblock %}
+{% block title %}{{ _('Ambuda') }}{% endblock %}
 
 
 {% block header %}
-<header class="text-center bg-brand text-white shrink-0 pb-32">
-  <nav class="mb-4 md:flex justify-between
-      items-center a-hover-underline">
-    <div class="flex justify-between items-center">
-      <a class="p-4 font-bold text-lg" href="{{ url_for('site.index') }}">Ambuda</a>
-      <div class="block p-4 md:hidden">
-        <button id="hamburger" type="button">{{ hamburger() }}</button>
-      </div>
-    </div>
-    <ul id="navbar" class="text-slate-300 hidden md:flex hover:text-white">
-      <li><a class="block p-4 py-2" href="{{ url_for('texts.index') }}">Texts</a></li>
-      <li><a class="block p-4 py-2" href="{{ url_for('dictionaries.index') }}">Dictionaries</a></li>
-      <li><a class="block p-4 py-2" href="{{ url_for('proofing.index') }}">Proofing</a></li>
-      <li><a class="block p-4 py-2" href="{{ url_for('about.index') }}">About</a></li>
-    </ul>
-  </nav>
+<header class="bg-brand text-white shrink-0 pb-16">
+  <div class="mb-4 fill-white">
+    {% include("include/header.html") %}
+  </div>
+
+  <div class="text-center">
 
   <div class="max-w-4xl mx-auto mt-28 mb-4 p-4">
-    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold">A breakthrough Sanskrit library</h1>
-    <p class="mx-auto text-lg mt-4 mb-4 max-w-2xl text-slate-400">Sanskrit
-    literature with word-by-word analysis and integrated dictionaries.
-    All in a free online library that works on all devices.</p>
+    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold">{{ _('A breakthrough Sanskrit library') }}</h1>
+    <p class="mx-auto text-lg mt-4 mb-4 max-w-2xl text-slate-400">{% trans %}
+    Sanskrit literature with word-by-word analysis and integrated dictionaries.
+    All in a free online library that works on all devices.
+    {% endtrans %}</p>
   </div>
-  <div>
-    <a class="p-4 transition rounded btn border border-slate-500 text-slate-200
-       hover:bg-white hover:text-brand" href="{{ url_for("texts.index") }}"
-       >Explore the library</a>
+
+  <a class="p-4 transition rounded btn bg-sky-500 text-white
+      hover:bg-sky-400 hover:text-white hover:border-sky-600" href="{{ url_for("texts.index") }}">
+      {{ _('Explore the library') }}
+  </a>
+
+  <ul class="flex text-slate-300 justify-center mt-24 a-hover-underline">
+    {% for L in ambuda_locales %}
+    <li><a class="p-2" href="{{ url_for('site.set_language', slug=L.slug) }}">
+      {{ L.text }}
+    </a></li>
+    {% endfor %}
+  </ul>
+
   </div>
 </header>
 {% endblock %}
@@ -74,64 +65,86 @@
 <article>
 
 
-{% call section() %}
-<h2 class="!mt-0">Building the world's largest Sanskrit library</h2>
-<p>Sanskrit texts are scattered across dozens of websites, thousands of books,
-and millions of manuscripts. Their quality and ease of use vary widely, and
-there isn't an easy way to explore what Sanskrit has to offer.
+{% call section("text-brand") %}
+<h2 class="!mt-0">{{ _("Building the world's largest Sanskrit library") }}</h2>
 
-<p>That's why Ambuda is building a complete library of traditional Sanskrit
+<p>{% trans %}
+Sanskrit texts are scattered across dozens of websites, thousands of books, and
+millions of manuscripts. Their quality and ease of use vary widely, and there
+isn't an easy way to explore what Sanskrit has to offer.
+{% endtrans %}</p>
+
+<p>{% trans %}
+That's why Ambuda is building a complete library of traditional Sanskrit
 literature. Our library is small now, but it's growing rapidly. Soon, it will
-be the largest Sanskrit library in the world.</p>
+be the largest Sanskrit library in the world.
+{% endtrans %}</p>
 {% endcall %}
 
-{% call section("bg-yellow-200") %}
-<h2 class="!mt-0">Open access for all</h2>
 
-<p>What if you could read Sanskrit anywhere for free? What if reading Sanskrit
+{% call section("bg-sky-50/50 text-brand") %}
+<h2 class="!mt-0">{{ _('Open access for all') }}</h2>
+
+<p>{% trans %}
+What if you could read Sanskrit anywhere for free? What if reading Sanskrit
 online were delightful and beautiful? What if you could easily find Sanskrit
-resources in your native language?</p>
+resources in your native language?
+{% endtrans %}</p>
 
-<p>We have a long way to go, but we want to make our library radically
-accessible to as many people as we can. For now, you can use our website on any
-device. Soon, we'll support other languages besides English.</p>
+<p>{% trans %}
+We have a long way to go, but we want to make our library radically accessible
+to as many people as we can. For now, you can use our website on any device.
+Soon, we'll support other languages besides English.
+{% endtrans %}</p>
 {% endcall %}
 
 
-{% call section("bg-sky-100") %}
-<h2 class="!mt-0">Intelligent technology</h2>
+{% call section("bg-sky-50 text-brand") %}
+<h2 class="!mt-0">{{ _('Intelligent technology') }}</h2>
 
-<p>Word-by-word analysis. Integrated dictionary support. Transliteration to a
+<p>{% trans %}
+Word-by-word analysis. Integrated dictionary support. Transliteration to a
 variety of different scripts. And so much more. Our intelligent library uses
-state-of-the-art technology to make Sanskrit more accessible than ever
-before.</p>
+state-of-the-art technology to make Sanskrit more accessible than ever before.
+{% endtrans %}</p>
 
-<p>But our work is just beginning. We have so much planned for the future:
+<p>{% trans %}
+But our work is just beginning. We have so much planned for the future:
 translations, commentaries, full-text search, and deeper hyperlinks across the
-entire corpus.</p>
+entire corpus.
+{% endtrans %}</p>
 {% endcall %}
 
-{% call section("bg-green-200") %}
-<h2 class="!mt-0">By the public, for the public</h2>
 
-<p>Ambuda is run entirely by volunteers, and we would be thrilled to have your
-support in whatever form you can provide it. Learn more about
-how you can <a href="{{ url_for('site.support') }}">help Ambuda grow</a>.</p>
+{% call section("bg-sky-100 text-brand") %}
+<h2 class="!mt-0">{{ _('By the public, for the public') }}</h2>
+{% set support_url = url_for('site.support') %}
 
-<p>Ambuda is growing rapidly. <a href="{{ mailing_url }}">Sign up for our
-mailing list</a> to receive regular updates on new content and features.</p>
+<p>{% trans %}
+Ambuda is run entirely by volunteers, and we would be thrilled to have your
+support in whatever form you can provide it. Learn more about how you can <a
+href="{{ support_url }}">help Ambuda grow</a>.
+{% endtrans %}</p>
+
+<p>{% trans %}
+Ambuda is growing rapidly. <a href="{{ mailing_url }}">Sign up for our mailing
+list</a> to receive regular updates on new content and features.
+{% endtrans %}</p>
 {% endcall %}
 
-<section class="bg-slate-100 text-center text-brand shrink-0 pt-4 pb-32">
+<section class="text-center text-brand shrink-0 pt-4 pb-32">
   <div class="max-w-4xl mx-auto mt-28 mb-4 p-4">
-    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold">Sanskrit at your fingertips</h1>
-    <p class="mx-auto text-lg mt-4 mb-4 max-w-2xl">Our work is
-    just beginning. Thank you for using Ambuda.</p>
+    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold">
+      {{ _('Sanskrit at your fingertips') }}
+    </h1>
+    <p class="mx-auto text-lg mt-4 mb-4 max-w-2xl">
+      {{ _('Our work is just beginning. Thank you for using Ambuda.') }}
+    </p>
   </div>
   <div>
-    <a class="p-4 transition rounded btn border bg-brand text-white
-       hover:bg-white hover:text-brand" href="{{ url_for("texts.index") }}"
-       >Explore the library</a>
+    <a class="p-4 btn btn-submit" href="{{ url_for("texts.index") }}">
+      {{ _('Explore the library') }}
+    </a>
   </div>
 </section>
 

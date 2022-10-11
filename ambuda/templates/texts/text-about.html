@@ -2,7 +2,7 @@
 {% import 'macros/library.html' as m %}
 
 {% macro tei_header(data) %}
-<section class="prose text-slate-400">
+<section class="prose">
 <dl>
   <dt>Title</dt> <dd>{{ data.title }}</dd>
   <dt>Author</dt> <dd>{{ data.author }}</dd>
@@ -13,13 +13,11 @@
 {% endmacro %}
 
 
-{% block title %}{{ text.title | devanagari }} | Ambuda{% endblock %}
+{% block title %}{{ text.title | devanagari }} {{ _('| Ambuda') }}{% endblock %}
+
 
 {% block content %}
-<h1 class="text-center font-bold text-4xl x-deva">
-  {{ text.title | devanagari }}
-</h1>
-
+{{ m.text_header(text=text) }}
 {{ m.text_tabs(text=text, active='about') }}
 
 {% if header %}

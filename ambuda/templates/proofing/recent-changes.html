@@ -5,16 +5,16 @@
 {% block title %}Recent changes | Ambuda{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('changes') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('changes', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
 {{ m.title_and_subtitle(
-    "Recent changes",
-    "Recent edits and revisions made by people like you.") }}
+    _("Recent changes"),
+    "Recent edits and revisions made by people like you!") }}
 
-{% if revisions %}
-{{ m.revision_list(revisions) }}
+{% if recent_activity -%}
+{{ m.activity_log(recent_activity) }}
 {% else %}
 <p>No changes found.</p>
 {% endif %}

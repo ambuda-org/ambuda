@@ -7,15 +7,17 @@
 {% block title %}Talk: {{ project.title }} | Ambuda{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('talk', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
 {{ m.project_header_nested('Talk', project) }}
-{{ m.project_nav(project=project, active='talk', is_admin=current_user.is_admin) }}
+{{ m.project_nav(project=project, active='talk') }}
 
 <div class="my-4">
-<a class="btn btn-basic" href="{{ url_for('proofing.talk.create_thread', slug=project.slug) }}">Create thread</a>
+<a class="btn btn-basic" href="{{ url_for('proofing.talk.create_thread', slug=project.slug) }}">
+  {{ _('Create thread') }}
+</a>
 </div>
 
 {% if board.threads %}

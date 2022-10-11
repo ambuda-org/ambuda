@@ -1,13 +1,12 @@
 {% extends 'base-text.html' %}
 {% import 'macros/library.html' as m %}
 
-{% block title %}{{ text.title | devanagari }} | Ambuda{% endblock %}
+
+{% block title %}{{ text.title | devanagari }} {{ _('| Ambuda') }}{% endblock %}
+
 
 {% block content %}
-<h1 class="text-center font-bold text-4xl x-deva">
-    {{ text.title | devanagari }}
-</h1>
-
+{{ m.text_header(text) }}
 {{ m.text_tabs(text=text, active='resources') }}
 
 {% set gretil = "https://github.com/ambuda-org/gretil" %}

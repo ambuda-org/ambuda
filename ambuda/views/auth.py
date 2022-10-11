@@ -14,16 +14,16 @@ import secrets
 from datetime import datetime, timedelta
 from typing import Optional
 
-from flask import Blueprint, flash, render_template, redirect, url_for
-from flask_login import current_user, login_user, logout_user, login_required
+from flask import Blueprint, flash, redirect, render_template, url_for
+from flask_babel import lazy_gettext as _l
+from flask_login import current_user, login_required, login_user, logout_user
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, PasswordField, EmailField
+from wtforms import EmailField, PasswordField, StringField
 from wtforms import validators as val
 
 import ambuda.queries as q
 from ambuda import database as db
 from ambuda import mail
-
 
 bp = Blueprint("auth", __name__)
 
@@ -80,9 +80,11 @@ def _is_valid_reset_token(row: db.PasswordResetToken, raw_token: str, now=None):
 
 
 class SignupForm(FlaskForm):
-    username = StringField("Username", [val.Length(min=6, max=25), val.DataRequired()])
-    password = PasswordField("Password", [val.Length(min=8), val.DataRequired()])
-    email = StringField("Email", [val.DataRequired(), val.Email()])
+    username = StringField(
+        _l("Username"), [val.Length(min=6, max=25), val.DataRequired()]
+    )
+    password = PasswordField(_l("Password"), [val.Length(min=8), val.DataRequired()])
+    email = StringField(_l("Email address"), [val.DataRequired(), val.Email()])
     recaptcha = RecaptchaField()
 
     def validate_username(self, username):
@@ -98,8 +100,10 @@ class SignupForm(FlaskForm):
 
 
 class SignInForm(FlaskForm):
-    username = StringField("Username", [val.Length(min=6, max=25), val.DataRequired()])
-    password = PasswordField("Password", [val.Length(min=8), val.DataRequired()])
+    username = StringField(
+        _l("Username"), [val.Length(min=6, max=25), val.DataRequired()]
+    )
+    password = PasswordField(_l("Password"), [val.Length(min=8), val.DataRequired()])
 
 
 class ResetPasswordForm(FlaskForm):
@@ -110,21 +114,22 @@ class ResetPasswordForm(FlaskForm):
 class ChangePasswordForm(FlaskForm):
     #: Old password. No validation requirements, in case we change our password
     #: criteria in the future.
-    old_password = PasswordField("Old password", [val.DataRequired()])
+    old_password = PasswordField(_l("Old password"), [val.DataRequired()])
     #: New password.
     new_password = PasswordField(
-        "New password", [val.Length(min=8), val.DataRequired()]
+        _l("New password"), [val.Length(min=8), val.DataRequired()]
     )
 
 
 class ResetPasswordFromTokenForm(FlaskForm):
-    password = PasswordField("Password", [val.DataRequired()])
-    confirm_password = PasswordField("Confirm password", [val.DataRequired()])
+    password = PasswordField(_l("Password"), [val.DataRequired()])
+    confirm_password = PasswordField(_l("Confirm password"), [val.DataRequired()])
 
 
 @bp.route("/register", methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
+        logout_if_not_ok()
         return redirect(url_for("site.index"))
 
     form = SignupForm()
@@ -140,7 +145,7 @@ def register():
         # Override the default message ("The response parameter is missing.")
         # for better UX.
         if form.recaptcha.errors:
-            form.recaptcha.errors = ["Please click the reCAPTCHA box."]
+            form.recaptcha.errors = [_l("Please click the reCAPTCHA box.")]
 
         return render_template("auth/register.html", form=form)
 
@@ -148,6 +153,7 @@ def register():
 @bp.route("/sign-in", methods=["GET", "POST"])
 def sign_in():
     if current_user.is_authenticated:
+        logout_if_not_ok()
         return redirect(url_for("site.index"))
 
     form = SignInForm()
@@ -159,6 +165,13 @@ def sign_in():
         else:
             flash("Invalid username or password.")
     return render_template("auth/sign-in.html", form=form)
+
+
+def logout_if_not_ok():
+    # Check if user is now deleted or banned
+    user = q.user(username=current_user.username)
+    if user and not user.is_ok:
+        logout_user()
 
 
 @bp.route("/sign-out")

@@ -1,5 +1,6 @@
-from flask import render_template, url_for, Blueprint
-from flask_login import login_required, current_user
+from flask import Blueprint, render_template, url_for
+from flask_babel import lazy_gettext as _l
+from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
@@ -9,26 +10,25 @@ from wtforms.widgets import TextArea
 
 from ambuda import queries as q
 
-
 bp = Blueprint("talk", __name__)
 
 
 class CreateThreadForm(FlaskForm):
-    title = StringField("Title")
+    title = StringField(_l("Title"))
     content = StringField(
-        "Message", widget=TextArea(), validators=[DataRequired(), Length(max=10000)]
+        _l("Message"), widget=TextArea(), validators=[DataRequired(), Length(max=10000)]
     )
 
 
 class CreatePostForm(FlaskForm):
     content = StringField(
-        "Message", widget=TextArea(), validators=[DataRequired(), Length(max=10000)]
+        _l("Message"), widget=TextArea(), validators=[DataRequired(), Length(max=10000)]
     )
 
 
 class EditPostForm(FlaskForm):
     content = StringField(
-        "Message", widget=TextArea(), validators=[DataRequired(), Length(max=10000)]
+        _l("Message"), widget=TextArea(), validators=[DataRequired(), Length(max=10000)]
     )
 
 

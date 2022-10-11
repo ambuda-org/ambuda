@@ -1,14 +1,7 @@
 """Base model and utilities."""
 
-from sqlalchemy import (
-    Column,
-    Integer,
-    ForeignKey,
-)
-from sqlalchemy.orm import (
-    declarative_base,
-)
-
+from sqlalchemy import Column, ForeignKey, Integer
+from sqlalchemy.orm import declarative_base
 
 #: The base class for all of Ambuda's models. All new models should inherit
 #: from this class.

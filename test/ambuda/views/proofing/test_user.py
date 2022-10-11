@@ -1,5 +1,5 @@
 def test_summary(client):
-    resp = client.get("/proofing/users/akprasad/")
+    resp = client.get("/proofing/users/u-admin/")
     assert resp.status_code == 200
 
 
@@ -24,8 +24,13 @@ def test_edit__user_match__post(rama_client):
 
 
 def test_edit__user_mismatch(rama_client):
-    resp = rama_client.get("/proofing/users/akprasad/edit")
+    resp = rama_client.get("/proofing/users/u-admin/edit")
     assert resp.status_code == 403
+
+
+def test_edit__user_does_not_exist(rama_client):
+    resp = rama_client.get("/proofing/users/unknown/edit")
+    assert resp.status_code == 404
 
 
 def test_edit__unauth(client):
@@ -39,7 +44,7 @@ def test_summary__missing(client):
 
 
 def test_activity(client):
-    resp = client.get("/proofing/users/akprasad/activity")
+    resp = client.get("/proofing/users/u-admin/activity")
     assert resp.status_code == 200
 
 
@@ -49,12 +54,12 @@ def test_activity__missing(client):
 
 
 def test_admin(admin_client):
-    resp = admin_client.get("/proofing/users/akprasad/admin")
+    resp = admin_client.get("/proofing/users/u-admin/admin")
     assert resp.status_code == 200
 
 
 def test_admin__unauth(rama_client):
-    resp = rama_client.get("/proofing/users/akprasad/admin")
+    resp = rama_client.get("/proofing/users/u-admin/admin")
     assert resp.status_code == 302
 
 

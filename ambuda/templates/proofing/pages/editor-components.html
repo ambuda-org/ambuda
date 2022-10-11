@@ -1,3 +1,14 @@
+        {#
+      <button
+          type="button"
+          class="btn bg-sky-700 text-white m-2 hover:bg-sky-900"
+          @click="runOCR"
+          :disabled="isRunningOCR"
+          x-text="isRunningOCR ? '{{ _("Running OCR ...") }}' : '{{ _("Run OCR") }}'">
+        {{ _("Run OCR") }}
+      </button>
+      #}
+
 {# Components of the page editor.
 
 We use these macros both to keep `pages/edit` readable and so that we can embed
@@ -25,38 +36,49 @@ these components in our help text and documentation.
 {# A small status badge we display in the page header. #}
 {% macro status_badge(status) %}
 {% if status == 'reviewed-0' %}
-<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">Needs more work</span>
+<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">{{ _('Needs more work') }}</span>
 {% elif status == 'reviewed-1' %}
-<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">Proofread once</span>
+<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">{{ _('Proofed once') }}</span>
 {% elif status == 'reviewed-2' %}
-<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">Proofread twice</span>
+<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">{{ _('Proofed twice') }}</span>
 {% elif status == 'skip' %}
-<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">Not relevant</span>
+<span class="p-1 rounded text-xs {{ m.revision_colors(status) }}">{{ _('Not relevant') }}</span>
 {% endif %}
 {% endmacro %}
 
 
 {# Page information and navigation options. #}
-{% macro navigation_bar(project, cur, prev, next) %}
+{% macro navigation_bar(ctx, page_number, image_number, num_images) %}
+{% set project = ctx.project %}
 <header class="py-2 a-hover-underline">
   <div class="flex justify-between items-center">
+
   <h1 class="text pr-4">
-    <a class="text-black font-bold"
+    <a class="text-black font-bold text-xl"
         href="{{ url_for("proofing.project.summary", slug=project.slug) }}">
-       {{ project.title }}</a>
-    / {{ cur.slug }}
+      {{ project.title }}</a> / {{ image_number }}</a>
+    <span class="block text-sm text-slate-500">
+      Image {{ image_number }} of {{ num_images }}
+      {% if image_title != page_number %}
+        (Page {{ page_number }})
+      {% endif %}
+    </span>
   </h1>
 
-  {% set history_url = url_for("proofing.page.history", project_slug=project.slug, page_slug=cur.slug) %}
+  <div>
+  {% set history_url = url_for("proofing.page.history", project_slug=project.slug, page_slug=ctx.cur.slug) %}
   <nav class="flex text-slate-700 text-md">
-    <a class="block p-2" href="{{ history_url }}">History</a>
-    {% set prev_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=prev.slug) %}
-    {% set next_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=next.slug) %}
+    <a class="block p-2" href="{{ history_url }}">{{ _('History') }}</a>
+    {% set prev_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=ctx.prev.slug) %}
+    {% set next_url = url_for('proofing.page.edit', project_slug=project.slug, page_slug=ctx.next.slug) %}
     <a class="block p-2" href="{{ prev_url }}">&larr;</a>
     <a class="block p-2" href="{{ next_url }}">&rarr;</a>
   </nav>
+    <div class="text-right">
+    {{ status_badge(ctx.cur.status.name) }}
+    </div>
   </div>
-  {{ status_badge(cur.status.name) }}
+  </div>
 </header>
 {% endmacro %}
 
@@ -101,11 +123,11 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
   <div x-data="{open: false}" class="relative">
     <button class="{{ button_css }}"
        @click.prevent="open=!open"
-       @click.outside="open=false">Layout</button>
+       @click.outside="open=false">{{ _('Layout') }}</button>
     <div x-show="open" class="dropdown-pane w-48">
       <ul class="text-sm" @click.prevent="open=false">
-        {{ _dropdown_item('displaySideBySide', 'Image right, text left') }}
-        {{ _dropdown_item('displayTopAndBottom', 'Image above, text below') }}
+        {{ _dropdown_item('displaySideBySide', _('Image right, text left')) }}
+        {{ _dropdown_item('displayTopAndBottom', _('Image above, text below')) }}
       </ul>
     </div>
   </div>
@@ -113,40 +135,63 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
   <div x-data="{open: false}" class="relative">
     <button class="{{ button_css }}"
        @click.prevent="open=!open"
-       @click.outside="open=false">Markup</button>
+       @click.outside="open=false">{{ _('Markup') }}</button>
     <div x-show="open" class="dropdown-pane w-48">
       <ul class="text-sm" @click.prevent="open=false">
-        {{ _dropdown_item('markAsError', 'Mark as error') }}
-        {{ _dropdown_item('markAsFix', 'Mark as fix') }}
-        {{ _dropdown_item('markAsUnclear', 'Mark as unclear') }}
-        {{ _dropdown_item('markAsFootnoteNumber', 'Mark as footnote number') }}
+        {{ _dropdown_item('markAsError', _('Mark as error')) }}
+        {{ _dropdown_item('markAsFix', _('Mark as fix')) }}
+        {{ _dropdown_item('markAsUnclear', _('Mark as unclear')) }}
+        {{ _dropdown_item('markAsFootnoteNumber', _('Mark as footnote number')) }}
+      </ul>
+    </div>
+  </div>
+
+  <div x-data="{open: false}" class="relative">
+    <button class="{{ button_css }}"
+       @click.prevent="open=!open"
+       @click.outside="open=false">{{ _('Tools') }}</button>
+    <div x-show="open" class="dropdown-pane w-48">
+      <ul class="text-sm" @click.prevent="open=false">
+        <li>
+          <button class="dropdown-item"
+                  @click.prevent="runOCR"
+                  :disabled="isRunningOCR"
+                  x-text="isRunningOCR ? '{{ _("Running OCR ...") }}' : '{{ _("Run OCR") }}'">
+          </button>
+        </li>
+        {{ _dropdown_item('replaceColonVisarga', _(': (colon) → ः (visarga)')) }}
+        {{ _dropdown_item('replaceSAvagraha', _('S → ऽ (avagraha)')) }}
       </ul>
     </div>
   </div>
 
   <div x-data="{open: false}" class="relative" @click.outside="open=false">
     <button class="{{ button_css }}"
-       @click.prevent="open=!open">Transliterator</button>
-    <div x-show="open" class="dropdown-pane w-64 p-2">
+       @click.prevent="open=!open">{{ _('Transliterator') }}</button>
+    <div x-show="open" class="dropdown-pane w-80 p-2">
+      {# i18n: source scheme when transliterating #}
+      <label class="block">{{ pgettext('editor', 'From:') }}</label>
       <div class="mb-2 flex justify-between">
-        <label>From:</label>
-        <select x-model="fromScript">
-          <option value="hk">Harvard-Kyoto</option>
-          <option value="itrans">ITRANS</option>
+        <select class="p-1" x-model="fromScript">
+          <option value="hk">Harvard-Kyoto ("aGka" &rarr; {{ 'aGka'|d }})</option>
+          <option value="itrans">ITRANS ("a~Nka" &rarr; {{ 'aGka'|d }})</option>
+          <option value="optitrans">OPTITRANS ("anka" &rarr; {{ 'aGka'|d }})</option>
         </select>
       </div>
 
+      {# i18n: destination scheme when transliterating #}
+      <label class="block">{{ pgettext('editor', 'To:') }}</label>
       <div class="mb-2 flex justify-between">
-        <label>To:</label>
-        <select x-model="toScript">
-          <option value="devanagari">Devanagari</option>
-          <option value="iast">IAST</option>
+        <select class="p-1" x-model="toScript">
+          <option value="devanagari">{{ _('Devanagari') }}</option>
+          <option value="iast">{{ _('IAST') }}</option>
         </select>
       </div>
 
       <button class="mt-4 btn btn-basic block w-full"
           @click.prevent="transliterate; open=false">
-          Transliterate selected text
+          {# i18n: Command in proofing editor #}
+          {{ _('Transliterate selected text') }}
       </button>
     </div>
   </div>
@@ -154,9 +199,10 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
   <div x-data="{open: false}" class="relative">
     <button class="{{ button_css }}"
        @click.prevent="open=!open"
-       @click.outside="open=false">Characters</button>
+       {# i18n: Selection menu for Unicode character in proofing editor. #}
+       @click.outside="open=false">{{ pgettext('editor', 'Characters') }}</button>
     <div x-show="open" class="p-2 dropdown-pane w-60" @click.prevent="copyCharacter">
-      <p class="text-xs text-center mb-2">Click a character to copy it.</p>
+      <p class="text-xs text-center mb-2">{{ _('Click a character to copy it.') }}</p>
       <ul class="text-center">
         {{ _latin_char_row('ā á â à', 'grid-cols-8') }}
         {{ _latin_char_row('ī í î ì', 'grid-cols-8') }}
@@ -173,8 +219,11 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
     </div>
   </div>
 
-  <a class="{{ button_css }}"
-      href="{{ url_for('proofing.editor_guide') }}" target="_blank">Help</a> 
+  {% set help_url = url_for('proofing.editor_guide') %}
+  <a class="{{ button_css }}" href="{{ help_url }}" target="_blank">
+    {# i18n: Help text for proofing edit #}
+	{{ pgettext('editor', 'Help') }}
+  </a>
 </nav>
 {% endmacro %}
 
@@ -183,16 +232,6 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
 {% macro text_box(data) %}
 <div class="flex flex-col flex-1 border border-r-slate-400">
   <div class="bg-slate-200 flex justify-between">
-    <div>
-      <button
-          type="button"
-          class="btn bg-sky-700 text-white m-2 hover:bg-sky-900"
-          @click="runOCR"
-          :disabled="isRunningOCR"
-          x-text="isRunningOCR ? 'Running ...' : 'Run OCR'">
-        Run OCR
-      </button>
-    </div>
     <div>
       {{ alpine_button("A<sup>+</sup>", "increaseTextSize") }}
       {{ alpine_button("A<sup>-</sup>", "decreaseTextSize") }}

@@ -1,16 +1,14 @@
 """Add parse data from DCS for a simple text."""
 
 import argparse
-import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Iterator
 
-from indic_transliteration import sanscript
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
 import ambuda.scripts.analysis.dcs_utils as dcs
-from ambuda.seed.utils.itihasa_utils import create_db
+from ambuda.seed.utils.data_utils import create_db
 
 
 def log(*a):

@@ -2,7 +2,6 @@
 
 from flask import Blueprint, render_template
 
-
 bp = Blueprint("about", __name__)
 
 
@@ -19,11 +18,6 @@ def mission():
 @bp.route("/values")
 def values():
     return render_template("about/values.html")
-
-
-@bp.route("/roadmap")
-def roadmap():
-    return render_template("about/roadmap.html")
 
 
 @bp.route("/people")

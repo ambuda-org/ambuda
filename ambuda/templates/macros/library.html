@@ -1,10 +1,18 @@
 {% import 'macros/components.html' as components %}
 
+
+{% macro text_header(text) %}
+<h1 class="text-center font-bold text-5xl x-deva my-16">
+  {{ text.title | devanagari }}
+</h1>
+{% endmacro %}
+
+
 {% macro text_tabs(text, active) %}
 {% set routes = [
-  ("contents",  "Contents",  url_for("texts.text", slug=text.slug)),
-  ("resources", "Resources", url_for("texts.text_resources", slug=text.slug)),
-  ("about",     "About",     url_for("texts.text_about", slug=text.slug)),
+  ("contents",         _("Contents"),       url_for("texts.text", slug=text.slug)),
+  ("resources",        _("Resources"),      url_for("texts.text_resources", slug=text.slug)),
+  ("about",     pgettext('texts', "About"), url_for("texts.text_about", slug=text.slug)),
 ] %}
 <div class="mt-8">
 {{ components.tabs(routes, active) }}

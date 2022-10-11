@@ -1,14 +1,10 @@
 """Models for text content."""
 
-from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    Text as _Text,
-)
+from sqlalchemy import Column, Integer, String
+from sqlalchemy import Text as _Text
 from sqlalchemy.orm import relationship
 
-from ambuda.models.base import Base, pk, foreign_key
+from ambuda.models.base import Base, foreign_key, pk
 
 
 class Text(Base):

@@ -1,14 +1,15 @@
 """Sanity checks that run on application startup."""
 
-
 import sys
-from typing import Optional
 
 from click import style
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect
 from sqlalchemy.schema import Column
-from sqlalchemy import inspect
 
+from ambuda import consts
+from ambuda import database as db
+from ambuda import enums
+from ambuda import queries as q
 from ambuda.models.base import Base
 
 
@@ -42,7 +43,7 @@ def _check_column(app_col: Column, db_col: dict[str, str]) -> list[str]:
     return errors
 
 
-def check_app_schema_matches_db_schema(database_uri: str):
+def _check_app_schema_matches_db_schema(database_uri: str) -> list[str]:
     """Check that our application tables and database tables match.
 
     Currently, we apply the following checks:
@@ -100,6 +101,54 @@ def check_app_schema_matches_db_schema(database_uri: str):
             if column_errors:
                 errors.extend(column_errors)
 
+    return errors
+
+
+def _check_lookup_tables(session) -> list[str]:
+    lookups = [
+        (enums.SitePageStatus, db.PageStatus),
+        (enums.SiteRole, db.Role),
+    ]
+
+    errors = []
+    for enum, model in lookups:
+        items = session.query(model).all()
+        db_names = {x.name for x in items}
+        app_names = {x.value for x in enum}
+
+        enum_name = enum.__name__
+        table_name = model.__tablename__
+        for field_name in db_names - app_names:
+            errors.append(
+                f'Enum field "{enum_name}.{field_name}" not defined on database table "{table_name}".'
+            )
+
+        for field_name in app_names - db_names:
+            errors.append(
+                f'Table row ({table_name} where name = "{field_name}") not defined on enum "{enum_name}".'
+            )
+
+    return errors
+
+
+def _check_bot_user(session) -> list[str]:
+    """Check that the ambuda-bot user exists."""
+    username = consts.BOT_USERNAME
+    # Assume bot user is active
+    bot_user = session.query(db.User).filter_by(username=username).first()
+    if bot_user:
+        return []
+    else:
+        return [f'Bot user "{username}" does not exist.']
+
+
+def check_database(database_uri: str):
+    errors = _check_app_schema_matches_db_schema(database_uri)
+
+    session = q.get_session()
+    errors += _check_lookup_tables(session)
+    errors += _check_bot_user(session)
+
     if errors:
         _warn("The data tables defined in your application code don't match the")
         _warn("tables defined in your database. Usually, this means that you need")
@@ -107,17 +156,17 @@ def check_app_schema_matches_db_schema(database_uri: str):
         _warn()
         _warn("    make upgrade")
         _warn()
+        _warn("Specific errors are:")
+        _warn()
+        for error in errors:
+            _warn(f"- {error}")
+        _warn()
         _warn("For more information, see our official docs at:")
         _warn()
         _warn("    https://ambuda.readthedocs.io/en/latest/managing-the-database.html")
         _warn()
         _warn("If the error persists, please ping the #backend channel on the")
         _warn("Ambuda Discord server (https://discord.gg/7rGdTyWY7Z).")
-        _warn()
-        _warn("Errors found:")
-        _warn()
-        for error in errors:
-            _warn(f"- {error}")
         sys.exit(1)
     else:
         # Style the output to match Flask's styling.

@@ -8,6 +8,16 @@ def test_summary__bad_project(client):
     assert resp.status_code == 404
 
 
+def test_activity(client):
+    resp = client.get("/proofing/test-project/activity")
+    assert resp.status_code == 200
+
+
+def test_activity__bad_project(client):
+    resp = client.get("/proofing/unknown/activity")
+    assert resp.status_code == 404
+
+
 # For "Talk:" tests, see test_talk.py.
 
 
@@ -105,12 +115,18 @@ def test_admin__no_admin(rama_client):
     assert resp.status_code == 302
 
 
-def test_admin__has_admin(admin_client):
+def test_admin__has_moderator_role(moderator_client):
+    resp = moderator_client.get("/proofing/test-project/admin")
+    assert resp.status_code == 200
+    assert "Admin:" in resp.text
+
+
+def test_admin__has_admin_role(admin_client):
     resp = admin_client.get("/proofing/test-project/admin")
     assert resp.status_code == 200
     assert "Admin:" in resp.text
 
 
-def test_admin__has_admin__bad_project(admin_client):
+def test_admin__has_moderator_role__bad_project(admin_client):
     resp = admin_client.get("/proofing/unknown/admin")
     assert resp.status_code == 404

@@ -37,6 +37,9 @@ window.fetch = jest.fn(async (url) => {
     }
   }
 });
+navigator.clipboard = {
+  writeText: jest.fn((s) => {}),
+}
 
 beforeEach(() => {
   window.location = null;
@@ -83,6 +86,17 @@ test('loadSettings works if localStorage data is corrupt', () => {
   const p = Proofer();
   p.loadSettings();
   // No error -- OK
+});
+
+test('onBeforeUnload shows text if changes are present.', () => {
+  const p = Proofer();
+  p.hasUnsavedChanges = true;
+  expect(p.onBeforeUnload()).toBe(true);
+});
+
+test('onBeforeUnload shows no text if no changes have been made.', () => {
+  const p = Proofer();
+  expect(p.onBeforeUnload()).toBe(null);
 });
 
 test('runOCR handles a valid server response', async () => {
@@ -239,4 +253,18 @@ test('markAsFootnoteNumber works', () => {
   const { p, $text } = markupFixtures();
   p.markAsFootnoteNumber()
   expect(p.textValue()).toBe('This is [^sample] text.')
+});
+
+test('replaceColonVisarga works', () => {
+  const p = Proofer();
+  const $text = $('#content');
+  $text.value = 'क: खा: गि : घी:'
+  $text.setSelectionRange(3, 12);
+  p.replaceColonVisarga();
+  expect($text.value).toBe('क: खाः गि ः घी:');
+});
+
+test('copyCharacter works', () => {
+  const { p } = markupFixtures();
+  p.copyCharacter({ target: { textContent: 'foo' }});
 });

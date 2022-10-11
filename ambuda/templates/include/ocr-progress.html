@@ -1,0 +1,28 @@
+{% import 'macros/components.html' as components %}
+
+{% macro progress_bar(percent) %}
+<div class="my-4 rounded w-full bg-slate-100 h-4">
+  <div class="rounded bg-green-300 h-4" style="width: {{ percent }}%">&nbsp;</div>
+</div>
+{% endmacro %}
+
+{# kwargs: current, total, percent #}
+{% if status == 'FAILURE' %}
+  {% call components.div_warning() %}
+  <p class="!mb-0">We weren't able to complete OCR on this project. If you
+  believe this is an error, please <a href="{{ url_for('about.contact') }}">let
+  us know</a> and we'll fix the error as soon as we can.
+  {% endcall %}
+
+{% elif status == 'PROGRESS' %}
+  {{ progress_bar(percent) }}
+  <p>Processed {{ current }} of {{ total }} unedited pages.</p>
+
+{% elif status == 'SUCCESS' %}
+  {{ progress_bar(100) }}
+  <p>Done. (Processed {{ current }} of {{ total }} unedited pages.)</p>
+
+{% else %}
+  {{ progress_bar(0) }}
+  <p>Beginning OCR &hellip;</p>
+{% endif %}

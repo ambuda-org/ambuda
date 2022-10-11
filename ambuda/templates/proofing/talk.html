@@ -7,11 +7,11 @@
 {% block title %}Talk | Ambuda{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('talk') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('talk', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
-{{ m.title_and_subtitle('Talk', 'Recent discussion across all projects') }}
+{{ m.title_and_subtitle(_('Talk'), 'Recent discussion across all projects') }}
 
 {% for project, thread in all_threads %}
   {% set project_url = url_for('proofing.project.summary', slug=project.slug) %}

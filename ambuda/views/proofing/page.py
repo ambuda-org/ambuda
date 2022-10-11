@@ -1,124 +1,124 @@
-from pathlib import Path
+"""Routes related to project pages.
 
-from flask import render_template, flash, current_app, send_file, Blueprint
-from flask_login import login_required, current_user
+The main route here is `edit`, which defines the page editor and the edit flow.
+"""
+
+from dataclasses import dataclass
+from typing import Optional
+
+from flask import Blueprint, current_app, flash, render_template, send_file
+from flask_babel import lazy_gettext as _l
+from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
-from sqlalchemy import update
 from werkzeug.exceptions import abort
-from wtforms import StringField, HiddenField, SelectField
+from wtforms import HiddenField, RadioField, StringField
 from wtforms.validators import DataRequired
 from wtforms.widgets import TextArea
 
-from ambuda import database as db, queries as q
-from ambuda.utils import google_ocr
+from ambuda import database as db
+from ambuda import queries as q
+from ambuda.enums import SitePageStatus
+from ambuda.utils import google_ocr, project_utils
+from ambuda.utils.assets import get_page_image_filepath
 from ambuda.utils.diff import revision_diff
+from ambuda.utils.revisions import EditException, add_revision
 from ambuda.views.api import bp as api
 from ambuda.views.site import bp as site
-
 
 bp = Blueprint("page", __name__)
 
 
-def _get_image_filesystem_path(project_slug: str, page_slug: str) -> Path:
-    """Get the location of the given image on disk."""
-    image_dir = Path(current_app.config["UPLOAD_FOLDER"]) / "projects" / project_slug
-    return image_dir / "pages" / f"{page_slug}.jpg"
+@dataclass
+class PageContext:
+    """A page, its project, and some navigation data."""
 
-
-class EditException(Exception):
-    """Raised if a user's attempt to edit a page fails."""
-
-    pass
+    #: The current project.
+    project: db.Project
+    #: The current page.
+    cur: db.Page
+    #: The page before `cur`, if it exists.
+    prev: Optional[db.Page]
+    #: The page after `cur`, if it exists.
+    next: Optional[db.Page]
 
 
 class EditPageForm(FlaskForm):
-    summary = StringField("Summary of changes made")
-    version = HiddenField("Page version")
-    content = StringField("Content", widget=TextArea(), validators=[DataRequired()])
-    status = SelectField(
-        "Status",
+    #: An optional summary that describes the revision.
+    summary = StringField(_l("Edit summary (optional)"))
+    #: The page version. Versions are monotonically increasing: if A < B, then
+    #: A is older than B.
+    version = HiddenField(_l("Page version"))
+    #: The page content.
+    content = StringField(
+        _l("Page content"), widget=TextArea(), validators=[DataRequired()]
+    )
+    #: The page status.
+    status = RadioField(
+        _l("Status"),
         choices=[
-            ("reviewed-0", "Needs more work"),
-            ("reviewed-1", "Proofread once"),
-            ("reviewed-2", "Proofread twice"),
-            ("skip", "No useful text"),
+            (SitePageStatus.R0.value, _l("Needs more work")),
+            (SitePageStatus.R1.value, _l("Proofed once")),
+            (SitePageStatus.R2.value, _l("Proofed twice")),
+            (SitePageStatus.SKIP.value, _l("Not relevant")),
         ],
     )
 
 
-def _prev_cur_next(pages: list[db.Page], slug: str) -> tuple[db.Page, db.Page, db.Page]:
-    """Get the previous, current, and next pages.
+def _get_page_context(project_slug: str, page_slug: str) -> Optional[PageContext]:
+    """Get the previous, current, and next pages for the given project.
 
-    :param pages: all of the pages in this project.
-    :param slug: the slug for the current page.
+    :param project_slug: slug for the current project
+    :param page_slug: slug for a page within the current project.
+    :return: a `PageContext` if the project and page can be found, else ``None``.
     """
+    project_ = q.project(project_slug)
+    if project_ is None:
+        return None
+
+    pages = project_.pages
     found = False
     i = 0
     for i, s in enumerate(pages):
-        if s.slug == slug:
+        if s.slug == page_slug:
             found = True
             break
 
     if not found:
-        raise ValueError(f"Unknown slug {slug}")
+        return None
 
     prev = pages[i - 1] if i > 0 else None
     cur = pages[i]
     next = pages[i + 1] if i < len(pages) - 1 else None
-    return prev, cur, next
+    return PageContext(project=project_, cur=cur, prev=prev, next=next)
 
 
-def add_revision(
-    page: db.Page, summary: str, content: str, status: str, version: int, author_id: int
-) -> int:
-    """Add a new revision for a page."""
-    # If this doesn't update any rows, there's an edit conflict.
-    # Details: https://gist.github.com/shreevatsa/237bd6592771caadecc68c9515403bc3
-    # FIXME: rather than do this on the application side, do an `exists` query
-    # FIXME: instead? Not sure if this is a clear win, but worth thinking about.
+def _get_page_number(project_: db.Project, page_: db.Page) -> str:
+    """Get the page number for the given page.
 
-    # FIXME: Check for `proofreading` user permission before allowing changes
-    session = q.get_session()
-    status_ids = {s.name: s.id for s in q.page_statuses()}
-    new_version = version + 1
-    result = session.execute(
-        update(db.Page)
-        .where((db.Page.id == page.id) & (db.Page.version == version))
-        .values(version=new_version, status_id=status_ids[status])
-    )
-    session.commit()
+    We define page numbers through a page spec. For now, just interpret the
+    full page spec. In the future, we might store this in its own column.
+    """
+    if not project_.page_numbers:
+        return page_.slug
 
-    num_rows_changed = result.rowcount
-    if num_rows_changed == 0:
-        raise EditException("Edit conflict")
+    page_rules = project_utils.parse_page_number_spec(project_.page_numbers)
+    page_titles = project_utils.apply_rules(len(project_.pages), page_rules)
+    for title, cur in zip(page_titles, project_.pages):
+        if cur.id == page_.id:
+            return title
 
-    # Must be 1 since there's exactly one page with the given page ID.
-    # If this fails, the application data is in a weird state.
-    assert num_rows_changed == 1
-
-    revision_ = db.Revision(
-        project_id=page.project_id,
-        page_id=page.id,
-        summary=summary,
-        content=content,
-        author_id=author_id,
-        status_id=status_ids[status],
-    )
-    session.add(revision_)
-    session.commit()
-    return new_version
+    # We shouldn't reach this case, but if we do, reuse the page's slug.
+    return page_.slug
 
 
 @bp.route("/<project_slug>/<page_slug>/")
 def edit(project_slug, page_slug):
-    project_ = q.project(project_slug)
-    if not project_:
-        abort(404)
-    try:
-        prev, cur, next = _prev_cur_next(project_.pages, page_slug)
-    except ValueError:
+    """Display the page editor."""
+    ctx = _get_page_context(project_slug, page_slug)
+    if ctx is None:
         abort(404)
 
+    cur = ctx.cur
     form = EditPageForm()
     form.version.data = cur.version
 
@@ -126,33 +126,42 @@ def edit(project_slug, page_slug):
     status_names = {s.id: s.name for s in q.page_statuses()}
     form.status.data = status_names[cur.status_id]
 
-    if cur.revisions:
+    has_edits = bool(cur.revisions)
+    if has_edits:
         latest_revision = cur.revisions[-1]
         form.content.data = latest_revision.content
 
+    is_r0 = cur.status.name == SitePageStatus.R0
+    image_number = cur.slug
+    page_number = _get_page_number(ctx.project, cur)
+
     return render_template(
         "proofing/pages/edit.html",
+        conflict=None,
+        cur=ctx.cur,
         form=form,
-        project=project_,
-        prev=prev,
-        cur=cur,
-        next=next,
+        has_edits=has_edits,
+        image_number=image_number,
+        is_r0=is_r0,
+        page_context=ctx,
+        page_number=page_number,
+        project=ctx.project,
     )
 
 
 @bp.route("/<project_slug>/<page_slug>/", methods=["POST"])
 @login_required
 def edit_post(project_slug, page_slug):
-    assert current_user.is_authenticated
+    """Submit changes through the page editor.
 
-    project_ = q.project(project_slug)
-    if not project_:
-        abort(404)
-    try:
-        prev, cur, next = _prev_cur_next(project_.pages, page_slug)
-    except ValueError:
+    Since `edit` is public on GET and needs auth on `POST`, it's cleaner to
+    separate the logic here into two views.
+    """
+    ctx = _get_page_context(project_slug, page_slug)
+    if ctx is None:
         abort(404)
 
+    cur = ctx.cur
     form = EditPageForm()
     conflict = None
 
@@ -174,52 +183,62 @@ def edit_post(project_slug, page_slug):
             conflict = cur.revisions[-1]
             form.version.data = cur.version
 
+    is_r0 = cur.status.name == SitePageStatus.R0
+    image_number = cur.slug
+    page_number = _get_page_number(ctx.project, cur)
+
+    # Keep args in sync with `edit`. (We can't unify these functions easily
+    # because one function requires login but the other doesn't. Helper
+    # functions don't have any obvious cutting points.
     return render_template(
         "proofing/pages/edit.html",
-        form=form,
-        project=project_,
-        prev=prev,
-        cur=cur,
-        next=next,
         conflict=conflict,
+        cur=ctx.cur,
+        form=form,
+        has_edits=True,
+        image_number=image_number,
+        is_r0=is_r0,
+        page_context=ctx,
+        page_number=page_number,
+        project=ctx.project,
     )
 
 
 @site.route("/static/uploads/<project_slug>/pages/<page_slug>.jpg")
 def page_image(project_slug, page_slug):
-    # In production, serve this directly via nginx.
+    """(Debug only) Serve an image from the filesystem.
+
+    In production, we serve images directly from nginx.
+    """
     assert current_app.debug
-    image_path = _get_image_filesystem_path(project_slug, page_slug)
+    image_path = get_page_image_filepath(project_slug, page_slug)
     return send_file(image_path)
 
 
 @bp.route("/<project_slug>/<page_slug>/history")
 def history(project_slug, page_slug):
-    project_ = q.project(project_slug)
-    if not project_:
-        abort(404)
-    try:
-        prev, cur, next = _prev_cur_next(project_.pages, page_slug)
-    except ValueError:
+    """View the full revision history for the given page."""
+    ctx = _get_page_context(project_slug, page_slug)
+    if ctx is None:
         abort(404)
 
     return render_template(
-        "proofing/pages/history.html", project=project_, cur=cur, prev=prev, next=next
+        "proofing/pages/history.html",
+        project=ctx.project,
+        cur=ctx.cur,
+        prev=ctx.prev,
+        next=ctx.next,
     )
 
 
 @bp.route("/<project_slug>/<page_slug>/revision/<revision_id>")
 def revision(project_slug, page_slug, revision_id):
     """View a specific revision for some page."""
-    project_ = q.project(project_slug)
-    if not project_:
+    ctx = _get_page_context(project_slug, page_slug)
+    if ctx is None:
         abort(404)
 
-    try:
-        prev, cur, next = _prev_cur_next(project_.pages, page_slug)
-    except ValueError:
-        abort(404)
-
+    cur = ctx.cur
     prev_revision = None
     cur_revision = None
     for r in cur.revisions:
@@ -239,10 +258,10 @@ def revision(project_slug, page_slug, revision_id):
 
     return render_template(
         "proofing/pages/revision.html",
-        project=project_,
+        project=ctx.project,
         cur=cur,
-        prev=prev,
-        next=next,
+        prev=ctx.prev,
+        next=ctx.next,
         revision=cur_revision,
         diff=diff,
     )
@@ -262,6 +281,6 @@ def ocr(project_slug, page_slug):
     if not page_:
         abort(404)
 
-    image_path = _get_image_filesystem_path(project_slug, page_slug)
-    result = google_ocr.full_text_annotation(image_path)
-    return result
+    image_path = get_page_image_filepath(project_slug, page_slug)
+    ocr_response = google_ocr.run(image_path)
+    return ocr_response.text_content

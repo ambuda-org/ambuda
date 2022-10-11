@@ -3,12 +3,12 @@
 {% import "macros/proofing.html" as m %}
 
 
-{% block sidebar %}{{ m.main_nav('tagging') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('tagging', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
 {{ m.title_and_subtitle(
-    "Tagging",
+    _("Tagging"),
     "(coming soon) Tools for tagging and parsing Sanskrit texts.") }}
 
 <div class="prose">

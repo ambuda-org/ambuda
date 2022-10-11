@@ -1,6 +1,7 @@
 {% extends 'base-text.html' %}
 {% import 'macros/library.html' as m %}
 
+
 {% macro section_grid(sections) %}
 <ul class="grid grid-cols-5 md:grid-cols-10 gap-4 my-8 text-center">
 {% for s in sections %}
@@ -13,19 +14,16 @@
 {% endmacro %}
 
 
-{% block title %}{{ text.title | devanagari }} | Ambuda{% endblock %}
+{% block title %}{{ text.title | devanagari }} {{ _('| Ambuda') }}{% endblock %}
 
 {% block content %}
-<h1 class="text-center font-bold text-4xl x-deva">
-    {{ text.title | devanagari }}
-</h1>
-
+{{ m.text_header(text) }}
 {{ m.text_tabs(text=text, active='contents') }}
 
 {% if text.sections|length == 1 %}
 {% set url = url_for("texts.section", text_slug=text.slug, section_slug='all') %}
 <p class="text-center mt-16">
-  <a class="btn btn-submit p-4" href="{{ url }}">Show full text</a>
+  <a class="btn btn-submit p-4" href="{{ url }}">{{ _('Show full text') }}</a>
 </p>
 {% else %}
   {% for prefix, sections in section_groups.items() %}

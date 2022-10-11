@@ -1,16 +1,10 @@
 from datetime import datetime
 
-from sqlalchemy import (
-    Column,
-    DateTime,
-    ForeignKey,
-    Integer,
-    String,
-    Text as Text_,
-)
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Text as Text_
 from sqlalchemy.orm import relationship
 
-from ambuda.models.base import Base, pk, foreign_key, same_as
+from ambuda.models.base import Base, foreign_key, pk, same_as
 
 
 def string():
@@ -88,6 +82,16 @@ class Page(Base):
     #: (internal-only) used only so that we can implement optimistic locking
     #: for edit conflicts. See the `add_revision` function for details.
     version = Column(Integer, default=0, nullable=False)
+
+    #: A raw-ish version of the Google OCR response. We store the response as a
+    #: list of word-level bounding boxes in the following format:
+    #:
+    #:     x1 y1 x2 y2 text
+    #:
+    #: The field is nullable so that we can distinguish between (1) a page that
+    #: has no OCR data and (2) a page whose OCR results are empty, such as if
+    #: the page is blank.
+    ocr_bounding_boxes = Column(Text_, nullable=True)
 
     #: Page status
     status_id = Column(

@@ -8,6 +8,18 @@ def _cleanup(session, *objects):
     session.commit()
 
 
+def test_user__is_ok_when_created(client):
+    session = get_session()
+    user = db.User(username="test", email="test@ambuda.org")
+    user.set_password("my-password")
+    session.add(user)
+    session.commit()
+
+    assert user.is_ok
+
+    _cleanup(session, user)
+
+
 def test_user__set_and_check_password(client):
     session = get_session()
     user = db.User(username="test", email="test@ambuda.org")
@@ -34,6 +46,25 @@ def test_user__set_and_check_role(client):
 
     assert user.is_proofreader
     assert not user.is_admin
+
+    _cleanup(session, user)
+
+
+def test_user__deletion(client):
+    session = get_session()
+
+    # Check active user
+    user = db.User(username="test", email="test@ambuda.org")
+    user.set_password("my-password")
+    session.add(user)
+    session.commit()
+    assert user.is_ok
+
+    # Deleted
+    user.set_is_deleted(True)
+    session.add(user)
+    session.commit()
+    assert not user.is_ok
 
     _cleanup(session, user)
 

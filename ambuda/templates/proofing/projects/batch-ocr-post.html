@@ -1,0 +1,19 @@
+{% extends 'proofing/base.html' %}
+{% from "macros/forms.html" import field %}
+{% import "macros/proofing.html" as m %}
+
+
+{% block title %}OCR {{ project.title }} | Ambuda{% endblock %}
+
+
+{% block content %}
+{{ m.project_header_nested('OCR', project) }}
+{{ m.project_nav(project=project, active='edit') }}
+
+{% set url = url_for('proofing.project.batch_ocr_status', task_id=task_id) %}
+<div id="progress" x-data="htmlPoller('{{ url }}')">
+  {% with current=current, total=total, percent=percent, slug=slug, status=status %}
+    {% include 'include/ocr-progress.html' %}
+  {% endwith %}
+</div>
+{% endblock %}

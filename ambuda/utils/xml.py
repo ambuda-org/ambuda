@@ -30,7 +30,6 @@ from xml.etree import ElementTree as ET
 
 from indic_transliteration import sanscript
 
-
 Attributes = NewType("Attributes", dict[str, str])
 
 
@@ -84,14 +83,6 @@ def _rename(mapping: dict[str, str]) -> Callable:
         return new_attrib
 
     return inner
-
-
-@dataclass
-class Block:
-    #: The block's HTML id.
-    id: str
-    #: HTML content for the given block.
-    html: str
 
 
 def _delete(xml: ET.Element):
@@ -208,7 +199,10 @@ mw_xml = {
     # Other
     "pb": None,
 }
-apte_xml = {
+
+# Tag meanings are documented here:
+# https://www.sanskrit-lexicon.uni-koeln.de/talkMay2008/mwtags.html
+apte_cologne_xml = {
     "ab": elem("abbr"),
     "b": elem("b"),
     "br": elem("br"),
@@ -221,6 +215,7 @@ apte_xml = {
     # TODO: keep attrs
     "span": elem("span"),
 }
+
 vacaspatyam_xml = {
     "body": elem("li", {"class": "dict-entry"}),
     "s": sanskrit_text,
@@ -228,6 +223,38 @@ vacaspatyam_xml = {
     "b": elem("b"),
 }
 
+amarakosha_xml = {
+    "body": elem("li", {"class": "dict-entry"}),
+    "lex": elem("span", {"class": "lex"}),
+    "s": sanskrit_text,
+    "lb": elem("div", {"class": "h-2"}, " "),
+    "quote": elem("blockquote", {"class": "ml-4"}),
+    "lg": elem("p"),
+    "l": elem("span", {"class": "block"}),
+}
+
+
+#: Transforms for Apte's Sanskrit-Hindi dictionary from the University of
+#: Hyderabad.
+apte_uoh_xml = {
+    # TODO:
+    # Entry
+    "lexhead": elem("li", {"class": "dict-entry mw-entry"}),
+    "segmenthd": elem("li", {"class": "dict-entry mw-entry"}),
+    # Key
+    "dentry": sanskrit_text,
+    # Bare stem (redundant given `dentry')
+    "prAwipaxikam": None,
+    # Part of speech and derivation
+    "grammar": elem("span", {"class": "lex"}),
+    "etymology": elem("span", {"class": "lex"}),
+    # Definitions
+    "sense": elem("div", {"class": "m-2"}, " "),
+    # Citation
+    # FIXME: <citation> has no space before it. `text_before` inserts text
+    # after opening tag, but here we want text *before* the opening tag.
+    "citation": elem("cite", text_before=" ", text_after=" "),
+}
 
 # Defined against the TEI spec
 tei_header_xml = {
@@ -244,7 +271,6 @@ tei_header_xml = {
     "licence": elem("p"),
     "ref": Rule("a", _rename({"target": "href"})),
 }
-
 
 # Defined against the TEI spec
 tei_xml = {
@@ -266,22 +292,6 @@ tei_xml = {
     "section": elem("section"),
 }
 
-# Tag meanings are documented here:
-# https://www.sanskrit-lexicon.uni-koeln.de/talkMay2008/mwtags.html
-apte_transforms = {
-    "ab": elem("abbr"),
-    "b": elem("b"),
-    "br": elem("br"),
-    "i": elem("i"),
-    "body": elem("li", {"class": "mw-entry"}),
-    "lb": elem("div", {"class": "h-2"}, " "),
-    "lbinfo": None,
-    "ls": elem("cite"),
-    "s": elem("span", {"lang": "sa"}, "##", "##"),
-    # TODO: keep attrs
-    "span": elem("span"),
-}
-
 
 def transform(xml: ET.Element, transforms: dict[str, Rule]) -> str:
     for el in xml.iter("*"):
@@ -301,16 +311,28 @@ def transform_mw(blob: str) -> str:
     return transform(xml, mw_xml)
 
 
-def transform_apte(blob: str) -> str:
-    """Transform XML for the Apte dictionary."""
+def transform_apte_sanskrit_english(blob: str) -> str:
+    """Transform XML for the Apte Sanskrit-English dictionary."""
     xml = ET.fromstring(blob)
-    return transform(xml, apte_xml)
+    return transform(xml, apte_cologne_xml)
+
+
+def transform_apte_sanskrit_hindi(blob: str) -> str:
+    """Transform XML for the Apte Sanskrit-Hindi dictionary."""
+    xml = ET.fromstring(blob)
+    return transform(xml, apte_uoh_xml)
 
 
 def transform_vacaspatyam(blob: str) -> str:
     """Transform XML for the Vacaspatyam."""
     xml = ET.fromstring(blob)
     return transform(xml, vacaspatyam_xml)
+
+
+def transform_amarakosha(blob: str) -> str:
+    """Transform XML for the Amarakosha."""
+    xml = ET.fromstring(blob)
+    return transform(xml, amarakosha_xml)
 
 
 def _text_of(xml: ET.Element, path: str, default: str) -> str:
@@ -350,14 +372,13 @@ def transform_sak(blob: str) -> str:
     return transform(xml, vacaspatyam_xml)
 
 
-def transform_text_block(block_blob: str) -> Block:
-    """Transform XML for a TEI document."""
+def transform_text_block(block_blob: str) -> str:
+    """Transform XML for a TEI document.
+
+    :param block_blob: the original XML blob for this block.
+    :return: the HTML transform of that XML blob
+    """
     # FIXME: leaky abstraction. We should return just a string blob here and
     # get the XML ID from `database.Block` instead.
     xml = ET.fromstring(block_blob)
-
-    # "xml:id" can't be specified directly due to how ElementTree treats
-    # namespaces. So, hard-code it like this:
-    id = xml.attrib.get("{http://www.w3.org/XML/1998/namespace}id", "")
-    html = transform(xml, transforms=tei_xml)
-    return Block(id=id, html=html)
+    return transform(xml, transforms=tei_xml)

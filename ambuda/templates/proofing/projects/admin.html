@@ -7,12 +7,12 @@
 {% block title %}Admin: {{ project.title }} | Ambuda{% endblock %}
 
 
-{% block sidebar %}{{ m.main_nav('projects') }}{% endblock %}
+{% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
 {{ m.project_header_nested("Admin", project) }}
-{{ m.project_nav(project=project, active='admin', is_admin=current_user.is_admin) }}
+{{ m.project_nav(project=project, active='admin') }}
 
 <div class="prose">
 
