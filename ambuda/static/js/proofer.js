@@ -45,6 +45,7 @@ function initializeImageViewer(imageURL) {
   });
 }
 
+// eslint-disable-next-line import/prefer-default-export
 export const Proofer = () => ({
   // Settings
   textZoom: 1,
@@ -218,10 +219,10 @@ export const Proofer = () => ({
     this.changeSelectedText((s) => `[^${s}]`);
   },
   replaceColonVisarga() {
-    this.changeSelectedText(s => s.replaceAll(':', 'ः'))
+    this.changeSelectedText((s) => s.replaceAll(':', 'ः'));
   },
   replaceSAvagraha() {
-    this.changeSelectedText(s => s.replaceAll('S', 'ऽ'))
+    this.changeSelectedText((s) => s.replaceAll('S', 'ऽ'));
   },
   transliterate() {
     this.changeSelectedText((s) => Sanscript.t(s, this.fromScript, this.toScript));
@@ -247,4 +248,4 @@ export const Proofer = () => ({
 
 window.addEventListener('alpine:init', () => {
   Alpine.data('proofer', Proofer);
-})
+});
