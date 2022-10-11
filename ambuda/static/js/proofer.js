@@ -45,7 +45,7 @@ function initializeImageViewer(imageURL) {
   });
 }
 
-export default () => ({
+let Proofer = () => ({
   // Settings
   textZoom: 1,
   imageZoom: null,
@@ -236,3 +236,7 @@ export default () => ({
   },
 
 });
+
+window.addEventListener('alpine:init', () => {
+  Alpine.data('proofer', Proofer);
+})

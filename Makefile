@@ -20,7 +20,7 @@ install:
 # Install frontend dependencies and build CSS and JS assets.
 install-frontend:
 	npm install
-	make css-prod js-prod
+	make css-prod js-prod js-prod-proofer
 
 # Install Python dependencies.
 install-python:
@@ -63,7 +63,7 @@ db-seed-all: py-venv-check
 
 # Run the devserver, and live reload our CSS and JS.
 devserver: py-venv-check
-	npx concurrently "flask run" "make css-dev" "make js-dev"
+	npx concurrently "flask run" "make css-dev" "make js-dev" "make js-dev-proofer"
 
 # Start using Docker.
 start-docker:
@@ -133,10 +133,14 @@ css-prod:
 # relevant file changes.
 js-dev:
 	npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --watch
+js-dev-proofer:
+	npx esbuild ambuda/static/js/proofer.js --outfile=ambuda/static/gen/proofer_bundle.js --bundle --watch
 
 # Build JS for production.
 js-prod:
 	npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --minify
+js-prod-proofer:
+	npx esbuild ambuda/static/js/proofer.js --outfile=ambuda/static/gen/proofer_bundle.js --bundle --minify
 
 js-test:
 	npx jest
