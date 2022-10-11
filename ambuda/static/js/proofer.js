@@ -45,7 +45,7 @@ function initializeImageViewer(imageURL) {
   });
 }
 
-let Proofer = () => ({
+export const Proofer = () => ({
   // Settings
   textZoom: 1,
   imageZoom: null,
