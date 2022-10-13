@@ -16,7 +16,7 @@ window.OpenSeadragon = (_) => ({
   addHandler: jest.fn((_, callback) => callback()),
   viewport: {
     getHomeZoom: jest.fn(() => 0.5),
-    zoomTo: jest.fn((_) => {}),
+    zoomTo: jest.fn((_) => { }),
   }
 });
 window.Sanscript = {
@@ -38,7 +38,7 @@ window.fetch = jest.fn(async (url) => {
   }
 });
 navigator.clipboard = {
-  writeText: jest.fn((s) => {}),
+  writeText: jest.fn((s) => { }),
 }
 
 beforeEach(() => {
@@ -200,12 +200,12 @@ test('displayTopAndBottom works and gets saved', () => {
 // Sets the ProseMirror editor's selection from `from` to `to`: note that these depend on
 // the schema and are not byte offsets: https://prosemirror.net/docs/guide/#doc.indexing
 function setSelectionRange(p, from, to) {
-  p.view.updateState(p.view.state.apply(p.view.state.tr.setSelection(
+  window.editorView.dispatch(window.editorView.state.tr.setSelection(
     new TextSelection(
-      p.view.state.doc.resolve(from),
-      p.view.state.doc.resolve(to),
+      window.editorView.state.doc.resolve(from),
+      window.editorView.state.doc.resolve(to),
     ),
-  )));
+  ));
 }
 
 test('transliterate works and saves settings', () => {
@@ -267,5 +267,5 @@ test('replaceColonVisarga works', () => {
 
 test('copyCharacter works', () => {
   const { p } = markupFixtures();
-  p.copyCharacter({ target: { textContent: 'foo' }});
+  p.copyCharacter({ target: { textContent: 'foo' } });
 });
