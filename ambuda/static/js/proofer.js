@@ -73,8 +73,10 @@ export const Proofer = () => ({
       this.imageViewer.viewport.zoomTo(this.imageZoom);
     });
 
-    window.editorView = createEditorFromTextAt(document.querySelector('textarea').value, document.getElementById('editor'));
-    window.editorView.focus();
+    const view = createEditorFromTextAt(document.querySelector('textarea').value, document.getElementById('editor'));
+    this.editorView = () => view;
+    window.view = this.editorView();
+    this.editorView().focus();
 
     // Use `.bind(this)` so that `this` in the function refers to this app and
     // not `window`.
@@ -196,13 +198,13 @@ export const Proofer = () => ({
   // Markup controls
 
   changeSelectedText(callback) {
-    const { state } = window.editorView;
+    const { state } = this.editorView();
     let { tr } = state;
     const replacement = callback(state.doc.textBetween(tr.selection.from, tr.selection.to));
     tr = tr.replaceRangeWith(tr.selection.from, tr.selection.to, state.schema.text(replacement));
-    window.editorView.dispatch(tr);
+    this.editorView().dispatch(tr);
     // Retain focus for better UX.
-    window.editorView.focus();
+    this.editorView().focus();
   },
   markAsError() {
     this.changeSelectedText((s) => `<error>${s}</error>`);
@@ -239,7 +241,7 @@ export const Proofer = () => ({
   },
 
   textValue() {
-    return toText(window.editorView);
+    return toText(this.editorView());
   },
 
 });

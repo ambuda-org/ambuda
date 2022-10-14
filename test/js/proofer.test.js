@@ -200,10 +200,10 @@ test('displayTopAndBottom works and gets saved', () => {
 // Sets the ProseMirror editor's selection from `from` to `to`: note that these depend on
 // the schema and are not byte offsets: https://prosemirror.net/docs/guide/#doc.indexing
 function setSelectionRange(p, from, to) {
-  window.editorView.dispatch(window.editorView.state.tr.setSelection(
+  p.editorView().dispatch(p.editorView().state.tr.setSelection(
     new TextSelection(
-      window.editorView.state.doc.resolve(from),
-      window.editorView.state.doc.resolve(to),
+      p.editorView().state.doc.resolve(from),
+      p.editorView().state.doc.resolve(to),
     ),
   ));
 }
