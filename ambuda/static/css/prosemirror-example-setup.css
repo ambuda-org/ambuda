@@ -1,14 +1,3 @@
-/* Originally from:
-https://github.com/ProseMirror/prosemirror-example-setup/blob/master/style/style.css
-https://github.com/ProseMirror/prosemirror-gapcursor/blob/master/style/gapcursor.css
-*/
-
-#editor,
-.editor {
-    background: white;
-    color: black;
-}
-
 .ProseMirror {
     padding: 4px 8px;
     height: 100%;
