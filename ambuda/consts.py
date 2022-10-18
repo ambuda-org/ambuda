@@ -81,4 +81,5 @@ LOCALES = [
     Locale(code="en", slug="en", text="English"),
     Locale(code="mr_IN", slug="mr", text="मराठी"),
     Locale(code="te_IN", slug="te", text="తెలుగు"),
+    Locale(code="hi_IN", slug="hi", text="हिन्दी"),
 ]
