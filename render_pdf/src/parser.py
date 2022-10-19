@@ -1,12 +1,12 @@
 import json
+import sys
 from collections import defaultdict
+from typing import Optional
 from urllib.request import urlopen
 
 from lxml import etree
 from lxml.etree import fromstring
 
-from typing import Optional
-import sys
 
 def get_body(root):
     return root.find(tagname("text")).find(tagname("body"))

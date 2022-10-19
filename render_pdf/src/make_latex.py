@@ -1,10 +1,11 @@
-from dataclasses import dataclass
-import sys
 import os
 import parser
+import sys
+from dataclasses import dataclass
 from typing import Union
 
 import jinja2
+
 
 # TODO probably best to use pydantic for a config template for the dict below. 
 @dataclass
