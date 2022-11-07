@@ -163,7 +163,7 @@ zipp = "3.8.0"
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
 black = "^22.3.0"
-setuptools = "^57.5.0"
+setuptools = "^65.5.1"
 swig = "^4.0.2"
 isort = "^5.10.1"
 flake8 = "5.0.4"
