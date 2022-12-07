@@ -98,8 +98,6 @@ ENV PATH="/venv/bin:$PATH" \
    VIRTUAL_ENV=.
 
 # specific files
-COPY .env ./
-COPY database.db ./
 COPY config.py ./
 COPY wsgi.py ./
 COPY scripts/ ./scripts/

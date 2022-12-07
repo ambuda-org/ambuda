@@ -87,9 +87,13 @@ db-seed-all: py-venv-check
 devserver: py-venv-check
 	npx concurrently "flask run" "make css-dev" "make js-dev"
 
+# Build docker image
+docker-build:
+	@docker build -t ambuda-rel:latest -f build/containers/Dockerfile.final ${PWD}
+
 # Start using Docker.
-start-docker:
-	docker-compose up -V --build --force-recreate
+docker-start: docker-build
+	docker-compose up -V -f build/containers/docker-compose.yml --force-recreate
 
 # Run a local Celery instance for background tasks.
 celery: 
