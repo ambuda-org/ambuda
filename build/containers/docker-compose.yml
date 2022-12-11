@@ -3,9 +3,11 @@ version: '3.4'
 services:
   app:
     image: ambuda-rel:latest
-    command: /app/scripts/start-server.sh
+    volumes:
+      - ${PWD}/database.db:/app/database.db
     ports:
-      - "5000:5000"
+      - '5000:5000'
+    network_mode: 'host'      
     environment:
       - FLASK_ENV=development
       - FLASK_UPLOAD_FOLDER=/app/data/file-uploads

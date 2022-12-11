@@ -9,4 +9,6 @@ set -e
 
 . /venv/bin/activate
 
+export PATH=$PATH:/venv/bin/
+
 celery -A ambuda.tasks worker --loglevel=INFO

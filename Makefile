@@ -85,15 +85,15 @@ db-seed-all: py-venv-check
 
 # Run the devserver, and live reload our CSS and JS.
 devserver: py-venv-check
-	npx concurrently "flask run" "make css-dev" "make js-dev"
+	bash -x scripts/run_devserver_docker.sh
 
 # Build docker image
-docker-build:
+docker-build: css-prod js-prod
 	@docker build -t ambuda-rel:latest -f build/containers/Dockerfile.final ${PWD}
 
 # Start using Docker.
 docker-start: docker-build
-	docker-compose up -V -f build/containers/docker-compose.yml --force-recreate
+	docker compose -f build/containers/docker-compose.yml up
 
 # Run a local Celery instance for background tasks.
 celery: 

@@ -75,7 +75,8 @@ COPY package.json package-lock.json ./
 RUN npm install
 
 COPY ./ambuda ./ambuda
-RUN npx tailwindcss -i ./ambuda/static/css/style.css -o ./ambuda/static/gen/style.css --minify && npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --minify  && echo ">>>>>>>>>> Js rel built <<<<<<<<<<<<<"
+# RUN npx tailwindcss -i ./ambuda/static/css/style.css -o ./ambuda/static/gen/style.css --minify && npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --minify
+RUN echo ">>>>>>>>>> Js rel built <<<<<<<<<<<<<"
 
 
 # ####################################
@@ -101,8 +102,6 @@ ENV PATH="/venv/bin:$PATH" \
 COPY config.py ./
 COPY wsgi.py ./
 COPY scripts/ ./scripts/
-
-EXPOSE 5000/tcp
 
 CMD ["./scripts/start-server.sh"]
 RUN echo ">>>>>>>>>> Built FINAL <<<<<<<<<<<<<"
