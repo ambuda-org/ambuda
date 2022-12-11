@@ -26,10 +26,13 @@ ENV PYTHONFAULTHANDLER=1 \
 
 # Install all dependencies. Python venv 
 RUN pip install "poetry==$POETRY_VERSION"
-RUN apt-get update && apt-get install -y make && python -m venv /venv
+RUN apt-get update && apt-get install -y make gcc python3-dev && apt-get install -y --reinstall build-essential && python -m venv /venv
 COPY pyproject.toml poetry.lock ./
 
 RUN poetry export --without-hashes --dev -f requirements.txt | /venv/bin/pip install -r /dev/stdin && echo ">>>>>>>>>> Py dev built <<<<<<<<<<<<<"
+
+# Install all i18n files
+RUN python -m ambuda.scripts.fetch_i18n_files && pybabel compile -d ambuda/translations -f
 
 # Save only the binaries
 # COPY . .
@@ -52,7 +55,7 @@ ENV PYTHONFAULTHANDLER=1 \
 
 # Install all dependencies. Python venv 
 RUN pip install "poetry==$POETRY_VERSION"
-RUN apt-get update && apt-get install -y make && python -m venv /venv
+RUN apt-get update && apt-get install -y make gcc python3-dev && apt-get install -y --reinstall build-essential && python -m venv /venv
 
 # setup python config and install
 COPY pyproject.toml poetry.lock ./
@@ -70,12 +73,19 @@ FROM base as build-js-release
 
 WORKDIR /app
 
-# Install Node dependencies.
-COPY package.json package-lock.json ./
-RUN npm install
+# Install Node dependencies to /app/node_modules/
+COPY package.json package-lock.json tailwind.config.js /app/
+RUN npm install 
 
-COPY ./ambuda ./ambuda
-# RUN npx tailwindcss -i ./ambuda/static/css/style.css -o ./ambuda/static/gen/style.css --minify && npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --minify
+# Copy source to temporary directory. This stage is a disposal layer. Removing /tmp/ambuda is non-issue
+COPY ./ambuda/ /app/ambuda/
+
+# Copy css
+RUN npx tailwindcss -i /app/ambuda/static/css/style.css -o /app/ambuda/static/gen/style.css --minify
+
+# Copy js
+RUN npx esbuild /app/ambuda/static/js/main.js --outfile=/app/ambuda/static/gen/main.js --bundle --minify
+
 RUN echo ">>>>>>>>>> Js rel built <<<<<<<<<<<<<"
 
 
@@ -101,7 +111,7 @@ ENV PATH="/venv/bin:$PATH" \
 # specific files
 COPY config.py ./
 COPY wsgi.py ./
-COPY scripts/ ./scripts/
+COPY scripts/ /app/scripts/
 
-CMD ["./scripts/start-server.sh"]
+CMD ["/app/scripts/start-server.sh"]
 RUN echo ">>>>>>>>>> Built FINAL <<<<<<<<<<<<<"
