@@ -88,7 +88,7 @@ devserver: py-venv-check
 	bash -x scripts/run_devserver_docker.sh
 
 # Build docker image
-docker-build: css-prod js-prod
+docker-build: 
 	@docker build -t ambuda-rel:latest -f build/containers/Dockerfile.final ${PWD}
 
 # Start using Docker.

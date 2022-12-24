@@ -7,7 +7,7 @@ ENV PYTHONFAULTHANDLER=1 \
     PYTHONUNBUFFERED=1
 WORKDIR /app
 RUN apt-get update && apt-get install -y curl && curl -sL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get install -y nodejs && apt-get remove -y curl && rm -rf /var/lib/apt/lists/* && echo ">>>>>>>>>> Base built <<<<<<<<<<<<<"
+RUN apt-get install -y nodejs && apt-get remove -y curl && rm -rf /var/lib/apt/lists/* && echo ">>>>>>>>>> Base image build succeeded! <<<<<<<<<<<<<"
 
 # ####################################
 ## 2.1 bring build tools for dev #####
@@ -29,14 +29,11 @@ RUN pip install "poetry==$POETRY_VERSION"
 RUN apt-get update && apt-get install -y make gcc python3-dev && apt-get install -y --reinstall build-essential && python -m venv /venv
 COPY pyproject.toml poetry.lock ./
 
-RUN poetry export --without-hashes --dev -f requirements.txt | /venv/bin/pip install -r /dev/stdin && echo ">>>>>>>>>> Py dev built <<<<<<<<<<<<<"
+RUN poetry export --without-hashes --dev -f requirements.txt | /venv/bin/pip install -r /dev/stdin && echo ">>>>>>>>>> Python dev dependencies build succeeded! <<<<<<<<<<<<<"
 
+### TODO: Move Translations to the bottom image
 # Install all i18n files
 RUN python -m ambuda.scripts.fetch_i18n_files && pybabel compile -d ambuda/translations -f
-
-# Save only the binaries
-# COPY . .
-# RUN poetry build && /venv/bin/pip install dist/*.whl
 
 # ####################################
 ## 2.2 bring build tools for release
@@ -59,11 +56,7 @@ RUN apt-get update && apt-get install -y make gcc python3-dev && apt-get install
 
 # setup python config and install
 COPY pyproject.toml poetry.lock ./
-RUN poetry export --without-hashes -f requirements.txt | /venv/bin/pip install -r /dev/stdin && echo ">>>>>>>>>> Py rel built <<<<<<<<<<<<<"
-
-# Save only the binaries
-# COPY . .
-# RUN poetry build && /venv/bin/pip install dist/*.whl
+RUN poetry export --without-hashes -f requirements.txt | /venv/bin/pip install -r /dev/stdin && echo ">>>>>>>>>> Python rel dependencies build succeeded! <<<<<<<<<<<<<"
 
 # ####################################
 ## 3.1 bring js dependencies and code
@@ -86,7 +79,7 @@ RUN npx tailwindcss -i /app/ambuda/static/css/style.css -o /app/ambuda/static/ge
 # Copy js
 RUN npx esbuild /app/ambuda/static/js/main.js --outfile=/app/ambuda/static/gen/main.js --bundle --minify
 
-RUN echo ">>>>>>>>>> Js rel built <<<<<<<<<<<<<"
+RUN echo ">>>>>>>>>> JS code build succeeded! <<<<<<<<<<<<<"
 
 
 # ####################################
@@ -111,7 +104,9 @@ ENV PATH="/venv/bin:$PATH" \
 # specific files
 COPY config.py ./
 COPY wsgi.py ./
-COPY scripts/ /app/scripts/
+COPY alembic.ini ./
+COPY migrations/ ./migrations/
+COPY scripts/ ./scripts/
 
 CMD ["/app/scripts/start-server.sh"]
-RUN echo ">>>>>>>>>> Built FINAL <<<<<<<<<<<<<"
+RUN echo ">>>>>>>>>> Ambuda application image build succeeded! <<<<<<<<<<<<<"
