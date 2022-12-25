@@ -1,5 +1,5 @@
 # Needed because we have folders called "docs" and "test" that confuse `make`.
-.PHONY: docs test py-venv-check
+.PHONY: docs test py-venv-check clean
 
 py-venv-check: 
 ifeq ("$(VIRTUAL_ENV)","")
@@ -8,6 +8,8 @@ ifeq ("$(VIRTUAL_ENV)","")
 	@echo
 	exit 1
 endif
+
+DB_FILE = ${PWD}/deploy/database_dir/database.db
 
 # Setup commands
 # ===============================================
@@ -87,12 +89,22 @@ db-seed-all: py-venv-check
 devserver: py-venv-check
 	bash -x scripts/run_devserver_docker.sh
 
+# Start DB using Docker.
+docker-setup-db: docker-build 
+ifneq ("$(wildcard $(DB_FILE))","")
+	@echo "Ambuda using your existing database!"
+else
+	@docker compose -f build/containers/docker-compose-dbsetup.yml up
+	@echo "Ambuda database is Ready!"
+endif
+	
+
 # Build docker image
-docker-build: 
+docker-build: lint-check
 	@docker build -t ambuda-rel:latest -f build/containers/Dockerfile.final ${PWD}
 
 # Start using Docker.
-docker-start: docker-build
+docker-start: docker-build docker-setup-db
 	docker compose -f build/containers/docker-compose.yml up
 
 # Run a local Celery instance for background tasks.
@@ -197,3 +209,8 @@ babel-update: py-venv-check
 # NOTE: you probably want `make install-i18n` instead.
 babel-compile: py-venv-check
 	pybabel compile -d ambuda/translations
+
+clean:
+	@rm -rf deploy/database_dir
+	@rm -rf ambuda/translations/*
+

@@ -1,5 +1,5 @@
+from . import create_bot_user, page_status, role
 
-from . import page_status, role, create_bot_user
 
 def run():
     """

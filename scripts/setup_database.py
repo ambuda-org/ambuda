@@ -6,81 +6,84 @@ This module is used in `scripts/initialize_from_scratch.sh`.
 TODO: what are the implications of running `create_all` on app startup?
 """
 
-from os.path import exists as file_exists
 import subprocess
+from os.path import exists as file_exists
+
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
 import config
 from ambuda import database as db
-from ambuda.seed import lookup, texts, dcs
-from ambuda.seed.texts import gretil
+from ambuda.seed import dcs, lookup, texts
+
+# TODO: need to remote gretil import
+from ambuda.seed.texts import gretil  # noqa
 
 
 def get_sql_uri():
-    """ get sql alchemy uri"""
+    """get sql alchemy uri"""
 
     conf = config.load_config_object("development")
     sql_uri = conf.SQLALCHEMY_DATABASE_URI
     return sql_uri
 
-def get_db_file_path(sql_uri):
-    """ get file path from sql alchemy uri"""
 
-    db_file_path = sql_uri.replace('sqlite:///', '')
+def get_db_file_path(sql_uri):
+    """get file path from sql alchemy uri"""
+
+    db_file_path = sql_uri.replace("sqlite:///", "")
     if db_file_path == sql_uri:
-        print(f'Error! Check configuration. Unusual for'
-            ' SQLALCHEMY_DATABASE_URI {SQLALCHEMY_DATABASE_URI} == db_file_path {db_file_path}')
+        print(f"Error! Invalid SQLALCHEMY_DATABASE_URI {sql_uri}")
     return db_file_path
 
 
 def init_database(sql_uri, db_file_path):
-    """ Initialize database"""
-    
+    """Initialize database"""
+
     print(f"Initializing database at {db_file_path}...")
     # Create tables
     engine = create_engine(sql_uri)
     db.Base.metadata.create_all(engine)
 
     # Add some starter data with a few basic seed scripts.
-    if lookup.run() == False:
-        print('Error! lookup.run() failed')
+    if not lookup.run():
+        print("Error! lookup.run() failed")
         return False
 
-    if texts.gretil.run() == False:
-        print('Error! texts.gretil.run() failed')
+    if not texts.gretil.run():
+        print("Error! texts.gretil.run() failed")
         return False
-    
-    if dcs.run() == False:
-        print('Error! dcs.run() failed')
+
+    if not dcs.run():
+        print("Error! dcs.run() failed")
         return False
 
     # Create Alembic's migrations table.
     try:
         subprocess.run(["/venv/bin/alembic", "ensure_version"])
     except subprocess.CalledProcessError as err:
-        print("Error processing alembic ensure_versions - {err}")
+        print(f"Error processing alembic ensure_versions - {err}")
         return False
-        
+
     # Set the most recent revision as the current one.
     try:
         subprocess.run(["/venv/bin/alembic", "stamp", "head"])
     except subprocess.CalledProcessError as err:
-        print("Error processing alembic stamp head - {err}")
+        print(f"Error processing alembic stamp head - {err}")
         return False
-    
+
     print(f"Success! Database initialized at {db_file_path}")
     return True
 
 
 def setup_database(db_file_path):
     """Lookup and Update to the latest migration."""
-    if file_exists(db_file_path) == False:
-        print(f"Database found at {db_file_path}...")    
+    if not file_exists(db_file_path):
+        print(f"Database found at {db_file_path}...")
         return False
 
-    if lookup.run() == False:
-        print('Error! lookup.run() failed')
+    if not lookup.run():
+        print("Error! lookup.run() failed")
         return False
 
     # Set the most recent revision as the current one.
@@ -93,7 +96,7 @@ def run():
     """
     Initialize db for fresh installs. Bootup db on restarts
     """
-    
+
     load_dotenv()
     sql_uri = get_sql_uri()
     try:
@@ -101,18 +104,18 @@ def run():
     except Exception as err:
         print(f"Failed to get db path - {err}")
 
-    if file_exists(db_file_path) == True:
+    if file_exists(db_file_path):
         print(f"Database found at {db_file_path}..")
         ret_setup = setup_database(db_file_path)
-        if ret_setup == False:
+        if not ret_setup:
             print(f"Error! Database setup at {db_file_path}..")
             return False
     else:
-        print(f"Initialize Database not found")    
+        print("Initialize Database not found")
         ret_init = init_database(sql_uri, db_file_path)
-        if ret_init == False:
-                print(f"Error! Database setup at {db_file_path}..")    
-                return False
+        if not ret_init:
+            print(f"Error! Database setup at {db_file_path}..")
+            return False
     return True
 
 

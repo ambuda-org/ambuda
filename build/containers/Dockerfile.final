@@ -31,10 +31,6 @@ COPY pyproject.toml poetry.lock ./
 
 RUN poetry export --without-hashes --dev -f requirements.txt | /venv/bin/pip install -r /dev/stdin && echo ">>>>>>>>>> Python dev dependencies build succeeded! <<<<<<<<<<<<<"
 
-### TODO: Move Translations to the bottom image
-# Install all i18n files
-RUN python -m ambuda.scripts.fetch_i18n_files && pybabel compile -d ambuda/translations -f
-
 # ####################################
 ## 2.2 bring build tools for release
 # ####################################
@@ -56,7 +52,7 @@ RUN apt-get update && apt-get install -y make gcc python3-dev && apt-get install
 
 # setup python config and install
 COPY pyproject.toml poetry.lock ./
-RUN poetry export --without-hashes -f requirements.txt | /venv/bin/pip install -r /dev/stdin && echo ">>>>>>>>>> Python rel dependencies build succeeded! <<<<<<<<<<<<<"
+RUN poetry export --without-hashes -f requirements.txt | /venv/bin/pip install -r /dev/stdin 
 
 # ####################################
 ## 3.1 bring js dependencies and code
@@ -81,9 +77,46 @@ RUN npx esbuild /app/ambuda/static/js/main.js --outfile=/app/ambuda/static/gen/m
 
 RUN echo ">>>>>>>>>> JS code build succeeded! <<<<<<<<<<<<<"
 
+# ####################################
+## 4. Copy Ambuda codes
+# ####################################
+
+FROM base as build-ambuda 
+
+ARG BUILD_TYPE=release
+
+RUN echo ">>>>>>>>>> Building FINAL ${BUILD_TYPE}<<<<<<<<<<<<<"
+COPY --from=build-py-release /venv /venv
+COPY --from=build-js-release /app /app
+
+# Setup build environment
+ENV PYTHONFAULTHANDLER=1 \
+  PYTHONUNBUFFERED=1 \
+  PYTHONHASHSEED=random \
+  PIP_NO_CACHE_DIR=1 \
+  PIP_DISABLE_PIP_VERSION_CHECK=1 \
+  PIP_DEFAULT_TIMEOUT=100 \
+  POETRY_VERSION=1.2.1 \
+  PYTHONPATH=${PYTHONPATH}:/app/
+
+
+# Install all dependencies. Python venv 
+RUN apt-get update && apt-get install -y git
+
+### TODO: Move Translations to the bottom image
+# Install all i18n files
+RUN . /venv/bin/activate && python /app/ambuda/scripts/fetch_i18n_files.py && pybabel compile -d /app/ambuda/translations -f
+
+# specific files
+COPY config.py /app/
+COPY wsgi.py /app/
+COPY alembic.ini /app/
+COPY migrations/ /app/migrations/
+COPY scripts/ /app/scripts/
+RUN echo ">>>>>>>>>> Ambuda application build succeeded! <<<<<<<<<<<<<"
 
 # ####################################
-## 4. Finalize the image
+## 5. Finalize the image
 # ####################################
 
 FROM base as final
@@ -92,8 +125,9 @@ ARG BUILD_TYPE=release
 WORKDIR /app
 
 RUN echo ">>>>>>>>>> Building FINAL ${BUILD_TYPE}<<<<<<<<<<<<<"
-COPY --from=build-py-release /venv /venv
-COPY --from=build-js-release /app /app
+COPY --from=build-ambuda /venv /venv
+COPY --from=build-ambuda /app /app
+
 ENV PATH="/venv/bin:$PATH" \
    FLASK_ENV=development \
    FLASK_UPLOAD_FOLDER=/app/data/file-uploads \
@@ -101,12 +135,5 @@ ENV PATH="/venv/bin:$PATH" \
    REDIS_URL=redis://redis:6579/0 \
    VIRTUAL_ENV=.
 
-# specific files
-COPY config.py ./
-COPY wsgi.py ./
-COPY alembic.ini ./
-COPY migrations/ ./migrations/
-COPY scripts/ ./scripts/
-
 CMD ["/app/scripts/start-server.sh"]
-RUN echo ">>>>>>>>>> Ambuda application image build succeeded! <<<<<<<<<<<<<"
+RUN echo ">>>>>>>>>> Ambuda deploy succeeded! <<<<<<<<<<<<<"

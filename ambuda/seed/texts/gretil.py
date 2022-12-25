@@ -114,7 +114,7 @@ def run():
     for spec in ALLOW:
         add_document(engine, spec)
     log("Done.")
-    
+
     return True
 
 
