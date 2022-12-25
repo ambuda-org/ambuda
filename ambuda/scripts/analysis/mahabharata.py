@@ -1,4 +1,4 @@
-"""Add the Ramayana parse data from DCS."""
+"""Add the Mahabharata parse data from DCS."""
 
 
 from pathlib import Path

@@ -1,5 +1,4 @@
-from ambuda.seed.lookup import create_bot_user, page_status, role
+from . import run
 
-page_status.run()
-role.run()
-create_bot_user.run()
+if __name__ == "__main__":
+    run()

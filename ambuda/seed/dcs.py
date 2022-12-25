@@ -116,6 +116,7 @@ def run():
         log("To add these texts, run the seed scripts in ambuda/seed/texts.")
         log("Note that the Ramayana and the Mahabharata have their own special")
         log("seed scripts.")
+    return True
 
 
 if __name__ == "__main__":

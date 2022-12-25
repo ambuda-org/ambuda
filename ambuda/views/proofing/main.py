@@ -5,7 +5,6 @@ from pathlib import Path
 
 from flask import Blueprint, current_app, flash, render_template
 from flask_login import current_user
-
 from flask_wtf import FlaskForm
 from slugify import slugify
 from sqlalchemy import orm
