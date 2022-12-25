@@ -114,7 +114,8 @@ endif
 	
 
 # Build docker image. All tag the latest to the most react image
-docker-build: lint-check
+# docker-build: lint-check
+docker-build: 
 	@docker build -t ${AMBUDA_IMAGE} -t ${AMBUDA_IMAGE_LATEST} -f build/containers/Dockerfile.final ${PWD}
 	@echo ">>>>>> ${AMBUDA_IMAGE} is now ${AMBUDA_IMAGE_LATEST}"
 
