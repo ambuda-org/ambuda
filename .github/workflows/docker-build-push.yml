@@ -1,7 +1,8 @@
 # Ambuda workflow to build and publish docker image
 
 name: Publish Ambuda image
-
+env:
+  AMBUDA_VERSION: v0.1
 on:
   push:
     branches:
@@ -37,11 +38,11 @@ jobs:
           images: |
             ghcr.io/${{ github.repository }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
+            type=ref,event=branch,value=$AMBUDA_VERSION-{{branch}}-{{sha}}
+            type=ref,event=pr,value=pr-{{branch}}-{{sha}}
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=raw,value=mytag-{{branch}}-{{sha}}
+            type=ref,event=push,value=$AMBUDA_VERSION-{{branch}}-{{sha}}
       
       - name: Build and push Docker images
         id: publish
@@ -57,7 +58,7 @@ jobs:
         id: deploy
         run: docker compose -f deploy/local/docker-compose.yml up
         env:
-          AMBUDA_IMAGE: ${{steps.publish.ouput.imageid}}
+          AMBUDA_IMAGE: ${{steps.publish.ouputs.imageid}}
           AMBUDA_HOST_IP: 127.0.0.1
           AMBUDA_HOST_PORT: 5090
 
@@ -68,6 +69,6 @@ jobs:
         if: ${{ failure() }}
         run: docker compose -f deploy/local/docker-compose.yml logs
         env:
-          AMBUDA_IMAGE: ${{steps.publish.ouput.imageid}}
+          AMBUDA_IMAGE: ${{steps.publish.ouputs.imageid}}
           AMBUDA_HOST_IP: 127.0.0.1
           AMBUDA_HOST_PORT: 5090
