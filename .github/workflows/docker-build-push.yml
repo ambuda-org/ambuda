@@ -5,7 +5,12 @@ name: Publish Ambuda image
 on:
   push:
     branches:
-      - 'feature-add-docker-dev'
+      - 'main'
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - 'main'
 
 jobs:
   push_to_registries:
@@ -31,6 +36,12 @@ jobs:
         with:
           images: |
             ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha
       
       - name: Build and push Docker images
         uses: docker/build-push-action@v3.1.1
