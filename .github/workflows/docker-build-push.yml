@@ -58,7 +58,7 @@ jobs:
         id: deploy
         run: docker compose -f deploy/local/docker-compose.yml up
         env:
-          AMBUDA_IMAGE: ${{ steps.publish.ouputs.imageid }}
+          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           AMBUDA_HOST_IP: 127.0.0.1
           AMBUDA_HOST_PORT: 5090
 
@@ -69,6 +69,6 @@ jobs:
         if: ${{ failure() }}
         run: docker compose -f deploy/local/docker-compose.yml logs
         env:
-          AMBUDA_IMAGE: ${{ steps.publish.ouputs.imageid }}
+          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           AMBUDA_HOST_IP: 127.0.0.1
           AMBUDA_HOST_PORT: 5090
