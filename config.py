@@ -208,8 +208,10 @@ def _validate_config(config: BaseConfig):
 
     if not config.SQLALCHEMY_DATABASE_URI:
         raise ValueError("This config does not define SQLALCHEMY_DATABASE_URI")
+
     if not config.UPLOAD_FOLDER:
         raise ValueError("This config does not define UPLOAD_FOLDER.")
+
     if not Path(config.UPLOAD_FOLDER).is_absolute():
         raise ValueError("UPLOAD_FOLDER must be an absolute path.")
 

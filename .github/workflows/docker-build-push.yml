@@ -78,3 +78,15 @@ jobs:
         run: docker compose -f deploy/local/docker-compose.yml logs
         env:
           AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+
+#      - name: Run staging deploy
+#        id: stagingdeploy
+#        uses: appleboy/ssh-action@v0.1.6 # replace this with current version from https://github.com/digitalocean/app_action/releases
+#        with:
+#          app_name: ambuda_staging
+#          host: ${{ secrets.DO_HOST }}
+#          username: ${{ secrets.DO_USERNAME }}
+#          key: ${{ secrets.DO_KEY }}
+#          port: ${{ secrets.DO_PORT }}
+#          script: | 
+#            docker compose -f deploy/local/docker-compose.yml up --detach
