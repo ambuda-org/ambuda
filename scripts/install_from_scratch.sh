@@ -3,7 +3,7 @@
 # Exit if any step in this install script fails.
 set -e
 
-if [ -f data ] || [ -f env ] || [ -f node_modules ] || [ -f .env ] || [ -f database.db ]; then
+if [ -f data ] || [ -f env ] || [ -f node_modules ] || [ -f .env ] || [ -f deploy/data/ ]; then
 cat << "EOF"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
@@ -23,7 +23,7 @@ EOF
     python3 -c "exit(0) if input('Are you sure you want to continue? (y/n): ') == 'y' else exit(1)"
 
     echo "Cleaning up old state ..."
-    rm -Rf .env database.db data/ env/ node_modules/
+    rm -Rf .env deploy/data/ env/ node_modules/
 fi
 
 
@@ -43,19 +43,31 @@ cat << EOF > .env
 # To see what these environment variables mean and how we use them in the
 # application, see \`config.py\`.
 
+# Flask parameters
 FLASK_ENV=development
-FLASK_UPLOAD_FOLDER="$(pwd)/data/file-uploads"
+FLASK_UPLOAD_FOLDER="$(pwd)/deploy/data/file-uploads"
 SECRET_KEY="insecure development secret key"
-SQLALCHEMY_DATABASE_URI="sqlite:///database.db"
 
+# Database
+SQLALCHEMY_DATABASE_URI="sqlite:///$(pwd)/deploy/data/database/database.db"
+
+# OCR and BOT credentials
 AMBUDA_BOT_PASSWORD="insecure bot password"
-
 GOOGLE_APPLICATION_CREDENTIALS="<Google API credentials>"
 EOF
 
+source .env
 
 # Database setup
 # ==============
+
+
+# Extract file path from sqlite:///[file path]
+DB_FILE_PATH="${SQLALCHEMY_DATABASE_URI/sqlite:\/\/\//}"
+
+echo "Initializing database at $DB_FILE_PATH..."
+echo ">> Create $(dirname ${DB_FILE_PATH})"
+mkdir -p $(dirname ${DB_FILE_PATH})
 
 # Create tables
 python -m scripts.initialize_db

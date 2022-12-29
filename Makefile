@@ -10,7 +10,7 @@ AMBUDA_NAME=ambuda
 AMBUDA_IMAGE=${AMBUDA_NAME}-rel:${AMBUDA_VERSION}-${GITCOMMIT}
 AMBUDA_IMAGE_LATEST="$(AMBUDA_NAME)-rel:latest"
 
-# Environment. Valid values are: local, staging, prod
+# Environment. Valid values are: local, staging, and prod
 AMBUDA_DEPLOYMENT_ENV=staging
 AMBUDA_HOST_IP=0.0.0.0
 AMBUDA_HOST_PORT=5090
@@ -23,7 +23,7 @@ ifeq ("$(VIRTUAL_ENV)","")
 	exit 1
 endif	
 
-DB_FILE = ${PWD}/deploy/database_dir/database.db
+DB_FILE = ${PWD}/deploy/data/database/database.db
 
 # Setup commands
 # ===============================================
@@ -99,10 +99,6 @@ db-seed-all: py-venv-check
 # Common development commands
 # ===============================================
 
-# Run the devserver, and live reload our CSS and JS.
-devserver: py-venv-check
-	bash -x scripts/run_devserver_docker.sh
-
 # Start DB using Docker.
 docker-setup-db: docker-build 
 ifneq ("$(wildcard $(DB_FILE))","")
@@ -112,7 +108,6 @@ else
 	@echo "Ambuda database is Ready!"
 endif
 	
-
 # Build docker image. All tag the latest to the most react image
 # docker-build: lint-check
 docker-build: 
@@ -227,6 +222,6 @@ babel-compile: py-venv-check
 	pybabel compile -d ambuda/translations
 
 clean:
-	@rm -rf deploy/database_dir
+	@rm -rf deploy/data/
 	@rm -rf ambuda/translations/*
 
