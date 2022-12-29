@@ -56,7 +56,7 @@ jobs:
       
       - name: Run SQL db setup
         id: dbsetup
-        run: docker compose --detach -f deploy/local/docker-compose-dbsetup.yml up
+        run: docker compose -f deploy/local/docker-compose-dbsetup.yml up
         env:
           AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           AMBUDA_HOST_IP: 127.0.0.1
@@ -64,7 +64,7 @@ jobs:
 
       - name: Run Docker images
         id: deploy
-        run: docker compose -f deploy/local/docker-compose.yml up
+        run: docker compose -f deploy/local/docker-compose.yml up --detach
         env:
           AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           AMBUDA_HOST_IP: 127.0.0.1

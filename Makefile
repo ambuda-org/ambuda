@@ -11,7 +11,7 @@ AMBUDA_IMAGE=${AMBUDA_NAME}-rel:${AMBUDA_VERSION}-${GITCOMMIT}
 AMBUDA_IMAGE_LATEST="$(AMBUDA_NAME)-rel:latest"
 
 # Environment. Valid values are: local, staging, and prod
-AMBUDA_DEPLOYMENT_ENV=staging
+AMBUDA_DEPLOYMENT_ENV=local
 AMBUDA_HOST_IP=0.0.0.0
 AMBUDA_HOST_PORT=5090
 
@@ -114,9 +114,20 @@ docker-build:
 	@docker build -t ${AMBUDA_IMAGE} -t ${AMBUDA_IMAGE_LATEST} -f build/containers/Dockerfile.final ${PWD}
 	@echo ">>>>>> ${AMBUDA_IMAGE} is now ${AMBUDA_IMAGE_LATEST}"
 
-# Start using Docker.
+# Start Docker services.
 docker-start: docker-build docker-setup-db
-	@docker compose -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up
+	@docker compose -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up --detach
+	@echo "Ambuda URL http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT} is up"
+
+# Stop docker services
+docker-stop: 
+	@docker compose -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml stop
+	@docker compose -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml rm
+	@echo "Ambuda URL stopped"
+
+# Show docker logs
+docker-logs: 
+	@docker compose -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml logs
 
 # Run a local Celery instance for background tasks.
 celery: 
