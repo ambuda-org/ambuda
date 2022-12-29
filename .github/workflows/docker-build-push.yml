@@ -55,7 +55,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
       
       - name: Run SQL db setup
-        id: deploy
+        id: dbsetup
         run: docker compose -f deploy/local/docker-compose-dbsetup.yml up
         env:
           AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
