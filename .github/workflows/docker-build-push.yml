@@ -3,6 +3,9 @@
 name: Publish Ambuda image
 env:
   AMBUDA_VERSION: v0.1
+  AMBUDA_HOST_IP: 127.0.0.1
+  AMBUDA_HOST_PORT: 5090
+
 on:
   push:
     branches:
@@ -59,24 +62,20 @@ jobs:
         run: docker compose -f deploy/local/docker-compose-dbsetup.yml up
         env:
           AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-          AMBUDA_HOST_IP: 127.0.0.1
-          AMBUDA_HOST_PORT: 5090
+          
 
       - name: Run Docker images
         id: deploy
         run: docker compose -f deploy/local/docker-compose.yml up --detach
         env:
           AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-          AMBUDA_HOST_IP: 127.0.0.1
-          AMBUDA_HOST_PORT: 5090
-
+          
       - name: Check that site is running
-        run: timeout 2m bash -c 'until curl --fail-with-body localhost:5090; do sleep 1; done'
+        run: timeout 2m bash -c "until curl --fail-with-body ${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT}; do sleep 1; done"
         
       - name: Show logs on fail
         if: ${{ failure() }}
         run: docker compose -f deploy/local/docker-compose.yml logs
         env:
-          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
-          AMBUDA_HOST_IP: 127.0.0.1
-          AMBUDA_HOST_PORT: 5090
+          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }
+          
