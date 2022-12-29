@@ -71,11 +71,10 @@ jobs:
           AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           
       - name: Check that site is running
-        run: timeout 2m bash -c "until curl --fail-with-body ${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT}; do sleep 1; done"
+        run: timeout 2m bash -c "until curl --fail-with-body $AMBUDA_HOST_IP:$AMBUDA_HOST_PORT; do sleep 1; done"
         
       - name: Show logs on fail
         if: ${{ failure() }}
         run: docker compose -f deploy/local/docker-compose.yml logs
         env:
-          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }
-          
+          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
