@@ -81,8 +81,8 @@ jobs:
 
       - name: Extract Image tag
         shell: bash
-        run: echo "##[set-output name=imageid;]${AMBUDA_IMAGE#ghcr.io/kvchitrapu/ambuda:}"
-        id: extract_imageid
+        run: echo "image_tag_only=${AMBUDA_IMAGE#ghcr.io/kvchitrapu/ambuda:}" >> $GITHUB_OUTPUT
+        id: extract_image_tag_only
         env:
           AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
 
@@ -90,28 +90,30 @@ jobs:
         id: staging_files
         uses: appleboy/scp-action@v0.1.3 # replace this with current version from https://github.com/digitalocean/app_action/releases
         with:
-          app_name: ambuda_staging_setup
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USERNAME }}
           key: ${{ secrets.DO_KEY }}
           port: ${{ secrets.DO_PORT }}
           source: "deploy/staging/ambuda-runner, deploy/staging/docker-compose.yml, deploy/staging/docker-compose-dbsetup.yml" 
-          target: ${{ steps.extract_imageid.outputs.imageid }}
+          target: ${{ steps.extract_image_tag_only.outputs.image_tag_only }}
           command_timeout: 2m
+          debug: true
 
       - name: Run staging deploy
         id: stagingdeploy
         uses: appleboy/ssh-action@v0.1.6 # replace this with current version from https://github.com/digitalocean/app_action/releases
         with:
-          app_name: ambuda_staging
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USERNAME }}
           key: ${{ secrets.DO_KEY }}
           port: ${{ secrets.DO_PORT }}
           command_timeout: 5m
+          debug: true
           envs: AMBUDA_IMAGE, AMBUDA_HOST_PORT, AMBUDA_HOST_IP
           script: | 
-            bash ${{ steps.extract_imageid.outputs.imageid }}/ambuda-runner -s
+            bash ${{ steps.extract_image_tag_only.outputs.image_tag_only }}/ambuda-runner -s
         env:
           AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          AMBUDA_HOST_IP: ${{ secrets.DO_HOST }}
+          AMBUDA_HOST_PORT: 5010
         
