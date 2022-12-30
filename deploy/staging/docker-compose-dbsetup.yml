@@ -5,7 +5,7 @@ services:
     image: ${AMBUDA_IMAGE}
     command: "/app/scripts/start-database.sh"
     volumes:
-      - ${PWD}/deploy/data_database/:/app/data/database/
+      - ${HOME}/deploy/data_database/:/app/data/database/
     environment:
       - FLASK_ENV=development
       - FLASK_UPLOAD_FOLDER=/app/data/file-uploads

@@ -1,0 +1,70 @@
+#! /usr/env bash
+
+function usage {
+    echo "Usage: $0 -d # setup database"
+         "          -s # Start Ambuda"
+         "          -x # Stop Ambuda"
+    exit 1
+}
+
+function setup_database {
+    docker compose -f docker-compose-dbsetup.yml up
+    echo "> Ambuda Database...UP"
+}
+
+function start_webapp {
+    docker compose -f docker-compose.yml up --detach
+    echo "> Ambuda URL........http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT} is UP"
+}
+
+function start_ambuda {
+    docker compose -f docker-compose.yml up --detach
+    echo "> Ambuda URL........http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT} is UP"
+}
+
+
+function stop_ambuda {
+    docker compose -f docker-compose.yml stop
+    docker compose -f docker-compose.yml rm -v -s -f
+    echo "Ambuda URL http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT} is STOPPED"
+}
+
+# Main
+AMBUDA_STAGING=$(dirname "$0") 
+cd $AMBUDA_STAGING
+echo "> Ambuda instance...${AMBUDA_STAGING}"
+
+ls
+
+if [ -f ".env" ]; then
+    source .env
+fi
+
+if [ -z "$AMBUDA_IMAGE"  ] || [ -z "$AMBUDA_HOST_IP"  ] || [ -z "$AMBUDA_HOST_PORT"  ]; then
+    echo "Error! Invalid environment variable values"
+    echo "        AMBUDA_IMAGE is ${AMBUDA_IMAGE}"
+    echo "        AMBUDA_HOST_IP is ${AMBUDA_HOST_IP}"
+    echo "        AMBUDA_HOST_PORT is ${AMBUDA_HOST_PORT}"
+    exit 1
+else
+    echo "> AMBUDA_IMAGE..... ${AMBUDA_IMAGE}"
+    echo "> AMBUDA_HOST_IP....${AMBUDA_HOST_IP}"
+    echo "> AMBUDA_HOST_PORT..${AMBUDA_HOST_PORT}"
+fi
+
+while getopts "sdxh" op; do
+    case "${op}" in
+        d)
+            setup_database
+            ;;
+        s)
+            start_ambuda
+            ;;
+        x)
+            stop_ambuda
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done

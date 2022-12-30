@@ -4,8 +4,8 @@ services:
   app:
     image: ${AMBUDA_IMAGE}
     volumes:
-      - ${PWD}/deploy/data_database/:/app/data/database/
-      - ${PWD}/deploy/data_files/:/app/data/file-uploads
+      - ${HOME}/deploy/data_database/:/app/data/database/
+      - ${HOME}/deploy/data_files/:/app/data/file-uploads
     ports:
       - target: 5000
         host_ip: ${AMBUDA_HOST_IP}
