@@ -20,6 +20,7 @@ jobs:
   push_to_registries:
     name: Push Ambuda image to GH container registry
     runs-on: ubuntu-22.04
+    environment: staging
     permissions:
       packages: write
       contents: read
