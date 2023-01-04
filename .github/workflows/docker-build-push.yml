@@ -96,7 +96,6 @@ jobs:
     needs: push_to_registries
     runs-on: [self-hosted, staging, linux]
     environment: staging
-    on: [push]
     steps:
       - uses: actions/download-artifact@v3
         id: image-name
