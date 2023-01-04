@@ -81,14 +81,15 @@ jobs:
 
       - name: Extract Image tag
         shell: bash
-        run: echo "${AMBUDA_IMAGE}" >> ${{ github.workspace }}/image-name
+        run: echo "${AMBUDA_IMAGE}" >> image-name
         id: extract_image_details
         env:
           AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
-        uses: actions/upload-artifact@v3
+
+      - uses: actions/upload-artifact@v3
         with:
           name: image-name
-          path: ${{ github.workspace }}/image-details
+          path: image-name
 
   run_staging:
     name: Run staging deploy
