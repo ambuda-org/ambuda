@@ -81,8 +81,7 @@ jobs:
 
       - name: Extract Image tag
         shell: bash
-        run: echo "AMBUDA_IMAGE_TAG=${AMBUDA_IMAGE#ghcr.io/kvchitrapu/ambuda:}" >> ${{ github.workspace }}/image-tag
-        run: echo "AMBUDA_IMAGE=${AMBUDA_IMAGE}" >> ${{ github.workspace }}/image-name
+        run: echo "${AMBUDA_IMAGE}" >> ${{ github.workspace }}/image-name
         id: extract_image_details
         env:
           AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
@@ -102,7 +101,7 @@ jobs:
         id: image-name
         with:
           name: image-name
-          
+
       - name: extract_image_details
         shell: bash
         run: |
