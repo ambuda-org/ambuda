@@ -1,66 +1,153 @@
-#! /usr/env bash
+#! /usr/bin/bash
+
+AMBUDA_DEPLOY_CONFDIR=${HOME}/deploy-config/
 
 function usage {
-    echo "Usage: $0 -d # setup database"
-         "          -s # Start Ambuda"
-         "          -x # Stop Ambuda"
+    echo "Usage: $0 <option> # Setup database"
+    echo "          -c # Setup directory"
+    echo "          -d # Setup database"
+    echo "          -s # Start Ambuda"
+    echo "          -x # Stop Ambuda"
+    echo "          -v # Show version"
+    echo "          -h # Help"
     exit 1
 }
 
+function find_unused_port {
+    BOTTOM_PORT=5001
+    TOP_PORT=5100
+
+    for port in `seq $BOTTOM_PORT $TOP_PORT`
+    do
+        echo "hello" > /dev/tcp/$AMBUDA_HOST_IP/$port
+        if [ "$?" -ne 0 ]
+        then
+            echo "$port"
+            return
+        fi
+    done
+    echo "Error! No unused ports found between $BOTTOM_PORT-$TOP_PORT"
+    exit 1
+}
+
+function init_staging_env {
+    
+    if [ -z "$AMBUDA_STAGING_DIR" ]
+    then
+        exit "Error! Invalid staging directory"
+        exit 1
+    fi
+    
+    mkdir -p "$AMBUDA_STAGING_DIR"
+    if [ "$?" -ne 0 ]
+    then
+        echo "Error! staging directory -- $AMBUDA_STAGING_DIR -- create failed."
+        exit 1
+    else
+        echo "export AMBUDA_STAGING_DIR=$AMBUDA_STAGING_DIR" >> $AMBUDA_STAGING_ENV
+        echo "> Change directory to $AMBUDA_STAGING_DIR"
+    fi
+    
+    if [ -z "$AMBUDA_HOST_IP" ]
+    then
+        echo "export AMBUDA_HOST_IP=$(ip route get 1 | awk '{print $7; exit}')" >> $AMBUDA_STAGING_ENV
+        source $AMBUDA_STAGING_ENV
+    fi
+
+    if [ -z "$AMBUDA_HOST_PORT" ]
+    then
+        echo "export AMBUDA_HOST_PORT=$(find_unused_port)" >> $AMBUDA_STAGING_ENV
+    fi
+
+    if [ -z "$AMBUDA_IMAGE" ]
+    then
+        echo "Error! Invalid AMBUDA_IMAGE"
+        exit 1
+    else
+        echo "export AMBUDA_IMAGE=$AMBUDA_IMAGE" >> $AMBUDA_STAGING_ENV
+    fi
+}
+
+function setup_staging {
+    if [ ! -e "$AMBUDA_STAGING_ENV" ]
+    then
+        echo "Error! Invalid Ambuda staging environment."
+        exit 1
+    fi
+    cd $AMBUDA_STAGING_DIR
+}
+
 function setup_database {
-    docker compose -f docker-compose-dbsetup.yml up
+    docker compose -f ${AMBUDA_DEPLOY_CONFDIR}/docker-compose-dbsetup.yml up
     echo "> Ambuda Database...UP"
 }
 
 function start_webapp {
-    docker compose -f docker-compose.yml up --detach
+    docker compose -f ${AMBUDA_DEPLOY_CONFDIR}/docker-compose.yml up --detach
     echo "> Ambuda URL........http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT} is UP"
 }
 
 function start_ambuda {
-    docker compose -f docker-compose.yml up --detach
+    docker compose -f ${AMBUDA_DEPLOY_CONFDIR}/docker-compose.yml up --detach
+    if [ "$?" -ne 0 ]
+    then
+        echo "Error! > Ambuda URL........http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT} failed"
+        exit 1
+    fi
     echo "> Ambuda URL........http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT} is UP"
 }
 
-
 function stop_ambuda {
-    docker compose -f docker-compose.yml stop
-    docker compose -f docker-compose.yml rm -v -s -f
+    docker compose -f ${AMBUDA_DEPLOY_CONFDIR}/docker-compose.yml stop && docker compose -f ${AMBUDA_DEPLOY_CONFDIR}/docker-compose.yml rm -v -s -f
+    if [ "$?" -ne 0 ]
+    then
+        echo "Error! > Ambuda URL........http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT} failed to stop"
+        exit 1
+    fi
+    echo "Removing $AMBUDA_STAGING_DIR"
+    rm -rf $AMBUDA_STAGING_DIR
     echo "Ambuda URL http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT} is STOPPED"
 }
 
+
+function status_ambuda {
+    docker compose -f ${AMBUDA_DEPLOY_CONFDIR}/docker-compose.yml ps
+    if [ "$?" -ne 0 ]
+    then
+        echo "Error! > Ambuda URL........http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT} failed to stop"
+        exit 1
+    fi
+    
+    echo "Ambuda URL http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT} is Running"
+}
+
+
 # Main
-AMBUDA_STAGING=$(dirname "$0") 
-cd $AMBUDA_STAGING
-echo "> Ambuda instance...${AMBUDA_STAGING}"
 
-ls
-
-if [ -f ".env" ]; then
-    source .env
-fi
-
-if [ -z "$AMBUDA_IMAGE"  ] || [ -z "$AMBUDA_HOST_IP"  ] || [ -z "$AMBUDA_HOST_PORT"  ]; then
-    echo "Error! Invalid environment variable values"
-    echo "        AMBUDA_IMAGE is ${AMBUDA_IMAGE}"
-    echo "        AMBUDA_HOST_IP is ${AMBUDA_HOST_IP}"
-    echo "        AMBUDA_HOST_PORT is ${AMBUDA_HOST_PORT}"
+if [ -z "$AMBUDA_IMAGE" ]
+then
+    echo "Error! Invalid Ambuda image file. Set AMBUDA_IMAGE env variable to proceed."
     exit 1
-else
-    echo "> AMBUDA_IMAGE..... ${AMBUDA_IMAGE}"
-    echo "> AMBUDA_HOST_IP....${AMBUDA_HOST_IP}"
-    echo "> AMBUDA_HOST_PORT..${AMBUDA_HOST_PORT}"
 fi
 
-while getopts "sdxh" op; do
+while getopts "c:dsxh" op; do
     case "${op}" in
+        c)
+            staging_dir=$OPTARG
+            export AMBUDA_STAGING_DIR=$staging_dir
+            export AMBUDA_STAGING_ENV=$AMBUDA_STAGING_DIR/.env
+            ;;
         d)
+            setup_staging $staging_dir
             setup_database
             ;;
         s)
+            init_staging_env $staging_dir
+            setup_staging 
             start_ambuda
             ;;
         x)
+            setup_staging
             stop_ambuda
             ;;
         *)
@@ -68,3 +155,5 @@ while getopts "sdxh" op; do
             ;;
     esac
 done
+
+exit 0
