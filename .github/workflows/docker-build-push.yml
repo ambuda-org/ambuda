@@ -111,8 +111,8 @@ jobs:
 
       - name: Start the deploy job
         id: stagingdeploy
-        run: bash /home/ambuda-devbot/bin/ambuda-runner -c ${AMBUDA_IMAGE_TAG} -s
-        env:
-          AMBUDA_IMAGE: ${{ env.AMBUDA_IMAGE }}
-          AMBUDA_IMAGE_TAG: ${{ env.AMBUDA_IMAGE_TAG }}
+        run: bash /home/ambuda-devbot/bin/ambuda-runner -i ${{ env.AMBUDA_IMAGE }} -s
+#        env:
+#          AMBUDA_IMAGE: ${{ env.AMBUDA_IMAGE }}
+#          AMBUDA_IMAGE_TAG: ${{ env.AMBUDA_IMAGE_TAG }}
       
