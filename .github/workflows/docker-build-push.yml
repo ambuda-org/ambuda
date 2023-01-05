@@ -107,11 +107,12 @@ jobs:
         run: |
           echo "AMBUDA_IMAGE=`cat image-name`" >> $GITHUB_ENV
           echo "AMBUDA_IMAGE_TAG=${AMBUDA_IMAGE#ghcr.io/kvchitrapu/ambuda:}" >> $GITHUB_ENV
+          cat image-name
 
       - name: Start the deploy job
         id: stagingdeploy
         run: bash /home/ambuda-devbot/bin/ambuda-runner -c ${AMBUDA_IMAGE_TAG} -s
         env:
-          AMBUDA_IMAGE: ${AMBUDA_IMAGE}
-          AMBUDA_IMAGE_TAG: ${AMBUDA_IMAGE_TAG}
+          AMBUDA_IMAGE: ${{ env.AMBUDA_IMAGE }}
+          AMBUDA_IMAGE_TAG: ${{ env.AMBUDA_IMAGE_TAG }}
       
