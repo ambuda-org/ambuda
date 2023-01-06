@@ -1,6 +1,7 @@
 # Ambuda workflow to build and publish docker image
 
-name: Publish Ambuda image
+name: Teardown staging
+
 env:
   AMBUDA_VERSION: v0.1
 
