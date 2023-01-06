@@ -29,7 +29,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body: ${{ post-pr-comment.md }}
+          body: 'post-pr-comment.md'
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
