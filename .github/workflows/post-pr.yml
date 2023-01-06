@@ -1,0 +1,78 @@
+# Ambuda workflow to build and publish docker image
+
+name: Publish Ambuda image
+env:
+  AMBUDA_VERSION: v0.1
+
+on:
+  # push:
+  #   branches:
+  #     - 'main'
+  #   tags:
+  #     - 'v*'
+  pull_request:
+    branches:
+      - 'main'
+    types: 
+      - closed
+
+jobs:
+  pr_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-22.04
+    environment: staging
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: ${{ post-pr-comment.md }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch,value=v0.1-{{branch}}-{{sha}}
+            type=ref,event=pr,value=pr-{{branch}}-{{sha}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,event=push,value=v0.1-{{branch}}-{{sha}}
+
+      - name: Extract Image tag
+        shell: bash
+        run: echo "${AMBUDA_IMAGE}" >> image-name
+        id: extract_image_details
+        env:
+          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: image-name
+          path: image-name
+
+  stop_staging:
+    name: Stop staging deploy
+    needs: pr_merged
+    runs-on: [self-hosted, staging, linux]
+    environment: staging
+    steps:
+      - uses: actions/download-artifact@v3
+        id: image-name
+        with:
+          name: image-name
+
+      - name: extract_image_details
+        shell: bash
+        run: |
+          echo "AMBUDA_IMAGE=`cat image-name`" >> $GITHUB_ENV
+          cat image-name
+
+      - name: Stop the deploy job
+        id: stagingdeploy
+        run: bash /home/ambuda-devbot/bin/ambuda-runner -i ${{ env.AMBUDA_IMAGE }} -x
