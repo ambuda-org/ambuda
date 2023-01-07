@@ -8,11 +8,9 @@ env:
   AMBUDA_HOST_PORT: 5090
   
 on:
-  # push:
-  #   branches:
-  #     - 'main'
-  #   tags:
-  #     - 'v*'
+  push:
+     branches:
+       - 'main'
   pull_request:
     branches:
       - 'main'
