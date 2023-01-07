@@ -103,7 +103,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body-file: '.github/workflows/pr-open-comment.md'
+          body: 'Your pull request is open. Reviewers will review the pullrequest at the earliest.'
           reactions: '+1'
 
       - uses: actions/download-artifact@v3
