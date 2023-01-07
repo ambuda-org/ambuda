@@ -91,10 +91,11 @@ jobs:
           name: image-name
           path: image-name
   
-  issue_commented:
-    # This job only runs for issue comments
-    name: Issue comment
-    if: ${{ !github.event.issue.pull_request }}
+  PR_commented:
+    # This job only runs on PR open
+    name: PR comment
+    needs: push_to_registries
+    if: ${{ github.event.issue.pull_request.opened || github.event.issue.pull_request.reopened }}
     runs-on: ubuntu-latest
     steps:
       - name: Create comment
@@ -104,7 +105,7 @@ jobs:
           body: 'Your pull request is open. Reviewers will review the pullrequest at the earliest.'
           reactions: '+1'
   
-  run_staging:
+  deploy_staging:
     name: Run staging deploy
     needs: push_to_registries
     runs-on: [self-hosted, staging, linux]
