@@ -7,6 +7,7 @@ function usage {
     echo "Usage: $0 <option> # Setup database"
     echo "          -c # Setup directory"
     echo "          -d # Setup database"
+    echo "          -l # Status of Ambuda server"
     echo "          -s # Start Ambuda"
     echo "          -x # Stop Ambuda"
     echo "          -v # Show version"
