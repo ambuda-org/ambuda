@@ -6,7 +6,7 @@ env:
   AMBUDA_VERSION: v0.1
   AMBUDA_HOST_IP: 127.0.0.1
   AMBUDA_HOST_PORT: 5090
-  AMBUDA_REGISTRY: ghcr.io
+  REGISTRY: ghcr.io
   
 on:
   push:
@@ -28,11 +28,7 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
-      - name: Check IP address
-        run : |
-          echo "AMBUDA_HOST_IP=$(ip route get 1 | awk '{print $7; exit}')" >> $GITHUB_ENV
-          curl https://api.ipify.org
-      
+
       - name: GH container registry login
         uses: docker/login-action@v2
         with:
@@ -40,6 +36,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
+      - name: Check IP address
+        run : |
+          echo "AMBUDA_HOST_IP=$(ip route get 1 | awk '{print $7; exit}')" >> $GITHUB_ENV
+          curl https://api.ipify.org
+   
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4
