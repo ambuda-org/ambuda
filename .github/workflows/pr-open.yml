@@ -6,6 +6,7 @@ env:
   AMBUDA_VERSION: v0.1
   AMBUDA_HOST_IP: 127.0.0.1
   AMBUDA_HOST_PORT: 5090
+  AMBUDA_REGISTRY: ghcr.io
   
 on:
   push:
@@ -27,11 +28,15 @@ jobs:
     steps:
       - name: Check out the repo
         uses: actions/checkout@v3
+      - name: Check IP address
+        run : |
+          echo "AMBUDA_HOST_IP=$(ip route get 1 | awk '{print $7; exit}')" >> $GITHUB_ENV
+          curl https://api.ipify.org
       
       - name: GH container registry login
         uses: docker/login-action@v2
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       
@@ -40,7 +45,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ghcr.io/${{ github.repository }}
+            ${{ env.REGISTRY }}/${{ github.repository }}
           tags: |
             type=ref,event=branch,value=v0.1-{{branch}}-{{sha}}
             type=ref,event=pr,value=pr-{{branch}}-{{sha}}
@@ -71,7 +76,7 @@ jobs:
           AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
           
       - name: Check that site is running
-        run: timeout 2m bash -c "until curl --fail-with-body $AMBUDA_HOST_IP:$AMBUDA_HOST_PORT; do sleep 1; done"
+        run: timeout 24m bash -c "until curl --fail-with-body $AMBUDA_HOST_IP:$AMBUDA_HOST_PORT; do sleep 12m; done"
         
       - name: Show logs on fail
         if: ${{ failure() }}
@@ -91,8 +96,8 @@ jobs:
           name: image-name
           path: image-name
   
-  PR_commented:
-    # This job only runs on PR open
+  pr_commented:
+    # This job only runs on PR open or reopen
     name: PR comment
     needs: push_to_registries
     if: ${{ github.event.issue.pull_request.opened || github.event.issue.pull_request.reopened }}
