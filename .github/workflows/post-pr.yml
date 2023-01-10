@@ -13,8 +13,8 @@ on:
   #     - 'v*'
   pull_request:
     branches:
-      - 'main'
-    types: 
+      - 'ambuda-cicd'
+    types:
       - closed
 
 jobs:
@@ -30,7 +30,7 @@ jobs:
         uses: peter-evans/create-or-update-comment@v2
         with:
           issue-number: ${{ github.event.pull_request.number }}
-          body-file: '.github/workflows/post-pr-comment.md'
+          body: 'Thank you. Your PR has been closed. Please check logs for details'
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -40,9 +40,7 @@ jobs:
             ghcr.io/${{ github.repository }}
           tags: |
             type=ref,event=branch,value=v0.1-{{branch}}-{{sha}}
-            type=ref,event=pr,value=pr-{{branch}}-{{sha}}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=raw,event=pr,value=pr-{{ github.event.pull_request.number }}-{{sha}}
             type=raw,event=push,value=v0.1-{{branch}}-{{sha}}
 
       - name: Extract Image tag

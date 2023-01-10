@@ -1,21 +1,20 @@
 # Ambuda workflow to build and publish docker image
 
-name: Build publish and staging
+name: Build and test incoming
 
 env:
   AMBUDA_VERSION: v0.1
   AMBUDA_HOST_IP: 127.0.0.1
-  AMBUDA_HOST_PORT: 5090
-  REGISTRY: ghcr.io
+  AMBUDA_HOST_PORT: 5000
   
 on:
   pull_request:
     branches:
-      - 'releases'
+      - 'fork-landing'
     types: [opened, reopened]
 
 jobs:
-  push_to_registries:
+  build_and_test:
     name: Push Ambuda image to GH container registry
     runs-on: ubuntu-22.04
     environment: staging
@@ -26,13 +25,6 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v3
 
-      - name: GH container registry login
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4
@@ -41,16 +33,16 @@ jobs:
             ${{ env.REGISTRY }}/${{ github.repository }}
           tags: |
             type=ref,event=branch,value=v0.1-{{branch}}-{{sha}}
-            type=raw,event=pr,value=pr-{{ github.event.pull_request.number }}-{{sha}}
+            type=raw,event=pr,value=pr-{{github.event.pull_request.number}}-{{sha}}
             type=raw,event=push,value=v0.1-{{branch}}-{{sha}}
       
-      - name: Build and push Docker images
-        id: publish
+      - name: Build and Test docker image
+        id: build-to-test
         uses: docker/build-push-action@v3.2.0
         with:
           context: .
           file: build/containers/Dockerfile.final
-          push: ${{ github.event_name == 'pull_request' }}
+          push: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       
@@ -68,7 +60,7 @@ jobs:
           AMBUDA_HOST_IP: 0.0.0.0
           
       - name: Check that site is running
-        run: timeout 24m bash -c "until curl --fail-with-body $AMBUDA_HOST_IP:$AMBUDA_HOST_PORT; do sleep 12m; done"
+        run: timeout 2m bash -c "until curl --fail-with-body $AMBUDA_HOST_IP:$AMBUDA_HOST_PORT; do sleep 1; done"
         
       - name: Show logs on fail
         if: ${{ failure() }}
@@ -76,22 +68,10 @@ jobs:
         env:
           AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
 
-      - name: Extract Image tag
-        shell: bash
-        run: echo "${AMBUDA_IMAGE}" >> image-name
-        id: extract_image_details
-        env:
-          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: image-name
-          path: image-name
-  
   pr_commented:
     # This job only runs on PR open or reopen
     name: PR comment
-    needs: push_to_registries
+    needs: build_and_test_image
     if: ${{ github.event.issue.pull_request.opened || github.event.issue.pull_request.reopened }}
     runs-on: ubuntu-latest
     steps:
@@ -101,26 +81,3 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: 'Your pull request is open. Reviewers will review the pullrequest at the earliest.'
           reactions: '+1'
-  
-  deploy_staging:
-    name: Run staging deploy
-    needs: push_to_registries
-    runs-on: [self-hosted, staging, linux]
-    environment: staging
-    steps:
-      - uses: actions/download-artifact@v3
-        id: image-name
-        with:
-          name: image-name
-
-      - name: extract_image_details
-        shell: bash
-        run: |
-          echo "AMBUDA_IMAGE=`cat image-name`" >> $GITHUB_ENV
-          echo "AMBUDA_IMAGE_TAG=${AMBUDA_IMAGE#ghcr.io/kvchitrapu/ambuda:}" >> $GITHUB_ENV
-          cat image-name
-
-      - name: Start the deploy job
-        id: stagingdeploy
-        run: bash /home/ambuda-devbot/bin/ambuda-runner -i ${{ env.AMBUDA_IMAGE }} -s
-      
