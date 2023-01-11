@@ -15,7 +15,7 @@ on:
 
 jobs:
   build_and_test:
-    name: Push Ambuda image to GH container registry
+    name: Build external pr image
     runs-on: ubuntu-22.04
     environment: staging
     permissions:
@@ -42,8 +42,7 @@ jobs:
         with:
           context: .
           file: build/containers/Dockerfile.final
-          push: false
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: latest
           labels: ${{ steps.meta.outputs.labels }}
       
       - name: Run SQL db setup
