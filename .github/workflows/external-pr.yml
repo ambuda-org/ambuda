@@ -71,7 +71,7 @@ jobs:
   pr_commented:
     # This job only runs on PR open or reopen
     name: PR comment
-    needs: build_and_test_image
+    needs: build_and_test
     if: ${{ github.event.issue.pull_request.opened || github.event.issue.pull_request.reopened }}
     runs-on: ubuntu-latest
     steps:
