@@ -40,7 +40,7 @@ jobs:
             ghcr.io/${{ github.repository }}
           tags: |
             type=ref,event=branch,value=v0.1-{{branch}}-{{sha}}
-            type=raw,event=pr,value=pr-{{ github.event.pull_request.number }}-{{sha}}
+            type=raw,event=pr,value=pr-${{ github.event.pull_request.number }}-{{sha}}
             type=raw,event=push,value=v0.1-{{branch}}-{{sha}}
 
       - name: Extract Image tag

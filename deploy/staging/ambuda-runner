@@ -106,6 +106,7 @@ function stop_ambuda {
     cd $(dirname "${AMBUDA_STAGING_DIR}")
     echo "Removing $AMBUDA_STAGING_DIR"
     rm -rf $AMBUDA_STAGING_DIR
+    docker image rm $AMBUDA_IMAGE
     echo "Ambuda URL http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT} is STOPPED"
 }
 
