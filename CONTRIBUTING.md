@@ -43,6 +43,13 @@ Patch standards:
 
 [tpope]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 
+### Submitting a PR
+
+- Fork from https://github.com/ambuda-org/ambuda/
+
+- Make code changes and commit
+
+- Submit a PR to `fork-landing` upstream branch
 
 ### Setting up your dev environment
 

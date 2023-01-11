@@ -4,7 +4,7 @@ AMBUDA_DEPLOY_CONFDIR=${HOME}/deploy-config/
 AMBUDA_WORKSPACE=${HOME}
 
 function usage {
-    echo "Usage: $0 <option> # Setup database"
+    echo "Usage: $0 -i <image > <command option> # Setup database"
     echo "          -c # Setup directory"
     echo "          -d # Setup database"
     echo "          -l # Status of Ambuda server"
