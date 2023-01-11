@@ -34,6 +34,7 @@ jobs:
             ${{ env.REGISTRY }}/${{ github.repository }}
           tags: |
             type=raw,event=pr,value=v0.1-pr${{ github.event.pull_request.number }}-{{sha}}
+
       - name: Build and Test docker image
         id: build-to-test
         uses: docker/build-push-action@v3.2.0
@@ -46,15 +47,16 @@ jobs:
       
       - name: Run SQL db setup
         id: dbsetup
-        run: docker compose -f deploy/local/docker-compose-dbsetup.yml up
+        run: |
+          echo "AMBUDA_IMAGE=${{ fromJSON(steps.meta.outputs.json).tags[0] }}" >> $GITHUB_ENV
+          docker compose -f deploy/local/docker-compose-dbsetup.yml up
         env:
-          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
+          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           
       - name: Run Docker images
         id: deploy
         run: docker compose -f deploy/local/docker-compose.yml up --detach
         env:
-          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
           AMBUDA_HOST_IP: 0.0.0.0
           
       - name: Check that site is running
@@ -63,8 +65,6 @@ jobs:
       - name: Show logs on fail
         if: ${{ failure() }}
         run: docker compose -f deploy/local/docker-compose.yml logs
-        env:
-          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
 
   pr_commented:
     # This job only runs on PR open or reopen
