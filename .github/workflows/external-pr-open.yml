@@ -36,7 +36,6 @@ jobs:
 #           type=ref,event=push,value=v0.1-{{branch}}-{{sha}}
 #           type=ref,enable=true,prefix=pr-,suffix=-{{sha}},event=pr
 #           type=raw,event=pr,value=v0.1-pr${{ github.event.pull_request.number }}-{{sha}}
-      do
       - name: Build and Test docker image
         id: build-to-test
         uses: docker/build-push-action@v3.2.0
