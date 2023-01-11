@@ -9,9 +9,6 @@ env:
   REGISTRY: ghcr.io
   
 on:
-  push:
-    branches:
-      - 'releases'
   pull_request:
     branches:
       - 'releases'
