@@ -39,8 +39,8 @@ jobs:
           images: |
             ghcr.io/${{ github.repository }}
           tags: |
+            type=raw,event=pr,value=v0.1-pr${{ github.event.pull_request.number }}-{{sha}}
             type=ref,event=branch,value=v0.1-{{branch}}-{{sha}}
-            type=raw,event=pr,value=pr-${{ github.event.pull_request.number }}-{{sha}}
             type=raw,event=push,value=v0.1-{{branch}}-{{sha}}
 
       - name: Extract Image tag
@@ -48,7 +48,7 @@ jobs:
         run: echo "${AMBUDA_IMAGE}" >> image-name
         id: extract_image_details
         env:
-          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
+          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
 
       - uses: actions/upload-artifact@v3
         with:

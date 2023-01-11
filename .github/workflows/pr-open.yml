@@ -40,9 +40,23 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ github.repository }}
           tags: |
+            type=raw,event=pr,value=v0.1-pr${{ github.event.pull_request.number }}-{{sha}}
             type=ref,event=branch,value=v0.1-{{branch}}-{{sha}}
-            type=raw,event=pr,value=pr-${{ github.event.pull_request.number }}-{{sha}}
             type=raw,event=push,value=v0.1-{{branch}}-{{sha}}
+            
+      - name: Extract Image Id
+        id: image_id
+        shell: bash
+        run: |
+          echo "AMBUDA_IMAGE=${{ env.AMBUDA_IMAGE }}" >> $GITHUB_ENV
+          echo "${{ env.AMBUDA_IMAGE }}" >> image-name
+        env:
+          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+      
+      - uses: actions/upload-artifact@v3
+        with:
+          name: image-name
+          path: image-name
       
       - name: Build and push Docker images
         id: publish
@@ -57,37 +71,20 @@ jobs:
       - name: Run SQL db setup
         id: dbsetup
         run: docker compose -f deploy/local/docker-compose-dbsetup.yml up
-        env:
-          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
           
       - name: Run Docker images
         id: deploy
         run: docker compose -f deploy/local/docker-compose.yml up --detach
         env:
-          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
           AMBUDA_HOST_IP: 0.0.0.0
           
       - name: Check that site is running
-        run: timeout 24m bash -c "until curl --fail-with-body $AMBUDA_HOST_IP:$AMBUDA_HOST_PORT; do sleep 12m; done"
+        run: timeout 2m bash -c "until curl --fail-with-body $AMBUDA_HOST_IP:$AMBUDA_HOST_PORT; do sleep 1; done"
         
       - name: Show logs on fail
         if: ${{ failure() }}
         run: docker compose -f deploy/local/docker-compose.yml logs
-        env:
-          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
 
-      - name: Extract Image tag
-        shell: bash
-        run: echo "${AMBUDA_IMAGE}" >> image-name
-        id: extract_image_details
-        env:
-          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[1] }}
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: image-name
-          path: image-name
-  
   pr_commented:
     # This job only runs on PR open or reopen
     name: PR comment
