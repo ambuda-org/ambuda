@@ -51,6 +51,8 @@ Patch standards:
 
 - Submit a PR to `fork-landing` upstream branch.
 
+- Wait for reviewers to comment or merge.
+
 ### Setting up your dev environment
 
 Our [technical documentation][docs] will help you build Ambuda on your local
