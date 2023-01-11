@@ -32,7 +32,7 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ github.repository }}
           tags: |
-            type=edge
+            type=ref,enable=true,priority=600,prefix=,suffix=,event=tag
 #           type=ref,event=push,value=v0.1-{{branch}}-{{sha}}
 #           type=ref,enable=true,prefix=pr-,suffix=-{{sha}},event=pr
 #           type=raw,event=pr,value=v0.1-pr${{ github.event.pull_request.number }}-{{sha}}
