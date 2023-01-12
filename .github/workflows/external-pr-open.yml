@@ -11,8 +11,9 @@ env:
 on:
   pull_request:
     branches:
-      - 'fork-landing'
-    types: [opened, reopened]
+      - 'dev'
+      - 'main'
+    types: [opened, reopened, synchronize]
 
 jobs:
   build_and_test:

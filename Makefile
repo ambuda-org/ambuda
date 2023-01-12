@@ -4,10 +4,11 @@
 .EXPORT_ALL_VARIABLES:
 
 # Git and docker params
-GITCOMMIT=$(shell git rev-parse --abbrev-ref HEAD)
-AMBUDA_VERSION=0.1
+GITCOMMIT=$(shell git rev-parse --short HEAD)
+GITBRANCH=$(shell git rev-parse --abbrev-ref --short HEAD)
+AMBUDA_VERSION=v0.1
 AMBUDA_NAME=ambuda
-AMBUDA_IMAGE=${AMBUDA_NAME}-rel:${AMBUDA_VERSION}-${GITCOMMIT}
+AMBUDA_IMAGE=${AMBUDA_NAME}:${AMBUDA_VERSION}-${GITBRANCH}-${GITCOMMIT}
 AMBUDA_IMAGE_LATEST="$(AMBUDA_NAME)-rel:latest"
 
 # Environment. Valid values are: local, staging, and prod
@@ -235,4 +236,3 @@ babel-compile: py-venv-check
 clean:
 	@rm -rf deploy/data/
 	@rm -rf ambuda/translations/*
-
