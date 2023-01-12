@@ -11,7 +11,7 @@ env:
 on:
   pull_request:
     branches:
-      - 'dev'
+      - 'development'
       - 'main'
     types: [opened, reopened, synchronize]
 
