@@ -49,7 +49,7 @@ Patch standards:
 
 - Make code changes and commit
 
-- Submit a PR to `fork-landing` upstream branch.
+- Submit a PR to `development` upstream branch.
 
 - Wait for reviewers to comment or merge.
 
