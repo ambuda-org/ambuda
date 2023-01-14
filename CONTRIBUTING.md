@@ -45,13 +45,15 @@ Patch standards:
 
 ### Submitting a PR
 
-- Fork from https://github.com/ambuda-org/ambuda/
+- Fork from [Ambuda repo][1]
 
-- Make code changes and commit
+- `cd ambuda`
 
-- Submit a PR to `development` upstream branch.
+- Make code changes and commit 
 
-- Wait for reviewers to comment or merge.
+- Submit a PR to [development upstream branch][2]
+
+- Reviewers will respond generally within 24 hours
 
 ### Setting up your dev environment
 
@@ -59,3 +61,6 @@ Our [technical documentation][docs] will help you build Ambuda on your local
 machine and run routine development tasks like testing and linting.
 
 [docs]: https://ambuda.readthedocs.io/en/latest/
+
+[1]: https://github.com/kvchitrapu/ambuda
+[2]: https://github.com/kvchitrapu/ambuda:development
