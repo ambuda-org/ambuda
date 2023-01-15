@@ -7,10 +7,9 @@
 
 
 {% macro cheda() %}
-<textarea x-model="input" class="block w-full bg-slate-50 border border-slate-100 rounded my-4 p-2"> </textarea>
+<textarea x-model="input" class="block w-full bg-slate-50 border border-slate-100 rounded my-4 p-2"></textarea>
 <input type="submit" class="btn btn-submit" value="Analyse" @click.prevent="analyze" />
-<div id="output">
-</div>
+<div id="output" x-html="output"></div>
 {% endmacro %}
 
 
