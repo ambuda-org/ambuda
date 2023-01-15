@@ -33,6 +33,7 @@ from ambuda.views.proofing import bp as proofing
 from ambuda.views.reader.parses import bp as parses
 from ambuda.views.reader.texts import bp as texts
 from ambuda.views.site import bp as site
+from ambuda.views.tools import bp as tools
 
 
 def _initialize_sentry(sentry_dsn: str):
@@ -134,6 +135,7 @@ def create_app(config_env: str):
     app.register_blueprint(api, url_prefix="/api")
     app.register_blueprint(auth)
     app.register_blueprint(blog, url_prefix="/blog")
+    app.register_blueprint(tools, url_prefix="/tools")
     app.register_blueprint(dictionaries, url_prefix="/tools/dictionaries")
     app.register_blueprint(parses, url_prefix="/parses")
     app.register_blueprint(proofing, url_prefix="/proofing")
