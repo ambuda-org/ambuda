@@ -1,3 +1,17 @@
-{% for t in tokens %}
-{{ t }}
-{% endfor %}
+{% macro classes(token) %}
+{% if token.info.pos == "none" %}
+text-red-700
+{% endif %}
+{% endmacro %}
+
+<section class="my-4">
+  {%- for t in tokens -%}
+  <span @click.prevent="showToken" x-data="{{ t.info }}" class="text-xl cursor-pointer hover:text-green-600 {{ classes(t) }}">
+      {{- t.text|slp2dev -}}
+  </span>
+
+    {%- if t.info.is_purvapada == 'true' -%}
+      <span class="text-slate-400">&ndash;</span>
+    {%- else %} {% endif -%}
+  {%- endfor -%}
+</section>

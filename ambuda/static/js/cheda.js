@@ -8,9 +8,9 @@ export default () => ({
         this.input = "बाह्योद्यानस्थितहरशिरश्चन्द्रिकाधौतहर्म्या";
         this.analyze();
     },
+    showToken(x) {
+    },
     async analyze() {
-        console.log("analyze", this.input);
-
         const response = await fetch(CHEDA_URL, {
             method: "POST",
             headers: {
