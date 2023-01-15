@@ -70,11 +70,11 @@ jobs:
         id: stagingdeploy
         run: bash /home/ambuda-devbot/bin/ambuda-runner -i ${{ env.AMBUDA_IMAGE }} -x
 
-  pr_merged:
+  commeent_pr_merged:
       # This job only runs on PR open or reopen
       name: PR comment
       needs: stop_staging
-      if: $github.event.pull_request.merged == true
+      if: github.event.pull_request.merged == true
       runs-on: ubuntu-latest
       steps:
         - name: Create comment
