@@ -1,10 +1,10 @@
 # Ambuda workflow to build and publish docker image
+name: Create Release PR on seeing new code 
 
 env:
   PR_SOURCE_BRANCH: development
   PR_TARGET_BRANCH: releases
 
-name: Create Release PR on seeing new code 
 on:
   schedule:
     - cron: '*/10 * * * *'
