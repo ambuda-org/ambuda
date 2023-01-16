@@ -1,0 +1,47 @@
+# Ambuda workflow to build and publish docker image
+
+env:
+  PR_SOURCE_BRANCH: development
+  PR_TARGET_BRANCH: releases
+
+name: Create Release PR on seeing new code 
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  
+jobs:
+
+  get_dev_pr:
+    runs-on: ubuntu-22.04
+    environment: staging
+    permissions:
+      contents: read
+    steps:
+      - name: Find the recent PR merge on development
+        run: |
+          echo "PR_NUMBER=$(gh pr list --state merged --base ${{ env.PR_SOURCE_BRANCH }} -L 1 --json number| jq '.[].number')" >> $GITHUB_ENV
+
+  create_pr:
+    runs-on: ubuntu-22.04
+    name: Create PR on releases branch
+    environment: staging
+    permissions:
+      packages: write
+      contents: write
+    needs: get_dev_pr 
+    if: $ {{ env.PR_NUMBER }} != ""
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ env.PR_TARGET_BRANCH }}
+      - name: Reset promotion branch
+        run: |
+          git fetch origin ${{ env.PR_SOURCE_BRANCH }}:${{ env.PR_SOURCE_BRANCH }}
+          git reset --hard ${{ env.PR_SOURCE_BRANCH }}
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          branch: releases
+          title: PR-${{ env.PR_NUMBER }} - merge
+          body:  development/PR-${{ env.PR_NUMBER }} merge is open
