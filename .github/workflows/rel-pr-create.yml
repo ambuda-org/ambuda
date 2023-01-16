@@ -29,7 +29,7 @@ jobs:
       packages: write
       contents: write
     needs: get_dev_pr 
-    if: $ {{ env.PR_NUMBER }} != ""
+    if: ${{ env.PR_NUMBER }} != ""
 
     steps:
       - uses: actions/checkout@v3
