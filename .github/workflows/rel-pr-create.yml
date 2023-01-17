@@ -52,8 +52,7 @@ jobs:
           git fetch origin ${{ env.PR_SOURCE_BRANCH }}:${{ env.PR_SOURCE_BRANCH }}
           git reset --hard ${{ env.PR_SOURCE_BRANCH }}
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v4.2.3
         with:
-          branch: releases
           title: PR-${{ env.PR_NUMBER }} - merge
           body:  development/PR-${{ env.PR_NUMBER }} merge is open
