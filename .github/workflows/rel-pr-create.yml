@@ -21,6 +21,9 @@ jobs:
     outputs:
       pr_number: ${{ steps.find_pr.outputs.PR_NUMBER }}
     steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ env.PR_TARGET_BRANCH }}  
       - name: Find the recent PR merge on development
         id: find_pr
         run: |
