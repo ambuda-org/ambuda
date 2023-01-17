@@ -6,6 +6,7 @@ env:
   PR_TARGET_BRANCH: releases
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: '*/10 * * * *'
   
