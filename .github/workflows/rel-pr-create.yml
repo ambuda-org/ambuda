@@ -16,10 +16,14 @@ jobs:
     environment: staging
     permissions:
       contents: read
+    outputs:
+      pr_number: ${{ steps.find_pr.outputs.PR_NUMBER }}
     steps:
       - name: Find the recent PR merge on development
+        id: find_pr
         run: |
-          echo "PR_NUMBER=$(gh pr list --state merged --base ${{ env.PR_SOURCE_BRANCH }} -L 1 --json number| jq '.[].number')" >> $GITHUB_ENV
+          LAST_RUNTIME=$(date +'%Y-%m-%dT%H:%M:%S' --date '-10 min')
+          echo "PR_NUMBER=$(gh pr list --state merged --base ${{ env.PR_SOURCE_BRANCH }} --search "merged:>$LAST_RUNTIME" -L 1 --json number| jq '.[].number')" >> $GITHUB_OUTPUT
 
   create_pr:
     runs-on: ubuntu-22.04
@@ -29,12 +33,12 @@ jobs:
       packages: write
       contents: write
     needs: get_dev_pr 
-    if: ${{ env.PR_NUMBER }} != ""
+    if: needs.get_dev_pr.outputs.PR_NUMBER != ''
 
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ${{ env.PR_TARGET_BRANCH }}
+          ref: ${{ env.PR_TARGET_BRANCH }}  
       - name: Reset promotion branch
         run: |
           git fetch origin ${{ env.PR_SOURCE_BRANCH }}:${{ env.PR_SOURCE_BRANCH }}
