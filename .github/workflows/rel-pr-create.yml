@@ -2,6 +2,7 @@
 name: Create Release PR on seeing new code 
 
 env:
+  GH_TOKEN: ${{ github.token }}
   PR_SOURCE_BRANCH: development
   PR_TARGET_BRANCH: releases
 
