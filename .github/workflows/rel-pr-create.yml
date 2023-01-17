@@ -10,7 +10,7 @@ env:
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/30 * * * *'
   
 jobs:
 
@@ -28,7 +28,7 @@ jobs:
       - name: Find the recent PR merge on development
         id: find_pr
         run: |
-          LAST_RUNTIME=$(date +'%Y-%m-%dT%H:%M:%S' --date '-10 min')
+          LAST_RUNTIME=$(date +'%Y-%m-%dT%H:%M:%S' --date '-30 min')
           gh repo set-default kvchitrapu/ambuda
           echo "PR_NUMBER=$(gh pr list --state merged --base ${{ env.PR_SOURCE_BRANCH }} --search "merged:>$LAST_RUNTIME" -L 1 --json number| jq '.[].number')" >> $GITHUB_OUTPUT
 
