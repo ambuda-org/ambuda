@@ -4,7 +4,10 @@ name: Create Release PR on seeing new code
 
 env:
   GH_TOKEN: ${{ github.token }}
+
+  # head/branch where current changes reside befor merge
   PR_SOURCE_BRANCH: development
+  # base - branch intended to change once the proposed changes are meged.
   PR_TARGET_BRANCH: releases
 
 on:
@@ -39,6 +42,7 @@ jobs:
     permissions:
       packages: write
       contents: write
+      pull-requests: 'write'
     needs: get_dev_pr 
     if: needs.get_dev_pr.outputs.PR_NUMBER != ''
     env:
@@ -54,6 +58,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4.2.3
         with:
+          base: ${{ env.PR_TARGET_BRANCH }}  
           branch: ${{ env.PR_TARGET_BRANCH }}-${{ env.PR_NUMBER }}
           title: PR-${{ env.PR_NUMBER }} - merge
           body:  development/PR-${{ env.PR_NUMBER }} merge is open
