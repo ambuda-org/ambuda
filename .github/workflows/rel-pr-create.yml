@@ -54,5 +54,6 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4.2.3
         with:
+          branch: ${{ env.PR_TARGET_BRANCH }}-${{ env.PR_NUMBER }}
           title: PR-${{ env.PR_NUMBER }} - merge
           body:  development/PR-${{ env.PR_NUMBER }} merge is open
