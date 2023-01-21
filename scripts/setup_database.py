@@ -16,7 +16,10 @@ import config
 from ambuda import database as db
 from ambuda.seed import dcs, lookup, texts
 
-# TODO: need to remote gretil import
+# TODO: need to FIX
+from ambuda.seed.dictionaries import monier  # noqa
+
+# TODO: need to FIX
 from ambuda.seed.texts import gretil  # noqa
 
 
@@ -58,6 +61,10 @@ def init_database(sql_uri, db_file_path):
         print("Error! dcs.run() failed")
         return False
 
+    if not monier.run():
+        print("Error! dcs.run() failed")
+        return False
+    
     # Create Alembic's migrations table.
     try:
         subprocess.run(["/venv/bin/alembic", "ensure_version"])
