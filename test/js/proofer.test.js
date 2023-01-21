@@ -241,6 +241,15 @@ test('markAsFootnoteNumber works', () => {
   expect($text.value).toBe('This is [^sample] text.')
 });
 
+test('replaceColonVisarga works', () => {
+  const p = Proofer();
+  const $text = $('#content');
+  $text.value = 'क: खा: गि : घी:'
+  $text.setSelectionRange(3, 12);
+  p.replaceColonVisarga();
+  expect($text.value).toBe('क: खाः गि ः घी:');
+});
+
 test('copyCharacter works', () => {
   const { p } = markupFixtures();
   p.copyCharacter({ target: { textContent: 'foo' }});

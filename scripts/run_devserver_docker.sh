@@ -6,11 +6,15 @@
 
 set -e
 
+<<<<<<< HEAD
 . env/bin/activate
 
 source .env
 
 
+=======
+. /venv/bin/activate
+>>>>>>> upstream/main
 
 # Extract file path from sqlite:///[file path]
 DB_FILE_PATH="${SQLALCHEMY_DATABASE_URI/sqlite:\/\/\//}"
