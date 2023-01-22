@@ -105,30 +105,31 @@ docker-setup-db: docker-build
 ifneq ("$(wildcard $(DB_FILE))","")
 	@echo "Ambuda using your existing database!"
 else
-	@docker compose -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose-dbsetup.yml up
-	@echo "Ambuda database is Ready!"
+	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose-dbsetup.yml up > /dev/null
+	@echo "Ambuda Database : ✔ "
 endif
 	
 # Build docker image. All tag the latest to the most react image
 # docker-build: lint-check
 docker-build: 
-	@docker build -t ${AMBUDA_IMAGE} -t ${AMBUDA_IMAGE_LATEST} -f build/containers/Dockerfile.final ${PWD}
-	@echo ">>>>>> ${AMBUDA_IMAGE} is now ${AMBUDA_IMAGE_LATEST}"
+	@docker build -q -t ${AMBUDA_IMAGE} -t ${AMBUDA_IMAGE_LATEST} -f build/containers/Dockerfile.final ${PWD}
+	@echo "Ambuda Image    : ✔ - ${AMBUDA_IMAGE} (-> ${AMBUDA_IMAGE_LATEST})"
 
 # Start Docker services.
 docker-start: docker-build docker-setup-db
-	@docker compose -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up --detach
-	@echo "Ambuda URL http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT} is up"
+	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up --detach
+	@echo "Ambuda WebApp   : ✔ "
+	@echo "Ambuda URL      : http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT}"
 
 # Stop docker services
 docker-stop: 
-	@docker compose -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml stop
-	@docker compose -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml rm
+	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml stop
+	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml rm
 	@echo "Ambuda URL stopped"
 
 # Show docker logs
 docker-logs: 
-	@docker compose -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml logs
+	@docker compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml logs
 
 # Run a local Celery instance for background tasks.
 celery: 

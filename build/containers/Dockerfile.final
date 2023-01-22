@@ -6,8 +6,8 @@ ENV PYTHONFAULTHANDLER=1 \
     PYTHONHASHSEED=random \
     PYTHONUNBUFFERED=1
 WORKDIR /app
-RUN apt-get update && apt-get install -y curl && curl -sL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get install -y nodejs && apt-get remove -y curl && rm -rf /var/lib/apt/lists/* && echo "************* Base image build succeeded! *****************"
+RUN apt-get update && apt-get install -y --no-install-recommends curl && curl -sL https://deb.nodesource.com/setup_16.x | bash -
+RUN apt-get install -y --no-install-recommends nodejs && apt-get remove -y curl && rm -rf /var/lib/apt/lists/* && echo "************* Base image build succeeded! *****************"
 
 # ####################################
 ## 2.1 bring build tools for dev #####
@@ -26,7 +26,7 @@ ENV PYTHONFAULTHANDLER=1 \
 
 # Install all dependencies. Python venv 
 RUN pip install "poetry==$POETRY_VERSION"
-RUN apt-get update && apt-get install -y make gcc python3-dev && apt-get install -y --reinstall build-essential && python -m venv /venv
+RUN apt-get update && apt-get install -y --no-install-recommends make gcc python3-dev && apt-get install -y --reinstall build-essential && python -m venv /venv
 COPY pyproject.toml poetry.lock ./
 
 RUN poetry export --without-hashes --dev -f requirements.txt | /venv/bin/pip install -r /dev/stdin && echo "************* Python dev dependencies build succeeded! *****************"
@@ -48,7 +48,7 @@ ENV PYTHONFAULTHANDLER=1 \
 
 # Install all dependencies. Python venv 
 RUN pip install "poetry==$POETRY_VERSION"
-RUN apt-get update && apt-get install -y make gcc python3-dev && apt-get install -y --reinstall build-essential && python -m venv /venv
+RUN apt-get update && apt-get install -y --no-install-recommends make gcc python3-dev && apt-get install -y --reinstall build-essential && python -m venv /venv
 
 # setup python config and install
 COPY pyproject.toml poetry.lock ./
@@ -64,7 +64,7 @@ WORKDIR /app
 
 # Install Node dependencies to /app/node_modules/
 COPY package.json package-lock.json tailwind.config.js /app/
-RUN npm install 
+RUN npm ci
 
 # Copy source to temporary directory. This stage is a disposal layer. Removing /tmp/ambuda is non-issue
 COPY ./ambuda/ /app/ambuda/
@@ -101,7 +101,7 @@ ENV PYTHONFAULTHANDLER=1 \
 
 
 # Install all dependencies. Python venv 
-RUN apt-get update && apt-get install -y git
+RUN apt-get update && apt-get install -y --no-install-recommends git
 
 ### TODO: Move Translations to the bottom image
 # Install all i18n files
