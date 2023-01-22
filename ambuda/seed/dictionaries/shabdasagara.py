@@ -17,11 +17,11 @@ def shs_generator(xml_blob: str):
 
 
 def run():
-    title="Shabda-Sagara (1900)"
+    title = "Shabda-Sagara (1900)"
 
     print(f"Initializing {title} in database ...")
     engine = create_db()
-    
+
     print("Fetching Shabda-Sagara data from CDSL ...")
     zip_bytes = fetch_bytes(ZIP_URL)
     xml_blob = unzip_and_read(zip_bytes, "xml/shs.xml")

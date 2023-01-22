@@ -17,7 +17,7 @@ def mw_generator(xml_blob: str):
 
 
 def run():
-    title="Monier-Williams Sanskrit-English Dictionary (1899)"
+    title = "Monier-Williams Sanskrit-English Dictionary (1899)"
     print(f"Initializing {title} in database ...")
     engine = create_db()
 

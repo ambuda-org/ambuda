@@ -60,7 +60,7 @@ def v_generator(xml_blob: str):
 
 
 def run():
-    title="Vācaspatyam (1873)"
+    title = "Vācaspatyam (1873)"
 
     print(f"Initializing {title} in database ...")
     engine = create_db()

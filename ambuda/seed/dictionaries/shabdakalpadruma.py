@@ -17,7 +17,7 @@ def s_generator(xml_blob: str):
 
 
 def run():
-    title="Śabdakalpadrumaḥ (1886)"
+    title = "Śabdakalpadrumaḥ (1886)"
 
     print(f"Initializing {title} in database ...")
     engine = create_db()

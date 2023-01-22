@@ -40,6 +40,17 @@ def get_db_file_path(sql_uri):
     return db_file_path
 
 
+def run_module(module_name):
+    print(f'{"#"}' * 20)
+    print(f"Intializing {module_name}")
+    if not module_name.run():
+        print(f"Error! {module_name}.run() failed")
+        return False
+    print(f"{module_name} initialization successful!")
+    print(f'{"#"}' * 20)
+    return True
+
+
 def init_database(sql_uri, db_file_path):
     """Initialize database"""
 
@@ -48,54 +59,36 @@ def init_database(sql_uri, db_file_path):
     engine = create_engine(sql_uri)
     db.Base.metadata.create_all(engine)
 
-    # Add some starter data with a few basic seed scripts.
-    print(f"#"*20)
-    print(f"Intializing Lookup ")
-    if not lookup.run():
-        print("Error! lookup.run() failed")
+    if not run_module(lookup):
         return False
-    print(f"Lookup initialization successful")
-    print(f"#"*20)
 
-    print(f"#"*20)
-    print(f"Intializing Gretil texts ")
-    if not texts.gretil.run():
-        print("Error! texts.gretil.run() failed")
+    if not run_module(texts.gretil):
         return False
-    print(f"Gretil initialization successful!")
-    print(f"#"*20)
 
-    print(f"#"*20)
-    print(f"Intializing DCS texts ")
-    if not dcs.run():
-        print("Error! dcs.run() failed")
+    if not run_module(dcs):
         return False
-    print(f"DCS initialization successful!")
-    print(f"#"*20)
 
-    print(f"#"*20)
-    print(f"Intializing Monier dictionary")
-    if not monier.run():
-        print("Error! monier.run() failed")
+    if not run_module(monier):
         return False
-    print(f"Monier initialization successful!")
-    print(f"#"*20)
-    
-    # Create Alembic's migrations table.
+
+    if not alembic_migrations():
+        return False
+
+    print(f"Success! Database initialized at {db_file_path}")
+    return True
+
+
+def alembic_migrations():
     try:
         subprocess.run(["/venv/bin/alembic", "ensure_version"])
     except subprocess.CalledProcessError as err:
         print(f"Error processing alembic ensure_versions - {err}")
         return False
-
-    # Set the most recent revision as the current one.
     try:
         subprocess.run(["/venv/bin/alembic", "stamp", "head"])
     except subprocess.CalledProcessError as err:
         print(f"Error processing alembic stamp head - {err}")
         return False
-
-    print(f"Success! Database initialized at {db_file_path}")
     return True
 
 
