@@ -7,7 +7,7 @@ ENV PYTHONFAULTHANDLER=1 \
     PYTHONUNBUFFERED=1
 WORKDIR /app
 RUN apt-get update && apt-get install -y curl && curl -sL https://deb.nodesource.com/setup_16.x | bash -
-RUN apt-get install -y nodejs && apt-get remove -y curl && rm -rf /var/lib/apt/lists/* && echo ">>>>>>>>>> Base image build succeeded! <<<<<<<<<<<<<"
+RUN apt-get install -y nodejs && apt-get remove -y curl && rm -rf /var/lib/apt/lists/* && echo "************* Base image build succeeded! *****************"
 
 # ####################################
 ## 2.1 bring build tools for dev #####
@@ -29,7 +29,7 @@ RUN pip install "poetry==$POETRY_VERSION"
 RUN apt-get update && apt-get install -y make gcc python3-dev && apt-get install -y --reinstall build-essential && python -m venv /venv
 COPY pyproject.toml poetry.lock ./
 
-RUN poetry export --without-hashes --dev -f requirements.txt | /venv/bin/pip install -r /dev/stdin && echo ">>>>>>>>>> Python dev dependencies build succeeded! <<<<<<<<<<<<<"
+RUN poetry export --without-hashes --dev -f requirements.txt | /venv/bin/pip install -r /dev/stdin && echo "************* Python dev dependencies build succeeded! *****************"
 
 # ####################################
 ## 2.2 bring build tools for release
@@ -75,7 +75,7 @@ RUN npx tailwindcss -i /app/ambuda/static/css/style.css -o /app/ambuda/static/ge
 # Copy js
 RUN npx esbuild /app/ambuda/static/js/main.js --outfile=/app/ambuda/static/gen/main.js --bundle --minify
 
-RUN echo ">>>>>>>>>> JS code build succeeded! <<<<<<<<<<<<<"
+RUN echo "************* JS code build succeeded! *****************"
 
 # ####################################
 ## 4. Copy Ambuda codes
@@ -85,7 +85,7 @@ FROM base as build-ambuda
 
 ARG BUILD_TYPE=release
 
-RUN echo ">>>>>>>>>> Building FINAL ${BUILD_TYPE}<<<<<<<<<<<<<"
+RUN echo "************* Building FINAL ${BUILD_TYPE} *****************"
 COPY --from=build-py-release /venv /venv
 COPY --from=build-js-release /app /app
 
@@ -113,7 +113,7 @@ COPY wsgi.py /app/
 COPY alembic.ini /app/
 COPY migrations/ /app/migrations/
 COPY scripts/ /app/scripts/
-RUN echo ">>>>>>>>>> Ambuda application build succeeded! <<<<<<<<<<<<<"
+RUN echo "************* Ambuda application build succeeded! ****************"
 
 # ####################################
 ## 5. Finalize the image
@@ -124,16 +124,8 @@ FROM base as final
 ARG BUILD_TYPE=release
 WORKDIR /app
 
-RUN echo ">>>>>>>>>> Building FINAL ${BUILD_TYPE}<<<<<<<<<<<<<"
+RUN echo "************* Building FINAL ${BUILD_TYPE}*****************"
 COPY --from=build-ambuda /venv /venv
 COPY --from=build-ambuda /app /app
-
-ENV PATH="/venv/bin:$PATH" \
-   FLASK_ENV=development \
-   FLASK_UPLOAD_FOLDER=/app/data/file-uploads \
-   SQLALCHEMY_DATABASE_URI=sqlite:///database.db \
-   REDIS_URL=redis://redis:6579/0 \
-   VIRTUAL_ENV=.
-
 CMD ["/app/scripts/start-server.sh"]
-RUN echo ">>>>>>>>>> Ambuda deploy succeeded! <<<<<<<<<<<<<"
+RUN echo "************* Ambuda deploy succeeded! *****************"

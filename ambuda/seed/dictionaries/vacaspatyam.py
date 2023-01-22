@@ -60,22 +60,25 @@ def v_generator(xml_blob: str):
 
 
 def run():
-    print("Initializing database ...")
+    title="Vācaspatyam (1873)"
+
+    print(f"Initializing {title} in database ...")
     engine = create_db()
 
-    print("Fetching data from CDSL ...")
+    print(f"Fetching {title} data from CDSL ...")
     zip_bytes = fetch_bytes(ZIP_URL)
     xml_blob = unzip_and_read(zip_bytes, "xml/vcp.xml")
 
-    print("Adding items to database ...")
+    print(f"Adding {title} items to database ...")
     create_from_scratch(
         engine,
         slug="vacaspatyam",
-        title="Vācaspatyam (1873)",
+        title=title,
         generator=v_generator(xml_blob),
     )
 
     print("Done.")
+    return True
 
 
 if __name__ == "__main__":

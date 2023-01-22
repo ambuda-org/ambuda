@@ -21,10 +21,12 @@ def log(*a):
 
 def fetch_latest_data():
     """Fetch the latest data from the parse data repo."""
+
+    print(f"Fetch from files from {REPO} to {DATA_DIR}")
     if not DATA_DIR.exists():
         subprocess.run(f"mkdir -p {DATA_DIR}", shell=True)
         subprocess.run(f"git clone --branch=main {REPO} {DATA_DIR}", shell=True)
-
+    
     subprocess.call("git fetch origin", shell=True, cwd=DATA_DIR)
     subprocess.call("git checkout main", shell=True, cwd=DATA_DIR)
     subprocess.call("git reset --hard origin/main", shell=True, cwd=DATA_DIR)

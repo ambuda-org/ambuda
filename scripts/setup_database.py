@@ -49,21 +49,37 @@ def init_database(sql_uri, db_file_path):
     db.Base.metadata.create_all(engine)
 
     # Add some starter data with a few basic seed scripts.
+    print(f"#"*20)
+    print(f"Intializing Lookup ")
     if not lookup.run():
         print("Error! lookup.run() failed")
         return False
+    print(f"Lookup initialization successful")
+    print(f"#"*20)
 
+    print(f"#"*20)
+    print(f"Intializing Gretil texts ")
     if not texts.gretil.run():
         print("Error! texts.gretil.run() failed")
         return False
+    print(f"Gretil initialization successful!")
+    print(f"#"*20)
 
+    print(f"#"*20)
+    print(f"Intializing DCS texts ")
     if not dcs.run():
         print("Error! dcs.run() failed")
         return False
+    print(f"DCS initialization successful!")
+    print(f"#"*20)
 
+    print(f"#"*20)
+    print(f"Intializing Monier dictionary")
     if not monier.run():
-        print("Error! dcs.run() failed")
+        print("Error! monier.run() failed")
         return False
+    print(f"Monier initialization successful!")
+    print(f"#"*20)
     
     # Create Alembic's migrations table.
     try:
