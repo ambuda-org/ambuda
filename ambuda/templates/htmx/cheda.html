@@ -6,8 +6,8 @@ text-red-700
 
 <section class="my-4">
   {%- for t in tokens -%}
-  <span @click.prevent="showToken" x-data="{{ t.info }}" class="text-xl cursor-pointer hover:text-green-600 {{ classes(t) }}">
-      {{- t.text|slp2dev -}}
+  <span data-info='{{ t.info|tojson }}' class="text-xl cursor-pointer hover:text-green-600 {{ classes(t) }}">
+    {{- t.text|slp2dev -}}
   </span>
 
     {%- if t.info.is_purvapada == 'true' -%}

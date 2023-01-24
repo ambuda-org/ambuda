@@ -12,7 +12,8 @@
     rounded my-4 p-2 min-h-[200px]">
 </textarea>
 <input type="submit" class="btn btn-submit" value="Analyse" @click.prevent="analyze" />
-<div id="output" x-html="output"></div>
+<div id="output" x-html="output" @click.prevent="setActiveToken"></div>
+<div x-text="token"></div>
 {% endmacro %}
 
 

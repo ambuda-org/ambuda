@@ -26,6 +26,7 @@ def api_vidyut_cheda():
     encoding = detect.detect(input_)
     input_slp1 = sanscript.transliterate(input_, encoding, "slp1")
     tokens = c.tokenize(input_slp1)
+    data = []
     for t in tokens:
         if t.text.endswith("s"):
             t.text = t.text[:-1] + "H"
