@@ -114,7 +114,7 @@ jobs:
         shell: bash
         run: |
           echo "AMBUDA_IMAGE=`cat image-name`" >> $GITHUB_ENV
-          echo "AMBUDA_IMAGE_TAG=${AMBUDA_IMAGE#ghcr.io/kvchitrapu/ambuda:}" >> $GITHUB_ENV
+          echo "AMBUDA_IMAGE_TAG=${AMBUDA_IMAGE#ghcr.io/ambuda-org/ambuda:}" >> $GITHUB_ENV
           cat image-name
 
       - name: Start the deploy job

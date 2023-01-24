@@ -23,8 +23,8 @@ from ambuda.seed.dictionaries import monier  # noqa
 from ambuda.seed.texts import gretil  # noqa
 
 
-def get_sql_uri():
-    """get sql alchemy uri"""
+def get_sqlalchemy_uri():
+    """parse sql alchemy db uri from config file """
 
     conf = config.load_config_object("development")
     sql_uri = conf.SQLALCHEMY_DATABASE_URI
@@ -59,16 +59,14 @@ def init_database(sql_uri, db_file_path):
     engine = create_engine(sql_uri)
     db.Base.metadata.create_all(engine)
 
-    if not run_module(lookup):
-        return False
-
-    if not run_module(texts.gretil):
-        return False
-
-    if not run_module(dcs):
-        return False
-
-    if not run_module(monier):
+    try:
+        run_module(lookup)
+        run_module(texts.gretil)
+        run_module(dcs)
+        run_module(monier)
+    except Exception as ex:
+        print("Error: Failed to initialize database"
+            f"Error: {ex}")
         return False
 
     if not alembic_migrations():
@@ -98,12 +96,19 @@ def setup_database(db_file_path):
         print(f"Database found at {db_file_path}...")
         return False
 
-    if not lookup.run():
-        print("Error! lookup.run() failed")
+    try:
+        run_module(lookup)
+    except Exception as ex:
+        print("Error: Failed to initialize database"
+            f"Error: {ex}")
         return False
-
-    # Set the most recent revision as the current one.
-    subprocess.run(["/venv/bin/alembic", "upgrade", "head"])
+    # Set the most recent revision as the current one.        
+    try:
+        subprocess.run(["/venv/bin/alembic", "upgrade", "head"])
+    except subprocess.CalledProcessError as err:
+        print(f"Error processing alembic upgrade head - {err}")
+        return False
+        
     print(f"Success! Database setup at {db_file_path}")
     return True
 
@@ -114,7 +119,7 @@ def run():
     """
 
     load_dotenv()
-    sql_uri = get_sql_uri()
+    sql_uri = get_sqlalchemy_uri()
     try:
         db_file_path = get_db_file_path(sql_uri)
     except Exception as err:

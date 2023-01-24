@@ -32,7 +32,7 @@ jobs:
         id: find_pr
         run: |
           LAST_RUNTIME=$(date +'%Y-%m-%dT%H:%M:%S' --date '-30000 min')
-          gh repo set-default kvchitrapu/ambuda
+          gh repo set-default ambuda-org/ambuda
           echo "PR_NUMBER=$(gh pr list --state merged --base ${{ env.PR_SOURCE_BRANCH }} --search "merged:>$LAST_RUNTIME" -L 1 --json number| jq '.[].number')" >> $GITHUB_OUTPUT
 
   create_pr:
