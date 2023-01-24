@@ -23,10 +23,10 @@ documentation about Ambuda's technical design.
 Quick Installation
 ------------------
 
-1. Clone git repo `$ git clone https://github.com/kvchitrapu/ambuda.git`
+1. Clone git repo `$ git clone https://github.com/ambuda-org/ambuda.git`
 2. Go to Ambuda code `$ cd ambuda`
 3. Start Ambuda `$ make docker-start`. (Get [docker](https://docs.docker.com/get-docker/) if not installed on your computer.)
-4. Open https://localhost:5000/
+4. Open https://localhost:5090/
 
 How to contribute
 -----------------
