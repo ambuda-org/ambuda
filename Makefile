@@ -105,21 +105,25 @@ docker-setup-db: docker-build
 ifneq ("$(wildcard $(DB_FILE))","")
 	@echo "Ambuda using your existing database!"
 else
-	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose-dbsetup.yml up > /dev/null
+	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose-dbsetup.yml up &> /dev/null
 	@echo "Ambuda Database : ✔ "
 endif
 	
 # Build docker image. All tag the latest to the most react image
 # docker-build: lint-check
 docker-build: 
-	@docker build -q -t ${AMBUDA_IMAGE} -t ${AMBUDA_IMAGE_LATEST} -f build/containers/Dockerfile.final ${PWD}
-	@echo "Ambuda Image    : ✔ - ${AMBUDA_IMAGE} (-> ${AMBUDA_IMAGE_LATEST})"
+	@echo "> Ambuda build is in progress. Expect it to take 2-5 minutes."
+	@printf "%0.s-" {1..21} && echo
+	@docker build -q -t ${AMBUDA_IMAGE} -t ${AMBUDA_IMAGE_LATEST} -f build/containers/Dockerfile.final ${PWD} > /dev/null
+	@echo "Ambuda Image    : ✔ (${AMBUDA_IMAGE}, ${AMBUDA_IMAGE_LATEST})"
 
 # Start Docker services.
 docker-start: docker-build docker-setup-db
-	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up --detach
+	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up --detach &> /dev/null
 	@echo "Ambuda WebApp   : ✔ "
 	@echo "Ambuda URL      : http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT}"
+	@printf "%0.s-" {1..21} && echo
+	@echo 'To stop, run "make docker-stop".'
 
 # Stop docker services
 docker-stop: 
