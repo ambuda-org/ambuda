@@ -1,5 +1,4 @@
 ## How it works?
-![An overview of Ambuda deployment process](./assets/ambuda-deployment.png)
 
 ```mermaid
 graph LR
@@ -74,8 +73,8 @@ flowchart LR
     
     style Main-Branch fill:#b2b2b2, stroke:#fff, stroke-width:4px
     style Approve fill:#a2a2a2
-    style Release-Branch fill:#eeeeee, stroke:#fff, stroke-width:4px
-    style Rel-Merge-GithubActions fill:#eeeeee, stroke:#fff, stroke-width:4px
+    style Release-Branch fill:#c2c2c2, stroke:#fff, stroke-width:4px
+    style Rel-Merge-GithubActions fill:#d1d1d1, stroke:#fff, stroke-width:4px
     contributor-->Main-Branch    
     Main-Branch-->check{Passed?}
     check-->|Yes|Approve    
