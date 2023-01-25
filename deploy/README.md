@@ -30,34 +30,57 @@ graph LR
 
 ```mermaid
 flowchart LR
-    subgraph Setup
-        db[("SQLite")]
-        texts(GRETIL, DCS)-->db
-        dictionaries(MW, Apte,...)-->db
-    end
-    style Setup fill:#ff7621,stroke:#fff,stroke-width:4px
-    
+    contributor(Contributor Fork)    
     ghact(Github Actions)
     pre(py-lint, js-lint)
     build(Docker build & publish)
     post(py-tests, js-tests, system tests)
-    
-    subgraph Changes
-        code(PR open)
-        code-->push
-        push-->ghact
+    subgraph Main-Branch
+        code(PR on main)
+        code-->open(PR open/sync)
+        open-->Main-GithubActions
         
-        subgraph GHActions
+        subgraph Main-GithubActions
             pre-->ghact
             build-->ghact
             post-->ghact
         end
     end
+
     subgraph Approve
-        approve(Reviewer approves PR)
+        approve(Reviewer merges PR)
     end
-    Setup-->Changes
-    Changes-->Approve    
-    style Changes fill:#f3cf26, stroke:#fff, stroke-width:4px
-    style Approve fill:#a28089
+
+    rel-ghact(Github Actions)
+    rel-pre(py-lint, js-lint)
+    rel-build(Docker build & publish)
+    rel-post(py-tests, js-tests, system tests)
+    rel-staging(Deploy to Staging)
+    subgraph Release-Branch
+        rel-pr("PR on release (check every 5 min.s)")
+        rel-pr-->rel-pr-open(PR open/sync)
+        rel-pr-open-->Release-GithubActions
+        subgraph Release-GithubActions
+            rel-pre-->rel-ghact
+            rel-build-->rel-ghact
+            rel-post-->rel-ghact
+            rel-staging-->rel-ghact
+        end
+    end
+    
+    subgraph Rel-Merge-GithubActions
+        rel-staging-down(Teardown staging)
+    end
+    
+    style Main-Branch fill:#b2b2b2, stroke:#fff, stroke-width:4px
+    style Approve fill:#a2a2a2
+    style Release-Branch fill:#eeeeee, stroke:#fff, stroke-width:4px
+    style Rel-Merge-GithubActions fill:#eeeeee, stroke:#fff, stroke-width:4px
+    contributor-->Main-Branch    
+    Main-Branch-->check{Passed?}
+    check-->|Yes|Approve    
+    Approve-->Release-Branch
+    Release-Branch-->rel-check{Passed?}
+    rel-check-->|Yes|rel-merge(Reviewer merges PR)
+    rel-merge-->rel-staging-down(Teardown Staging)
 ```
