@@ -28,3 +28,6 @@ node_modules/
 # Production config
 .env
 production/
+
+# IDE config
+.vscode/
