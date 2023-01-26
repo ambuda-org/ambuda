@@ -5,8 +5,8 @@
 # database has not already been created.
 
 set -e
-
-. /venv/bin/activate
+source env/bin/activate
+source .env
 
 # Extract file path from sqlite:///[file path]
 DB_FILE_PATH="${SQLALCHEMY_DATABASE_URI/sqlite:\/\/\//}"
@@ -15,6 +15,8 @@ DB_FILE_PATH="${SQLALCHEMY_DATABASE_URI/sqlite:\/\/\//}"
 if [ ! -f $DB_FILE_PATH ]; then
 
     echo "Initializing database at $DB_FILE_PATH..."
+    echo ">> Create $(dirname ${DB_FILE_PATH})"
+    mkdir -p $(dirname ${DB_FILE_PATH})
 
     # Create tables
     python -m scripts.initialize_db

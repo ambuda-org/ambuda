@@ -43,6 +43,17 @@ Patch standards:
 
 [tpope]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 
+### Submitting a PR
+
+- Fork from [Ambuda repo][fork]
+
+- `cd ambuda`
+
+- Make code changes and commit 
+
+- Submit a PR to [development upstream branch][pr]
+
+- Reviewers will respond generally within 24 hours
 
 ### Setting up your dev environment
 
@@ -50,3 +61,5 @@ Our [technical documentation][docs] will help you build Ambuda on your local
 machine and run routine development tasks like testing and linting.
 
 [docs]: https://ambuda.readthedocs.io/en/latest/
+[fork]: https://github.com/ambuda-org/ambuda
+[pr]: https://github.com/ambuda-org/ambuda:development

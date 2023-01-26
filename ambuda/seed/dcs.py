@@ -21,6 +21,8 @@ def log(*a):
 
 def fetch_latest_data():
     """Fetch the latest data from the parse data repo."""
+
+    print(f"Fetch from files from {REPO} to {DATA_DIR}")
     if not DATA_DIR.exists():
         subprocess.run(f"mkdir -p {DATA_DIR}", shell=True)
         subprocess.run(f"git clone --branch=main {REPO} {DATA_DIR}", shell=True)
@@ -116,6 +118,7 @@ def run():
         log("To add these texts, run the seed scripts in ambuda/seed/texts.")
         log("Note that the Ramayana and the Mahabharata have their own special")
         log("seed scripts.")
+    return True
 
 
 if __name__ == "__main__":

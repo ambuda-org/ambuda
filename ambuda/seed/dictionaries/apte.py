@@ -124,22 +124,25 @@ def apte_generator(xml_blob: str):
 
 
 def run():
-    print("Initializing database ...")
+    title = "Apte Practical Sanskrit-English Dictionary (1890)"
+
+    print(f"Initializing {title} in database ...")
     engine = create_db()
 
-    print("Fetching data from CDSL ...")
+    print(f"Fetching {title} data from CDSL ...")
     zip_bytes = fetch_bytes(ZIP_URL)
     xml_blob = unzip_and_read(zip_bytes, "xml/ap90.xml")
 
-    print("Adding items to database ...")
+    print(f"Adding {title} items to database ...")
     create_from_scratch(
         engine,
         slug="apte",
-        title="Apte Practical Sanskrit-English Dictionary (1890)",
+        title=title,
         generator=apte_generator(xml_blob),
     )
 
     print("Done.")
+    return True
 
 
 if __name__ == "__main__":

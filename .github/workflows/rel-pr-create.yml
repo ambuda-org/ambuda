@@ -1,0 +1,64 @@
+# Ambuda workflow to build and publish docker image
+
+name: Create Release PR on seeing new code 
+
+env:
+  GH_TOKEN: ${{ github.token }}
+
+  # head/branch where current changes reside befor merge
+  PR_SOURCE_BRANCH: development
+  # base - branch intended to change once the proposed changes are meged.
+  PR_TARGET_BRANCH: releases
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'
+  
+jobs:
+
+  get_dev_pr:
+    runs-on: ubuntu-22.04
+    environment: staging
+    permissions:
+      contents: read
+    outputs:
+      PR_NUMBER: ${{ steps.find_pr.outputs.PR_NUMBER }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ env.PR_TARGET_BRANCH }}  
+      - name: Find the recent PR merge on development
+        id: find_pr
+        run: |
+          LAST_RUNTIME=$(date +'%Y-%m-%dT%H:%M:%S' --date '-30000 min')
+          gh repo set-default ambuda-org/ambuda
+          echo "PR_NUMBER=$(gh pr list --state merged --base ${{ env.PR_SOURCE_BRANCH }} --search "merged:>$LAST_RUNTIME" -L 1 --json number| jq '.[].number')" >> $GITHUB_OUTPUT
+
+  create_pr:
+    runs-on: ubuntu-22.04
+    name: Create PR on releases branch
+    environment: staging
+    permissions:
+      packages: write
+      contents: write
+      pull-requests: 'write'
+    needs: get_dev_pr 
+    if: needs.get_dev_pr.outputs.PR_NUMBER != ''
+    env:
+      PR_NUMBER: ${{ needs.get_dev_pr.outputs.PR_NUMBER }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ env.PR_TARGET_BRANCH }}  
+      - name: Reset promotion branch
+        run: |
+          git fetch origin ${{ env.PR_SOURCE_BRANCH }}:${{ env.PR_SOURCE_BRANCH }}
+          git reset --hard ${{ env.PR_SOURCE_BRANCH }}
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4.2.3
+        with:
+          base: ${{ env.PR_TARGET_BRANCH }}  
+          branch: ${{ env.PR_TARGET_BRANCH }}-${{ env.PR_NUMBER }}
+          title: PR-${{ env.PR_NUMBER }} - merge
+          body:  development/PR-${{ env.PR_NUMBER }} merge is open

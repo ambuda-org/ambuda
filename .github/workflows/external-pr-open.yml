@@ -1,0 +1,82 @@
+# Ambuda workflow to build and publish docker image
+
+name: Build and test incoming
+
+env:
+  AMBUDA_VERSION: v0.1
+  AMBUDA_HOST_IP: 127.0.0.1
+  AMBUDA_HOST_PORT: 5000
+  REGISTRY: ghcr.io
+  
+on:
+  pull_request:
+    branches:
+      - 'development'
+      - 'main'
+    types: [opened, reopened, synchronize]
+
+jobs:
+  build_and_test:
+    name: Build external pr image
+    runs-on: ubuntu-22.04
+    environment: staging
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: |
+            ${{ env.REGISTRY }}/${{ github.repository }}
+          tags: |
+            type=raw,event=pr,value=v0.1-pr${{ github.event.pull_request.number }}-{{sha}}
+
+      - name: Build and Test docker image
+        id: build-to-test
+        uses: docker/build-push-action@v3.2.0
+        with:
+          context: .
+          file: build/containers/Dockerfile.final
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      
+      - name: Run SQL db setup
+        id: dbsetup
+        run: |
+          echo "AMBUDA_IMAGE=${{ fromJSON(steps.meta.outputs.json).tags[0] }}" >> $GITHUB_ENV
+          docker compose -f deploy/local/docker-compose-dbsetup.yml up
+        env:
+          AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          
+      - name: Run Docker images
+        id: deploy
+        run: docker compose -f deploy/local/docker-compose.yml up --detach
+        env:
+          AMBUDA_HOST_IP: 0.0.0.0
+          
+      - name: Check that site is running
+        run: timeout 2m bash -c "until curl --fail-with-body $AMBUDA_HOST_IP:$AMBUDA_HOST_PORT; do sleep 1; done"
+        
+      - name: Show logs on fail
+        if: ${{ failure() }}
+        run: docker compose -f deploy/local/docker-compose.yml logs
+
+  pr_commented:
+    # This job only runs on PR open or reopen
+    name: PR comment
+    needs: build_and_test
+    if: ${{ github.event.issue.pull_request.opened || github.event.issue.pull_request.reopened }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: 'Your pull request is open. Reviewers will review the pullrequest at the earliest.'
+          reactions: '+1'

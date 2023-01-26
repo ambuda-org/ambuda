@@ -106,15 +106,21 @@ def add_document(engine, spec: Spec):
 def run():
     logging.getLogger().setLevel(0)
     log("Downloading the latest data ...")
-    fetch_latest_data()
 
-    log("Initializing database ...")
-    engine = create_db()
+    try:
+        fetch_latest_data()
 
-    for spec in ALLOW:
-        add_document(engine, spec)
+        log("Initializing database ...")
+        engine = create_db()
+
+        for spec in ALLOW:
+            add_document(engine, spec)
+    except Exception as ex:
+        raise Exception(
+            "Error: Failed to get latest from GRETIL. "
+            f"Error: {ex}")
+
     log("Done.")
-
 
 if __name__ == "__main__":
     run()

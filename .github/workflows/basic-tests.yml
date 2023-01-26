@@ -49,23 +49,7 @@ jobs:
         run: |
           source env/bin/activate
           make docs
-
-  docker-setup:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      
-      - name: Build and run Docker images
-        run: docker-compose up -V --build --force-recreate -d
-
-      - name: Check that site is running
-        run: timeout 2m bash -c 'until curl --fail-with-body localhost:5000; do sleep 1; done'
-        
-      - name: Show logs on fail
-        if: ${{ failure() }}
-        run: docker logs -t ambuda_app_1
-
+          
   run-py-tests:
     runs-on: ubuntu-22.04
     steps:

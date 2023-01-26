@@ -1,0 +1,37 @@
+version: '3.4'
+
+services:
+  app:
+    image: ${AMBUDA_IMAGE}
+    volumes:
+      - ${HOME}/deploy/data_database/:/app/data/database/
+      - ${HOME}/deploy/data_files/:/app/data/file-uploads
+    ports:
+      - target: 5000
+        host_ip: ${AMBUDA_HOST_IP}
+        published: ${AMBUDA_HOST_PORT}
+        protocol: tcp
+        mode: host
+    environment:
+      - FLASK_ENV=development
+      - FLASK_UPLOAD_FOLDER=/app/data/file-uploads
+      - SQLALCHEMY_DATABASE_URI=sqlite:////app/data/database/database.db
+      - SECRET_KEY=insecure development secret key
+      - GOOGLE_APPLICATION_CREDENTIALS=<Google API credentials>
+      - REDIS_URL=redis://redis:6579/0
+      - VIRTUAL_ENV=.
+      - AMBUDA_BOT_PASSWORD=insecure bot password
+
+  celery:
+    image: ${AMBUDA_IMAGE}
+    command: /app/scripts/start-celery.sh
+    environment:
+    - REDIS_URL=redis://redis:6579/0
+    depends_on:
+    - redis
+    
+  redis:
+    image: redis:7.0.4
+    command: --port 6579
+    ports:
+      - '6579:6579'

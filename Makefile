@@ -1,5 +1,20 @@
 # Needed because we have folders called "docs" and "test" that confuse `make`.
-.PHONY: docs test py-venv-check
+.PHONY: docs test py-venv-check clean
+
+.EXPORT_ALL_VARIABLES:
+
+# Git and docker params
+GITCOMMIT=$(shell git rev-parse --short HEAD)
+GITBRANCH=$(shell git rev-parse --abbrev-ref --short HEAD)
+AMBUDA_VERSION=v0.1
+AMBUDA_NAME=ambuda
+AMBUDA_IMAGE=${AMBUDA_NAME}:${AMBUDA_VERSION}-${GITBRANCH}-${GITCOMMIT}
+AMBUDA_IMAGE_LATEST="$(AMBUDA_NAME)-rel:latest"
+
+# Environment. Valid values are: local, staging, and prod
+AMBUDA_DEPLOYMENT_ENV=local
+AMBUDA_HOST_IP=0.0.0.0
+AMBUDA_HOST_PORT=5090
 
 py-venv-check: 
 ifeq ("$(VIRTUAL_ENV)","")
@@ -7,7 +22,9 @@ ifeq ("$(VIRTUAL_ENV)","")
 	@echo "  > source env/bin/activate"
 	@echo
 	exit 1
-endif
+endif	
+
+DB_FILE = ${PWD}/deploy/data/database/database.db
 
 # Setup commands
 # ===============================================
@@ -83,13 +100,40 @@ db-seed-all: py-venv-check
 # Common development commands
 # ===============================================
 
-# Run the devserver, and live reload our CSS and JS.
-devserver: py-venv-check
-	npx concurrently "flask run" "make css-dev" "make js-dev"
+# Start DB using Docker.
+docker-setup-db: docker-build 
+ifneq ("$(wildcard $(DB_FILE))","")
+	@echo "Ambuda using your existing database!"
+else
+	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose-dbsetup.yml up &> /dev/null
+	@echo "Ambuda Database : ✔ "
+endif
+	
+# Build docker image. All tag the latest to the most react image
+# docker-build: lint-check
+docker-build: 
+	@echo "> Ambuda build is in progress. Expect it to take 2-5 minutes."
+	@printf "%0.s-" {1..21} && echo
+	@docker build -q -t ${AMBUDA_IMAGE} -t ${AMBUDA_IMAGE_LATEST} -f build/containers/Dockerfile.final ${PWD} > /dev/null
+	@echo "Ambuda Image    : ✔ (${AMBUDA_IMAGE}, ${AMBUDA_IMAGE_LATEST})"
 
-# Start using Docker.
-start-docker:
-	docker-compose up -V --build --force-recreate
+# Start Docker services.
+docker-start: docker-build docker-setup-db
+	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up --detach &> /dev/null
+	@echo "Ambuda WebApp   : ✔ "
+	@echo "Ambuda URL      : http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT}"
+	@printf "%0.s-" {1..21} && echo
+	@echo 'To stop, run "make docker-stop".'
+
+# Stop docker services
+docker-stop: 
+	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml stop
+	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml rm
+	@echo "Ambuda URL stopped"
+
+# Show docker logs
+docker-logs: 
+	@docker compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml logs
 
 # Run a local Celery instance for background tasks.
 celery: 
@@ -193,3 +237,7 @@ babel-update: py-venv-check
 # NOTE: you probably want `make install-i18n` instead.
 babel-compile: py-venv-check
 	pybabel compile -d ambuda/translations
+
+clean:
+	@rm -rf deploy/data/
+	@rm -rf ambuda/translations/*
