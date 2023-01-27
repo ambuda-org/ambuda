@@ -1,6 +1,5 @@
-# Ambuda workflow to build and publish docker image
-
-name: Build publish and staging
+name: Release image build & publish
+# Build release image. Push image to ghcr.io. Prepare staging environment
 
 env:
   AMBUDA_VERSION: v0.1
