@@ -18,6 +18,11 @@ def cheda():
     return render_template("tools/cheda.html")
 
 
+@bp.route("/padmini")
+def padmini():
+    return render_template("tools/padmini.html")
+
+
 @api.route("/vidyut/cheda", methods=["POST"])
 def api_vidyut_cheda():
     data = request.json
