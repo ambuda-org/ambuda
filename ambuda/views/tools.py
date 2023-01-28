@@ -3,7 +3,7 @@
 from indic_transliteration import detect, sanscript
 
 from flask import Blueprint, render_template, jsonify, request
-from vidyut import Chedaka
+from vidyut.cheda import Chedaka
 
 from ambuda import queries as q
 from ambuda.views.api import bp as api
