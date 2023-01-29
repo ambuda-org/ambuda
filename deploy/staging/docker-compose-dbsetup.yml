@@ -3,9 +3,10 @@ version: '3.4'
 services:
   dbsetup:
     image: ${AMBUDA_IMAGE}
-    command: "/app/scripts/start-database.sh"
+    command: "/app/scripts/setup-data.sh"
     volumes:
       - ${HOME}/deploy/data_database/:/app/data/database/
+      - ${HOME}/deploy/data_files/vidyut:/app/data/vidyut/
     environment:
       - FLASK_ENV=development
       - FLASK_UPLOAD_FOLDER=/app/data/file-uploads
@@ -14,5 +15,6 @@ services:
       - GOOGLE_APPLICATION_CREDENTIALS=<Google API credentials>
       - REDIS_URL=redis://redis:6579/0
       - VIRTUAL_ENV=.
+      - VIDYUT_DATA_DIR=/app/data/vidyut/
       - AMBUDA_BOT_PASSWORD=insecure bot password
       

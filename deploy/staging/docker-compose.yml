@@ -5,7 +5,9 @@ services:
     image: ${AMBUDA_IMAGE}
     volumes:
       - ${HOME}/deploy/data_database/:/app/data/database/
-      - ${HOME}/deploy/data_files/:/app/data/file-uploads
+      - ${HOME}/deploy/data_files/uploads:/app/data/file-uploads/
+      - ${HOME}/deploy/data_files/vidyut:/app/data/vidyut/
+
     ports:
       - target: 5000
         host_ip: ${AMBUDA_HOST_IP}
@@ -20,6 +22,7 @@ services:
       - GOOGLE_APPLICATION_CREDENTIALS=<Google API credentials>
       - REDIS_URL=redis://redis:6579/0
       - VIRTUAL_ENV=.
+      - VIDYUT_DATA_DIR=/app/data/vidyut/
       - AMBUDA_BOT_PASSWORD=insecure bot password
 
   celery:

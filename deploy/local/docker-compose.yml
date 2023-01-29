@@ -5,7 +5,9 @@ services:
     image: ${AMBUDA_IMAGE}
     volumes:
       - ${PWD}/deploy/data_database/:/app/data/database/
-      - ${PWD}/deploy/data_files/:/app/data/file-uploads/
+      - ${PWD}/deploy/data_files/uploads:/app/data/file-uploads/
+      - ${PWD}/deploy/data_files/vidyut:/app/data/vidyut/
+      
     ports:
       - target: 5000
         host_ip: ${AMBUDA_HOST_IP}
@@ -21,6 +23,7 @@ services:
       - REDIS_URL=redis://redis:6579/0
       - VIRTUAL_ENV=.
       - AMBUDA_BOT_PASSWORD=insecure bot password
+      - VIDYUT_DATA_DIR=/app/data/vidyut/
       - PATH=$PATH:/venv/bin/
     
   celery:

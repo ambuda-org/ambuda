@@ -3,9 +3,10 @@ version: '3.4'
 services:
   dbsetup:
     image: ${AMBUDA_IMAGE}
-    command: "/app/scripts/start-database.sh"
+    command: "/app/scripts/setup-data.sh"
     volumes:
       - ${PWD}/deploy/data_database/:/app/data/database/
+      - ${PWD}/deploy/data_files/vidyut:/app/data/vidyut/
     environment:
       - FLASK_ENV=development
       - FLASK_UPLOAD_FOLDER=/app/data/file-uploads
@@ -15,5 +16,6 @@ services:
       - REDIS_URL=redis://redis:6579/0
       - VIRTUAL_ENV=.
       - AMBUDA_BOT_PASSWORD=insecure bot password
+      - VIDYUT_DATA_DIR=/app/data/vidyut/
       - PATH=$PATH:/venv/bin/
-      
+
