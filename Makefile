@@ -1,3 +1,21 @@
+# Control the verbosity of messages using a flag
+ifdef V
+	ifeq ("$(origin Q)", "command line")
+		BUILD_QUIET = $(Q)
+	endif
+endif
+
+ifndef BUILD_QUIET
+	BUILD_QUIET = 0
+	IO_REDIRECT = &> /dev/null
+	DOCKER_VERBOSITY = -qq
+	DOCKER_LOGLVL = --log-level ERROR
+else
+	IO_REDIRECT = 
+	DOCKER_VERBOSITY = 
+	DOCKER_LOGLVL = 
+endif
+
 # Needed because we have folders called "docs" and "test" that confuse `make`.
 .PHONY: docs test py-venv-check clean
 
@@ -105,7 +123,7 @@ docker-setup-db: docker-build
 ifneq ("$(wildcard $(DB_FILE))","")
 	@echo "Ambuda using your existing database!"
 else
-	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose-dbsetup.yml up &> /dev/null
+	@docker ${DOCKER_LOGLVL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose-dbsetup.yml up ${IO_REDIRECT}
 	@echo "Ambuda Database : ✔ "
 endif
 	
@@ -114,12 +132,12 @@ endif
 docker-build: 
 	@echo "> Ambuda build is in progress. Expect it to take 2-5 minutes."
 	@printf "%0.s-" {1..21} && echo
-	@docker build -q -t ${AMBUDA_IMAGE} -t ${AMBUDA_IMAGE_LATEST} -f build/containers/Dockerfile.final ${PWD} > /dev/null
+	@docker build ${DOCKER_VEBOSITY} -t ${AMBUDA_IMAGE} -t ${AMBUDA_IMAGE_LATEST} -f build/containers/Dockerfile.final ${PWD} ${IO_REDIRECT}
 	@echo "Ambuda Image    : ✔ (${AMBUDA_IMAGE}, ${AMBUDA_IMAGE_LATEST})"
 
 # Start Docker services.
 docker-start: docker-build docker-setup-db
-	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up --detach &> /dev/null
+	@docker ${DOCKER_LOGLVL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up --detach ${IO_REDIRECT}
 	@echo "Ambuda WebApp   : ✔ "
 	@echo "Ambuda URL      : http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT}"
 	@printf "%0.s-" {1..21} && echo
@@ -127,8 +145,8 @@ docker-start: docker-build docker-setup-db
 
 # Stop docker services
 docker-stop: 
-	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml stop
-	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml rm
+	@docker ${DOCKER_LOGLVL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml stop
+	@docker ${DOCKER_LOGLVL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml rm
 	@echo "Ambuda URL stopped"
 
 # Show docker logs

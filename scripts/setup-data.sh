@@ -13,7 +13,7 @@ export PYTHONPATH=$PYTHONPATH:/app
 function setup_vidyut_data () 
 {
     VIDYUT_DATA_URL="https://github.com/ambuda-org/vidyut-py/releases/download/0.2.0/data-0.2.0.zip"
-    
+       
     if [ -z "${VIDYUT_DATA_DIR}" ]; 
     then
         echo "Error! Invalida Vidyut data dir. Please set env variable VIDYUT_DATA_DIR"
@@ -25,6 +25,13 @@ function setup_vidyut_data ()
             echo "Error! Invalida URL to fetch Vidyut data. Please set env variable VIDYUT_DATA_URL"
         return 1
     fi
+    VIDYUT_MARKER="${VIDYUT_DATA_DIR}/vidyut_is_here"
+    if [ -f $VIDYUT_MARKER ];
+    then
+        # TODO: calculate SHA256 of installed files and compare
+        echo "Vidyut data found!"
+        return 0
+    fi
 
     echo "Fetching Vidyut data from ${VIDYUT_DATA_URL} to ${VIDYUT_DATA_DIR}."
     mkdir -p $VIDYUT_DATA_DIR
@@ -32,13 +39,16 @@ function setup_vidyut_data ()
     VIDYUT_DATA_FILE=$(basename -- "$VIDYUT_DATA_URL")
     VIDYUT_DATA_FILENAME_BASE="${VIDYUT_DATA_FILE%.*}"
 
-    wget -P ${VIDYUT_DATA_DIR} ${VIDYUT_DATA_URL} -q --show-progress
+    wget -P ${VIDYUT_DATA_DIR} ${VIDYUT_DATA_URL} -q
     unzip -d ${VIDYUT_DATA_DIR} -j ${VIDYUT_DATA_DIR}/${VIDYUT_DATA_FILE}
-    if [ $retVal -ne 0 ]; then
+    if [ $? -ne 0 ]; then
         echo "Error! Failed to fetch from ${VIDYUT_DATA_URL}"
         return 1
     fi
 
+    # Successfully installed. Leave a mark.
+    touch $VIDYUT_MARKER
+ 
     return 0
 }
 

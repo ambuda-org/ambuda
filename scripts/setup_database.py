@@ -43,9 +43,7 @@ def get_db_file_path(sql_uri):
 def run_module(module_name):
     print(f'{"#"}' * 20)
     print(f"Intializing {module_name}")
-    if not module_name.run():
-        print(f"Error! {module_name}.run() failed")
-        return False
+    module_name.run()    
     print(f"{module_name} initialization successful!")
     print(f'{"#"}' * 20)
     return True
