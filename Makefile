@@ -1,19 +1,35 @@
+
+# Environment. Valid values are: local, staging, and prod
+AMBUDA_DEPLOYMENT_ENV=local
+AMBUDA_HOST_IP=0.0.0.0
+AMBUDA_HOST_PORT=5000
+
 # Control the verbosity of messages using a flag
-ifdef V
-	ifeq ("$(origin Q)", "command line")
-		BUILD_QUIET = $(Q)
+ifdef mode
+	ifeq ("$(origin mode)", "command line")
+		BUILD_MODE = $(mode)
 	endif
+else
+	BUILD_MODE = default
 endif
 
-ifndef BUILD_QUIET
-	BUILD_QUIET = 0
-	IO_REDIRECT = &> /dev/null
-	DOCKER_VERBOSITY = -qq
-	DOCKER_LOGLVL = --log-level ERROR
-else
+ifdef ($(BUILD_MODE),dev)
 	IO_REDIRECT = 
 	DOCKER_VERBOSITY = 
 	DOCKER_LOGLVL = 
+	DOCKER_DETACH = 
+else ifeq ($(BUILD_MODE),quiet)
+	IO_REDIRECT = &> /dev/null
+	DOCKER_VERBOSITY = -qq
+	DOCKER_LOGLVL = --log-level ERROR
+	DOCKER_DETACH = --detach
+endif
+
+ifeq ($(BUILD_MODE),default)
+	IO_REDIRECT = 
+	DOCKER_VERBOSITY = 
+	DOCKER_LOGLVL = 
+	DOCKER_DETACH = --detach
 endif
 
 # Needed because we have folders called "docs" and "test" that confuse `make`.
@@ -28,11 +44,6 @@ AMBUDA_VERSION=v0.1
 AMBUDA_NAME=ambuda
 AMBUDA_IMAGE=${AMBUDA_NAME}:${AMBUDA_VERSION}-${GITBRANCH}-${GITCOMMIT}
 AMBUDA_IMAGE_LATEST="$(AMBUDA_NAME)-rel:latest"
-
-# Environment. Valid values are: local, staging, and prod
-AMBUDA_DEPLOYMENT_ENV=local
-AMBUDA_HOST_IP=0.0.0.0
-AMBUDA_HOST_PORT=5090
 
 py-venv-check: 
 ifeq ("$(VIRTUAL_ENV)","")
@@ -137,7 +148,7 @@ docker-build:
 
 # Start Docker services.
 docker-start: docker-build docker-setup-db
-	@docker ${DOCKER_LOGLVL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up --detach ${IO_REDIRECT}
+	@docker ${DOCKER_LOGLVL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up ${DOCKER_DETACH} ${IO_REDIRECT}
 	@echo "Ambuda WebApp   : ✔ "
 	@echo "Ambuda URL      : http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT}"
 	@printf "%0.s-" {1..21} && echo
