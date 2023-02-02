@@ -127,5 +127,5 @@ WORKDIR /app
 RUN echo "************* Building FINAL ${BUILD_TYPE}*****************"
 COPY --from=build-ambuda /venv /venv
 COPY --from=build-ambuda /app /app
-CMD ["/app/scripts/start-server.sh"]
+CMD ["/app/scripts/start_server.sh"]
 RUN echo "************* Ambuda deploy succeeded! *****************"

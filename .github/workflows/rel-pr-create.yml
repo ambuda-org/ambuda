@@ -7,7 +7,7 @@ env:
   # head/branch where current changes reside befor merge
   PR_SOURCE_BRANCH: main
   # base - branch intended to change once the proposed changes are meged.
-  PR_TARGET_BRANCH: releases
+  PR_TARGET_BRANCH: release
 
 on:
   workflow_dispatch:
@@ -36,7 +36,7 @@ jobs:
 
   create_pr:
     runs-on: ubuntu-22.04
-    name: Create PR on releases branch
+    name: Create PR on release branch
     environment: staging
     permissions:
       packages: write

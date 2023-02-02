@@ -3,7 +3,7 @@ version: '3.4'
 services:
   dbsetup:
     image: ${AMBUDA_IMAGE}
-    command: "/app/scripts/setup-data.sh"
+    command: "/app/scripts/initialize_data.sh"
     volumes:
       - ${PWD}/deploy/data_database/:/app/data/database/
       - ${PWD}/deploy/data_files/vidyut:/app/data/vidyut/

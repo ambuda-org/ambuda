@@ -1,7 +1,7 @@
 version: '3.4'
 
 services:
-  app:
+  ambuda-web:
     image: ${AMBUDA_IMAGE}
     volumes:
       - ${HOME}/deploy/data_database/:/app/data/database/
@@ -22,12 +22,13 @@ services:
       - GOOGLE_APPLICATION_CREDENTIALS=<Google API credentials>
       - REDIS_URL=redis://redis:6579/0
       - VIRTUAL_ENV=.
-      - VIDYUT_DATA_DIR=/app/data/vidyut/
       - AMBUDA_BOT_PASSWORD=insecure bot password
+      - VIDYUT_DATA_DIR=/app/data/vidyut/
+      - PATH=$PATH:/venv/bin/
 
   celery:
     image: ${AMBUDA_IMAGE}
-    command: /app/scripts/start-celery.sh
+    command: /app/scripts/start_celery.sh
     environment:
     - REDIS_URL=redis://redis:6579/0
     depends_on:

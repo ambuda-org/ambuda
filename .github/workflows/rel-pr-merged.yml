@@ -12,7 +12,7 @@ on:
   #     - 'v*'
   pull_request:
     branches:
-      - 'releases'
+      - 'release'
     types:
       - closed
 

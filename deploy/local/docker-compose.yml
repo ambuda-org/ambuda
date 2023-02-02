@@ -28,7 +28,7 @@ services:
     
   celery:
     image: ${AMBUDA_IMAGE}
-    command: /app/scripts/start-celery.sh
+    command: /app/scripts/start_celery.sh
     environment:
     - REDIS_URL=redis://redis:6579/0
     depends_on:
