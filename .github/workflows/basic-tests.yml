@@ -1,6 +1,6 @@
-name: 'Basic (Unit) Tests'
+# Install python and node. Run lint and unit tests.
 
-# **What it does**: Setups up python dependencies and runs tests.
+name: 'Basic (Unit) Tests'
 # **Why we have it**: Automatically run tests to ensure code doesn't introduce regressions.
 # **Who does it impact**: Python small-scale "unit" tests.
 

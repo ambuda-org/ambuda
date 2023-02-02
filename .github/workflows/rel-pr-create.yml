@@ -1,6 +1,6 @@
-name: Push changes from main to releases
 # Check for changes in "main". Push changes to "releases".
 
+name: Push changes from main to releases
 env:
   GH_TOKEN: ${{ github.token }}
 

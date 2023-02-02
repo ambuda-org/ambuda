@@ -1,6 +1,6 @@
-name: Release image build & publish
-# Build release image. Push image to ghcr.io. Prepare staging environment
+# Build release image. Push image to ghcr.io. Deploy on staging environment.
 
+name: Release image build & publish
 env:
   AMBUDA_VERSION: v0.1
   AMBUDA_HOST_IP: 127.0.0.1

@@ -1,6 +1,6 @@
-name: Teardown staging
 # Cleanup staging. Usually occurs after a pr is merged or closed.
 
+name: Teardown staging deployment
 env:
   AMBUDA_VERSION: v0.1
 
