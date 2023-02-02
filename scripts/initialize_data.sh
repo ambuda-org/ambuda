@@ -58,7 +58,7 @@ function init_vidyut_data ()
 apt-get -qq update && apt-get -qq install -y git wget unzip > /dev/null
 
 # Initialize SQLite database
-python scripts/init_database.py && echo "Database set up complete." || exit 1
+python scripts/initialize_database.py && echo "Database set up complete." || exit 1
 
 # Initialize Vidyut data
 init_vidyut_data && echo "Vidyut data initialization completed" || echo "Error pulling from Vidyut. Fetch vidyut data later."
