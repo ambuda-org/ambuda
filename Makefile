@@ -16,19 +16,17 @@ endif
 ifdef ($(BUILD_MODE),dev)
 	IO_REDIRECT = 
 	DOCKER_VERBOSITY = 
-	DOCKER_LOGLVL = 
+	DOCKER_LOG_LEVEL = 
 	DOCKER_DETACH = 
 else ifeq ($(BUILD_MODE),quiet)
 	IO_REDIRECT = &> /dev/null
 	DOCKER_VERBOSITY = -qq
-	DOCKER_LOGLVL = --log-level ERROR
+	DOCKER_LOG_LEVEL = --log-level ERROR
 	DOCKER_DETACH = --detach
-endif
-
-ifeq ($(BUILD_MODE),default)
+else ifeq ($(BUILD_MODE),default)
 	IO_REDIRECT = 
 	DOCKER_VERBOSITY = 
-	DOCKER_LOGLVL = 
+	DOCKER_LOG_LEVEsL = 
 	DOCKER_DETACH = --detach
 endif
 
@@ -134,7 +132,7 @@ docker-setup-db: docker-build
 ifneq ("$(wildcard $(DB_FILE))","")
 	@echo "Ambuda using your existing database!"
 else
-	@docker ${DOCKER_LOGLVL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose-dbsetup.yml up ${IO_REDIRECT}
+	@docker ${DOCKER_LOG_LEVEL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose-dbsetup.yml up ${IO_REDIRECT}
 	@echo "Ambuda Database : ✔ "
 endif
 	
@@ -148,7 +146,7 @@ docker-build:
 
 # Start Docker services.
 docker-start: docker-build docker-setup-db
-	@docker ${DOCKER_LOGLVL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up ${DOCKER_DETACH} ${IO_REDIRECT}
+	@docker ${DOCKER_LOG_LEVEL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up ${DOCKER_DETACH} ${IO_REDIRECT}
 	@echo "Ambuda WebApp   : ✔ "
 	@echo "Ambuda URL      : http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT}"
 	@printf "%0.s-" {1..21} && echo
@@ -156,8 +154,8 @@ docker-start: docker-build docker-setup-db
 
 # Stop docker services
 docker-stop: 
-	@docker ${DOCKER_LOGLVL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml stop
-	@docker ${DOCKER_LOGLVL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml rm
+	@docker ${DOCKER_LOG_LEVEL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml stop
+	@docker ${DOCKER_LOG_LEVEL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml rm
 	@echo "Ambuda URL stopped"
 
 # Show docker logs
