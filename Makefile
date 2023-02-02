@@ -206,6 +206,12 @@ coverage-report: coverage
 docs: py-venv-check
 	cd docs && make html
 
+# Run the devserver with live reloading of CSS and JavaScript
+# NOTE: this method is deprecated. Once our Docker setup supports live
+# reloading, we will delete this command.
+devserver: py-venv-check
+	npx concurrently "flask run" "make css-dev" "make js-dev"
+
 
 # CSS commands
 # ===============================================

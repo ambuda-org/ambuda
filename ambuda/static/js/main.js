@@ -7,6 +7,7 @@ import HamburgerButton from './hamburger-button';
 import HTMLPoller from './html-poller';
 import Reader from './reader';
 import Proofer from './proofer';
+import Padmini from './padmini';
 import SortableList from './sortable-list';
 
 window.addEventListener('alpine:init', () => {
@@ -15,6 +16,7 @@ window.addEventListener('alpine:init', () => {
   Alpine.data('htmlPoller', HTMLPoller);
   Alpine.data('reader', Reader);
   Alpine.data('proofer', Proofer);
+  Alpine.data('padmini', Padmini);
   Alpine.data('sortableList', SortableList);
 });
 

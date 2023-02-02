@@ -1,0 +1,196 @@
+{% extends 'header-main-footer.html' %}
+{% import "macros/components.html" as mc %}
+{% import 'macros/dictionaries.html' as m %}
+
+
+{% block title %}{{ mc.title(_('Dictionaries')) }}{% endblock %}
+
+
+{% block meta_description -%}
+Our fast and simple dictionary tool supports six popular dictionaries in three
+different languages.
+{%- endblock %}
+
+
+{# SVG from: https://icons.getbootstrap.com/icons/gear-fill/ #}
+{% macro settings_icon() %}
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+  <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
+</svg>
+{% endmacro %}
+
+
+{# SVG from: https://icons.getbootstrap.com/icons/search/ #}
+{% macro search_icon() %}
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" focusable="false">
+<path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+</svg>
+{% endmacro %}
+
+
+{% macro query_form() %}
+<form class="my-4" @submit.prevent="searchDictionary">
+  <div class="flex mb-2 drop-shadow-sm">
+    <input
+        name="q"
+        type="text"
+        placeholder="{{ _('Enter any Sanskrit word or phrase') }}"
+        class="border border-slate-200 text-lg p-2 flex-1 bg-slate-50 text-slate-900 rounded-tl rounded-bl placeholder:text-slate-400"
+        x-model="query"
+    >
+    </input>
+
+    <button type="submit" aria-label="Search" class="btn-submit cursor-pointer p-4 rounded-tr rounded-br">
+      {{ search_icon() }}
+    </button>
+  </div>
+
+  <div class="text-sm text-slate-600 mt-6 text-center">
+    <label>Output:</label>
+    <select
+        class="f-select mr-4 py-2"
+        x-model="outputScript"
+        @change="updateScript">
+      {% include "include/script-options.html" %}
+    </select>
+    <a href="#" class="rounded bg-slate-100 p-2 transition hover:bg-slate-200"
+        @click.prevent="showSettingsModal">
+      <div class="inline-block align-text-top text-slate-500">
+        {{ settings_icon() }}
+      </div>
+      Settings
+    </a>
+  </div>
+</form>
+{% endmacro %}
+
+
+{% set dictionaries = {
+  "en": [
+    ("apte", _("Apte (1890)")),
+    ("mw", _('Monier-Williams (1899)')),
+    ("shabdasagara", _('Shabdasagara (1900)')),
+  ],
+  "sa": [
+    ("vacaspatyam", _('Vācaspatyam (1873)')),
+    ("shabdakalpadruma", _('Śabdakalpadrumaḥ (1886)')),
+  ],
+  "koshas": [
+    ("amara", _("Amarakosha")),
+  ],
+  "hi": [
+    ("apte-sh", _("Apte Sanskrit-Hindi Kosh (1966)")),
+  ],
+  "kn": [
+    ("shabdartha-kaustubha", _('Shabdarthakaustubha')),
+  ],
+} %}
+
+
+{% macro settings_key(name) %}
+<div>
+  <label class="block">{{ name }}</label>
+  <div class="text-slate-400 text-sm">
+  {{ caller() }}
+  </div>
+</div>
+{% endmacro %}
+
+
+{# A list of dictionaries for a given category, e.g. "Sanskrit-English" #}
+{% macro lexicon_list(category, items) %}
+{# <legend class="font-bold mt-4 mb-2">{{ title }}</legend> #}
+<fieldset class="mt-2">
+  <h3 class="font-bold text-slate-400 text-xs uppercase mb-2">{{ category }}</h3>
+  <div class="border-l border-slate-200 pl-2">
+    {% for name, title in items %}
+    <div class="flex justify-between my-2">
+      <label for="f-{{ name }}" class="block text-sm">
+        {{ title }}
+      </label>
+      <input id="f-{{ name }}"
+          class="w-4 h-4"
+          name="{{ name }}"
+          value="{{ name }}"
+          type="checkbox"
+          x-model="dictionaries">
+      </input>
+    </div>
+    {% endfor %}
+  </div>
+</fieldset>
+{% endmacro %}
+
+
+{% macro settings_modal() %}
+<div x-show="isSettingsModalVisible" role="dialog" aria-modal="true">
+  {# Background #}
+  <div class="fixed bg-slate-900/20 inset-0 backdrop-blur-[2px]"
+    @click="hideSettingsModal"></div>
+  {# Dialog #}
+  <div class="fixed inset-0 m-24 p-8 z-10 overflow-y-auto bg-white rounded-lg shadow-md sm:max-w-3xl sm:mx-auto">
+    <button class="absolute top-6 right-6 w-8 h-8 
+        text-2xl text-slate-400 hover:text-red-700 hover:bg-red-100 rounded transition duration-75"
+        @click="hideSettingsModal">
+        &times;
+    </button>
+    <header>
+      <h1 class="font-bold text-3xl text-slate-300">Settings</h1>
+    </header>
+
+    <h2 class="font-bold text-xl mb-2 my-8">General</h2>
+
+    <fieldset class="flex justify-between items-center">
+      {% call settings_key("Input script") %}
+      <p>The script you use to write your query. We recommend <kbd>Auto-detect</kbd>.</p>
+      {% endcall %}
+
+      <div class="basis-1/4">
+        <select class="f-select block mr-0 ml-auto p-2" x-model="inputScript">
+          <option value="auto">Auto-detect</option>
+          {% include "include/script-options.html" %}
+        </select>
+      </div>
+    </fieldset>
+
+    <fieldset class="flex justify-between my-8 items-center">
+      {% call settings_key("Output script") %}
+      <p>The script Padmini uses to displays your results.</p>
+      {% endcall %}
+
+      <div class="basis-1/4 ml-auto">
+        <select class="f-select block mr-0 ml-auto p-2" x-model="outputScript">
+          {% include "include/script-options.html" %}
+        </select>
+      </div>
+    </fieldset>
+
+    <h2 class="font-bold text-xl mb-2">Dictionaries</h2>
+
+    <p class="text-sm text-slate-600 mb-4">
+    Choose which dictionaries Padmini should use.
+    </p>
+
+    {{ lexicon_list(_('Sanskrit-English'), dictionaries['en']) }}
+    {{ lexicon_list(_('Sanskrit-Sanskrit'), dictionaries['sa']) }}
+    {{ lexicon_list(_('Koshas'), dictionaries['koshas']) }}
+    {{ lexicon_list(_('Sanskrit-Hindi'), dictionaries['hi']) }}
+    {{ lexicon_list(_('Sanskrit-Kannada'), dictionaries['kn']) }}
+  </div>
+</div>
+{% endmacro %}
+
+
+{% block main %}
+<article class="mx-4 md:mx-auto max-w-2xl mt-16 md:mt-32 mb-24 md:mb-36">
+<header>
+  <h1 class="text-4xl text-center md:text-7xl font-bold text-slate-700 mb-8">
+    {{ "padminI"|d }}
+  </h1>
+</header>
+<div x-data="padmini">
+  {{ query_form() }}
+  {{ settings_modal() }}
+</div>
+</article>
+{% endblock %}
