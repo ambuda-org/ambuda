@@ -10,5 +10,5 @@ def standardize_query(q: str) -> str:
     :param s: the input query in an arbitrary encoding scheme.
     """
     q = q.strip()
-    encoding = detect.detect(q)
-    return sanscript.transliterate(q, encoding, "slp1")
+    input_encoding = detect.detect(q)
+    return sanscript.transliterate(q, input_encoding, "slp1")
