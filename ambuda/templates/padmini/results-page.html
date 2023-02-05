@@ -1,0 +1,42 @@
+{% extends "header-main-footer.html" %}
+{% import "macros/components.html" as mc %}
+{% import "padmini/macros.html" as m %}
+
+
+{% block title %}{{ mc.title(_('Dictionaries')) }}{% endblock %}
+
+
+{% block meta_description -%}
+Our fast and simple dictionary tool supports six popular dictionaries in three
+different languages.
+{%- endblock %}
+
+
+{# A smaller query form at the top of the page. #}
+{% macro query_form(query) %}
+<form class="flex mb-8 drop-shadow-sm" @submit.prevent="runQuery">
+  {{ m.query_field(model="query", value=query) }}
+  {{ m.query_button() }}
+</form>
+{% endmacro %}
+
+{% block main %}
+<article class="mx-4 md:mx-auto max-w-4xl mt-8">
+
+<div x-data="padmini" class="mx-4 my-8">
+  {{ query_form(query) }}
+  {% for slug, entries in dict_results.items() %}
+    <ul>
+      {% for entry in entries %}
+      {{ entry|safe }}
+      {% endfor %}
+    </ul>
+  {% endfor %}
+</div>
+
+</article>
+
+<script type="text/javascript">
+window.PADMINI_DEFAULTS = {{ js_defaults|safe }};
+</script>
+{% endblock %}

@@ -1,4 +1,4 @@
-"""View logic for Padmini, our Sanskrit dictionary tool.
+"""View logic for Padmini, our Sanskrit search tool.
 
 
 Core features
@@ -43,6 +43,7 @@ In the future, we hope to provide:
 """
 
 import functools
+import json
 
 from flask import Blueprint, render_template, jsonify, request
 from indic_transliteration import detect, sanscript
@@ -50,6 +51,7 @@ from vidyut.cheda import Chedaka, Token
 
 from ambuda import queries as q
 from ambuda.views.api import bp as api
+from ambuda.views.padmini import dictionaries as dicts
 from ambuda.views.padmini import utils
 
 bp = Blueprint("padmini", __name__)
@@ -57,19 +59,35 @@ bp = Blueprint("padmini", __name__)
 
 @functools.cache
 def chedaka():
+    """A lazy singleton for our word splitter."""
     return Chedaka("/Users/akp/projects/vidyut/vidyut-cheda/data/vidyut-0.2.0")
 
 
 @bp.route("/")
 def index():
-    """Main entrypoint for Padmini."""
+    """Index page with a basic search form."""
     return render_template("padmini/index.html")
+
+
+@bp.route("/search/<query>")
+def search(query):
+    """Results for some query."""
+
+    slp1_query = utils.standardize_query(query)
+    dict_results = dicts.fetch_entries(["mw"], query)
+    js_defaults = {
+        "query": query,
+    }
+    return render_template(
+        "padmini/results-page.html",
+        query=query,
+        dict_results=dict_results,
+        js_defaults=json.dumps(js_defaults),
+    )
 
 
 def handle_query(q):
     """Handle the user's query and create a result set."""
-    slp1_query = utils.standardize_query(q)
-
     # Lemma -- use query as dictionary headword
     # Word -- check for word in kosha
     # Cheda -- run padaccheda
@@ -77,7 +95,7 @@ def handle_query(q):
         tokens = chedaka.run(slp1_query)
     except Exception:
         # TODO: For now, use an exhaustive exception guard. As `vidyut`
-        # matures, see if we can avoid most or al exceptions here.
+        # matures, see if we can avoid most or all exceptions here.
         tokens = []
 
     _standardize_tokens(tokens)

@@ -12,6 +12,10 @@ export default {
     return `/tools/dictionaries/${sourcesStr}/${query}`;
   },
 
+  padminiQuery: (query) => {
+    return `/padmini/search/${query}`;
+  },
+
   parseData: (textSlug, blockSlug) => `/api/parses/${textSlug}/${blockSlug}`,
 
   // TODO: where to put this?

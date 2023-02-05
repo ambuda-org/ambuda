@@ -1,9 +1,9 @@
 {% extends 'header-main-footer.html' %}
 {% import "macros/components.html" as mc %}
-{% import 'macros/dictionaries.html' as m %}
+{% import "padmini/macros.html" as m %}
 
 
-{% block title %}{{ mc.title(_('Dictionaries')) }}{% endblock %}
+{% block title %}{{ mc.title(_('Padmini')) }}{% endblock %}
 
 
 {% block meta_description -%}
@@ -12,37 +12,11 @@ different languages.
 {%- endblock %}
 
 
-{# SVG from: https://icons.getbootstrap.com/icons/gear-fill/ #}
-{% macro settings_icon() %}
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-  <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
-</svg>
-{% endmacro %}
-
-
-{# SVG from: https://icons.getbootstrap.com/icons/search/ #}
-{% macro search_icon() %}
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" focusable="false">
-<path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-</svg>
-{% endmacro %}
-
-
 {% macro query_form() %}
-<form class="my-4" @submit.prevent="searchDictionary">
+<form class="my-4" @submit.prevent="runQuery">
   <div class="flex mb-2 drop-shadow-sm">
-    <input
-        name="q"
-        type="text"
-        placeholder="{{ _('Enter any Sanskrit word or phrase') }}"
-        class="border border-slate-200 text-lg p-2 flex-1 bg-slate-50 text-slate-900 rounded-tl rounded-bl placeholder:text-slate-400"
-        x-model="query"
-    >
-    </input>
-
-    <button type="submit" aria-label="Search" class="btn-submit cursor-pointer p-4 rounded-tr rounded-br">
-      {{ search_icon() }}
-    </button>
+    {{ m.query_field(model="query") }}
+    {{ m.query_button() }}
   </div>
 
   <div class="text-sm text-slate-600 mt-6 text-center">
@@ -53,13 +27,8 @@ different languages.
         @change="updateScript">
       {% include "include/script-options.html" %}
     </select>
-    <a href="#" class="rounded bg-slate-100 p-2 transition hover:bg-slate-200"
-        @click.prevent="showSettingsModal">
-      <div class="inline-block align-text-top text-slate-500">
-        {{ settings_icon() }}
-      </div>
-      Settings
-    </a>
+
+    {{ m.settings_button("showSettingsModal") }}
   </div>
 </form>
 {% endmacro %}
@@ -123,7 +92,7 @@ different languages.
 
 
 {% macro settings_modal() %}
-<div x-show="isSettingsModalVisible" role="dialog" aria-modal="true">
+<div x-cloak x-show="isSettingsModalVisible" role="dialog" aria-modal="true">
   {# Background #}
   <div class="fixed bg-slate-900/20 inset-0 backdrop-blur-[2px]"
     @click="hideSettingsModal"></div>

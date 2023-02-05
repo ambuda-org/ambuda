@@ -25,18 +25,11 @@ export default () => ({
 
   init() {
     this.loadSettings();
+    this.loadDefaults();
 
     this.$watch('inputScript', () => this.saveSettings());
     this.$watch('outputScript', () => this.saveSettings());
     this.$watch('dictionaries', () => this.saveSettings());
-  },
-
-  showSettingsModal() {
-    this.isSettingsModalVisible = true;
-  },
-
-  hideSettingsModal() {
-    this.isSettingsModalVisible = false;
   },
 
   loadSettings() {
@@ -54,6 +47,13 @@ export default () => ({
     }
   },
 
+  /** Load model defaults received from the server as a JSON blob. */
+  loadDefaults() {
+    if (window.PADMINI_DEFAULTS) {
+        this.query = window.PADMINI_DEFAULTS.query;
+    }
+  },
+
   saveSettings() {
     const settings = {
       inputScript: this.inputScript,
@@ -62,4 +62,16 @@ export default () => ({
     };
     localStorage.setItem(PADMINI_CONFIG_KEY, JSON.stringify(settings));
   },
+
+  showSettingsModal() {
+    this.isSettingsModalVisible = true;
+  },
+
+  hideSettingsModal() {
+    this.isSettingsModalVisible = false;
+  },
+
+  runQuery() {
+    window.location.href = Routes.padminiQuery(this.query);
+  }
 });

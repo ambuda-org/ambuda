@@ -28,10 +28,18 @@ bp = Blueprint("dictionaries", __name__)
 
 @functools.cache
 def _get_dictionary_data() -> dict[str, str]:
+    """A lazy singleton for dictionary data."""
     return {d.slug: d.title for d in q.dictionaries()}
 
 
 def _create_query_keys(sources: list[str], query: str) -> list[str]:
+    """Expands the given `query` according to the orthographic conventions of
+    different dictionaries.
+
+    Examples:
+    - `deva` to `devaH` for Apte and others
+    - `saMBU` to `samBU` for Monier-Williams and others
+    """
     query = query.strip()
     input_scheme = detect.detect(query)
     slp1_key = sanscript.transliterate(query, input_scheme, sanscript.SLP1)
@@ -47,7 +55,7 @@ def _create_query_keys(sources: list[str], query: str) -> list[str]:
     return keys
 
 
-def _fetch_entries(sources: list[str], query: str) -> dict[str, str]:
+def fetch_entries(sources: list[str], query: str) -> dict[str, str]:
     keys = _create_query_keys(sources, query)
     entries = q.dict_entries(sources, keys)
 
@@ -70,7 +78,7 @@ def _fetch_entries(sources: list[str], query: str) -> dict[str, str]:
 
 
 def _handle_form_submission(
-    url_sources: Optional[list[str]] = None, url_query: Optional[str] = None
+    url_sources: list[str] = None, url_query: Optional[str] = None
 ):
     """Handle a search request defined with query parameters.
 
@@ -102,51 +110,8 @@ def _handle_form_submission(
         return redirect(url_for("dictionaries.index"))
 
 
-@bp.route("/")
-def index():
-    if request.args:
-        return _handle_form_submission()
-
-    """Show the dictionary lookup tool."""
-    dictionaries = _get_dictionary_data()
-    return render_template("dictionaries/index.html", dictionaries=dictionaries)
-
-
-@bp.route("/<list:sources>/")
-def index_with_sources(sources):
-    if request.args:
-        return _handle_form_submission(sources)
-
-    safe_sources = [s for s in sources if s in _get_dictionary_data()]
-    if not safe_sources:
-        abort(404)
-
-    # TODO: set chosen dictionaries as UX view
-    return redirect(url_for("dictionaries.index"))
-
-
-@bp.route("/<list:sources>/<query>")
-def entry(sources, query):
-    """Show a specific dictionary entry."""
-    if request.args:
-        return _handle_form_submission(sources, query)
-
-    dictionaries = _get_dictionary_data()
-    sources = [s for s in sources if s in dictionaries]
-    if not sources:
-        abort(404)
-
-    entries = _fetch_entries(sources, query)
-    return render_template(
-        "dictionaries/index.html",
-        query=query,
-        entries=entries,
-        dictionaries=dictionaries,
-    )
-
-
 @api.route("/dictionaries/<list:sources>/<query>")
-def entry_htmx(sources, query):
+def padmini_entry_htmx(sources, query):
     dictionaries = _get_dictionary_data()
     sources = [s for s in sources if s in dictionaries]
     if not sources:
