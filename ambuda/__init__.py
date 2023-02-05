@@ -28,7 +28,6 @@ from ambuda.views.about import bp as about
 from ambuda.views.api import bp as api
 from ambuda.views.auth import bp as auth
 from ambuda.views.blog import bp as blog
-from ambuda.views.dictionaries import bp as dictionaries
 from ambuda.views.proofing import bp as proofing
 from ambuda.views.reader.parses import bp as parses
 from ambuda.views.reader.texts import bp as texts
@@ -136,7 +135,6 @@ def create_app(config_env: str):
     app.register_blueprint(auth)
     app.register_blueprint(blog, url_prefix="/blog")
     app.register_blueprint(padmini, url_prefix="/padmini")
-    app.register_blueprint(dictionaries, url_prefix="/tools/dictionaries")
     app.register_blueprint(parses, url_prefix="/parses")
     app.register_blueprint(proofing, url_prefix="/proofing")
     app.register_blueprint(site)

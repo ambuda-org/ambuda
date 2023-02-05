@@ -1,0 +1,118 @@
+{# The dictionaries we expose through the Padmini interface. #}
+{% set dictionaries = {
+  "en": [
+    ("apte", _("Apte (1890)")),
+    ("mw", _('Monier-Williams (1899)')),
+    ("shabdasagara", _('Shabdasagara (1900)')),
+  ],
+  "sa": [
+    ("vacaspatyam", _('Vācaspatyam (1873)')),
+    ("shabdakalpadruma", _('Śabdakalpadrumaḥ (1886)')),
+  ],
+  "koshas": [
+    ("amara", _("Amarakosha")),
+  ],
+  "hi": [
+    ("apte-sh", _("Apte Sanskrit-Hindi Kosh (1966)")),
+  ],
+  "kn": [
+    ("shabdartha-kaustubha", _('Shabdarthakaustubha')),
+  ],
+} %}
+
+
+{# The name of a settings option with a short description. #}
+{% macro settings_key(name) %}
+<div>
+  <label class="block">{{ name }}</label>
+  <div class="text-slate-400 text-sm">
+  {{ caller() }}
+  </div>
+</div>
+{% endmacro %}
+
+
+{# A list of dictionaries for a given category, e.g. "Sanskrit-English" #}
+{% macro lexicon_list(category, items) %}
+{# <legend class="font-bold mt-4 mb-2">{{ title }}</legend> #}
+<fieldset class="mt-2">
+  <h3 class="font-bold text-slate-400 text-xs uppercase mb-2">{{ category }}</h3>
+  <div class="border-l border-slate-200 pl-2">
+    {% for name, title in items %}
+    <div class="flex justify-between my-2">
+      <label for="f-{{ name }}" class="block text-sm">
+        {{ title }}
+      </label>
+      <input id="f-{{ name }}"
+          class="w-4 h-4"
+          name="{{ name }}"
+          value="{{ name }}"
+          type="checkbox"
+          x-model="dictionaries">
+      </input>
+    </div>
+    {% endfor %}
+  </div>
+</fieldset>
+{% endmacro %}
+
+
+{# The main settings modal. #}
+{% macro settings_modal() %}
+<div x-cloak x-show="isSettingsModalVisible" role="dialog" aria-modal="true">
+  {# Background #}
+  <div class="fixed bg-slate-900/20 inset-0 backdrop-blur-[2px]"
+    @click="hideSettingsModal"></div>
+  {# Dialog #}
+  <div class="fixed inset-0 m-24 p-8 z-10 overflow-y-auto bg-white rounded-lg shadow-md sm:max-w-3xl sm:mx-auto">
+    <button class="absolute top-6 right-6 w-8 h-8 
+        text-2xl text-slate-400 hover:text-red-700 hover:bg-red-100 rounded transition duration-75"
+        @click="hideSettingsModal">
+        &times;
+    </button>
+    <header>
+      <h1 class="font-bold text-3xl text-slate-300">Settings</h1>
+    </header>
+
+    <h2 class="font-bold text-xl mb-2 my-8">General</h2>
+
+    <fieldset class="flex justify-between items-center">
+      {% call settings_key("Input script") %}
+      <p>The script you use to write your query. We recommend <kbd>Auto-detect</kbd>.</p>
+      {% endcall %}
+
+      <div class="basis-1/4">
+        <select class="f-select block mr-0 ml-auto p-2" x-model="inputScript">
+          <option value="auto">Auto-detect</option>
+          {% include "include/script-options.html" %}
+        </select>
+      </div>
+    </fieldset>
+
+    <fieldset class="flex justify-between my-8 items-center">
+      {% call settings_key("Output script") %}
+      <p>The script Padmini uses to displays your results.</p>
+      {% endcall %}
+
+      <div class="basis-1/4 ml-auto">
+        <select class="f-select block mr-0 ml-auto p-2" x-model="outputScript">
+          {% include "include/script-options.html" %}
+        </select>
+      </div>
+    </fieldset>
+
+    <h2 class="font-bold text-xl mb-2">Dictionaries</h2>
+
+    <p class="text-sm text-slate-600 mb-4">
+    Choose which dictionaries Padmini should use.
+    </p>
+
+    {{ lexicon_list(_('Sanskrit-English'), dictionaries['en']) }}
+    {{ lexicon_list(_('Sanskrit-Sanskrit'), dictionaries['sa']) }}
+    {{ lexicon_list(_('Koshas'), dictionaries['koshas']) }}
+    {{ lexicon_list(_('Sanskrit-Hindi'), dictionaries['hi']) }}
+    {{ lexicon_list(_('Sanskrit-Kannada'), dictionaries['kn']) }}
+  </div>
+</div>
+{% endmacro %}
+

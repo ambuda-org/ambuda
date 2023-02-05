@@ -1,6 +1,7 @@
 {% extends "header-main-footer.html" %}
 {% import "macros/components.html" as mc %}
 {% import "padmini/macros.html" as m %}
+{% from "padmini/x-settings-modal.html" import settings_modal %}
 
 
 {% block title %}{{ mc.title(_('Dictionaries')) }}{% endblock %}
@@ -12,26 +13,52 @@ different languages.
 {%- endblock %}
 
 
+{# The dictionaries we expose through the Padmini interface. #}
+{% set dictionaries = {
+  "en": [
+    ("apte", _("Apte (1890)")),
+    ("mw", _('Monier-Williams (1899)')),
+    ("shabdasagara", _('Shabdasagara (1900)')),
+  ],
+  "sa": [
+    ("vacaspatyam", _('Vācaspatyam (1873)')),
+    ("shabdakalpadruma", _('Śabdakalpadrumaḥ (1886)')),
+  ],
+  "koshas": [
+    ("amara", _("Amarakosha")),
+  ],
+  "hi": [
+    ("apte-sh", _("Apte Sanskrit-Hindi Kosh (1966)")),
+  ],
+  "kn": [
+    ("shabdartha-kaustubha", _('Shabdarthakaustubha')),
+  ],
+} %}
+
+
+
+
 {# A smaller query form at the top of the page. #}
-{% macro query_form(query) %}
-<form class="flex mb-8 drop-shadow-sm" @submit.prevent="runQuery">
-  {{ m.query_field(model="query", value=query) }}
-  {{ m.query_button() }}
-</form>
+{% macro results_bar(query) %}
+<div class="flex items-baseline">
+  <form class="flex mb-8 drop-shadow-sm" @submit.prevent="runQuery">
+    {{ m.query_field(model="query", value=query) }}
+    {{ m.query_button() }}
+  </form>
+  {{ m.settings_button("showSettingsModal") }}
+</div>
 {% endmacro %}
 
 {% block main %}
 <article class="mx-4 md:mx-auto max-w-4xl mt-8">
 
 <div x-data="padmini" class="mx-4 my-8">
-  {{ query_form(query) }}
-  {% for slug, entries in dict_results.items() %}
-    <ul>
-      {% for entry in entries %}
-      {{ entry|safe }}
-      {% endfor %}
-    </ul>
-  {% endfor %}
+  {{ results_bar(query) }}
+  {{ settings_modal() }}
+
+  {% with query=query, entries=dict_results, dictionaries=dictionaries %}
+    {% include "htmx/dictionary-results.html" %}
+  {% endwith %}
 </div>
 
 </article>

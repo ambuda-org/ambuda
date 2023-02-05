@@ -73,14 +73,18 @@ def index():
 def search(query):
     """Results for some query."""
 
-    slp1_query = utils.standardize_query(query)
+    input_encoding = detect.detect(query)
+    slp1_query = utils.standardize_query(query, input_encoding=input_encoding)
+
     dict_results = dicts.fetch_entries(["mw"], query)
     js_defaults = {
+        "input_encoding": input_encoding,
         "query": query,
     }
     return render_template(
         "padmini/results-page.html",
         query=query,
+        input_encoding=input_encoding,
         dict_results=dict_results,
         js_defaults=json.dumps(js_defaults),
     )
