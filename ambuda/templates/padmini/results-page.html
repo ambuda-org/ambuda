@@ -2,7 +2,7 @@
 {% import "macros/components.html" as mc %}
 {% import "padmini/macros.html" as m %}
 {% from "padmini/x-settings-modal.html" import settings_modal %}
-
+{% from "padmini/constants.html" import dictionary_titles %}
 
 {% block title %}{{ mc.title(_('Dictionaries')) }}{% endblock %}
 
@@ -58,7 +58,7 @@ different languages.
   {{ results_bar(query) }}
   {{ settings_modal() }}
 
-  {% with query=query, entries=dict_results, dictionaries=dictionaries %}
+  {% with query=query, entries=dict_results, dictionaries=dictionary_titles %}
     {% include "htmx/dictionary-results.html" %}
   {% endwith %}
 </div>
