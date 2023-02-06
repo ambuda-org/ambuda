@@ -76,7 +76,8 @@ def search(query):
     input_encoding = detect.detect(query)
     slp1_query = utils.standardize_query(query, input_encoding=input_encoding)
 
-    dict_results = dicts.fetch_entries(["mw"], query)
+    dictionaries = request.args.get("d", "").split(",")
+    dict_results = dicts.fetch_entries(dictionaries, query)
     js_defaults = {
         "input_encoding": input_encoding,
         "query": query,

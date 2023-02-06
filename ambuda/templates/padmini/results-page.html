@@ -40,12 +40,14 @@ different languages.
 
 {# A smaller query form at the top of the page. #}
 {% macro results_bar(query) %}
-<div class="flex items-baseline">
-  <form class="flex mb-8 drop-shadow-sm" @submit.prevent="runQuery">
+<div class="flex justify-between items-baseline">
+  <form class="flex-1 flex mb-8 mr-4 drop-shadow-sm" @submit.prevent="runQuery">
     {{ m.query_field(model="query", value=query) }}
     {{ m.query_button() }}
   </form>
-  {{ m.settings_button("showSettingsModal") }}
+  <div>
+    {{ m.inline_settings_button() }}
+  </div>
 </div>
 {% endmacro %}
 

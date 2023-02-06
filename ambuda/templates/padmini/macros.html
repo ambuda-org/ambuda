@@ -14,13 +14,26 @@
 {% endmacro %}
 
 
-{% macro settings_button(fn) %}
-<a href="#" class="rounded bg-slate-100 p-2 transition hover:bg-slate-200" @click.prevent="{{ fn }}">
+{% macro settings_button() %}
+<button class="rounded bg-slate-100 p-2 transition hover:bg-slate-200" @click.prevent="showSettingsModal">
   <div class="inline-block align-text-top text-slate-500">
     {{ settings_icon() }}
   </div>
   Settings
-</a>
+</button>
+{% endmacro %}
+
+
+{# A larger inline settings button. #}
+{% macro inline_settings_button() %}
+<button class="rounded bg-slate-100 p-2 text-slate-500 
+    transition hover:text-slate-800 hover:bg-slate-200"
+    @click.prevent="showSettingsModal">
+  <div class="inline-block align-text-top text-slate-500">
+    {{ settings_icon() }}
+  </div>
+  Settings
+</button>
 {% endmacro %}
 
 

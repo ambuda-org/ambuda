@@ -12,8 +12,9 @@ export default {
     return `/tools/dictionaries/${sourcesStr}/${query}`;
   },
 
-  padminiQuery: (query) => {
-    return `/padmini/search/${query}`;
+  padminiQuery: (query, sources) => {
+    const sourceParam = "d=" + sources.join(",");
+    return `/padmini/search/${query}?${sourceParam}`;
   },
 
   parseData: (textSlug, blockSlug) => `/api/parses/${textSlug}/${blockSlug}`,

@@ -72,6 +72,7 @@ export default () => ({
   },
 
   runQuery() {
-    window.location.href = Routes.padminiQuery(this.query);
+    const url = Routes.padminiQuery(this.query, this.dictionaries);
+    window.location.href = url;
   }
 });
