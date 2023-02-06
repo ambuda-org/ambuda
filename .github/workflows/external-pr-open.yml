@@ -38,7 +38,7 @@ jobs:
 
       - name: Build and Test docker image
         id: build-to-test
-        uses: docker/build-push-action@v3.2.0
+        uses: docker/build-push-action@v4.0.0
         with:
           context: .
           file: build/containers/Dockerfile.final
