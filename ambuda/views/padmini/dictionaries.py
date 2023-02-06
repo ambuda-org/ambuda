@@ -110,17 +110,6 @@ def _handle_form_submission(
         return redirect(url_for("dictionaries.index"))
 
 
-@api.route("/dictionaries/<list:sources>/<query>")
-def padmini_entry_htmx(sources, query):
-    dictionaries = _get_dictionary_data()
-    sources = [s for s in sources if s in dictionaries]
-    if not sources:
-        abort(404)
-
-    entries = _fetch_entries(sources, query)
-    return render_template(
-        "htmx/dictionary-results.html",
-        query=query,
-        entries=entries,
-        dictionaries=dictionaries,
-    )
+def create_results(slp1_query: str, sources: list[str]):
+    sources = request.args.get("d", "").split(",")
+    return fetch_entries(sources, slp1_query)

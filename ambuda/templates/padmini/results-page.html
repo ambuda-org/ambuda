@@ -58,9 +58,16 @@ different languages.
   {{ results_bar(query) }}
   {{ settings_modal() }}
 
+  {% if cheda_results %}
+  {% with tokens=cheda_results %}
+    {% include "padmini/x-cheda-results.html" %}
+  {% endwith %}
+
   {% with query=query, entries=dict_results, dictionaries=dictionary_titles %}
     {% include "padmini/x-dictionary-results.html" %}
   {% endwith %}
+
+  {% endif %}
 </div>
 
 </article>

@@ -42,7 +42,6 @@ In the future, we hope to provide:
 - translation
 """
 
-import functools
 import json
 
 from flask import Blueprint, render_template, jsonify, request
@@ -51,16 +50,11 @@ from vidyut.cheda import Chedaka, Token
 
 from ambuda import queries as q
 from ambuda.views.api import bp as api
-from ambuda.views.padmini import dictionaries as dicts
+from ambuda.views.padmini import cheda
+from ambuda.views.padmini import dictionaries
 from ambuda.views.padmini import utils
 
 bp = Blueprint("padmini", __name__)
-
-
-@functools.cache
-def chedaka():
-    """A lazy singleton for our word splitter."""
-    return Chedaka("/Users/akp/projects/vidyut/vidyut-cheda/data/vidyut-0.2.0")
 
 
 @bp.route("/")
@@ -76,32 +70,25 @@ def search(query):
     input_encoding = detect.detect(query)
     slp1_query = utils.standardize_query(query, input_encoding=input_encoding)
 
-    dictionaries = request.args.get("d", "").split(",")
-    dict_results = dicts.fetch_entries(dictionaries, query)
+    dict_sources = request.args.get("d", "").split(",")
+    dict_results = dictionaries.create_results(slp1_query, dict_sources)
+    has_any_dict_results = any(v for v in dict_results.values())
+
+    if has_any_dict_results:
+        cheda_results = []
+    else:
+        cheda_results = cheda.create_results(slp1_query)
+
     js_defaults = {
         "input_encoding": input_encoding,
         "query": query,
     }
+
     return render_template(
         "padmini/results-page.html",
         query=query,
         input_encoding=input_encoding,
         dict_results=dict_results,
+        cheda_results=cheda_results,
         js_defaults=json.dumps(js_defaults),
     )
-
-
-def handle_query(q):
-    """Handle the user's query and create a result set."""
-    # Lemma -- use query as dictionary headword
-    # Word -- check for word in kosha
-    # Cheda -- run padaccheda
-    try:
-        tokens = chedaka.run(slp1_query)
-    except Exception:
-        # TODO: For now, use an exhaustive exception guard. As `vidyut`
-        # matures, see if we can avoid most or all exceptions here.
-        tokens = []
-
-    _standardize_tokens(tokens)
-    return render_template("htmx/cheda.html", tokens=tokens)
