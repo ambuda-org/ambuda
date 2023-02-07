@@ -190,26 +190,35 @@ class DisplayToken:
         return " ".join(buf)
 
 
-def _convert_to_display_tokens(tokens: list[Token]) -> list[DisplayToken]:
+@dataclass
+class TokenSpan:
+    tokens: list[DisplayToken]
+
+
+def _convert_to_display_tokens(tokens: list[Token]) -> list[TokenSpan]:
     # Most users expect and prefer the visarga as opposed to a word-final "s"
     # or "r".
     ret = []
+    span = []
     for t in tokens:
         text = t.text
         if text.endswith("s") or text.endswith("r"):
             text = text[:-1] + "H"
 
-        ret.append(
-            DisplayToken(
-                text=text,
-                lemma=t.lemma or "",
-                info=t.info,
-            )
+        display_token = DisplayToken(
+            text=text,
+            lemma=t.lemma or "",
+            info=t.info,
         )
+
+        span.append(display_token)
+        if not display_token.info.is_purvapada:
+            ret.append(span)
+            span = []
     return ret
 
 
-def create_results(slp1_query: str) -> list[DisplayToken]:
+def create_results(slp1_query: str) -> list[TokenSpan]:
     """Handle the user's query and create a result set."""
 
     chedaka = get_chedaka()

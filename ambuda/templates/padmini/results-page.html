@@ -59,7 +59,7 @@ different languages.
   {# better to have onClick on the x-data element, but doing so seems to break form submit. #}
   <div class="mt-8" @click.prevent="onClick">
   {% if cheda_results %}
-    {% with tokens=cheda_results %}
+    {% with token_spans=cheda_results %}
       {% include "padmini/x-cheda-results.html" %}
     {% endwith %}
   {% else %}
