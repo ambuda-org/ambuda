@@ -37,10 +37,13 @@
 {% endmacro %}
 
 
-{% macro query_field(model, value = "") %}
+{% macro query_field(model, value = "") -%}
+{#- Although Alpine overrides the `value` field, set it anyway to have a nice
+placeholder while JS is loading. -#}
 <input
     name="q"
     type="text"
+    value="{{ value }}"
     placeholder="{{ _('Enter any Sanskrit word or phrase') }}"
     class="border border-slate-200 text-lg p-2 flex-1 bg-slate-50 text-slate-900 
         rounded-tl rounded-bl placeholder:text-slate-400"

@@ -6,7 +6,7 @@ Entry: str
 dictionaries: dict[Slug, Title],
 entries: dict[Slug, list[Entry]]
 #}
-<div class="mt-8">
+<div>
   {% set num_sources = entries|length %}
   {% for slug, source_entries in entries.items() %}
   <div x-data="{show: true}">

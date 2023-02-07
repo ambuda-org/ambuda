@@ -44,7 +44,7 @@ In the future, we hope to provide:
 
 import json
 
-from flask import Blueprint, render_template, jsonify, request
+from flask import Blueprint, render_template, jsonify, request, redirect, url_for
 from indic_transliteration import detect, sanscript
 from vidyut.cheda import Chedaka, Token
 
@@ -61,6 +61,12 @@ bp = Blueprint("padmini", __name__)
 def index():
     """Index page with a basic search form."""
     return render_template("padmini/index.html")
+
+
+@bp.route("/search/")
+def search_with_no_query():
+    """If the query is missing, just redirect to the index page."""
+    return redirect(url_for("padmini.index"))
 
 
 @bp.route("/search/<query>")

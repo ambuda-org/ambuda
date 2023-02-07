@@ -63,6 +63,19 @@ export default () => ({
     localStorage.setItem(PADMINI_CONFIG_KEY, JSON.stringify(settings));
   },
 
+  // Event handlers
+ 
+  onClick(e) { 
+    console.log("onclick", this.query, e);
+    const query = e.target.dataset['text'];
+    if (query) {
+      const url = Routes.padminiQuery(query, this.dictionaries);
+      window.location.href = url;
+    }
+  },
+
+  // Settings modal
+
   showSettingsModal() {
     this.isSettingsModalVisible = true;
   },
@@ -72,6 +85,7 @@ export default () => ({
   },
 
   runQuery() {
+    console.log("runquery", this.query);
     const url = Routes.padminiQuery(this.query, this.dictionaries);
     window.location.href = url;
   }

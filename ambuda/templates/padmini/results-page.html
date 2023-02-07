@@ -36,8 +36,6 @@ different languages.
 } %}
 
 
-
-
 {# A smaller query form at the top of the page. #}
 {% macro results_bar(query) %}
 <div class="flex justify-between items-baseline">
@@ -58,16 +56,18 @@ different languages.
   {{ results_bar(query) }}
   {{ settings_modal() }}
 
+  {# better to have onClick on the x-data element, but doing so seems to break form submit. #}
+  <div class="mt-8" @click.prevent="onClick">
   {% if cheda_results %}
-  {% with tokens=cheda_results %}
-    {% include "padmini/x-cheda-results.html" %}
-  {% endwith %}
-
-  {% with query=query, entries=dict_results, dictionaries=dictionary_titles %}
-    {% include "padmini/x-dictionary-results.html" %}
-  {% endwith %}
-
+    {% with tokens=cheda_results %}
+      {% include "padmini/x-cheda-results.html" %}
+    {% endwith %}
+  {% else %}
+    {% with query=query, entries=dict_results, dictionaries=dictionary_titles %}
+      {% include "padmini/x-dictionary-results.html" %}
+    {% endwith %}
   {% endif %}
+  </div>
 </div>
 
 </article>

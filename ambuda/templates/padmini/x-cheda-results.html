@@ -1,11 +1,14 @@
 {% set space = "&nbsp;"|safe %}
 {% set base_classes = "inline-block p-1 mb-4 rounded a-hover-underline" %}
+
+
+{% macro inline_view(tokens) %}
 {% for t in tokens -%}
 <div class="{{ base_classes }} {{ t.classes }}">
   {% if t.text %}
     {% set display_text = t.text|slp2dev %}
     {% set pada_url = url_for('padmini.search', query=display_text) %}
-    <div class="text-2xl"><a href="{{ pada_url }}">{{ display_text }}</a></div>
+    <div class="text-2xl"><a href="{{ pada_url }}" data-text="{{ display_text }}">{{ display_text }}</a></div>
   {% else %}
     <div class="text-2xl">{{ space }}</div>
   {% endif %}
@@ -13,15 +16,40 @@
   {% if t.lemma %}
     {% set display_lemma = t.lemma|slp2dev %}
     {% set lemma_url = url_for('padmini.search', query=display_lemma) %}
-    <div class="text-sm"><a href="{{ lemma_url }}">{{ display_lemma }}</a></div>
+    <div class="text-sm"><a href="{{ lemma_url }}" data-text="{{ display_lemma }}">{{ display_lemma }}</a></div>
   {% else %}
     <div class="text-sm">{{ space }}</div>
   {% endif %}
 
-  <div class="text-xs">{{ t.gloss or space }}</div>
+  <div class="text-xs">{{ t.short_gloss or space }}</div>
 </div><div class="{{ base_classes }}">
   <div class="text-2xl">{{ t.separator or space }}</div>
   <div class="text-sm">&nbsp;</div>
   <div class="text-xs">&nbsp;</div>
 </div>
 {%- endfor %}
+{% endmacro %}
+
+
+{% macro table_view(tokens) %}
+<table class="w-full border border-slate-200">
+  <tr class="text-left bg-slate-100 text-slate-500 uppercase text-xs border-b-2 border-slate-200">
+    <th class="p-1 py-3">Text</th>
+    <th class="p-1 py-3">Base</th>
+    <th class="p-1 py-3">Analysis</th>
+  </tr>
+  {% for t in tokens if t.is_sanskrit %}
+    {% set display_text = t.text|slp2dev %}
+    {% set display_lemma = t.lemma|slp2dev %}
+    <tr class="odd:bg-slate-50">
+        <td class="p-1 text-xl">{{ display_text or space }}{{ t.separator }}</td>
+        <td class="p-1">{{ display_lemma }}</td>
+        <td class="text-sm">{{ t.long_gloss }}</td>
+    </tr>
+  {% endfor %}
+</table>
+{% endmacro %}
+
+
+{{ inline_view(tokens) }}
+{{ table_view(tokens) }}
