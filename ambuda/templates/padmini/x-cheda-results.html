@@ -50,5 +50,20 @@
 {% endmacro %}
 
 
-{{ inline_view(token_spans) }}
-{{ table_view(token_spans) }}
+{% macro cheda_card(token_spans) %}
+<div x-data="{tab: 'inline'}">
+  <div class="text-sm">
+    <span>View as:</span>
+    <span class="text-slate-600">
+      <button class="hover:underline py-2" @click.prevent="tab = 'inline'">Inline</button> |
+      <button class="hover:underline py-2" @click.prevent="tab = 'table'">Table</button>
+    </span>
+  </div>
+  <div x-show="tab === 'inline'">
+    {{ inline_view(token_spans) }}
+  </div>
+  <div x-show="tab === 'table'">
+    {{ table_view(token_spans) }}
+  </div>
+</div>
+{% endmacro %}

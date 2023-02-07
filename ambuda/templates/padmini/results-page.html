@@ -2,6 +2,7 @@
 {% import "macros/components.html" as mc %}
 {% import "padmini/macros.html" as m %}
 {% from "padmini/x-settings-modal.html" import settings_modal %}
+{% from "padmini/x-cheda-results.html" import cheda_card %}
 {% from "padmini/constants.html" import dictionary_titles %}
 
 {% block title %}{{ mc.title(_('Dictionaries')) }}{% endblock %}
@@ -59,9 +60,8 @@ different languages.
   {# better to have onClick on the x-data element, but doing so seems to break form submit. #}
   <div class="mt-8" @click.prevent="onClick">
   {% if cheda_results %}
-    {% with token_spans=cheda_results %}
-      {% include "padmini/x-cheda-results.html" %}
-    {% endwith %}
+    <h2 class="font-bold text-2xl my-2">Analysis</h2>
+    {{ cheda_card(cheda_results) }}
   {% else %}
     {% with query=query, entries=dict_results, dictionaries=dictionary_titles %}
       {% include "padmini/x-dictionary-results.html" %}
