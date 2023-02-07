@@ -126,13 +126,13 @@ class DisplayToken:
     def classes(self) -> str:
         pos = self.info.pos
         if pos == PartOfSpeech.Subanta:
-            return "bg-green-200"
-        elif pos == PartOfSpeech.Tinanta:
             return "bg-yellow-200"
+        elif pos == PartOfSpeech.Tinanta:
+            return "bg-sky-200"
         elif pos == PartOfSpeech.Avyaya:
-            return "bg-sky-100"
+            return "bg-slate-100"
         else:
-            return "bg-slate-200"
+            return "outline outline-offset-1"
 
     @property
     def is_sanskrit(self) -> bool:
@@ -194,6 +194,10 @@ class DisplayToken:
 class TokenSpan:
     tokens: list[DisplayToken]
 
+    @property
+    def last(self) -> DisplayToken:
+        return self.tokens[-1]
+
 
 def _convert_to_display_tokens(tokens: list[Token]) -> list[TokenSpan]:
     # Most users expect and prefer the visarga as opposed to a word-final "s"
@@ -213,7 +217,7 @@ def _convert_to_display_tokens(tokens: list[Token]) -> list[TokenSpan]:
 
         span.append(display_token)
         if not display_token.info.is_purvapada:
-            ret.append(span)
+            ret.append(TokenSpan(tokens=span))
             span = []
     return ret
 

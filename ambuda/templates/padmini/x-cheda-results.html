@@ -1,34 +1,29 @@
 {% set space = "&nbsp;"|safe %}
-{% set base_classes = "inline-block p-1 mb-4 rounded a-hover-underline" %}
+{% set base_classes = "inline-block px-2 py-1 mb-4 rounded a-hover-underline mr-1" %}
 
 
 {% macro inline_view(token_spans) %}
 {% for span in token_spans -%}
-{% for t in span %}
-  <div class="{{ base_classes }} {{ t.classes }}">
-    {% if t.text %}
-      {% set display_text = t.text|slp2dev %}
-      {% set pada_url = url_for('padmini.search', query=display_text) %}
-      <div class="text-2xl"><a href="{{ pada_url }}" data-text="{{ display_text }}">{{ display_text }}</a></div>
-    {% else %}
-      <div class="text-2xl">{{ space }}</div>
-    {% endif %}
-    
-    {% if t.lemma %}
-      {% set display_lemma = t.lemma|slp2dev %}
-      {% set lemma_url = url_for('padmini.search', query=display_lemma) %}
-      <div class="text-sm"><a href="{{ lemma_url }}" data-text="{{ display_lemma }}">{{ display_lemma }}</a></div>
-    {% else %}
-      <div class="text-sm">{{ space }}</div>
-    {% endif %}
-  
-    <div class="text-xs">{{ t.short_gloss or space }}</div>
-  </div><div class="{{ base_classes }}">
-    <div class="text-2xl">{{ t.separator or space }}</div>
-    <div class="text-sm">&nbsp;</div>
-    <div class="text-xs">&nbsp;</div>
+  <div class="{{ base_classes }} {{ span.last.classes }}">
+    <div class="text-2xl">
+      {%- for t in span.tokens if t.text -%}
+        {%- set display_text = t.text|slp2dev -%}
+        {%- set pada_url = url_for('padmini.search', query=display_text) -%}
+        <a href="{{ pada_url }}" data-text="{{ display_text }}">{{- display_text or space -}}
+        </a><span class="opacity-30">{{- t.separator -}}</span>
+      {%- endfor -%}
+    </div>
+
+    <div class="text-sm">
+      {%- for t in span.tokens if t.text -%}
+        {%- set display_lemma = t.lemma|slp2dev -%}
+        {%- set pada_url = url_for('padmini.search', query=display_lemma) -%}
+        <a href="{{ pada_url }}" data-text="{{ display_lemma }}">{{ display_lemma or space }}</a>{{- t.separator -}}
+      {%- endfor -%}
+    </div>
+
+    <div class="text-xs">{{ span.last.short_gloss or space }}</div>
   </div>
-{% endfor %}
 {%- endfor %}
 {% endmacro %}
 
@@ -41,7 +36,7 @@
     <th class="p-1 py-3">Analysis</th>
   </tr>
   {% for span in token_spans %}
-    {% for token in span if token.is_sanskrit %}
+    {% for token in span.tokens if token.is_sanskrit %}
       {% set display_text = token.text|slp2dev %}
       {% set display_lemma = token.lemma|slp2dev %}
       <tr class="odd:bg-slate-50">
