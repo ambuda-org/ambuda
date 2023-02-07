@@ -1,4 +1,27 @@
-{% for token in tokens %}
-{{ token.text }}
-{{ token }}
-{% endfor %}
+{% set space = "&nbsp;"|safe %}
+{% set base_classes = "inline-block p-1 mb-4 rounded a-hover-underline" %}
+{% for t in tokens -%}
+<div class="{{ base_classes }} {{ t.classes }}">
+  {% if t.text %}
+    {% set display_text = t.text|slp2dev %}
+    {% set pada_url = url_for('padmini.search', query=display_text) %}
+    <div class="text-2xl"><a href="{{ pada_url }}">{{ display_text }}</a></div>
+  {% else %}
+    <div class="text-2xl">{{ space }}</div>
+  {% endif %}
+  
+  {% if t.lemma %}
+    {% set display_lemma = t.lemma|slp2dev %}
+    {% set lemma_url = url_for('padmini.search', query=display_lemma) %}
+    <div class="text-sm"><a href="{{ lemma_url }}">{{ display_lemma }}</a></div>
+  {% else %}
+    <div class="text-sm">{{ space }}</div>
+  {% endif %}
+
+  <div class="text-xs">{{ t.gloss or space }}</div>
+</div><div class="{{ base_classes }}">
+  <div class="text-2xl">{{ t.separator or space }}</div>
+  <div class="text-sm">&nbsp;</div>
+  <div class="text-xs">&nbsp;</div>
+</div>
+{%- endfor %}
