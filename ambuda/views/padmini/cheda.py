@@ -132,7 +132,7 @@ class DisplayToken:
         elif pos == PartOfSpeech.Avyaya:
             return "bg-slate-100"
         else:
-            return "outline outline-offset-1"
+            return "outline outline-slate-300 outline-1"
 
     @property
     def is_sanskrit(self) -> bool:
