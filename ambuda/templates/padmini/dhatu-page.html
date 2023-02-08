@@ -1,0 +1,60 @@
+{% extends "header-main-footer.html" %}
+
+
+{% block meta_description %}
+Information about the dhatu {{ query }}.
+{% endblock %}
+
+
+{% set display_dhatu = dhatu_results.dhatu.upadesha|slp2dev %}
+{% set purushas = ['pra', 'ma', 'u'] %}
+{% set lakara_names = {
+    'Lakara.Lat': 'law',
+    'Lakara.Lit': 'liw',
+    'Lakara.Lut': 'luw',
+    'Lakara.Lrt': 'lfw',
+    'Lakara.Lot': 'low',
+    'Lakara.Lan': 'laN',
+    'Lakara.VidhiLin': 'viDiliN',
+    'Lakara.AshirLin': 'AzIrliN',
+    'Lakara.Lun': 'luN',
+    'Lakara.Lrn': 'lfN',
+} %}
+
+{% macro lakara_table(la) %}
+{% set lakara_name = lakara_names[la.name] %}
+<h3 class="font-bold my-4">{{ lakara_name|slp2dev }}</h3>
+<table class="w-full table-fixed border">
+  {#
+  <tr class="text-left">
+      <th>&nbsp;</th>
+      <th>{{ 'eka'|d }}</th>
+      <th>{{ 'dvi'|d }}</th>
+      <th>{{ 'bahu'|d }}</th>
+  </tr>
+  #}
+  {% for row in la.tinantas %}
+  <tr>
+    {% set th = purushas[loop.index0] %}
+    {# <th class="text-left">{{ th|d }}</th> #}
+    {% for padas in row %}
+      {% set text = ", ".join(padas) %}
+      <td class="p-1">{{ text|slp2dev }}</td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</tr>
+</table>
+{% endmacro %}
+
+{% block main %}
+<article class="mx-4 md:mx-auto max-w-4xl mt-8">
+  <h1 class="text-center font-bold text-4xl border-b pb-2 mb-4">{{ display_dhatu }}</h1>
+
+  <h2 class="font-bold text-2xl my-4">{{ "tiGantAni"|d }}</h2>
+  {% for table in dhatu_results.lakaras %}
+    {{ lakara_table(table) }}
+  {% endfor %}
+
+</article>
+{% endblock %}

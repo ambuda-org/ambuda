@@ -52,6 +52,7 @@ from ambuda import queries as q
 from ambuda.views.api import bp as api
 from ambuda.views.padmini import cheda
 from ambuda.views.padmini import dictionaries
+from ambuda.views.padmini import prakriya
 from ambuda.views.padmini import utils
 
 bp = Blueprint("padmini", __name__)
@@ -63,9 +64,35 @@ def index():
     return render_template("padmini/index.html")
 
 
+@bp.route("/dhatu/")
+def dhatu_dummy():
+    """Dummy route. If the query is missing, redirect to the index page."""
+    return redirect(url_for("padmini.index"))
+
+
+@bp.route("/dhatu/<query>")
+def dhatu_page(query):
+    input_encoding = detect.detect(query)
+    slp1_dhatu = utils.standardize_query(query, input_encoding=input_encoding)
+    dhatu_results = prakriya.dhatu_results(slp1_dhatu)
+
+    js_defaults = {
+        "input_encoding": input_encoding,
+        "query": query,
+    }
+
+    return render_template(
+        "padmini/dhatu-page.html",
+        query=query,
+        input_encoding=input_encoding,
+        dhatu_results=dhatu_results,
+        js_defaults=json.dumps(js_defaults),
+    )
+
+
 @bp.route("/search/")
-def search_with_no_query():
-    """If the query is missing, just redirect to the index page."""
+def search_dummy():
+    """Dummy route. If the query is missing, redirect to the index page."""
     return redirect(url_for("padmini.index"))
 
 
