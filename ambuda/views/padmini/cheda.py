@@ -6,6 +6,8 @@ from ambuda.views.padmini.resources import get_chedaka
 
 @dataclass
 class Gloss:
+    """Stores the various ways to translate some grammatical term."""
+
     short: str
     long: str
 
@@ -101,6 +103,10 @@ SA_VACANAS = [
 
 
 def lookup(items, needle) -> Gloss:
+    """Get the item in `items` with the given key.
+
+    TODO: make enums hashable and use dicts instead of lists.
+    """
     for k, v in items:
         if needle == k:
             return v
@@ -117,6 +123,10 @@ class DisplayToken:
 
     @property
     def separator(self) -> str:
+        """The separator that should follow this token.
+
+        This is `-` for compounds and a space otherwise.
+        """
         if self.info.is_purvapada:
             return "-"
         else:
@@ -124,6 +134,10 @@ class DisplayToken:
 
     @property
     def classes(self) -> str:
+        """The CSS classes that should be used for this token.
+
+        We currently choose CSS classes based on the token's part of speech.
+        """
         pos = self.info.pos
         if pos == PartOfSpeech.Subanta:
             return "bg-yellow-200"
@@ -136,11 +150,12 @@ class DisplayToken:
 
     @property
     def is_sanskrit(self) -> bool:
+        """Return whether or not this token is part of a Sanskrit word."""
         return self.info.pos is not None
 
     @property
     def short_gloss(self):
-        """Return a human-readable gloss of this token."""
+        """Return a short human-readable gloss of this token."""
         buf = []
 
         pos = self.info.pos
@@ -163,7 +178,7 @@ class DisplayToken:
 
     @property
     def long_gloss(self):
-        """Return a human-readable description of this token."""
+        """Return a longer human-readable description of this token."""
         buf = []
         pos = self.info.pos
         print(pos)
@@ -192,31 +207,46 @@ class DisplayToken:
 
 @dataclass
 class TokenSpan:
+    """A sequence of tokens that form a logical unit.
+
+    Examples: compounded words, consecutive punctuation tokens
+    """
+
     tokens: list[DisplayToken]
 
     @property
     def last(self) -> DisplayToken:
+        """The last token in this span."""
         return self.tokens[-1]
 
 
-def _convert_to_display_tokens(tokens: list[Token]) -> list[TokenSpan]:
+def _create_display_token(t: Token) -> DisplayToken:
+    """Convert a `vidyut.cheda.Token` into a structure ready for display."""
+
     # Most users expect and prefer the visarga as opposed to a word-final "s"
     # or "r".
+    text = t.text
+    if text.endswith("s") or text.endswith("r"):
+        text = text[:-1] + "H"
+
+    return DisplayToken(
+        text=text,
+        lemma=t.lemma or "",
+        info=t.info,
+    )
+
+
+def _convert_to_display_tokens(tokens: list[Token]) -> list[TokenSpan]:
+    """Convert `vidyut.cheda` tokens into display spans."""
     ret = []
     span = []
     for t in tokens:
-        text = t.text
-        if text.endswith("s") or text.endswith("r"):
-            text = text[:-1] + "H"
-
-        display_token = DisplayToken(
-            text=text,
-            lemma=t.lemma or "",
-            info=t.info,
-        )
-
+        display_token = _create_display_token(t)
         span.append(display_token)
-        if not display_token.info.is_purvapada:
+
+        is_end_of_compound = not display_token.info.is_purvapada
+        is_end_of_span = is_end_of_compound
+        if is_end_of_span:
             ret.append(TokenSpan(tokens=span))
             span = []
     return ret

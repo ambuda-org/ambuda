@@ -66,11 +66,14 @@ export default () => ({
   // Event handlers
  
   onClick(e) { 
-    console.log("onclick", this.query, e);
-    const query = e.target.dataset['text'];
-    if (query) {
-      const url = Routes.padminiQuery(query, this.dictionaries);
-      window.location.href = url;
+    const rawHref = e.target.href;
+    if (rawHref && rawHref.includes("/padmini/search/")) {
+      const query = rawHref.split("/").pop();
+      if (query) {
+        e.preventDefault();
+        const newHref = Routes.padminiQuery(query, this.dictionaries);
+        window.location.href = newHref;
+      }
     }
   },
 

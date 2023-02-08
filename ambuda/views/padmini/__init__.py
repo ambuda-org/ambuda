@@ -72,6 +72,7 @@ def dhatu_dummy():
 
 @bp.route("/dhatu/<query>")
 def dhatu_page(query):
+    """Information on some dhatu."""
     input_encoding = detect.detect(query)
     slp1_dhatu = utils.standardize_query(query, input_encoding=input_encoding)
     dhatu_results = prakriya.dhatu_results(slp1_dhatu)

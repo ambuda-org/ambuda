@@ -1,24 +1,25 @@
 {% set space = "&nbsp;"|safe %}
-{% set base_classes = "inline-block px-2 py-1 mb-4 rounded a-hover-underline mr-1" %}
+{% set base_classes = "inline-block p-2 mb-4 rounded a-hover-underline mr-1" %}
 
 
+{# View cheda results as a sentence, with tokens rendered inline. #}
 {% macro inline_view(token_spans) %}
 {% for span in token_spans -%}
   <div class="{{ base_classes }} {{ span.last.classes }}">
     <div class="text-2xl">
-      {%- for t in span.tokens if t.text -%}
+      {%- for t in span.tokens -%}
         {%- set display_text = t.text|slp2dev -%}
         {%- set pada_url = url_for('padmini.search', query=display_text) -%}
-        <a href="{{ pada_url }}" data-text="{{ display_text }}">{{- display_text or space -}}
+        <a href="{{ pada_url }}">{{- display_text or space -}}
         </a><span class="opacity-30">{{- t.separator -}}</span>
       {%- endfor -%}
     </div>
 
     <div class="text-sm">
-      {%- for t in span.tokens if t.text -%}
+      {%- for t in span.tokens -%}
         {%- set display_lemma = t.lemma|slp2dev -%}
         {%- set pada_url = url_for('padmini.search', query=display_lemma) -%}
-        <a href="{{ pada_url }}" data-text="{{ display_lemma }}">{{ display_lemma or space }}</a>{{- t.separator -}}
+        <a href="{{ pada_url }}">{{ display_lemma or space }}</a>{{- t.separator -}}
       {%- endfor -%}
     </div>
 
@@ -28,21 +29,28 @@
 {% endmacro %}
 
 
+{# View cheda results as a table, with one token per row. #}
 {% macro table_view(token_spans) %}
-<table class="w-full border border-slate-200">
+<table class="w-full border border-slate-200 a-hover-underline">
   <tr class="text-left bg-slate-100 text-slate-500 uppercase text-xs border-b-2 border-slate-200">
     <th class="p-1 py-3">Text</th>
     <th class="p-1 py-3">Base</th>
-    <th class="p-1 py-3">Analysis</th>
+    <th class="p-1 py-3">Gloss</th>
   </tr>
   {% for span in token_spans %}
     {% for token in span.tokens if token.is_sanskrit %}
-      {% set display_text = token.text|slp2dev %}
+      {% set display_pada = token.text|slp2dev %}
       {% set display_lemma = token.lemma|slp2dev %}
+      {%- set pada_url = url_for('padmini.search', query=display_pada) -%}
+      {%- set lemma_url = url_for('padmini.search', query=display_lemma) -%}
       <tr class="odd:bg-slate-50">
-          <td class="p-1 text-xl">{{ display_text or space }}{{ token.separator }}</td>
-          <td class="p-1">{{ display_lemma }}</td>
-          <td class="text-sm">{{ token.long_gloss }}</td>
+          <td class="p-1 text-xl">
+            <a href="{{ pada_url }}">{{ display_pada }}{{ token.separator }}</a>
+          </td>
+          <td class="p-1">
+            <a href="{{ lemma_url }}">{{ display_lemma }}</a>
+          </td>
+          <td class="p-1 text-sm">{{ token.long_gloss }}</td>
       </tr>
     {% endfor %}
   {% endfor %}
