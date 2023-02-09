@@ -13,14 +13,50 @@ different languages.
 {%- endblock %}
 
 
+{% set vidyut = "https://github.com/ambuda-org/vidyut" %}
+{% set data_url = url_for('about.code_and_data') %}
+{% set texts_url = url_for("texts.index") %}
+{% set contact_url = url_for("site.contact") %}
+{% set contributing = "https://github.com/ambuda-org/ambuda/blob/main/CONTRIBUTING.md" %}
 {% block main %}
 <article class="mx-4 md:mx-auto max-w-2xl mt-12 md:mt-24 mb-24 md:mb-36">
 <div class="prose">
 <h1>About Padmini</h1>
 
 <p><span class="font-bold">Padmini</span> is a smart Sanskrit dictionary that
-understands words and sentences. Padmini is fast, simple, and powerful, and all
-of the texts in our library are integrated with it.</p>
+understands Sanskrit words and sentences. Padmini is available both as a
+standalone tool and as part of Ambuda's <a href="{{ texts_url }}">digital
+library of Sanskrit literature</a>.</p>
+
+<p>Most of Padmini's dictionary data comes from other projects, and you can
+find a full list of those projects <a href="{{ data_url }}">here</a>. We are
+deeply grateful to these projects and their work for making Padmini
+possible.</p>
+
+<p>Otherwise, Padmini relies heavily on our <a href="{{ vidyut }}">Vidyut</a>
+toolkit, which provides reliable infrastructure for Sanskrit software. Although
+we created Vidyut for Ambuda's specific needs, we hope that Vidyut can help
+provide the digital foundation for Sanskrit software of all kinds.</p>
+
+<p>Long-term, we hope that Padmini can thoughtfully explain any Sanskrit
+expression. Here are some directions we are excited about:</p>
+
+<ul>
+  <li>English-Sanskrit lookup (and likewise for other languages)</li>
+  <li>Parses of sentences and compounds</li>
+  <li>Creating <i>anvaya</i>s (prose reorderings) of Sanskrit verses</li>
+  <li>Corpus search across our library</li>
+  <li>Contextual grammar explanations</li>
+  <li>Text-to-speech support</li>
+  <li>Fuzzy search</li>
+  <li>Metrical recognition</li>
+</ul>
+
+<p>If you would like to contribute on our work on Padmini, Ambuda, or Vidyut,
+please <a href="{{ contact_url }}">contact us</a>. If you are interested in
+contributing technically, please see the <a href="{{ contributing }}">
+<kbd>CONTRIBUTING.md</kbd></a> file in our Ambuda repo.</p>
+
 </div>
 </article>
 {% endblock %}
