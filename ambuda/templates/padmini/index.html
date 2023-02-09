@@ -1,4 +1,5 @@
-{% extends 'header-main-footer.html' %}
+{% extends "padmini/base.html" %}
+
 {% import "macros/components.html" as mc %}
 {% import "padmini/macros.html" as m %}
 {% from "padmini/x-settings-modal.html" import settings_modal %}
@@ -45,8 +46,8 @@ different languages.
 <section class="text-sm rounded bg-slate-100 text-slate-800 p-8 w-full a-hover-underline">
 <div class="prose">
   <p class="!mt-0">
-  <span class="font-bold">Padmini</span> is a smart Sanskrit dictionary. To see
-  what Padmini can do, click on one of the examples below:
+  Padmini is a smart Sanskrit dictionary. To see what Padmini can do, click one
+  of the examples below:
   </p>
 
   <ul>
@@ -62,14 +63,13 @@ different languages.
 {% endmacro %}
 
 
-{% block main %}
-<article class="mx-4 md:mx-auto max-w-2xl mt-12 md:mt-24 mb-24 md:mb-36">
-<header>
+{% block article %}
+<header class="mt-12 md:mt-24">
   <h1 class="text-4xl text-center md:text-7xl font-bold text-slate-700 mb-8">
     {{ "padminI"|d }}
   </h1>
 </header>
-<div x-data="padmini">
+<div x-data="padmini" @click="onClick">
   {{ query_form() }}
   {{ settings_modal() }}
 
@@ -77,5 +77,4 @@ different languages.
     {{ help_text() }}
   </div>
 </div>
-</article>
 {% endblock %}

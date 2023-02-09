@@ -13,8 +13,9 @@ different languages.
 {%- endblock %}
 
 
+{% set padmini = url_for("padmini.index") %}
 {% set vidyut = "https://github.com/ambuda-org/vidyut" %}
-{% set data_url = url_for('about.code_and_data') %}
+{% set data_url = url_for("about.code_and_data") %}
 {% set texts_url = url_for("texts.index") %}
 {% set contact_url = url_for("site.contact") %}
 {% set contributing = "https://github.com/ambuda-org/ambuda/blob/main/CONTRIBUTING.md" %}
@@ -23,10 +24,10 @@ different languages.
 <div class="prose">
 <h1>About Padmini</h1>
 
-<p><span class="font-bold">Padmini</span> is a smart Sanskrit dictionary that
-understands Sanskrit words and sentences. Padmini is available both as a
-standalone tool and as part of Ambuda's <a href="{{ texts_url }}">digital
-library of Sanskrit literature</a>.</p>
+<p><a href="{{ padmini }}" class="font-bold">Padmini</a> is a smart Sanskrit
+dictionary that understands Sanskrit words and sentences. Padmini is available
+both as a standalone tool and as part of Ambuda's <a href="{{ texts_url }}">
+digital library of Sanskrit literature</a>.</p>
 
 <p>Most of Padmini's dictionary data comes from other projects, and you can
 find a full list of those projects <a href="{{ data_url }}">here</a>. We are
@@ -42,7 +43,7 @@ provide the digital foundation for Sanskrit software of all kinds.</p>
 expression. Here are some directions we are excited about:</p>
 
 <ul>
-  <li>English-Sanskrit lookup (and likewise for other languages)</li>
+  <li>English-Sanskrit lookup (and likewise for languages other than English)</li>
   <li>Parses of sentences and compounds</li>
   <li>Creating <i>anvaya</i>s (prose reorderings) of Sanskrit verses</li>
   <li>Corpus search across our library</li>

@@ -1,4 +1,5 @@
-{% extends "header-main-footer.html" %}
+{% extends "padmini/base.html" %}
+
 {% import "macros/components.html" as mc %}
 {% import "padmini/macros.html" as m %}
 {% from "padmini/x-settings-modal.html" import settings_modal %}
@@ -50,10 +51,8 @@ different languages.
 </div>
 {% endmacro %}
 
-{% block main %}
-<article class="mx-4 md:mx-auto max-w-4xl mt-8">
-
-<div x-data="padmini" class="mx-4 my-8">
+{% block article %}
+<div x-data="padmini" class="mt-12 md:md-24">
   {{ results_bar(query) }}
   {{ settings_modal() }}
 
@@ -74,8 +73,6 @@ different languages.
   {% endif %}
   </div>
 </div>
-
-</article>
 
 <script type="text/javascript">
 window.PADMINI_DEFAULTS = {{ js_defaults|safe }};
