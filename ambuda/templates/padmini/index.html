@@ -42,9 +42,11 @@ different languages.
 
 
 {% macro help_text() %}
-<div class="prose text-sm">
-  <p><span class="font-bold">Padmini</span> is a smart Sanskrit dictionary. To
-  see what Padmini can do, try some of the examples below:
+<section class="text-sm rounded bg-slate-100 text-slate-800 p-8 w-full a-hover-underline">
+<div class="prose">
+  <p class="!mt-0">
+  <span class="font-bold">Padmini</span> is a smart Sanskrit dictionary. To see
+  what Padmini can do, click on one of the examples below:
   </p>
 
   <ul>
@@ -53,6 +55,9 @@ different languages.
     <li>{{ ex("luptapiNDodakakriyAH") }}</li>
     <li>{{ ex("tapaHsvAdhyAyanirataM tapasvI vAgvidAM varam | nAradaM paripapraccha vAlmIkirmunipuGgavam ||") }}</li>
   </ul>
+
+  <p class="!mb-0">To learn more, <a href="{{ url_for("padmini.about") }}">see our About page</a>.</p>
+</div>
 </div>
 {% endmacro %}
 

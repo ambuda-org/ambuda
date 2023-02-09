@@ -1,0 +1,26 @@
+{% extends 'header-main-footer.html' %}
+{% import "macros/components.html" as mc %}
+{% import "padmini/macros.html" as m %}
+{% from "padmini/x-settings-modal.html" import settings_modal %}
+
+
+{% block title %}{{ mc.title(_('About Padmini')) }}{% endblock %}
+
+
+{% block meta_description -%}
+Our fast and simple dictionary tool supports six popular dictionaries in three
+different languages.
+{%- endblock %}
+
+
+{% block main %}
+<article class="mx-4 md:mx-auto max-w-2xl mt-12 md:mt-24 mb-24 md:mb-36">
+<div class="prose">
+<h1>About Padmini</h1>
+
+<p><span class="font-bold">Padmini</span> is a smart Sanskrit dictionary that
+understands words and sentences. Padmini is fast, simple, and powerful, and all
+of the texts in our library are integrated with it.</p>
+</div>
+</article>
+{% endblock %}

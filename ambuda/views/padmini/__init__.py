@@ -64,6 +64,12 @@ def index():
     return render_template("padmini/index.html")
 
 
+@bp.route("/about")
+def about():
+    """Information about Padmini."""
+    return render_template("padmini/about.html")
+
+
 @bp.route("/dhatu/")
 def dhatu_dummy():
     """Dummy route. If the query is missing, redirect to the index page."""
