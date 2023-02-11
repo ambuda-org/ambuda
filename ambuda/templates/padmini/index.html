@@ -24,7 +24,7 @@ different languages.
   <div class="text-sm text-slate-600 mt-6 text-center">
     <label>Output:</label>
     <select
-        class="f-select mr-4 py-2"
+        class="f-select mr-4 p-2"
         x-model="outputScript"
         @change="updateScript">
       {% include "include/script-options.html" %}
@@ -43,8 +43,7 @@ different languages.
 
 
 {% macro help_text() %}
-<section class="text-sm rounded bg-slate-100 dark:bg-slate-800 p-8 w-full a-hover-underline">
-<div class="prose">
+<section class="prose rounded bg-slate-100 dark:bg-slate-800 p-8 mx-auto a-hover-underline">
   <p class="!mt-0">
   Padmini is a smart Sanskrit dictionary. To see what Padmini can do, click one
   of the examples below:
@@ -59,7 +58,7 @@ different languages.
 
   <p class="!mb-0">To learn more, <a href="{{ url_for("padmini.about") }}">see our About page</a>.</p>
 </div>
-</div>
+</section>
 {% endmacro %}
 
 

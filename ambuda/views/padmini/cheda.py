@@ -43,6 +43,7 @@ PURUSHAS = {
     Purusha.Prathama: Gloss(short="3rd.", long="third-person", sa_short="pra*"),
     Purusha.Madhyama: Gloss(short="2nd.", long="second-person", sa_short="ma*"),
     Purusha.Uttama: Gloss(short="1st.", long="first-person", sa_short="u*"),
+    None: EMPTY,
 }
 
 LAKARAS = {
@@ -56,6 +57,7 @@ LAKARAS = {
     Lakara.AshirLin: Gloss(short="ben.", long="benedictive", sa_short="AzIrliN"),
     Lakara.Lun: Gloss(short="aor.", long="aorist", sa_short="luN"),
     Lakara.Lrn: Gloss(short="cond.", long="conditional", sa_short="lfN"),
+    None: EMPTY,
 }
 
 VACANAS = {
