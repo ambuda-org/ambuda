@@ -12,107 +12,58 @@ class Gloss:
 
     short: str
     long: str
+    sa_short: str = ""
 
 
 AVYAYA = Gloss(short="ind.", long="indeclinable")
 SAMASTA = Gloss(short="comp.", long="compounded")
+EMPTY = Gloss(short="", long="")
 
 
-# Vidyut enums are currently unhashable, so model as list
-LINGAS = [
-    (Linga.Pum, Gloss(short="masc.", long="masculine")),
-    (Linga.Stri, Gloss(short="fem.", long="feminine")),
-    (Linga.Napumsaka, Gloss(short="neut.", long="neuter")),
-]
+LINGAS = {
+    Linga.Pum: Gloss(short="masc.", long="masculine", sa_short="pum*"),
+    Linga.Stri: Gloss(short="fem.", long="feminine", sa_short="strI*"),
+    Linga.Napumsaka: Gloss(short="neut.", long="neuter", sa_short="na*"),
+    None: EMPTY,
+}
 
-SA_LINGAS = [
-    (Linga.Pum, "pum*"),
-    (Linga.Stri, "strI*"),
-    (Linga.Napumsaka, "na*"),
-]
+VIBHAKTIS = {
+    Vibhakti.V1: Gloss(short="nom.", long="nominative", sa_short="pra*"),
+    Vibhakti.V2: Gloss(short="acc.", long="accusative", sa_short="dvi*"),
+    Vibhakti.V3: Gloss(short="ins.", long="instrumental", sa_short="tf*"),
+    Vibhakti.V4: Gloss(short="dat.", long="dative", sa_short="ca*"),
+    Vibhakti.V5: Gloss(short="abl.", long="ablative", sa_short="pa*"),
+    Vibhakti.V6: Gloss(short="gen.", long="genitive", sa_short="Sa*"),
+    Vibhakti.V7: Gloss(short="loc.", long="locative", sa_short="sa*"),
+    Vibhakti.Sambodhana: Gloss(short="voc.", long="vocative", sa_short="saM*"),
+    None: EMPTY,
+}
 
-VIBHAKTIS = [
-    (Vibhakti.V1, Gloss(short="nom.", long="nominative")),
-    (Vibhakti.V2, Gloss(short="acc.", long="accusative")),
-    (Vibhakti.V3, Gloss(short="ins.", long="instrumental")),
-    (Vibhakti.V4, Gloss(short="dat.", long="dative")),
-    (Vibhakti.V5, Gloss(short="abl.", long="ablative")),
-    (Vibhakti.V6, Gloss(short="gen.", long="genitive")),
-    (Vibhakti.V7, Gloss(short="loc.", long="locative")),
-    (Vibhakti.Sambodhana, Gloss(short="voc.", long="vocative")),
-]
+PURUSHAS = {
+    Purusha.Prathama: Gloss(short="3rd.", long="third-person", sa_short="pra*"),
+    Purusha.Madhyama: Gloss(short="2nd.", long="second-person", sa_short="ma*"),
+    Purusha.Uttama: Gloss(short="1st.", long="first-person", sa_short="u*"),
+}
 
-SA_VIBHAKTIS = [
-    (Vibhakti.V1, "pra*"),
-    (Vibhakti.V2, "dvi*"),
-    (Vibhakti.V3, "tf*"),
-    (Vibhakti.V4, "ca*"),
-    (Vibhakti.V5, "pa*"),
-    (Vibhakti.V6, "Sa*"),
-    (Vibhakti.V7, "sa*"),
-    (Vibhakti.Sambodhana, "saM*"),
-]
+LAKARAS = {
+    Lakara.Lat: Gloss(short="pres.", long="present indicative", sa_short="law"),
+    Lakara.Lit: Gloss(short="perf.", long="perfect", sa_short="liw"),
+    Lakara.Lut: Gloss(short="p. fut.", long="periphrastic future", sa_short="luw"),
+    Lakara.Lrt: Gloss(short="fut.", long="simple future", sa_short="lfw"),
+    Lakara.Lot: Gloss(short="impv.", long="imperative", sa_short="low"),
+    Lakara.Lan: Gloss(short="impf.", long="imperfect", sa_short="laN"),
+    Lakara.VidhiLin: Gloss(short="opt.", long="optative", sa_short="viDiliN"),
+    Lakara.AshirLin: Gloss(short="ben.", long="benedictive", sa_short="AzIrliN"),
+    Lakara.Lun: Gloss(short="aor.", long="aorist", sa_short="luN"),
+    Lakara.Lrn: Gloss(short="cond.", long="conditional", sa_short="lfN"),
+}
 
-PURUSHAS = [
-    (Purusha.Prathama, Gloss(short="3rd.", long="third-person")),
-    (Purusha.Madhyama, Gloss(short="2nd.", long="second-person")),
-    (Purusha.Uttama, Gloss(short="1st.", long="first-person")),
-]
-
-SA_PURUSHAS = [
-    (Purusha.Prathama, "pra*"),
-    (Purusha.Madhyama, "ma*"),
-    (Purusha.Uttama, "u*"),
-]
-
-LAKARAS = [
-    (Lakara.Lat, Gloss(short="pres.", long="present indicative")),
-    (Lakara.Lit, Gloss(short="perf.", long="perfect")),
-    (Lakara.Lut, Gloss(short="p. fut.", long="periphrastic future")),
-    (Lakara.Lrt, Gloss(short="fut.", long="simple future")),
-    (Lakara.Lot, Gloss(short="impv.", long="imperative")),
-    (Lakara.Lan, Gloss(short="impf.", long="imperfect")),
-    (Lakara.VidhiLin, Gloss(short="opt.", long="optative")),
-    (Lakara.AshirLin, Gloss(short="ben.", long="benedictive")),
-    (Lakara.Lun, Gloss(short="aor.", long="aorist")),
-    (Lakara.Lrn, Gloss(short="cond.", long="conditional")),
-]
-
-SA_LAKARAS = [
-    (Lakara.Lat, "lfw"),
-    (Lakara.Lit, "lfw"),
-    (Lakara.Lut, "lfw"),
-    (Lakara.Lrt, "lfw"),
-    (Lakara.Lot, "low"),
-    (Lakara.Lan, "laN"),
-    (Lakara.VidhiLin, "viDiliN"),
-    (Lakara.AshirLin, "AzIrliN"),
-    (Lakara.Lun, "luN"),
-    (Lakara.Lrn, "lfN"),
-]
-
-VACANAS = [
-    (Vacana.Eka, Gloss(short="sg.", long="singular")),
-    (Vacana.Dvi, Gloss(short="du.", long="dual")),
-    (Vacana.Bahu, Gloss(short="pl.", long="plural")),
-]
-
-SA_VACANAS = [
-    (Vacana.Eka, "eka*"),
-    (Vacana.Dvi, "dvi*"),
-    (Vacana.Bahu, "bahu*"),
-]
-
-
-def lookup(items, needle) -> Gloss:
-    """Get the item in `items` with the given key.
-
-    TODO: make enums hashable and use dicts instead of lists.
-    """
-    for k, v in items:
-        if needle == k:
-            return v
-    return Gloss(short="", long="")
+VACANAS = {
+    Vacana.Eka: Gloss(short="sg.", long="singular", sa_short="eka*"),
+    Vacana.Dvi: Gloss(short="du.", long="dual", sa_short="dvi*"),
+    Vacana.Bahu: Gloss(short="pl.", long="plural", sa_short="bahu*"),
+    None: EMPTY,
+}
 
 
 @dataclass
@@ -142,13 +93,13 @@ class DisplayToken:
         """
         pos = self.info.pos
         if pos == PartOfSpeech.Subanta:
-            return "bg-yellow-200"
+            return "bg-yellow-200 dark:bg-transparent dark:text-yellow-500 dark:border dark:border-yellow-500"
         elif pos == PartOfSpeech.Tinanta:
             return "bg-sky-200"
         elif pos == PartOfSpeech.Avyaya:
             return "bg-slate-100"
         else:
-            return "outline outline-slate-300 outline-1"
+            return "bg-white outline outline-slate-300 outline-1"
 
     @property
     def is_sanskrit(self) -> bool:
@@ -159,19 +110,26 @@ class DisplayToken:
     def short_gloss(self):
         """Return a short human-readable gloss of this token."""
         buf = []
-
         pos = self.info.pos
         if pos == PartOfSpeech.Subanta:
-            buf.append(lookup(LINGAS, self.info.linga).short)
-            buf.append(lookup(VIBHAKTIS, self.info.vibhakti).short)
-            buf.append(lookup(VACANAS, self.info.vacana).short)
+            buf.extend(
+                [
+                    LINGAS[self.info.linga].short,
+                    VIBHAKTIS[self.info.vibhakti].short,
+                    VACANAS[self.info.vacana].short,
+                ]
+            )
             if self.info.is_purvapada:
                 buf.append(SAMASTA.short)
 
         elif pos == PartOfSpeech.Tinanta:
-            buf.append(lookup(PURUSHAS, self.info.purusha).short)
-            buf.append(lookup(VACANAS, self.info.vacana).short)
-            buf.append(lookup(LAKARAS, self.info.lakara).short)
+            buf.extend(
+                [
+                    PURUSHAS[self.info.purusha].short,
+                    VACANAS[self.info.vacana].short,
+                    LAKARAS[self.info.lakara].short,
+                ]
+            )
 
         elif pos == PartOfSpeech.Avyaya:
             buf.append(AVYAYA.short)
@@ -183,20 +141,27 @@ class DisplayToken:
         """Return a longer human-readable description of this token."""
         buf = []
         pos = self.info.pos
-        print(pos)
         if pos == PartOfSpeech.Subanta:
             buf.append("nominal,")
-            buf.append(lookup(LINGAS, self.info.linga).long)
-            buf.append(lookup(VIBHAKTIS, self.info.vibhakti).long)
-            buf.append(lookup(VACANAS, self.info.vacana).long)
+            buf.extend(
+                [
+                    LINGAS[self.info.linga].long,
+                    VIBHAKTIS[self.info.vibhakti].long,
+                    VACANAS[self.info.vacana].long,
+                ]
+            )
             if self.info.is_purvapada:
                 buf.append(SAMASTA.long)
 
         elif pos == PartOfSpeech.Tinanta:
             buf.append("verb,")
-            buf.append(lookup(PURUSHAS, self.info.purusha).long)
-            buf.append(lookup(VACANAS, self.info.vacana).long)
-            buf.append(lookup(LAKARAS, self.info.lakara).long)
+            buf.extend(
+                [
+                    PURUSHAS[self.info.purusha].long,
+                    VACANAS[self.info.vacana].long,
+                    LAKARAS[self.info.lakara].long,
+                ]
+            )
 
         elif pos == PartOfSpeech.Avyaya:
             buf.append(AVYAYA.long)

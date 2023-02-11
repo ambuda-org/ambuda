@@ -1,5 +1,5 @@
 {% set space = "&nbsp;"|safe %}
-{% set base_classes = "inline-block p-2 mb-4 rounded a-hover-underline mr-1" %}
+{% set base_classes = "inline-block p-2 mb-4 rounded a-hover-underline mr-1 text-slate-900" %}
 
 
 {# View cheda results as a sentence, with tokens rendered inline. #}
@@ -32,7 +32,7 @@
 {# View cheda results as a table, with one token per row. #}
 {% macro table_view(token_spans) %}
 <table class="w-full border border-slate-200 a-hover-underline">
-  <tr class="text-left bg-slate-100 text-slate-500 uppercase text-xs border-b-2 border-slate-200">
+  <tr class="text-left uppercase text-xs border-b-2 border-slate-200">
     <th class="p-1 py-3">Text</th>
     <th class="p-1 py-3">Base</th>
     <th class="p-1 py-3">Gloss</th>
@@ -43,7 +43,7 @@
       {% set display_lemma = token.lemma|slp2dev %}
       {%- set pada_url = url_for('padmini.search', query=display_pada) -%}
       {%- set lemma_url = url_for('padmini.search', query=display_lemma) -%}
-      <tr class="odd:bg-slate-50">
+      <tr class="odd:bg-slate-50 dark:odd:bg-slate-800">
           <td class="p-1 text-xl">
             <a href="{{ pada_url }}">{{ display_pada }}{{ token.separator }}</a>
           </td>

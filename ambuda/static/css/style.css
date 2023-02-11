@@ -116,12 +116,12 @@
     @apply text-sm text-slate-400;
   }
 
-  /* Vacaspatyam */
+  /* Dictionary entries */
   .dict-entry q {
     @apply text-slate-400;
   }
   .mw-entry [lang=sa] {
-    @apply text-green-600;
+    @apply text-green-600 dark:text-green-300;
   }
 
   /* Classes created by Flask-admin */
