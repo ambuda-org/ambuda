@@ -1,6 +1,8 @@
 from dataclasses import dataclass
+
 from vidyut.cheda import Token
-from vidyut.kosha import Pada, Linga, Vibhakti, Vacana, Lakara, Purusha, PartOfSpeech
+from vidyut.kosha import Lakara, Linga, Pada, PartOfSpeech, Purusha, Vacana, Vibhakti
+
 from ambuda.views.padmini.resources import get_chedaka
 
 

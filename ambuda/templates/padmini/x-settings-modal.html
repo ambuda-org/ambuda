@@ -65,10 +65,13 @@
   {# Background #}
   <div class="fixed bg-slate-900/20 inset-0 backdrop-blur-[2px]"
     @click="hideSettingsModal"></div>
+
   {# Dialog #}
-  <div class="fixed inset-0 m-24 p-8 z-10 overflow-y-auto bg-white rounded-lg shadow-md sm:max-w-3xl sm:mx-auto">
-    <button class="absolute top-6 right-6 w-8 h-8 
-        text-2xl text-slate-400 hover:text-red-700 hover:bg-red-100 rounded transition duration-75"
+  <div class="fixed inset-0 m-24 p-8 z-10 overflow-y-auto rounded-lg shadow-md sm:max-w-3xl sm:mx-auto
+              bg-white dark:bg-slate-800">
+    <button class="absolute top-6 right-6 w-8 h-8 text-2xl rounded transition duration-75 
+                    text-slate-400 hover:text-red-700 hover:bg-red-100
+                    dark:hover:text-white dark:hover:bg-red-600"
         @click="hideSettingsModal">
         &times;
     </button>

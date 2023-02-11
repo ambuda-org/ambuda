@@ -28,11 +28,11 @@ from ambuda.views.about import bp as about
 from ambuda.views.api import bp as api
 from ambuda.views.auth import bp as auth
 from ambuda.views.blog import bp as blog
+from ambuda.views.padmini import bp as padmini
 from ambuda.views.proofing import bp as proofing
 from ambuda.views.reader.parses import bp as parses
 from ambuda.views.reader.texts import bp as texts
 from ambuda.views.site import bp as site
-from ambuda.views.padmini import bp as padmini
 
 
 def _initialize_sentry(sentry_dsn: str):

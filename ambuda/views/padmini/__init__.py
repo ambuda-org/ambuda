@@ -44,16 +44,13 @@ In the future, we hope to provide:
 
 import json
 
-from flask import Blueprint, render_template, jsonify, request, redirect, url_for
+from flask import Blueprint, jsonify, redirect, render_template, request, url_for
 from indic_transliteration import detect, sanscript
 from vidyut.cheda import Chedaka, Token
 
 from ambuda import queries as q
 from ambuda.views.api import bp as api
-from ambuda.views.padmini import cheda
-from ambuda.views.padmini import dictionaries
-from ambuda.views.padmini import prakriya
-from ambuda.views.padmini import utils
+from ambuda.views.padmini import cheda, dictionaries, prakriya, utils
 
 bp = Blueprint("padmini", __name__)
 
@@ -94,6 +91,18 @@ def dhatu_page(query):
         input_encoding=input_encoding,
         dhatu_results=dhatu_results,
         js_defaults=json.dumps(js_defaults),
+    )
+
+
+@bp.route("/dhatu/<dhatu>/padas/<pada>-<spec>")
+def tinanta_page(dhatu, pada, spec):
+    items = spec.split(",")
+    try:
+        lakara, prayoga, purusha, vacana = items
+    except ValueError:
+        pass
+    return prakriya.get_tinanta_prakriya(
+        pada, None, lakara=lakara, prayoga=prayoga, purusha=purusha, vacana=vacana
     )
 
 

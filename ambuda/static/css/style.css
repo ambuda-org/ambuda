@@ -32,17 +32,21 @@
     @apply rounded p-2 cursor-pointer select-none;
   }
   .btn-basic {
-    @apply bg-slate-100 hover:bg-slate-300;
+    @apply bg-slate-100 hover:bg-slate-300 transition;
+    @apply dark:text-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600;
   }
   .btn-submit {
     @apply bg-brand text-white hover:bg-sky-500 transition;
+    @apply dark:bg-sky-500 dark:hover:bg-sky-800;
     @apply active:translate-y-0.5;
   }
+
   ::file-selector-button {
     @apply border-0 p-2 rounded bg-slate-600 text-white cursor-pointer mr-4 hover:bg-black;
   }
   .f-select {
-    @apply rounded text-sm bg-slate-100 text-slate-500 hover:text-slate-800 p-1
+    @apply rounded text-sm bg-slate-100 text-slate-500 hover:text-slate-800 p-1;
+    @apply dark:text-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 dark:hover:text-white;
   }
 
   /* Dropdowns (e.g. in proofing editor) */
@@ -88,7 +92,7 @@
   }
 
   .prose {
-    @apply tw-prose tw-prose-slate;
+    @apply tw-prose tw-prose-slate dark:!tw-prose-invert;
   }
   .prose dt {
     @apply uppercase text-xs font-bold text-slate-400 mb-1;

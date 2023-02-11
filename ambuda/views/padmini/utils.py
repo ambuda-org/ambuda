@@ -1,6 +1,7 @@
 """Handles Padmiin"""
 
 import re
+
 from indic_transliteration import detect, sanscript
 from vidyut.cheda import Token
 

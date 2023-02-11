@@ -19,16 +19,18 @@
 {%- endmacro -%}
 
 
-<footer class="bg-slate-100 text-slate-800 a-hover-underline
-    text-sm p-4 md:p-12 xl:p-24 border-t border-slate-200">
+<footer class="a-hover-underline
+    bg-slate-100 text-slate-600 border-slate-200
+    dark:bg-slate-900 dark:text-slate-500 dark:border-slate-800
+    text-sm p-4 md:p-12 xl:p-24 border-t">
   <div class="text-center md:mr-8 mb-4">
-    <p class="a-underline text-slate-700 mb-8">{% trans %}
+    <p class="a-underline mb-8">{% trans %}
     Ambuda is run entirely by volunteers for the public benefit. Learn more
     about how you can <a href="{{ support }}">help Ambuda grow</a>.
     {% endtrans %}</p>
   </div>
 
-  <div class="md:flex flex-wrap justify-between max-w-3xl text-slate-600 mx-auto">
+  <div class="md:flex flex-wrap justify-between max-w-3xl mx-auto">
   {{ _column(url_for('site.index'), _('Ambuda'), [
       (url_for('texts.index'), _('Texts')),
       (url_for('padmini.index'), _('Padmini')),

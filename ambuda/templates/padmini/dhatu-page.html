@@ -25,13 +25,17 @@ Information about the dhatu {{ query }}.
 {% macro lakara_table(la) %}
 {% set lakara_name = lakara_names[la.name] %}
 <h3 class="font-bold my-4">{{ lakara_name|slp2dev }}</h3>
-<table class="w-full text-xl table-fixed border my-4">
+<table class="w-full text-xl table-fixed border my-4 a-hover-underline">
   {% for row in la.tinantas %}
   <tr>
     {% set th = purushas[loop.index0] %}
     {% for padas in row %}
-      {% set text = ", ".join(padas) %}
-      <td class="p-1">{{ text|slp2dev }}</td>
+      <td class="p-1">
+        {% for pada in padas %}
+          <a href="{{ pada.url }}">{{ pada.text|slp2dev }}</a>
+          {{- ", " if not loop.last else "" }}
+        {% endfor %}
+      </td>
     {% endfor %}
   </tr>
   {% endfor %}
@@ -42,7 +46,7 @@ Information about the dhatu {{ query }}.
 
 {% block main %}
 <article class="mx-4 lg:mx-auto max-w-4xl mt-8">
-  <h1 class="text-center font-bold text-4xl border-b pb-2 mb-4">{{ display_dhatu }}</h1>
+  <h1 class="text-center font-bold text-6xl pb-2 mb-8">{{ display_dhatu }}</h1>
 
   <h2 class="font-bold text-2xl my-4">{{ "tiGantAni"|d }}</h2>
   {% for table in dhatu_results.lakaras %}
