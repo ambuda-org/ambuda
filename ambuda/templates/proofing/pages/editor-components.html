@@ -239,7 +239,7 @@ Pass `class` explicitly so that Tailwind can regex-find it when it compiles. #}
   </div>
   <textarea id="content" name="content" style="display: none">{{ data }}</textarea>
   <div id="editor"
-    class="grow p-2 md:p-4 w-full resize-none"
+    class="grow p-2 md:p-4 w-full resize-none overflow-y-auto"
     :style="`font-size: ${textZoom}rem`"
     @keydown="hasUnsavedChanges = true" spellcheck="false"></div>
 </div>
