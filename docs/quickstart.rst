@@ -15,7 +15,7 @@ following command::
 Next, run the following commands to create a new admin user::
 
     ./cli.py create-user
-    ./cli.py add-role <username> admin
+    ./cli.py add-role --username <username> --role admin
 
 After that, you can bring up the development server::
 

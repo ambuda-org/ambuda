@@ -10,7 +10,7 @@ Create a new user::
 
 Make that user an administrator::
 
-    ./cli.py add-role <username> admin
+    ./cli.py add-role --username <username> --role admin
 
 Create a fake proofing project::
 

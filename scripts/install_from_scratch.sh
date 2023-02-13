@@ -101,7 +101,7 @@ To create some sample data for our proofing interface, try the commands below.
 In these commands, arguments in <angle-brackets> must be supplied by you:
 
     ./cli.py create-user
-    ./cli.py add-role <username> admin
+    ./cli.py add-role --username <username> --role admin
     ./cli.py create-project <project-title> <path-to-project-pdf>
 
 To start the development server, run the following commands:
