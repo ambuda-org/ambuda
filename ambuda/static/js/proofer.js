@@ -76,7 +76,7 @@ export const Proofer = () => ({
 
     const view = createEditorFromTextAt(document.querySelector('textarea').value, document.getElementById('editor'));
     this.editorView = () => view;
-    window.view = this.editorView();
+    // window.view = this.editorView();
     this.editorView().focus();
 
     // Use `.bind(this)` so that `this` in the function refers to this app and

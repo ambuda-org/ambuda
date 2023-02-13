@@ -101,16 +101,18 @@ test('onBeforeUnload shows no text if no changes have been made.', () => {
 
 test('runOCR handles a valid server response', async () => {
   const p = Proofer();
+  p.init();
   window.location = new URL("https://ambuda.org/proofing/my-project/my-page");
   await p.runOCR();
-  expect($("#content").value).toBe('text for my-page');
+  expect(p.textValue()).toBe('text for my-page');
 });
 
 test('runOCR handles an invalid server response', async () => {
   const p = Proofer();
+  p.init();
   window.location = new URL("https://ambuda.org/proofing/error");
   await p.runOCR();
-  expect($("#content").value).toBe('(server error)');
+  expect(p.textValue()).toBe('(server error)');
 });
 
 test('increaseImageZoom works and gets saved', () => {
