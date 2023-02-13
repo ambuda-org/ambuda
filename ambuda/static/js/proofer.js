@@ -1,6 +1,7 @@
 /* global Alpine, $, OpenSeadragon, Sanscript, IMAGE_URL */
 /* Transcription and proofreading interface. */
 
+import { AllSelection } from 'prosemirror-state';
 import { $ } from './core.ts';
 import { toText, createEditorFromTextAt } from './pm-editor/pm-editor.ts';
 
@@ -148,8 +149,13 @@ export const Proofer = () => ({
         }
         return '(server error)';
       });
-    $('#content').value = content;
-
+    // $('#content').value = content;
+    const { state } = this.editorView();
+    let { tr } = state;
+    tr = tr.setSelection(new AllSelection(state.doc));
+    tr.replaceSelectionWith(state.schema.text(content));
+    this.editorView().dispatch(tr);
+    this.editorView().focus();
     this.isRunningOCR = false;
   },
 
