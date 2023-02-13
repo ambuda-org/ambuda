@@ -1,0 +1,19 @@
+version: '3.4'
+
+services:
+  dbsetup:
+    image: ${AMBUDA_IMAGE}
+    command: "/app/scripts/start-database.sh"
+    volumes:
+      - ${PWD}/deploy/data_database/:/app/data/database/
+    environment:
+      - FLASK_ENV=development
+      - FLASK_UPLOAD_FOLDER=/app/data/file-uploads
+      - SQLALCHEMY_DATABASE_URI=sqlite:////app/data/database/database.db
+      - SECRET_KEY=insecure development secret key
+      - GOOGLE_APPLICATION_CREDENTIALS=<Google API credentials>
+      - REDIS_URL=redis://redis:6579/0
+      - VIRTUAL_ENV=.
+      - AMBUDA_BOT_PASSWORD=insecure bot password
+      - PATH=$PATH:/venv/bin/
+      

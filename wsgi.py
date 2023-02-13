@@ -5,4 +5,4 @@ Setup: https://www.digitalocean.com/community/tutorials/how-to-serve-flask-appli
 
 from ambuda import create_app
 
-app = create_app("production")
+app = create_app("development")

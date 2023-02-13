@@ -17,10 +17,12 @@ def shs_generator(xml_blob: str):
 
 
 def run():
-    print("Initializing database ...")
+    title = "Shabda-Sagara (1900)"
+
+    print(f"Initializing {title} in database ...")
     engine = create_db()
 
-    print("Fetching data from CDSL ...")
+    print("Fetching Shabda-Sagara data from CDSL ...")
     zip_bytes = fetch_bytes(ZIP_URL)
     xml_blob = unzip_and_read(zip_bytes, "xml/shs.xml")
 
@@ -28,11 +30,12 @@ def run():
     create_from_scratch(
         engine,
         slug="shabdasagara",
-        title="Shabda-Sagara (1900)",
+        title=title,
         generator=shs_generator(xml_blob),
     )
 
     print("Done.")
+    return True
 
 
 if __name__ == "__main__":
