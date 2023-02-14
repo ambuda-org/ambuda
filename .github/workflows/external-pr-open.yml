@@ -19,7 +19,6 @@ jobs:
   build_and_test:
     name: Build external pr image
     runs-on: ubuntu-22.04
-    environment: staging
     permissions:
       packages: write
       contents: read
