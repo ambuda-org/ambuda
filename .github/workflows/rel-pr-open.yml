@@ -9,6 +9,7 @@ env:
   REGISTRY: ghcr.io
   
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - 'releases'
