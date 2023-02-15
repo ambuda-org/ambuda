@@ -61,7 +61,7 @@ jobs:
       
       - name: Build and push Docker images
         id: publish
-        uses: docker/build-push-action@v3.2.0
+        uses: docker/build-push-action@v4.0.0
         with:
           context: .
           file: build/containers/Dockerfile.final
