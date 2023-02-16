@@ -113,6 +113,7 @@ COPY wsgi.py /app/
 COPY alembic.ini /app/
 COPY migrations/ /app/migrations/
 COPY scripts/ /app/scripts/
+COPY cli.py /app/scripts/
 RUN echo "************* Ambuda application build succeeded! ****************"
 
 # ####################################

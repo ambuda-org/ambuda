@@ -15,7 +15,7 @@ services:
         protocol: tcp
         mode: host
     environment:
-      - FLASK_ENV=development
+      - FLASK_ENV=staging
       - FLASK_UPLOAD_FOLDER=/app/data/file-uploads
       - SQLALCHEMY_DATABASE_URI=sqlite:////app/data/database/database.db
       - SECRET_KEY=insecure development secret key
@@ -25,7 +25,7 @@ services:
       - AMBUDA_BOT_PASSWORD=insecure bot password
       - VIDYUT_DATA_DIR=/app/data/vidyut/
       - PATH=$PATH:/venv/bin/
-
+      
   celery:
     image: ${AMBUDA_IMAGE}
     command: /app/scripts/start_celery.sh
@@ -33,7 +33,7 @@ services:
     - REDIS_URL=redis://redis:6579/0
     depends_on:
     - redis
-    
+
   redis:
     image: redis:7.0.4
     command: --port 6579

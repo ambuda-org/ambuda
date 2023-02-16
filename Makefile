@@ -1,4 +1,3 @@
-
 # Environment. Valid values are: local, staging, and prod
 AMBUDA_DEPLOYMENT_ENV=local
 AMBUDA_HOST_IP=0.0.0.0
@@ -123,8 +122,15 @@ db-seed-all: py-venv-check
 	python -m ambuda.seed.dictionaries.shabdasagara
 	python -m ambuda.seed.dictionaries.vacaspatyam
 
+# Local run commands
+# ===============================================
+devserver: 
 
-# Common development commands
+# Run a local Celery instance for background tasks.
+celery: 
+	celery -A ambuda.tasks worker --loglevel=INFO
+
+# Docker commands
 # ===============================================
 
 # Start DB using Docker.
@@ -162,10 +168,10 @@ docker-stop:
 docker-logs: 
 	@docker compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml logs
 
-# Run a local Celery instance for background tasks.
-celery: 
-	celery -A ambuda.tasks worker --loglevel=INFO
 
+
+# Lint commands
+# ===============================================
 # Check imports in Python code
 lint-isort:
 	@echo "Running Python isort to organize module imports"
@@ -190,6 +196,8 @@ lint-check: js-lint py-lint
 	black . --diff
 	@echo 'Lint completed'
 
+# Test, coverage and documentation commands
+# ===============================================
 # Run all Python unit tests.
 test: py-venv-check
 	pytest .

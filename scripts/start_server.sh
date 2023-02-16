@@ -1,31 +1,22 @@
 #!/usr/bin/env bash
 
-# Entrypoint for running the devserver from within Docker. Before running
-# "make devserver", this file runs database setup / initialization scripts if a
-# database has not already been created.
-
-
+# Docker entrypoint for  Docker.
 set -e
 
+# Switch to python venv
 . /venv/bin/activate
 
+# Set PATH
 export PATH=$PATH:/venv/bin/
 
-# Extract file path from sqlite:///[file path]
-
-DB_FILE_PATH="${SQLALCHEMY_DATABASE_URI/sqlite:\/\/\//}"
-
-echo "Loading Database from $DB_FILE_PATH"
-
-# Update to the latest migration.
-python -m ambuda.seed.lookup
-
-/venv/bin/alembic upgrade head
-
-# Run the devserver, and live reload our CSS and JS.
-# "npx concurrently" does not work on Docker, but ./node_modules/.bin/concurrently does.
-# We also need to add "--host=0.0.0.0" to "flask run" to allow the host to access the
-# website that is running from the Docker container.
-echo "Flask start from /venv/bin/flask with 0.0.0.0 on port 5000"
-./node_modules/.bin/concurrently "/venv/bin/flask run -h 0.0.0.0 -p 5000"
+# Start flask server. In local mode load 
+echo "[$FLASK_ENV] Flask start from /venv/bin/flask with 0.0.0.0 on port 5000"
+if [ "$FLASK_ENV" == "development" ]
+then
+    # Dynamically load css and js changes. Docker compose attaches to the ambuda/static directory on localhost
+    ./node_modules/.bin/concurrently "/venv/bin/flask run -h 0.0.0.0 -p 5000" "npx tailwindcss -i /app/ambuda/static/css/style.css -o /app/ambuda/static/gen/style.css --watch" "npx esbuild /app/ambuda/static/js/main.js --outfile=/app/ambuda/static/gen/main.js --bundle --watch"
+else
+    # Build, Staging, and Production modes take this route. Loads static files from the container. 
+    ./node_modules/.bin/concurrently "/venv/bin/flask run -h 0.0.0.0 -p 5000"
+fi
 
