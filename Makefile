@@ -1,3 +1,34 @@
+# Environment. Valid values are: local, staging, and prod
+AMBUDA_DEPLOYMENT_ENV=local
+AMBUDA_HOST_IP=0.0.0.0
+AMBUDA_HOST_PORT=5000
+
+# Control the verbosity of messages using a flag
+ifdef mode
+	ifeq ("$(origin mode)", "command line")
+		BUILD_MODE = $(mode)
+	endif
+else
+	BUILD_MODE = default
+endif
+
+ifdef ($(BUILD_MODE),dev)
+	IO_REDIRECT = 
+	DOCKER_VERBOSITY = 
+	DOCKER_LOG_LEVEL = 
+	DOCKER_DETACH = 
+else ifeq ($(BUILD_MODE),quiet)
+	IO_REDIRECT = &> /dev/null
+	DOCKER_VERBOSITY = -qq
+	DOCKER_LOG_LEVEL = --log-level ERROR
+	DOCKER_DETACH = --detach
+else ifeq ($(BUILD_MODE),default)
+	IO_REDIRECT = 
+	DOCKER_VERBOSITY = 
+	DOCKER_LOG_LEVEsL = 
+	DOCKER_DETACH = --detach
+endif
+
 # Needed because we have folders called "docs" and "test" that confuse `make`.
 .PHONY: docs test py-venv-check clean
 
@@ -10,11 +41,6 @@ AMBUDA_VERSION=v0.1
 AMBUDA_NAME=ambuda
 AMBUDA_IMAGE=${AMBUDA_NAME}:${AMBUDA_VERSION}-${GITBRANCH}-${GITCOMMIT}
 AMBUDA_IMAGE_LATEST="$(AMBUDA_NAME)-rel:latest"
-
-# Environment. Valid values are: local, staging, and prod
-AMBUDA_DEPLOYMENT_ENV=local
-AMBUDA_HOST_IP=0.0.0.0
-AMBUDA_HOST_PORT=5090
 
 py-venv-check: 
 ifeq ("$(VIRTUAL_ENV)","")
@@ -96,16 +122,25 @@ db-seed-all: py-venv-check
 	python -m ambuda.seed.dictionaries.shabdasagara
 	python -m ambuda.seed.dictionaries.vacaspatyam
 
-
-# Common development commands
+# Local run commands
 # ===============================================
+.PHONY: devserver celery
+devserver: 
+	make mode=dev docker-start
+	
+# Run a local Celery instance for background tasks.
+celery: 
+	celery -A ambuda.tasks worker --loglevel=INFO
 
+# Docker commands
+# ===============================================
+.PHONY: docker-setup-db docker-build docker-start docker-stop docker-logs
 # Start DB using Docker.
 docker-setup-db: docker-build 
 ifneq ("$(wildcard $(DB_FILE))","")
 	@echo "Ambuda using your existing database!"
 else
-	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose-dbsetup.yml up &> /dev/null
+	@docker ${DOCKER_LOG_LEVEL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose-dbsetup.yml up ${IO_REDIRECT}
 	@echo "Ambuda Database : ✔ "
 endif
 	
@@ -114,12 +149,12 @@ endif
 docker-build: 
 	@echo "> Ambuda build is in progress. Expect it to take 2-5 minutes."
 	@printf "%0.s-" {1..21} && echo
-	@docker build -q -t ${AMBUDA_IMAGE} -t ${AMBUDA_IMAGE_LATEST} -f build/containers/Dockerfile.final ${PWD} > /dev/null
+	@docker build ${DOCKER_VEBOSITY} -t ${AMBUDA_IMAGE} -t ${AMBUDA_IMAGE_LATEST} -f build/containers/Dockerfile.final ${PWD} ${IO_REDIRECT}
 	@echo "Ambuda Image    : ✔ (${AMBUDA_IMAGE}, ${AMBUDA_IMAGE_LATEST})"
 
 # Start Docker services.
 docker-start: docker-build docker-setup-db
-	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up --detach &> /dev/null
+	@docker ${DOCKER_LOG_LEVEL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up ${DOCKER_DETACH} ${IO_REDIRECT}
 	@echo "Ambuda WebApp   : ✔ "
 	@echo "Ambuda URL      : http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT}"
 	@printf "%0.s-" {1..21} && echo
@@ -127,18 +162,18 @@ docker-start: docker-build docker-setup-db
 
 # Stop docker services
 docker-stop: 
-	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml stop
-	@docker --log-level ERROR compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml rm
+	@docker ${DOCKER_LOG_LEVEL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml stop
+	@docker ${DOCKER_LOG_LEVEL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml rm
 	@echo "Ambuda URL stopped"
 
 # Show docker logs
 docker-logs: 
 	@docker compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml logs
 
-# Run a local Celery instance for background tasks.
-celery: 
-	celery -A ambuda.tasks worker --loglevel=INFO
 
+
+# Lint commands
+# ===============================================
 # Check imports in Python code
 lint-isort:
 	@echo "Running Python isort to organize module imports"
@@ -163,6 +198,8 @@ lint-check: js-lint py-lint
 	black . --diff
 	@echo 'Lint completed'
 
+# Test, coverage and documentation commands
+# ===============================================
 # Run all Python unit tests.
 test: py-venv-check
 	pytest .

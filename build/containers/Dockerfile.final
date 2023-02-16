@@ -113,6 +113,7 @@ COPY wsgi.py /app/
 COPY alembic.ini /app/
 COPY migrations/ /app/migrations/
 COPY scripts/ /app/scripts/
+COPY cli.py /app/scripts/
 RUN echo "************* Ambuda application build succeeded! ****************"
 
 # ####################################
@@ -127,5 +128,5 @@ WORKDIR /app
 RUN echo "************* Building FINAL ${BUILD_TYPE}*****************"
 COPY --from=build-ambuda /venv /venv
 COPY --from=build-ambuda /app /app
-CMD ["/app/scripts/start-server.sh"]
+CMD ["/app/scripts/start_server.sh"]
 RUN echo "************* Ambuda deploy succeeded! *****************"

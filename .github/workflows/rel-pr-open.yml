@@ -1,7 +1,6 @@
-# Ambuda workflow to build and publish docker image
+# Build release image. Push image to ghcr.io. Deploy on staging environment.
 
-name: Build publish and staging
-
+name: Release image build & publish
 env:
   AMBUDA_VERSION: v0.1
   AMBUDA_HOST_IP: 127.0.0.1
@@ -12,7 +11,7 @@ on:
   workflow_dispatch:
   pull_request:
     branches:
-      - 'releases'
+      - 'release'
     types: [opened, reopened, synchronize]
 
 jobs:

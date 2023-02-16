@@ -30,6 +30,10 @@ load_dotenv()
 TESTING = "testing"
 #: The development environment. For local development.
 DEVELOPMENT = "development"
+#: The build environment. For build on github.
+BUILD = "build"
+#: The staging environment. For testing on staging.
+STAGING = "staging"
 #: The production environment. For production serving.
 PRODUCTION = "production"
 
@@ -180,6 +184,32 @@ class DevelopmentConfig(BaseConfig):
     LOG_LEVEL = logging.INFO
 
 
+class BuildConfig(BaseConfig):
+    """For build on GitHub."""
+
+    AMBUDA_ENVIRONMENT = BUILD
+    DEBUG = True
+    #: If set, automatically reload Flask templates (including imports) when
+    #: they change on disk.
+    TEMPLATES_AUTO_RELOAD = False
+
+    #: Logger setup
+    LOG_LEVEL = logging.INFO
+
+
+class StagingConfig(BaseConfig):
+    """For staging."""
+
+    AMBUDA_ENVIRONMENT = STAGING
+    DEBUG = True
+    #: If set, automatically reload Flask templates (including imports) when
+    #: they change on disk.
+    TEMPLATES_AUTO_RELOAD = False
+
+    #: Logger setup
+    LOG_LEVEL = logging.INFO
+
+
 class ProductionConfig(BaseConfig):
     """For production."""
 
@@ -204,7 +234,13 @@ def _validate_config(config: BaseConfig):
 
     :param config: the config to test
     """
-    assert config.AMBUDA_ENVIRONMENT in {TESTING, DEVELOPMENT, PRODUCTION}
+    assert config.AMBUDA_ENVIRONMENT in {
+        TESTING,
+        DEVELOPMENT,
+        BUILD,
+        STAGING,
+        PRODUCTION,
+    }
 
     if not config.SQLALCHEMY_DATABASE_URI:
         raise ValueError("This config does not define SQLALCHEMY_DATABASE_URI")
@@ -239,6 +275,8 @@ def load_config_object(name: str):
     config_map = {
         TESTING: UnitTestConfig,
         DEVELOPMENT: DevelopmentConfig,
+        BUILD: BuildConfig,
+        STAGING: StagingConfig,
         PRODUCTION: ProductionConfig,
     }
     config = config_map[name]

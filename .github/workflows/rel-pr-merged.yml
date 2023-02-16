@@ -1,7 +1,6 @@
-# Ambuda workflow to build and publish docker image
+# Cleanup staging. Usually occurs after a pr is merged or closed.
 
-name: Teardown staging
-
+name: Teardown staging deployment
 env:
   AMBUDA_VERSION: v0.1
 
@@ -13,7 +12,7 @@ on:
   #     - 'v*'
   pull_request:
     branches:
-      - 'releases'
+      - 'release'
     types:
       - closed
 
