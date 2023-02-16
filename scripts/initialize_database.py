@@ -23,7 +23,7 @@ from ambuda.seed.texts import gretil  # noqa
 
 
 def get_sqlalchemy_uri():
-    """parse sql alchemy db uri from config file """
+    """parse sql alchemy db uri from config file"""
 
     # TODO: don't hard code to dev.
     conf = config.load_config_object("development")
@@ -44,7 +44,7 @@ def get_db_file_path(sql_uri):
 def run_module(module_name):
     print(f'{"#"}' * 20)
     print(f"Intializing {module_name}")
-    module_name.run()    
+    module_name.run()
     print(f"{module_name} initialization successful!")
     print(f'{"#"}' * 20)
 
@@ -68,11 +68,12 @@ def init_database(sql_uri, db_file_path):
         raise init_ex
     print(f"Success! Database initialized at {db_file_path}")
 
+
 def alembic_migrations():
     try:
         subprocess.run(["/venv/bin/alembic", "ensure_version"])
         subprocess.run(["/venv/bin/alembic", "stamp", "head"])
-        print(f"Success! Database version check completed.")
+        print("Success! Database version check completed.")
     except subprocess.CalledProcessError as mig_ex:
         print(f"Error processing alembic commands - {mig_ex}")
         raise mig_ex
@@ -111,16 +112,20 @@ def run():
         print(f"Database found at {db_file_path}..")
         try:
             load_database(db_file_path)
-        except Exception as ex:
-            print(f"Error! Failed to load database from {db_file_path}..")
+        except Exception as load_ex:
+            print(
+                f"Error! Failed to load database from {db_file_path}. Error: {load_ex}"
+            )
             return False
     else:
         # This is a new deployment.
         print("Initialize database")
         try:
             init_database(sql_uri, db_file_path)
-        except Exception as ex:
-            print(f"Error! Failed to initialize database at {db_file_path}..")
+        except Exception as init_ex:
+            print(
+                f"Error! Failed to initialize database at {db_file_path}. Error: {init_ex}"
+            )
             return False
     return True
 
