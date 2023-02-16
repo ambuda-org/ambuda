@@ -183,6 +183,7 @@ class DevelopmentConfig(BaseConfig):
     #: Logger setup
     LOG_LEVEL = logging.INFO
 
+
 class BuildConfig(BaseConfig):
     """For build on GitHub."""
 
@@ -195,6 +196,7 @@ class BuildConfig(BaseConfig):
     #: Logger setup
     LOG_LEVEL = logging.INFO
 
+
 class StagingConfig(BaseConfig):
     """For staging."""
 
@@ -206,6 +208,7 @@ class StagingConfig(BaseConfig):
 
     #: Logger setup
     LOG_LEVEL = logging.INFO
+
 
 class ProductionConfig(BaseConfig):
     """For production."""
@@ -231,7 +234,13 @@ def _validate_config(config: BaseConfig):
 
     :param config: the config to test
     """
-    assert config.AMBUDA_ENVIRONMENT in {TESTING, DEVELOPMENT, BUILD, STAGING, PRODUCTION}
+    assert config.AMBUDA_ENVIRONMENT in {
+        TESTING,
+        DEVELOPMENT,
+        BUILD,
+        STAGING,
+        PRODUCTION,
+    }
 
     if not config.SQLALCHEMY_DATABASE_URI:
         raise ValueError("This config does not define SQLALCHEMY_DATABASE_URI")

@@ -116,11 +116,10 @@ def run():
         for spec in ALLOW:
             add_document(engine, spec)
     except Exception as ex:
-        raise Exception(
-            "Error: Failed to get latest from GRETIL. "
-            f"Error: {ex}")
+        raise Exception("Error: Failed to get latest from GRETIL. " f"Error: {ex}")
 
     log("Done.")
+
 
 if __name__ == "__main__":
     run()
