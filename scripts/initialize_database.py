@@ -1,12 +1,12 @@
 #! /usr/bin/python3
 """Initializes the database by creating all tables.
 
-This module called from `scripts/initialize_data.sh`.
+This module is called from `scripts/initialize_data.sh`.
 
 """
 
 import subprocess
-from os.path import exists as file_exists
+from pathlib import Path
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
@@ -25,6 +25,7 @@ from ambuda.seed.texts import gretil  # noqa
 def get_sqlalchemy_uri():
     """parse sql alchemy db uri from config file """
 
+    # TODO: don't hard code to dev.
     conf = config.load_config_object("development")
     sql_uri = conf.SQLALCHEMY_DATABASE_URI
     return sql_uri
@@ -36,7 +37,8 @@ def get_db_file_path(sql_uri):
     db_file_path = sql_uri.replace("sqlite:///", "")
     if db_file_path == sql_uri:
         print(f"Error! Invalid SQLALCHEMY_DATABASE_URI {sql_uri}")
-    return db_file_path
+        raise ValueError(f"Invalid SQLALCHEMY_DATABASE_URI: {sql_uri}")
+    return Path(db_file_path)
 
 
 def run_module(module_name):
@@ -45,7 +47,6 @@ def run_module(module_name):
     module_name.run()    
     print(f"{module_name} initialization successful!")
     print(f'{"#"}' * 20)
-    return True
 
 
 def init_database(sql_uri, db_file_path):
@@ -61,58 +62,41 @@ def init_database(sql_uri, db_file_path):
         run_module(texts.gretil)
         run_module(dcs)
         run_module(monier)
-    except Exception as ex:
-        print("Error: Failed to initialize database"
-            f"Error: {ex}")
-        return False
-
-    if not alembic_migrations():
-        return False
-
+        alembic_migrations()
+    except Exception as init_ex:
+        print(f"Error: Failed to initialize database. Error: {init_ex}")
+        raise init_ex
     print(f"Success! Database initialized at {db_file_path}")
-    return True
-
 
 def alembic_migrations():
     try:
         subprocess.run(["/venv/bin/alembic", "ensure_version"])
-    except subprocess.CalledProcessError as err:
-        print(f"Error processing alembic ensure_versions - {err}")
-        return False
-    try:
         subprocess.run(["/venv/bin/alembic", "stamp", "head"])
-    except subprocess.CalledProcessError as err:
-        print(f"Error processing alembic stamp head - {err}")
-        return False
-    return True
+        print(f"Success! Database version check completed.")
+    except subprocess.CalledProcessError as mig_ex:
+        print(f"Error processing alembic commands - {mig_ex}")
+        raise mig_ex
 
 
 def load_database(db_file_path):
     """Database already initialized. Run lookup module (TODO: Legacy step. Check why?). Update to the latest migration."""
-    if not file_exists(db_file_path):
-        print(f"Database found at {db_file_path}...")
-        return False
+    if not db_file_path.exists():
+        print(f"Database not found at {db_file_path}...")
+        raise FileNotFoundError("Database file not found")
 
     try:
         run_module(lookup)
-    except Exception as ex:
-        print("Error: Failed to load lookup tables"
-            f"Error: {ex}")
-        return False
-    # Set the most recent revision as the current one.        
-    try:
         subprocess.run(["/venv/bin/alembic", "upgrade", "head"])
-    except subprocess.CalledProcessError as err:
-        print(f"Error processing alembic upgrade head - {err}")
-        return False
-        
-    print(f"Success! Database is ready at {db_file_path}")
-    return True
+        print(f"Success! Database is ready at {db_file_path}")
+    except Exception as load_ex:
+        print(f"Error: Failed to load database. Error: {load_ex}")
+        raise load_ex
 
 
 def run():
     """
-    Initialize db for fresh installs. Load db on restarts
+    Initialize db for fresh installs. Load db on restarts.
+    Return value is boolean as the caller is a shell script.
     """
 
     load_dotenv()
@@ -121,18 +105,22 @@ def run():
         db_file_path = get_db_file_path(sql_uri)
     except Exception as err:
         print(f"Failed to get db path - {err}")
+        return False
 
-    if file_exists(db_file_path):
+    if db_file_path.exists():
         print(f"Database found at {db_file_path}..")
-        ret_load = load_database(db_file_path)
-        if not ret_load:
-            print(f"Error! Database   at {db_file_path}..")
+        try:
+            load_database(db_file_path)
+        except Exception as ex:
+            print(f"Error! Failed to load database from {db_file_path}..")
             return False
     else:
-        print("Initialize Database not found")
-        ret_init = init_database(sql_uri, db_file_path)
-        if not ret_init:
-            print(f"Error! Database setup at {db_file_path}..")
+        # This is a new deployment.
+        print("Initialize database")
+        try:
+            init_database(sql_uri, db_file_path)
+        except Exception as ex:
+            print(f"Error! Failed to initialize database at {db_file_path}..")
             return False
     return True
 
