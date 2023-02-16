@@ -124,15 +124,17 @@ db-seed-all: py-venv-check
 
 # Local run commands
 # ===============================================
+.PHONY: devserver celery
 devserver: 
-
+	make mode=dev docker-start
+	
 # Run a local Celery instance for background tasks.
 celery: 
 	celery -A ambuda.tasks worker --loglevel=INFO
 
 # Docker commands
 # ===============================================
-
+.PHONY: docker-setup-db docker-build docker-start docker-stop docker-logs
 # Start DB using Docker.
 docker-setup-db: docker-build 
 ifneq ("$(wildcard $(DB_FILE))","")
