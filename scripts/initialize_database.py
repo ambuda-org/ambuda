@@ -62,20 +62,10 @@ def init_database(sql_uri, db_file_path):
         run_module(texts.gretil)
         run_module(dcs)
         run_module(monier)
-<<<<<<< HEAD:scripts/initialize_database.py
         alembic_migrations()
     except Exception as init_ex:
         print(f"Error: Failed to initialize database. Error: {init_ex}")
         raise init_ex
-=======
-    except Exception as ex:
-        print("Error: Failed to initialize database" f"Error: {ex}")
-        return False
-
-    if not alembic_migrations():
-        return False
-
->>>>>>> Partial cleanup:scripts/setup_database.py
     print(f"Success! Database initialized at {db_file_path}")
 
 
@@ -97,26 +87,11 @@ def load_database(db_file_path):
 
     try:
         run_module(lookup)
-<<<<<<< HEAD:scripts/initialize_database.py
         subprocess.run(["/venv/bin/alembic", "upgrade", "head"])
         print(f"Success! Database is ready at {db_file_path}")
     except Exception as load_ex:
         print(f"Error: Failed to load database. Error: {load_ex}")
         raise load_ex
-=======
-    except Exception as ex:
-        print("Error: Failed to initialize database" f"Error: {ex}")
-        return False
-    # Set the most recent revision as the current one.
-    try:
-        subprocess.run(["/venv/bin/alembic", "upgrade", "head"])
-    except subprocess.CalledProcessError as err:
-        print(f"Error processing alembic upgrade head - {err}")
-        return False
-
-    print(f"Success! Database setup at {db_file_path}")
-    return True
->>>>>>> Partial cleanup:scripts/setup_database.py
 
 
 def run():
