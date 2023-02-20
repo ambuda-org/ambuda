@@ -1,0 +1,47 @@
+{% extends 'proofing/base.html' %}
+{% from "macros/forms.html" import field %}
+{% import "macros/proofing.html" as m %}
+
+{% block title %}Search and Replace {{ project.title }} | Ambuda{% endblock %}
+
+{% block content %}
+
+{{ m.project_header_nested('Search and Replace', project) }}
+{{ m.project_nav(project=project, active='edit') }}
+
+<div class="prose">
+  <p>Use this simple search and replace form to make edits across this project.</p>
+</div>
+
+<form method="GET" class="bg-slate-100 p-4 my-4">
+  {{ field(form.query) }}
+  {{ field(form.replace) }}
+  <input class="btn btn-submit" type="submit" value="Project-wide Search & Replace">
+</form>
+
+{% if query %}
+<div class="prose">
+
+{% macro sp(s, p, n) %}{% if n == 1 %}{{ s }}{% else %}{{ p }}{% endif %}{% endmacro %}
+
+{% set nr = results|length %}
+<p>Found {{ nr }} {{ sp("page", "pages", nr) }} that {{ sp("contains", "contain", nr) }} <kbd>{{ query }}</kbd>.</p>
+
+<ul>
+{% for page in results %}
+{% set page_url = url_for("proofing.page.edit", project_slug=project.slug, page_slug=page.slug) %}
+<li>
+    <a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}</a>
+    <div class="p-2 border-l my-2">
+    {% for match in page.matches %}
+    <pre class="p-0.5">{{ match.query }}</pre>
+    <pre class="p-0.5">{{ match.update }}</pre>
+    {%- endfor %}
+    </div>
+</li>
+{% endfor %}
+</ul>
+
+</div>
+{% endif %}
+{% endblock %}

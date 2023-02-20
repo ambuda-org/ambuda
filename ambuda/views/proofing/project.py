@@ -96,6 +96,13 @@ class DeleteProjectForm(FlaskForm):
     slug = StringField("Slug", validators=[DataRequired()])
 
 
+class ReplaceForm(SearchForm):
+    class Meta:
+        csrf = False
+
+    replace = StringField(_l("Replace"), validators=[DataRequired()])
+
+
 @bp.route("/<slug>/")
 def summary(slug):
     """Show basic information about the project."""
@@ -275,6 +282,64 @@ def search(slug):
         project=project_,
         form=form,
         query=query,
+        results=results,
+    )
+
+
+@bp.route("/<slug>/replace")
+@login_required
+def replace(slug):
+    """Search and replace a string across all of the project's pages.
+
+    This is useful to replace a string across the project in one shot.
+    """
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    form = ReplaceForm(request.args)
+    if not form.validate():
+        return render_template(
+            "proofing/projects/replace.html", project=project_, form=form
+        )
+
+    # search for "query" string and replace with "update" string
+    query = form.query.data
+    update = form.replace.data
+
+    results = []
+    for page_ in project_.pages:
+        if not page_.revisions:
+            continue
+
+        matches = []
+
+        latest = page_.revisions[-1]
+        for line in latest.content.splitlines():
+            if query in line:
+                matches.append(
+                    {
+                        "query": escape(line).replace(
+                            query, Markup(f"<mark>{escape(query)}</mark>")
+                        ),
+                        "update": escape(line).replace(
+                            query, Markup(f"<mark>{escape(update)}</mark>")
+                        ),
+                    }
+                )
+        if matches:
+            results.append(
+                {
+                    "slug": page_.slug,
+                    "matches": matches,
+                }
+            )
+    return render_template(
+        "proofing/projects/replace.html",
+        project=project_,
+        form=form,
+        query=query,
+        update=update,
         results=results,
     )
 
