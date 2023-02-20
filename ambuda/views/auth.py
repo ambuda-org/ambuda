@@ -80,11 +80,16 @@ def _is_valid_reset_token(row: db.PasswordResetToken, raw_token: str, now=None):
 
 
 class SignupForm(FlaskForm):
-    username = StringField(
-        _l("Username"), [val.Length(min=6, max=25), val.DataRequired()]
+    username = StringField(_l("Username"), [val.DataRequired(), 
+                                            val.Regexp('^[^\s]*$', message="Username must not contain spaces"),
+                                            val.Length(min=6, max=25, message="Username must be between 6 and 25 characters long"), ]
     )
-    password = PasswordField(_l("Password"), [val.Length(min=8), val.DataRequired()])
-    email = StringField(_l("Email address"), [val.DataRequired(), val.Email()])
+    password = PasswordField(_l("Password"), [val.DataRequired(),
+                                              val.Length(min=8, max=64, message="Password must be between 8 and 64 characters long"), ]
+    )
+    email = StringField(_l("Email address"), [val.DataRequired(), 
+                                              val.Length(max=128, message="Email address cannot exceed 128 characters"),
+                                              val.Email()])
     recaptcha = RecaptchaField()
 
     def validate_username(self, username):
@@ -100,14 +105,17 @@ class SignupForm(FlaskForm):
 
 
 class SignInForm(FlaskForm):
-    username = StringField(
-        _l("Username"), [val.Length(min=6, max=25), val.DataRequired()]
+    username = StringField(_l("Username"), [val.DataRequired(), 
+                                            val.Regexp('^[^\s]*$', message="Username must not contain spaces"),
+                                            val.Length(min=6, max=25, message="Username must be between 6 and 25 characters long"), ]
     )
-    password = PasswordField(_l("Password"), [val.Length(min=8), val.DataRequired()])
+    password = PasswordField(_l("Password"), [val.DataRequired(),
+                                              val.Length(min=8, max=64, message="Password must be between 8 and 64 characters long"), ]
+    )
 
 
 class ResetPasswordForm(FlaskForm):
-    email = EmailField("Email", [val.DataRequired()])
+    email = EmailField("Email", [val.DataRequired(), ])
     recaptcha = RecaptchaField()
 
 
