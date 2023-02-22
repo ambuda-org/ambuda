@@ -117,92 +117,69 @@ def get_field_validators(field_name: str, min_len: int, max_len: int):
     ]
 
 
+def get_username_validators():
+    return [
+        *get_field_validators("username", MIN_USERNAME_LEN, MAX_USERNAME_LEN),
+        val.Regexp("^[^\s]*$", message="Username must not contain spaces"),
+    ]
+
+
+def get_password_validators():
+    return [
+        *get_field_validators("password", MIN_PASSWORD_LEN, MAX_PASSWORD_LEN),
+    ]
+
+
+def get_email_validators():
+    return [
+        *get_field_validators("email", MIN_EMAIL_ADDRESS_LEN, MAX_EMAIL_ADDRESS_LEN),
+        val.Email(),
+    ]
+
+
 class SignupForm(FlaskForm):
-    username = StringField(
-        _l("Username"),
-        [
-            *get_field_validators("username", MIN_USERNAME_LEN, MAX_USERNAME_LEN),
-            val.Regexp("^[^\s]*$", message="Username must not contain spaces"),
-        ],
-    )
-    password = PasswordField(
-        _l("Password"),
-        [*get_field_validators("password", MIN_PASSWORD_LEN, MAX_PASSWORD_LEN)],
-    )
-    email = StringField(
-        _l("Email address"),
-        [
-            *get_field_validators(
-                "email address", MIN_EMAIL_ADDRESS_LEN, MAX_EMAIL_ADDRESS_LEN
-            ),
-            val.Email(),
-        ],
-    )
+    username = StringField(_l("Username"), [*get_username_validators()])
+    password = PasswordField(_l("Password"), [*get_password_validators()])
+    email = EmailField(_l("Email address"), [*get_email_validators()])
     recaptcha = RecaptchaField()
 
     def validate_username(self, username):
         # username is case insensitive
-        user = q.user(username.data.lower())
+        user = q.user(username.data)
         if user:
             raise val.ValidationError("Please use a different username.")
 
     def validate_email(self, email):
         session = q.get_session()
         # email is case insensitive
-        user = session.query(db.User).filter_by(email=email.data.lower()).first()
+        user = session.query(db.User).filter_by(email=email.data).first()
         if user:
             raise val.ValidationError("Please use a different email address.")
 
 
 class SignInForm(FlaskForm):
-    username = StringField(
-        _l("Username"),
-        [
-            *get_field_validators("username", MIN_USERNAME_LEN, MAX_USERNAME_LEN),
-            val.Regexp("^[^\s]*$", message="Username must not contain spaces"),
-        ],
-    )
-    password = PasswordField(
-        _l("Password"),
-        [*get_field_validators("password", MIN_PASSWORD_LEN, MAX_PASSWORD_LEN)],
-    )
+    username = StringField(_l("Username"), [*get_username_validators()])
+    password = PasswordField(_l("Password"), [*get_password_validators()])
 
 
 class ResetPasswordForm(FlaskForm):
-    email = EmailField(
-        "Email",
-        [
-            *get_field_validators(
-                "email address", MIN_EMAIL_ADDRESS_LEN, MAX_EMAIL_ADDRESS_LEN
-            ),
-            val.Email(),
-        ],
-    )
+    email = EmailField(_l("Email address"), [*get_email_validators()])
     recaptcha = RecaptchaField()
 
 
 class ChangePasswordForm(FlaskForm):
     #: Old password. No validation requirements, in case we change our password
     #: criteria in the future.
-    old_password = PasswordField(
-        _l("Old password"),
-        [*get_field_validators("password", MIN_PASSWORD_LEN, MAX_PASSWORD_LEN)],
-    )
+    old_password = PasswordField(_l("Old Password"), [*get_password_validators()])
+
     #: New password.
-    new_password = PasswordField(
-        _l("New password"),
-        [*get_field_validators("password", MIN_PASSWORD_LEN, MAX_PASSWORD_LEN)],
-    )
+    new_password = PasswordField(_l("New password"), [*get_password_validators()])
 
 
 class ResetPasswordFromTokenForm(FlaskForm):
-    password = PasswordField(
-        _l("Password"),
-        [*get_field_validators("password", MIN_PASSWORD_LEN, MAX_PASSWORD_LEN)],
-    )
+    password = PasswordField(_l("Password"), [*get_password_validators()])
     confirm_password = PasswordField(
-        _l("Confirm password"),
-        [*get_field_validators("password", MIN_PASSWORD_LEN, MAX_PASSWORD_LEN)],
+        _l("Confirm password"), [*get_password_validators()]
     )
 
 
@@ -216,8 +193,8 @@ def register():
     # save username and email in lowercase
     if form.validate_on_submit():
         user = q.create_user(
-            username=form.username.data.lower(),
-            email=form.email.data.lower(),
+            username=form.username.data,
+            email=form.email.data,
             raw_password=form.password.data,
         )
         login_user(user, remember=True)
@@ -240,7 +217,7 @@ def sign_in():
     form = SignInForm()
     # username check is case insensitive
     if form.validate_on_submit():
-        user = q.user(form.username.data.lower())
+        user = q.user(form.username.data)
         if user and user.check_password(form.password.data):
             login_user(user, remember=True)
             return redirect(url_for(POST_AUTH_ROUTE))
@@ -267,7 +244,7 @@ def get_reset_password_token():
     """Email the user a password reset link."""
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        email = form.email.data.lower()
+        email = form.email.data
         session = q.get_session()
         user = session.query(db.User).filter_by(email=email).first()
         if user:
@@ -294,7 +271,7 @@ def reset_password_from_token(username, raw_token):
     """Reset password after the user clicks a reset link."""
     msg_invalid = "Sorry, this reset password link isn't valid. Please try again."
 
-    user = q.user(username.lower())
+    user = q.user(username)
     if user is None:
         flash(msg_invalid)
         return redirect(url_for("auth.get_reset_password_token"))
