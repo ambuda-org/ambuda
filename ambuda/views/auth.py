@@ -117,12 +117,15 @@ def get_field_validators(field_name: str, min_len: int, max_len: int):
     ]
 
 
-def get_username_validators():
-    return [
+def get_username_validators(is_legacy: bool = False):
+    validators = [
         *get_field_validators("username", MIN_USERNAME_LEN, MAX_USERNAME_LEN),
-        val.Regexp("^[^\s]*$", message="Username must not contain spaces"),
     ]
-
+    if not is_legacy:
+        validators.append(
+            val.Regexp("^[^\s]*$", message="Username must not contain spaces")
+        )
+    return validators
 
 def get_password_validators():
     return [
@@ -158,7 +161,7 @@ class SignupForm(FlaskForm):
 
 
 class SignInForm(FlaskForm):
-    username = StringField(_l("Username"), [*get_username_validators()])
+    username = StringField(_l("Username"), [*get_username_validators(True)])
     password = PasswordField(_l("Password"), [*get_password_validators()])
 
 
