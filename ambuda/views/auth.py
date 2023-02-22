@@ -144,14 +144,14 @@ class SignupForm(FlaskForm):
     recaptcha = RecaptchaField()
 
     def validate_username(self, username):
-        # username is case insensitive
+        # TODO: make username case insensitive
         user = q.user(username.data)
         if user:
             raise val.ValidationError("Please use a different username.")
 
     def validate_email(self, email):
         session = q.get_session()
-        # email is case insensitive
+        # TODO: make email case insensitive
         user = session.query(db.User).filter_by(email=email.data).first()
         if user:
             raise val.ValidationError("Please use a different email address.")
@@ -215,7 +215,7 @@ def sign_in():
         return redirect(url_for("site.index"))
 
     form = SignInForm()
-    # username check is case insensitive
+    # TODO: make username case insensitive
     if form.validate_on_submit():
         user = q.user(form.username.data)
         if user and user.check_password(form.password.data):
