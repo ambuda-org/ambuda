@@ -90,11 +90,25 @@ def _is_valid_reset_token(row: db.PasswordResetToken, raw_token: str, now=None):
 
     return True
 
+# Copied from https://wtforms.readthedocs.io/en/2.3.x/validators/
+class FieldLength(object):
+    def __init__(self, min=-1, max=-1, message=None):
+        self.min = min
+        self.max = max
+        if not message:
+            message = u'Field must be between %i and %i characters long.' % (min, max)
+        self.message = message
+
+    def __call__(self, form, field):
+        l = field.data and len(field.data) or 0
+        if l < self.min or self.max != -1 and l > self.max:
+            raise val.ValidationError(self.message)
+
 
 def get_field_validators(field_name: str, min_len: int, max_len: int):
     return [
         val.DataRequired(),
-        val.Length(min=min_len, max=max_len, message=f"{field_name.capitalize()} must be between {min_len} and {max_len} characters long"),
+        FieldLength(min=min_len, max=max_len, message=f"{field_name.capitalize()} must be between {min_len} and {max_len} characters long"),
     ]
 
 class SignupForm(FlaskForm):
