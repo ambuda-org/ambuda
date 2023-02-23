@@ -91,59 +91,67 @@ def _is_valid_reset_token(row: db.PasswordResetToken, raw_token: str, now=None):
     return True
 
 
+# The native val.Length() validator silently snips username and
+# password to the maximum length.
+# So, database stores the snipped username and password resulting
+# in information loss. For instance, user may have copy pasted 240
+# chars our form will only store MAX_##_LEN bytes of it to the db. Creating
+# our own validator will show a clear error that username cannot
+# exceed MAX_##_LEN bytes. I'm not sure if it is a bug or a feature
+# in the val.Length()
 # Copied from https://wtforms.readthedocs.io/en/2.3.x/validators/
 class FieldLength(object):
     def __init__(self, min=-1, max=-1, message=None):
         self.min = min
         self.max = max
         if not message:
-            message = "Field must be between %i and %i characters long." % (min, max)
+            message = f"Field must be between {min} and {max} characters long."
         self.message = message
 
     def __call__(self, form, field):
-        field_len = field.data and len(field.data) or 0
+        field_len = field.data and len(field.data or [])
         if field_len < self.min or self.max != -1 and field_len > self.max:
             raise val.ValidationError(self.message)
 
 
 def get_field_validators(field_name: str, min_len: int, max_len: int):
+    field_name_capitalized = field_name.capitalize()
     return [
         val.DataRequired(),
         FieldLength(
             min=min_len,
             max=max_len,
-            message=f"{field_name.capitalize()} must be between {min_len} and {max_len} characters long",
+            message=f"{field_name_capitalized} must be between {min_len} and {max_len} characters long",
         ),
     ]
 
 
-def get_username_validators(is_legacy: bool = False):
-    validators = [
-        *get_field_validators("username", MIN_USERNAME_LEN, MAX_USERNAME_LEN),
-    ]
-    if not is_legacy:
-        validators.append(
-            val.Regexp("^[^\s]*$", message="Username must not contain spaces")
-        )
+def get_username_validators():
+    validators = get_field_validators("username", MIN_USERNAME_LEN, MAX_USERNAME_LEN)
+    validators.append(
+        val.Regexp("^[^\s]*$", message="Username must not contain spaces")
+    )
     return validators
 
+
+def get_legacy_username_validators():
+    return get_field_validators("username", MIN_USERNAME_LEN, MAX_USERNAME_LEN)
+
+
 def get_password_validators():
-    return [
-        *get_field_validators("password", MIN_PASSWORD_LEN, MAX_PASSWORD_LEN),
-    ]
+    return get_field_validators("password", MIN_PASSWORD_LEN, MAX_PASSWORD_LEN)
 
 
 def get_email_validators():
-    return [
-        *get_field_validators("email", MIN_EMAIL_ADDRESS_LEN, MAX_EMAIL_ADDRESS_LEN),
-        val.Email(),
-    ]
+    validators = get_field_validators("email", MIN_EMAIL_ADDRESS_LEN, MAX_EMAIL_ADDRESS_LEN)
+    validators.append(val.Email())
+    return validators
 
 
 class SignupForm(FlaskForm):
-    username = StringField(_l("Username"), [*get_username_validators()])
-    password = PasswordField(_l("Password"), [*get_password_validators()])
-    email = EmailField(_l("Email address"), [*get_email_validators()])
+    username = StringField(_l("Username"), get_username_validators())
+    password = PasswordField(_l("Password"), get_password_validators())
+    email = EmailField(_l("Email address"), get_email_validators())
     recaptcha = RecaptchaField()
 
     def validate_username(self, username):
@@ -161,29 +169,27 @@ class SignupForm(FlaskForm):
 
 
 class SignInForm(FlaskForm):
-    username = StringField(_l("Username"), [*get_username_validators(True)])
-    password = PasswordField(_l("Password"), [*get_password_validators()])
+    username = StringField(_l("Username"), get_legacy_username_validators())
+    password = PasswordField(_l("Password"), get_password_validators())
 
 
 class ResetPasswordForm(FlaskForm):
-    email = EmailField(_l("Email address"), [*get_email_validators()])
+    email = EmailField(_l("Email address"), get_email_validators())
     recaptcha = RecaptchaField()
 
 
 class ChangePasswordForm(FlaskForm):
     #: Old password. No validation requirements, in case we change our password
     #: criteria in the future.
-    old_password = PasswordField(_l("Old Password"), [*get_password_validators()])
+    old_password = PasswordField(_l("Old Password"), get_password_validators())
 
     #: New password.
-    new_password = PasswordField(_l("New password"), [*get_password_validators()])
+    new_password = PasswordField(_l("New password"), get_password_validators())
 
 
 class ResetPasswordFromTokenForm(FlaskForm):
-    password = PasswordField(_l("Password"), [*get_password_validators()])
-    confirm_password = PasswordField(
-        _l("Confirm password"), [*get_password_validators()]
-    )
+    password = PasswordField(_l("Password"), get_password_validators())
+    confirm_password = PasswordField(_l("Confirm password"), get_password_validators())
 
 
 @bp.route("/register", methods=["GET", "POST"])
