@@ -144,7 +144,9 @@ def get_password_validators():
 
 
 def get_email_validators():
-    validators = get_field_validators("email", MIN_EMAIL_ADDRESS_LEN, MAX_EMAIL_ADDRESS_LEN)
+    validators = get_field_validators(
+        "email", MIN_EMAIL_ADDRESS_LEN, MAX_EMAIL_ADDRESS_LEN
+    )
     validators.append(val.Email())
     return validators
 
