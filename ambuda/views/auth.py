@@ -15,6 +15,7 @@ Max lengths:
 """
 
 import secrets
+import sys
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -101,16 +102,16 @@ def _is_valid_reset_token(row: db.PasswordResetToken, raw_token: str, now=None):
 # in the val.Length()
 # Copied from https://wtforms.readthedocs.io/en/2.3.x/validators/
 class FieldLength(object):
-    def __init__(self, min=-1, max=-1, message=None):
-        self.min = min
-        self.max = max
+    def __init__(self, min=None, max=None, message=None):
+        self.min = min or 0
+        self.max = max or sys.maxsize
         if not message:
             message = f"Field must be between {min} and {max} characters long."
         self.message = message
 
     def __call__(self, form, field):
         field_len = field.data and len(field.data or [])
-        if field_len < self.min or self.max != -1 and field_len > self.max:
+        if not (self.min <= field_len <= self.max):
             raise val.ValidationError(self.message)
 
 
