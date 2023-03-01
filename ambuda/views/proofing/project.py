@@ -303,9 +303,9 @@ def replace(slug):
             "proofing/projects/replace.html", project=project_, form=form
         )
 
-    # search for "query" string and replace with "update" string
+    # search for "query" string and replace with "replace" string
     query = form.query.data
-    update = form.replace.data
+    replace = form.replace.data
 
     results = []
     for page_ in project_.pages:
@@ -322,8 +322,8 @@ def replace(slug):
                         "query": escape(line).replace(
                             query, Markup(f"<mark>{escape(query)}</mark>")
                         ),
-                        "update": escape(line).replace(
-                            query, Markup(f"<mark>{escape(update)}</mark>")
+                        "replace": escape(line).replace(
+                            query, Markup(f"<mark>{escape(replace)}</mark>")
                         ),
                     }
                 )
@@ -339,7 +339,7 @@ def replace(slug):
         project=project_,
         form=form,
         query=query,
-        update=update,
+        replace=replace,
         results=results,
     )
 

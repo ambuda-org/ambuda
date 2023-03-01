@@ -35,7 +35,8 @@
     <div class="p-2 border-l my-2">
     {% for match in page.matches %}
     <pre class="p-0.5">{{ match.query }}</pre>
-    <pre class="p-0.5">{{ match.update }}</pre>
+    <pre class="p-0.5" style="background-color: #20639b">{{ match.replace }}</pre>
+    
     {%- endfor %}
     </div>
 </li>
