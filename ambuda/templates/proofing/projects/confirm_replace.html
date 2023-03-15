@@ -1,0 +1,47 @@
+{% extends 'proofing/base.html' %}
+{% from "macros/forms.html" import field %}
+
+{% block title %}Confirm Replace | {{ project.title }}{% endblock %}
+
+{% block content %}
+<div class="prose">
+  <h1>Confirm Replace</h1>
+  <p>Please confirm the changes you want to make:</p>
+</div>
+
+{% for result in results %}
+  {% set page = result.page %}
+  {% set matches = result.matches %}
+  {% set page_url = url_for("proofing.page.edit", project_slug=project.slug, page_slug=page.slug) %}
+
+  <div class="prose">
+    <h2><a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}</a></h2>
+    <ul>
+      {% for match in matches %}
+          <li>
+            <p><strong>Original Text:</strong></p>
+            <p>{{ match.query }}</p>
+            <p><strong>New Text:</strong></p>
+            <p>{{ match.replace }}</p>
+          </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endfor %}
+
+<form method="POST">
+  {{ form.csrf_token }}
+  <input type="hidden" name="query" value="{{ query }}">
+  <input type="hidden" name="replace" value="{{ replace }}">
+  {% for result in results %}
+    {% set page = result.page %}
+    {% set matches = result.matches %}
+    {% for match in matches %}
+        <input type="hidden" name="match{{ page.slug }}-{{ line_num }}-query" value="{{ match.query }}">
+        <input type="hidden" name="match{{ page.slug }}-{{ line_num }}-replace" value="{{ line | replace(query, replace) }}">
+    {% endfor %}
+  {% endfor %}
+  <button class="btn btn-submit" type="submit" name="action" value="cancel">Cancel</button>
+  <button class="btn btn-submit" type="submit" name="action" value="confirm">Confirm</button>
+</form>
+{% endblock %}

@@ -1,3 +1,5 @@
+import logging
+
 from celery.result import GroupResult
 from flask import (
     Blueprint,
@@ -9,13 +11,13 @@ from flask import (
     url_for,
 )
 from flask_babel import lazy_gettext as _l
-from flask_login import login_required
+from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from markupsafe import Markup, escape
 from sqlalchemy import orm
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
-from wtforms import StringField
+from wtforms import HiddenField, StringField, SubmitField
 from wtforms.validators import DataRequired, ValidationError
 from wtforms.widgets import TextArea
 
@@ -24,10 +26,11 @@ from ambuda import queries as q
 from ambuda.tasks import app as celery_app
 from ambuda.tasks import ocr as ocr_tasks
 from ambuda.utils import project_utils, proofing_utils
+from ambuda.utils.revisions import EditException, add_revision
 from ambuda.views.proofing.decorators import moderator_required, p2_required
 
 bp = Blueprint("project", __name__)
-
+LOG = logging.getLogger(__name__)
 
 def _is_valid_page_number_spec(_, field):
     try:
@@ -101,6 +104,20 @@ class ReplaceForm(SearchForm):
         csrf = False
 
     replace = StringField(_l("Replace"), validators=[DataRequired()])
+
+class SubmitChangesForm(ReplaceForm):
+    class Meta:
+        csrf = False
+
+    submit = SubmitField("Submit Changes")
+
+class ConfirmReplaceForm(ReplaceForm):
+    class Meta:
+        csrf = False
+
+    changes = HiddenField("Changes", validators=[DataRequired()])
+    confirm = SubmitField("Confirm")
+    cancel = SubmitField("Cancel")
 
 
 @bp.route("/<slug>/")
@@ -285,38 +302,23 @@ def search(slug):
         results=results,
     )
 
-
-@bp.route("/<slug>/replace")
-@login_required
-def replace(slug):
-    """Search and replace a string across all of the project's pages.
-
-    This is useful to replace a string across the project in one shot.
+def _replace_text(project_, replace_form: ReplaceForm, query: str, replace: str):
     """
-    project_ = q.project(slug)
-    if project_ is None:
-        abort(404)
-
-    form = ReplaceForm(request.args)
-    if not form.validate():
-        return render_template(
-            "proofing/projects/replace.html", project=project_, form=form
-        )
-
-    # search for "query" string and replace with "replace" string
-    query = form.query.data
-    replace = form.replace.data
+    Gather all matches for the "query" string and pair them the "replace" string.
+    """
 
     results = []
+
+    LOG.info(f'Search/Replace text with {query} and {replace}')
     for page_ in project_.pages:
         if not page_.revisions:
             continue
-
         matches = []
-
         latest = page_.revisions[-1]
         for line in latest.content.splitlines():
+            LOG.info(f'Search/Replace > {page_.slug}: {line}')
             if query in line:
+                LOG.info(f'Search/Replace > appending search/replace {line}') 
                 matches.append(
                     {
                         "query": escape(line).replace(
@@ -324,7 +326,8 @@ def replace(slug):
                         ),
                         "replace": escape(line).replace(
                             query, Markup(f"<mark>{escape(replace)}</mark>")
-                        ),
+                            ),
+                        "checked": False
                     }
                 )
         if matches:
@@ -337,11 +340,195 @@ def replace(slug):
     return render_template(
         "proofing/projects/replace.html",
         project=project_,
-        form=form,
+        form=replace_form,
+        submit_changes_form=SubmitChangesForm(),
         query=query,
         replace=replace,
         results=results,
-    )
+        )
+
+
+@bp.route("/<slug>/replace", methods=["GET", "POST"])
+@login_required
+def replace(slug):
+    """Search and replace a string across all of the project's pages.
+
+    This is useful to replace a string across the project in one shot.
+    """
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    form = ReplaceForm(request.form)
+    if not form.validate():
+        invalid_keys = list(form.errors.keys())
+        LOG.info(f'Invalid form - {request.method}, invalid keys: {invalid_keys}')
+        return render_template(
+            "proofing/projects/replace.html", project=project_, form=ReplaceForm()
+        )
+
+    # search for "query" string and replace with "update" string
+    query = form.query.data
+    replace = form.replace.data
+    render = _replace_text(project_, replace_form=form, query=query, replace=replace)
+    return render
+
+
+def _select_changes(project_, submit_changes_form: SubmitChangesForm, query: str, replace: str):
+    """
+    Mark  "query" strings 
+    """
+    results = []
+    LOG.info(f'{__name__}: Mark changes with {query} and {replace}')
+    for page_ in project_.pages:
+        if not page_.revisions:
+            continue
+
+        latest = page_.revisions[-1]
+        matches = []
+        for line_num, line in enumerate(latest.content.splitlines()):
+            form_key = f"match{page_.slug}-{line_num}"
+            if getattr(submit_changes_form, form_key, None) and getattr(submit_changes_form, form_key).data:
+                matches.append({
+                    'query': line,
+                    'replace': line.replace(query, replace),
+                })
+
+        results.append({
+            'page': page_,
+            'matches': matches
+        })
+
+    selected_count = sum(getattr(submit_changes_form, form_key).data == True for form_key in submit_changes_form._fields)
+    LOG.info(f'{__name__} > Number of selected changes = {selected_count}')
+
+    return render_template("proofing/projects/confirm_replace.html",
+                           project=project_, form=ConfirmReplaceForm(), query=query, replace=replace, results=results)
+
+
+# def _mark_changes(project_, form: ReplaceForm, submit_changes_form: SubmitChangesForm, 
+#                     query: str, replace: str):
+#     """
+#     Search for all "query" string
+#     """
+#     results = []
+#     LOG.info(f'Mark changes with {query} and {replace}')
+#     for page_ in project_.pages:
+#         if not page_.revisions:
+#             continue
+
+#         latest = page_.revisions[-1]
+#         if submit_changes_form.get("check-all"):
+#             # check all matches
+#             LOG.info(f'Mark changes > {page_.slug}')
+#             for line_num, line in enumerate(latest.content.splitlines()):
+                
+#                 form_key = f"match{page_.slug}-{line_num}"
+#                 submit_changes_form[form_key].data = True
+#                 LOG.info(f'Mark changes > Check-all > {form_key}')
+#         else:
+#             # handle individual match
+#             for i, line in enumerate(latest.content.splitlines()):
+#                 form_key = f"match{page_.slug}-{line_num}"
+#                 if submit_changes_form.get(form_key):
+#                     submit_changes_form[form_key].data = True
+#                 else:
+#                     submit_changes_form[form_key].data = False
+#             selected_count = sum(submit_changes_form[form_key].data == True for form_key in submit_changes_form)
+#             LOG.info(f'{__name__} > Number of selected changes = {selected_count}')
+    
+    
+#     return render_template("proofing/projects/confirm_replace.html", 
+#                     project=project_, form=form, submit_changes_form=submit_changes_form, query=query, replace=replace, results=results)
+
+
+@bp.route("/<slug>/submit_changes", methods=["GET", "POST"])
+@login_required
+def submit_changes(slug):
+    """Submit selected changes across all of the project's pages.
+
+    This is useful to replace a string across the project in one shot.
+    """
+
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    form = SubmitChangesForm(request.form)
+    if not form.validate():
+        # elif request.form.get("form_submitted") is None:
+        invalid_keys = list(form.errors.keys())
+        LOG.info(f'{__name__}: Invalid form values - {request.method}, invalid keys: {invalid_keys}')
+        return redirect(url_for("proofing.project.replace", slug=slug))
+
+    results = []
+    render = None
+    # search for "query" string and replace with "update" string
+    query = form.query.data
+    replace = form.replace.data
+    
+    LOG.info(f'{__name__}: ({request.method})>  Got to submit method with {query}->{replace} ')
+    LOG.info(f'{__name__}: {request.method} > {list(request.form.keys())}')
+    
+    render = _select_changes(project_, submit_changes_form=form, query=query, replace=replace)
+    
+    return render
+
+
+@bp.route("/<slug>/confirm_replace", methods=["GET", "POST"])
+@login_required
+def confirm_replace(slug):
+    """Confirm changes to replace a string across all of the project's pages."""
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    form = ConfirmReplaceForm(request.form)
+    if not form.validate():
+        flash("Invalid input.", "danger")
+        invalid_keys = list(form.errors.keys())
+        LOG.info(f'{__name__}: Invalid form - {request.method}, invalid keys: {invalid_keys}')
+        return redirect(url_for("proofing.project.replace", slug=slug))
+
+    if form.confirm.data:
+        query = form.query.data
+        replace = form.replace.data
+        changes = []
+
+        # Get the changes from the form and store them in a list
+        for key, value in request.form.items():
+            if key.startswith("match"):
+                parts = key.split("-")
+                page_slug = parts[1]
+                line_num = int(parts[2])
+                if parts[3] == "replace":
+                    changes.append((page_slug, line_num, value))
+
+        # Apply the changes to each page
+        for page in project_.pages:
+            lines = page.content.splitlines()
+            page_changed = False
+            for line_num, line in enumerate(lines):
+                for change in changes:
+                    change_page_slug, change_line_num, change_replace_value = change
+                    if page.slug == change_page_slug and line_num == change_line_num:
+                        lines[line_num] = line.replace(query, change_replace_value)
+                        page_changed = True
+                        break
+                if page_changed:
+                    break
+
+            # Add a new revision if the page was changed
+            if page_changed:
+                new_content = "\n".join(lines)
+                new_summary = f'Replaced "{query}" with "{replace}" on page {page.slug}'
+                new_revision = add_revision(page, new_summary, new_content)
+                page.revisions.append(new_revision)
+
+        flash("Changes applied.", "success")
+        return redirect(url_for("proofing.projects.replace", slug=slug))
+
+    return render_template("proofing/projects/confirm_replace.html", project=project_, form=form)
 
 
 @bp.route("/<slug>/batch-ocr", methods=["GET", "POST"])
