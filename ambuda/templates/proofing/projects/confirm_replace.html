@@ -1,47 +1,43 @@
 {% extends 'proofing/base.html' %}
 {% from "macros/forms.html" import field %}
+{% import "macros/proofing.html" as m %}
 
 {% block title %}Confirm Replace | {{ project.title }}{% endblock %}
 
 {% block content %}
+
+{{ m.project_header_nested('Confirm Replace', project) }}
+{{ m.project_nav(project=project, active='edit') }}
+
 <div class="prose">
   <h1>Confirm Replace</h1>
+  {% macro sp(s, p, n) %}{% if n == 1 %}{{ s }}{% else %}{{ p }}{% endif %}{% endmacro %}
   <p>Please confirm the changes you want to make:</p>
-</div>
+  <form method="POST" action="{{ url_for('proofing.project.confirm_replace', slug=project.slug) }}" class="bg-slate-100 p-4 my-4">
+    {{ form.csrf_token }}
+    <input type="hidden" name="query" value="{{ query }}">
+    <input type="hidden" name="replace" value="{{ replace }}">
 
-{% for result in results %}
-  {% set page = result.page %}
-  {% set matches = result.matches %}
-  {% set page_url = url_for("proofing.page.edit", project_slug=project.slug, page_slug=page.slug) %}
-
-  <div class="prose">
-    <h2><a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}</a></h2>
-    <ul>
+    {% set nr = results|length %}
+    <p>Confirm edits on {{ nr }} {{ sp("page", "pages", nr) }} that {{ sp("contains", "contain", nr) }} <kbd>{{ query }}</kbd> to be replaced by <kbd>{{ replace }}</kbd>.</p>
+    
+    {% for result in results %}
+      {% set page = result.page %}
+      {% set page_url = url_for("proofing.page.edit", project_slug=project.slug, page_slug=page.slug) %}
+      {% set matches = result.matches %}
       {% for match in matches %}
-          <li>
-            <p><strong>Original Text:</strong></p>
-            <p>{{ match.query }}</p>
-            <p><strong>New Text:</strong></p>
-            <p>{{ match.replace }}</p>
-          </li>
+        <div class="match" style="background-color: rgb(243, 239, 239);">
+          <p>Page <a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}:</a> Line {{ match.line_num }}</p>
+          <label for="match{{ page.slug }}-{{ match.line_num }}">{{ match.query }}</label>
+          <input type="hidden" name="match{{ page.slug }}-{{ match.line_num }}-query" value="{{ match.query }}">
+          <br>
+          <label for="match{{ page.slug }}-{{ match.line_num }}-replace" style="color: rgb(97, 86, 66); background-color: rgb(219, 215, 215);"> {{ match.replace }} </label>
+          <input type="hidden" name="match{{ page.slug }}-{{ match.line_num }}-replace" value="{{ match.replace }}">
+        </div>
       {% endfor %}
-    </ul>
-  </div>
-{% endfor %}
-
-<form method="POST">
-  {{ form.csrf_token }}
-  <input type="hidden" name="query" value="{{ query }}">
-  <input type="hidden" name="replace" value="{{ replace }}">
-  {% for result in results %}
-    {% set page = result.page %}
-    {% set matches = result.matches %}
-    {% for match in matches %}
-        <input type="hidden" name="match{{ page.slug }}-{{ line_num }}-query" value="{{ match.query }}">
-        <input type="hidden" name="match{{ page.slug }}-{{ line_num }}-replace" value="{{ line | replace(query, replace) }}">
     {% endfor %}
-  {% endfor %}
-  <button class="btn btn-submit" type="submit" name="action" value="cancel">Cancel</button>
-  <button class="btn btn-submit" type="submit" name="action" value="confirm">Confirm</button>
-</form>
+    <button class="btn btn-submit" type="submit" name="cancel" value="cancel">Cancel</button>
+    <button class="btn btn-submit" type="submit" name="confirm" value="confirm">Confirm</button>
+  </form>
+  </div>
 {% endblock %}

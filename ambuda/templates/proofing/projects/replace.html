@@ -41,17 +41,17 @@
       <li>
           <a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}</a>
           <div class="p-2 border-l my-2">                  
-                  {% for match in page.matches %}
-                      <div class="match" style="background-color: rgb(243, 239, 239);">
-                          <input type="checkbox" name="match{{ page.slug }}-{{ loop.index }}" id="match{{ page.slug }}-{{ loop.index }}" value="{{ match.checked }}">
-                          <p>Page <a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}:</a> Line {{ loop.index }}</p>
-                          <label for="match{{ page.slug }}-{{ loop.index }}">{{ match.query }}</label>
-                          <br>
-                          <label for="match{{ page.slug }}-{{ loop.index }}-replace" style="color: rgb(97, 86, 66); background-color: rgb(219, 215, 215);"> {{ match.replace }} </label>
-                          <input type="hidden" name="match{{ page.slug }}-{{ loop.index }}-replace" id="match{{ page.slug }}-{{ loop.index }}-replace" value="{{ match.replace }}">
-                      </div>
-                      <br>
-                  {% endfor %}
+            {% for match in page.matches %}
+              <div class="match" style="background-color: rgb(243, 239, 239);">
+                <input type="checkbox" name="match{{ page.slug }}-{{ match.line_num }}" id="match{{ page.slug }}-{{ match.line_num }}" value="selected">
+                  <p>Page <a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}:</a> Line {{ match.line_num }}</p>
+                  <label for="match{{ page.slug }}-{{ match.line_num }}">{{ match.query }}</label>
+                  <br>
+                  <label for="match{{ page.slug }}-{{ match.line_num }}-replace" style="color: rgb(97, 86, 66); background-color: rgb(219, 215, 215);"> {{ match.replace }} </label>
+                  <input type="hidden" name="match{{ page.slug }}-{{ match.line_num }}-replace" id="match{{ page.slug }}-{{ match.line_num }}-replace" value="{{ match.replace }}">
+              </div>
+              <br>
+            {% endfor %}
           </div>
       </li>
     {% endfor %}
@@ -62,12 +62,13 @@
     {% endif %}
   </form>
   </ul>
-  {% endif %}
   <input type="hidden" name="form_submitted" value="1">
+  {% endif %}
+  
   <script>
     // Get references to the "check-all" checkbox and all the other checkboxes
     const checkAll = document.querySelector('#check-all');
-    const checkboxes = document.querySelectorAll('input[type="checkbox"][name^="match"]');
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][name$="selected"]');
   
     // Add a change event listener to the "check-all" checkbox
     checkAll.addEventListener('change', function(event) {
@@ -83,6 +84,18 @@
           checkbox.checked = false;
         });
       }
+    });
+  
+    // Add change event listeners to each individual checkbox
+    checkboxes.forEach(function(checkbox) {
+      checkbox.addEventListener('change', function(event) {
+        const replaceField = document.querySelector(`#${event.target.id}-replace`);
+        if (event.target.checked) {
+          replaceField.style.display = '';
+        } else {
+          replaceField.style.display = 'none';
+        }
+      });
     });
   </script>
   
