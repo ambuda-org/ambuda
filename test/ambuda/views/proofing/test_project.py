@@ -105,14 +105,29 @@ def test_search__bad_project(rama_client):
     assert resp.status_code == 404
 
 
-def test_replace(client):
-    resp = client.get("/proofing/test-project/replace")
+def test_replace(moderator_client):
+    resp = moderator_client.get("/proofing/test-project/replace")
     assert "Replace:" in resp.text
+
+
+def test_replace__unauth(client):
+    resp = client.get("/proofing/test-project/replace")
+    assert resp.status_code == 302
 
 
 def test_replace__bad_project(rama_client):
     resp = rama_client.get("/proofing/unknown/replace")
     assert resp.status_code == 404
+
+
+def test_submit_changes(moderator_client):
+    resp = moderator_client.get("/proofing/test-project/submit_changes")
+    assert "Changes:" in resp.text
+
+
+def test_submit_changes(client):
+    resp = client.get("/proofing/test-project/submit_changes")
+    assert resp.status_code == 302
 
 
 def test_admin__unauth(client):
