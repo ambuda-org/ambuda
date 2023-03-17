@@ -125,7 +125,7 @@ def test_submit_changes(moderator_client):
     assert "Changes:" in resp.text
 
 
-def test_submit_changes(client):
+def test_submit_unauth(client):
     resp = client.get("/proofing/test-project/submit_changes")
     assert resp.status_code == 302
 
