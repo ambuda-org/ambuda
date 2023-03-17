@@ -2,24 +2,25 @@
 {% from "macros/forms.html" import field %}
 {% import "macros/proofing.html" as m %}
 
-{% block title %}Confirm Replace | {{ project.title }}{% endblock %}
+{% block title %} Search and Replace | {{ project.title }}{% endblock %}
 
 {% block content %}
 
-{{ m.project_header_nested('Confirm Replace', project) }}
+{{ m.project_header_nested('Review and Confirm Changes', project) }}
 {{ m.project_nav(project=project, active='edit') }}
 
 <div class="prose">
-  <h1>Confirm Replace</h1>
+  <h1>Confirm Changes</h1>
   {% macro sp(s, p, n) %}{% if n == 1 %}{{ s }}{% else %}{{ p }}{% endif %}{% endmacro %}
-  <p>Please confirm the changes you want to make:</p>
-  <form method="POST" action="{{ url_for('proofing.project.confirm_replace', slug=project.slug) }}" class="bg-slate-100 p-4 my-4">
+  <p>Please carefully review and confirm the changes you selected:</p>
+  <form method="POST" action="{{ url_for('proofing.project.confirm_changes', slug=project.slug) }}" class="bg-slate-100 p-4 my-4">
     {{ form.csrf_token }}
     <input type="hidden" name="query" value="{{ query }}">
     <input type="hidden" name="replace" value="{{ replace }}">
 
-    {% set nr = results|length %}
-    <p>Confirm edits on {{ nr }} {{ sp("page", "pages", nr) }} that {{ sp("contains", "contain", nr) }} <kbd>{{ query }}</kbd> to be replaced by <kbd>{{ replace }}</kbd>.</p>
+    {% set match_counts = results|map(attribute='matches')|map('length')|list %}
+    {% set nr = match_counts|sum %}
+    <p>Confirm changes on {{ nr }} {{ sp("match", "matches", nr) }} that {{ sp("contains", "contain", nr) }} <span style="color: red;"><kbd>{{ query }}</kbd></span> to be replaced by <span style="color: green;"><kbd>{{ replace }}</kbd></span>.</p>
     
     {% for result in results %}
       {% set page = result.page %}

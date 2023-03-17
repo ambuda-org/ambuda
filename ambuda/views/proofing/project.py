@@ -135,7 +135,7 @@ class SubmitChangesForm(ReplaceForm):
     submit = SubmitField("Submit Changes")
 
 
-class ConfirmReplaceForm(ReplaceForm):
+class ConfirmChangesForm(ReplaceForm):
     class Meta:
         csrf = False
 
@@ -438,9 +438,9 @@ def _select_changes(project_, selected_keys, query: str, replace: str):
     LOG.debug(f"{__name__} > Number of selected changes = {selected_count}")
 
     return render_template(
-        "proofing/projects/confirm_replace.html",
+        "proofing/projects/confirm_changes.html",
         project=project_,
-        form=ConfirmReplaceForm(),
+        form=ConfirmChangesForm(),
         query=query,
         replace=replace,
         results=results,
@@ -490,17 +490,17 @@ def submit_changes(slug):
     return render
 
 
-@bp.route("/<slug>/confirm_replace", methods=["GET", "POST"])
+@bp.route("/<slug>/confirm_changes", methods=["GET", "POST"])
 @login_required
-def confirm_replace(slug):
+def confirm_changes(slug):
     """Confirm changes to replace a string across all of the project's pages."""
     project_ = q.project(slug)
     if project_ is None:
         abort(404)
     LOG.debug(
-        f"{__name__}: CONFIRM_REPLACE {request.method} > Keys: {list(request.form.keys())}, Items: {list(request.form.items())}"
+        f"{__name__}: confirm_changes {request.method} > Keys: {list(request.form.keys())}, Items: {list(request.form.items())}"
     )
-    form = ConfirmReplaceForm(request.form)
+    form = ConfirmChangesForm(request.form)
     if not form.validate():
         flash("Invalid input.", "danger")
         invalid_keys = list(form.errors.keys())
@@ -576,7 +576,7 @@ def confirm_replace(slug):
         flash("Changes applied.", "success")
         return redirect(url_for("proofing.project.activity", slug=slug))
     elif form.cancel.data:
-        LOG.debug(f"{__name__}: CONFIRM_REPLACE Cancelled")
+        LOG.debug(f"{__name__}: confirm_changes Cancelled")
         return redirect(url_for("proofing.project.edit", slug=slug))
 
     return render_template(url_for("proofing.project.edit", slug=slug))
