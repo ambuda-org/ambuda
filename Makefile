@@ -209,6 +209,9 @@ test: py-venv-check
 coverage:
 	pytest --cov=ambuda --cov-report=html test/
 
+coverage-report: coverage
+	coverage report --fail-under=80
+
 # Generate Ambuda's technical documentation.
 # After the command completes, open "docs/_build/index.html".
 docs: py-venv-check
@@ -275,6 +278,8 @@ babel-update: py-venv-check
 babel-compile: py-venv-check
 	pybabel compile -d ambuda/translations
 
+# Clean up
+# ===============================================
 clean:
 	@rm -rf deploy/data/
 	@rm -rf ambuda/translations/*

@@ -111,12 +111,14 @@ def test_replace(moderator_client):
 
 
 def test_replace_post(moderator_client):
-    resp = moderator_client.post("/proofing/test-project/replace", 
-                                data={
-                                    "query": "the",
-                                    "replace": "the",}
-                                    )
-    assert resp.status_code == 200  
+    resp = moderator_client.post(
+        "/proofing/test-project/replace",
+        data={
+            "query": "the",
+            "replace": "the",
+        },
+    )
+    assert resp.status_code == 200
 
 
 def test_replace__unauth(client):
@@ -135,15 +137,16 @@ def test_submit_changes(moderator_client):
 
 
 def test_submit_changes_post(moderator_client):
-    resp = moderator_client.post("/proofing/test-project/submit_changes", 
-                                    data={
-                                    "query": "the",
-                                    "replace": "the",
-                                    "matches": [],
-                                    "submit": True,
-                                    }
-                                    )
-    
+    resp = moderator_client.post(
+        "/proofing/test-project/submit_changes",
+        data={
+            "query": "the",
+            "replace": "the",
+            "matches": [],
+            "submit": True,
+        },
+    )
+
     assert resp.status_code == 200
 
 
