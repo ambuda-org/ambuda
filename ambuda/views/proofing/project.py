@@ -35,11 +35,12 @@ from ambuda import queries as q
 from ambuda.tasks import app as celery_app
 from ambuda.tasks import ocr as ocr_tasks
 from ambuda.utils import project_utils, proofing_utils
-from ambuda.utils.revisions import EditException, add_revision
+from ambuda.utils.revisions import add_revision
 from ambuda.views.proofing.decorators import moderator_required, p2_required
 
 bp = Blueprint("project", __name__)
 LOG = logging.getLogger(__name__)
+
 
 def _is_valid_page_number_spec(_, field):
     try:
@@ -96,9 +97,11 @@ class EditMetadataForm(FlaskForm):
         },
     )
 
+
 class MatchForm(Form):
     selected = BooleanField()
     replace = HiddenField(validators=[DataRequired()])
+
 
 class SearchForm(FlaskForm):
     class Meta:
@@ -127,9 +130,10 @@ def validate_matches(form, field):
 class SubmitChangesForm(ReplaceForm):
     class Meta:
         csrf = False
-    
+
     matches = FieldList(FormField(MatchForm), validators=[validate_matches])
     submit = SubmitField("Submit Changes")
+
 
 class ConfirmReplaceForm(ReplaceForm):
     class Meta:
@@ -321,6 +325,7 @@ def search(slug):
         results=results,
     )
 
+
 def _replace_text(project_, replace_form: ReplaceForm, query: str, replace: str):
     """
     Gather all matches for the "query" string and pair them the "replace" string.
@@ -328,17 +333,17 @@ def _replace_text(project_, replace_form: ReplaceForm, query: str, replace: str)
 
     results = []
 
-    LOG.debug(f'Search/Replace text with {query} and {replace}')
+    LOG.debug(f"Search/Replace text with {query} and {replace}")
     for page_ in project_.pages:
         if not page_.revisions:
             continue
         matches = []
         latest = page_.revisions[-1]
-        LOG.debug(f'{__name__}: {page_.slug}')
+        LOG.debug(f"{__name__}: {page_.slug}")
         for line_num, line in enumerate(latest.content.splitlines()):
             # LOG.debug(f'Search/Replace > {page_.slug}: {line}')
             if query in line:
-                LOG.debug(f'Search/Replace > appending search/replace {line}') 
+                LOG.debug(f"Search/Replace > appending search/replace {line}")
                 matches.append(
                     {
                         "query": escape(line).replace(
@@ -346,9 +351,9 @@ def _replace_text(project_, replace_form: ReplaceForm, query: str, replace: str)
                         ),
                         "replace": escape(line).replace(
                             query, Markup(f"<mark>{escape(replace)}</mark>")
-                            ),
+                        ),
                         "checked": False,
-                        "line_num": line_num
+                        "line_num": line_num,
                     }
                 )
         if matches:
@@ -366,7 +371,7 @@ def _replace_text(project_, replace_form: ReplaceForm, query: str, replace: str)
         query=query,
         replace=replace,
         results=results,
-        )
+    )
 
 
 @bp.route("/<slug>/replace", methods=["GET", "POST"])
@@ -383,7 +388,7 @@ def replace(slug):
     form = ReplaceForm(request.form)
     if not form.validate():
         invalid_keys = list(form.errors.keys())
-        LOG.debug(f'Invalid form - {request.method}, invalid keys: {invalid_keys}')
+        LOG.debug(f"Invalid form - {request.method}, invalid keys: {invalid_keys}")
         return render_template(
             "proofing/projects/replace.html", project=project_, form=ReplaceForm()
         )
@@ -400,7 +405,7 @@ def _select_changes(project_, selected_keys, query: str, replace: str):
     Mark "query" strings
     """
     results = []
-    LOG.debug(f'{__name__}: Mark changes with {query} and {replace}')
+    LOG.debug(f"{__name__}: Mark changes with {query} and {replace}")
     for page_ in project_.pages:
         if not page_.revisions:
             continue
@@ -411,28 +416,35 @@ def _select_changes(project_, selected_keys, query: str, replace: str):
 
             form_key = f"match{page_.slug}-{line_num}"
             replace_form_key = f"match{page_.slug}-{line_num}-replace"
-            
-            if selected_keys.get(form_key) == "selected":
-                LOG.debug(f'{__name__}: {form_key}: {selected_keys.get(form_key)}')
-                LOG.debug(f'{__name__}: {replace_form_key}: {request.form.get(replace_form_key)}')
-                LOG.debug(f'{__name__}: {form_key}: Appended')
-                matches.append({
-                    'query': line,
-                    'replace': line.replace(query, replace),
-                    'line_num': line_num,
-                })
 
-        results.append({
-            'page': page_,
-            'matches': matches
-        })
-        LOG.debug(f'{__name__}: Total matches appended: {len(matches)}')
+            if selected_keys.get(form_key) == "selected":
+                LOG.debug(f"{__name__}: {form_key}: {selected_keys.get(form_key)}")
+                LOG.debug(
+                    f"{__name__}: {replace_form_key}: {request.form.get(replace_form_key)}"
+                )
+                LOG.debug(f"{__name__}: {form_key}: Appended")
+                matches.append(
+                    {
+                        "query": line,
+                        "replace": line.replace(query, replace),
+                        "line_num": line_num,
+                    }
+                )
+
+        results.append({"page": page_, "matches": matches})
+        LOG.debug(f"{__name__}: Total matches appended: {len(matches)}")
 
     selected_count = sum(value == "selected" for value in selected_keys.values())
-    LOG.debug(f'{__name__} > Number of selected changes = {selected_count}')
+    LOG.debug(f"{__name__} > Number of selected changes = {selected_count}")
 
-    return render_template("proofing/projects/confirm_replace.html",
-                           project=project_, form=ConfirmReplaceForm(), query=query, replace=replace, results=results)
+    return render_template(
+        "proofing/projects/confirm_replace.html",
+        project=project_,
+        form=ConfirmReplaceForm(),
+        query=query,
+        replace=replace,
+        results=results,
+    )
 
 
 @bp.route("/<slug>/submit_changes", methods=["GET", "POST"])
@@ -447,7 +459,9 @@ def submit_changes(slug):
     if project_ is None:
         abort(404)
 
-    LOG.debug(f'{__name__}: SUBMIT_CHANGES --- {request.method} > {list(request.form.keys())}')
+    LOG.debug(
+        f"{__name__}: SUBMIT_CHANGES --- {request.method} > {list(request.form.keys())}"
+    )
 
     # FIXME: find a way to validate this form. Current `matches` are coming in the way of validators.
     form = SubmitChangesForm(request.form)
@@ -457,17 +471,22 @@ def submit_changes(slug):
     #     LOG.debug(f'{__name__}: Invalid form values - {request.method}, invalid keys: {invalid_keys}')
     #     return redirect(url_for("proofing.project.replace", slug=slug))
 
-    results = []
     render = None
     # search for "query" string and replace with "update" string
     query = form.query.data
     replace = form.replace.data
-    
-    LOG.debug(f'{__name__}: ({request.method})>  Got to submit method with {query}->{replace} ')
-    LOG.debug(f'{__name__}: {request.method} > {list(request.form.keys())}')
-    selected_keys = {key: value for key, value in request.form.items() if key.startswith('match') and not key.endswith('replace')}
+
+    LOG.debug(
+        f"{__name__}: ({request.method})>  Got to submit method with {query}->{replace} "
+    )
+    LOG.debug(f"{__name__}: {request.method} > {list(request.form.keys())}")
+    selected_keys = {
+        key: value
+        for key, value in request.form.items()
+        if key.startswith("match") and not key.endswith("replace")
+    }
     render = _select_changes(project_, selected_keys, query=query, replace=replace)
-    
+
     return render
 
 
@@ -478,20 +497,22 @@ def confirm_replace(slug):
     project_ = q.project(slug)
     if project_ is None:
         abort(404)
-    LOG.debug(f'{__name__}: CONFIRM_REPLACE {request.method} > Keys: {list(request.form.keys())}, Items: {list(request.form.items())}')
+    LOG.debug(
+        f"{__name__}: CONFIRM_REPLACE {request.method} > Keys: {list(request.form.keys())}, Items: {list(request.form.items())}"
+    )
     form = ConfirmReplaceForm(request.form)
     if not form.validate():
         flash("Invalid input.", "danger")
         invalid_keys = list(form.errors.keys())
-        LOG.error(f'{__name__}: Invalid form - {request.method}, invalid keys: {invalid_keys}')
+        LOG.error(
+            f"{__name__}: Invalid form - {request.method}, invalid keys: {invalid_keys}"
+        )
         return redirect(url_for("proofing.project.replace", slug=slug))
 
-    
     if form.confirm.data:
-        LOG.debug(f'{__name__}: {request.method} > Confirmed!')
+        LOG.debug(f"{__name__}: {request.method} > Confirmed!")
         query = form.query.data
         replace = form.replace.data
-        changes = []
 
         # Get the changes from the form and store them in a list
         pages = {}
@@ -510,12 +531,14 @@ def confirm_replace(slug):
 
         for page_slug, changed_lines in pages.items():
             # Get the corresponding `Page` object
-            LOG.debug(f'{__name__}: Project - {project_.slug}, Page : {page_slug}')
+            LOG.debug(f"{__name__}: Project - {project_.slug}, Page : {page_slug}")
 
-            # Page query needs id for project and slug for page 
+            # Page query needs id for project and slug for page
             page = q.page(project_.id, page_slug)
             if not page:
-                LOG.error(f'{__name__}: Page not found for project - {project_.slug}, page : {page_slug}')
+                LOG.error(
+                    f"{__name__}: Page not found for project - {project_.slug}, page : {page_slug}"
+                )
                 return render_template(url_for("proofing.project.replace", slug=slug))
 
             latest = page.revisions[-1]
@@ -523,12 +546,16 @@ def confirm_replace(slug):
             # Iterate over the `lines` dictionary
             for line_num, replace_value in changed_lines.items():
                 # Check if the line_num exists in the dictionary for this page
-                LOG.debug(f'{__name__}: Current - {current_lines[line_num]}, Length of lines = {len(current_lines)}')
+                LOG.debug(
+                    f"{__name__}: Current - {current_lines[line_num]}, Length of lines = {len(current_lines)}"
+                )
                 if line_num < len(current_lines):
                     # Replace the line with the replacement value
                     current_lines[line_num] = replace_value
                 else:
-                    LOG.error(f'{__name__}: Invalid line number {line_num} in {page_slug} which has only {len(current_lines)}')
+                    LOG.error(
+                        f"{__name__}: Invalid line number {line_num} in {page_slug} which has only {len(current_lines)}"
+                    )
                     continue
             # Join the lines into a single string
             new_content = "\n".join(current_lines)
@@ -536,13 +563,20 @@ def confirm_replace(slug):
             if new_content != latest.content:
                 # Add a new revision to the page
                 new_summary = f'Replaced "{query}" with "{replace}" on page {page.slug}'
-                new_revision = add_revision(page=page, summary=new_summary, content=new_content, status=page.status.name, version=page.version, author_id=current_user.id)
-                LOG.debug(f'{__name__}: New reviion > {page_slug}: {new_revision}')
+                new_revision = add_revision(
+                    page=page,
+                    summary=new_summary,
+                    content=new_content,
+                    status=page.status.name,
+                    version=page.version,
+                    author_id=current_user.id,
+                )
+                LOG.debug(f"{__name__}: New reviion > {page_slug}: {new_revision}")
 
         flash("Changes applied.", "success")
         return redirect(url_for("proofing.project.activity", slug=slug))
     elif form.cancel.data:
-        LOG.debug(f'{__name__}: CONFIRM_REPLACE Cancelled')
+        LOG.debug(f"{__name__}: CONFIRM_REPLACE Cancelled")
         return redirect(url_for("proofing.project.edit", slug=slug))
 
     return render_template(url_for("proofing.project.edit", slug=slug))

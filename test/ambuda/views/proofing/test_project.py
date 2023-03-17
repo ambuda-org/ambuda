@@ -105,6 +105,16 @@ def test_search__bad_project(rama_client):
     assert resp.status_code == 404
 
 
+def test_replace(client):
+    resp = client.get("/proofing/test-project/replace")
+    assert "Replace:" in resp.text
+
+
+def test_replace__bad_project(rama_client):
+    resp = rama_client.get("/proofing/unknown/replace")
+    assert resp.status_code == 404
+
+
 def test_admin__unauth(client):
     resp = client.get("/proofing/test-project/admin")
     assert resp.status_code == 302
