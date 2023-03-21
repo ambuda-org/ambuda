@@ -40,7 +40,6 @@ from ambuda.views.proofing.decorators import moderator_required, p2_required
 
 bp = Blueprint("project", __name__)
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.DEBUG)
 
 def _is_valid_page_number_spec(_, field):
     try:
