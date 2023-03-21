@@ -42,6 +42,7 @@ bp = Blueprint("project", __name__)
 LOG = logging.getLogger(__name__)
 LOG.setLevel(logging.DEBUG)
 
+
 def _is_valid_page_number_spec(_, field):
     try:
         _ = project_utils.parse_page_number_spec(field.data)
@@ -333,7 +334,9 @@ def _replace_text(project_, replace_form: ReplaceForm, query: str, replace: str)
 
     results = []
 
-    query_pattern = re.compile(query, re.UNICODE)  # Compile the regex pattern with Unicode support
+    query_pattern = re.compile(
+        query, re.UNICODE
+    )  # Compile the regex pattern with Unicode support
 
     LOG.debug(f"Search/Replace text with {query} and {replace}")
     for page_ in project_.pages:
@@ -345,9 +348,12 @@ def _replace_text(project_, replace_form: ReplaceForm, query: str, replace: str)
         for line_num, line in enumerate(latest.content.splitlines()):
             if query_pattern.search(line):
                 try:
-                    replaced_line = query_pattern.sub(replace, line)
-                    marked_query = query_pattern.sub(lambda m: Markup(f'<mark>{escape(m.group(0))}</mark>'), line)
-                    marked_replace = query_pattern.sub(Markup(f'<mark>{escape(replace)}</mark>'), line)
+                    marked_query = query_pattern.sub(
+                        lambda m: Markup(f"<mark>{escape(m.group(0))}</mark>"), line
+                    )
+                    marked_replace = query_pattern.sub(
+                        Markup(f"<mark>{escape(replace)}</mark>"), line
+                    )
                     LOG.debug(f"Search/Replace > marked query: {marked_query}")
                     LOG.debug(f"Search/Replace > marked replace: {marked_replace}")
                     matches.append(
@@ -360,8 +366,10 @@ def _replace_text(project_, replace_form: ReplaceForm, query: str, replace: str)
                     )
                 except TimeoutError:
                     # Handle the timeout for regex operation, e.g., log a warning or show an error message
-                    LOG.warning(f"Regex operation timed out for line {line_num}: {line}")
-                
+                    LOG.warning(
+                        f"Regex operation timed out for line {line_num}: {line}"
+                    )
+
         if matches:
             results.append(
                 {
