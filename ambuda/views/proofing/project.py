@@ -333,6 +333,10 @@ def _replace_text(project_, replace_form: ReplaceForm, query: str, replace: str)
 
     results = []
 
+    query_pattern = re.compile(
+        query, re.UNICODE
+    )  # Compile the regex pattern with Unicode support
+
     LOG.debug(f"Search/Replace text with {query} and {replace}")
     for page_ in project_.pages:
         if not page_.revisions:
@@ -341,21 +345,30 @@ def _replace_text(project_, replace_form: ReplaceForm, query: str, replace: str)
         latest = page_.revisions[-1]
         LOG.debug(f"{__name__}: {page_.slug}")
         for line_num, line in enumerate(latest.content.splitlines()):
-            # LOG.debug(f'Search/Replace > {page_.slug}: {line}')
-            if query in line:
-                LOG.debug(f"Search/Replace > appending search/replace {line}")
-                matches.append(
-                    {
-                        "query": escape(line).replace(
-                            query, Markup(f"<mark>{escape(query)}</mark>")
-                        ),
-                        "replace": escape(line).replace(
-                            query, Markup(f"<mark>{escape(replace)}</mark>")
-                        ),
-                        "checked": False,
-                        "line_num": line_num,
-                    }
-                )
+            if query_pattern.search(line):
+                try:
+                    marked_query = query_pattern.sub(
+                        lambda m: Markup(f"<mark>{escape(m.group(0))}</mark>"), line
+                    )
+                    marked_replace = query_pattern.sub(
+                        Markup(f"<mark>{escape(replace)}</mark>"), line
+                    )
+                    LOG.debug(f"Search/Replace > marked query: {marked_query}")
+                    LOG.debug(f"Search/Replace > marked replace: {marked_replace}")
+                    matches.append(
+                        {
+                            "query": marked_query,
+                            "replace": marked_replace,
+                            "checked": False,
+                            "line_num": line_num,
+                        }
+                    )
+                except TimeoutError:
+                    # Handle the timeout for regex operation, e.g., log a warning or show an error message
+                    LOG.warning(
+                        f"Regex operation timed out for line {line_num}: {line}"
+                    )
+
         if matches:
             results.append(
                 {
