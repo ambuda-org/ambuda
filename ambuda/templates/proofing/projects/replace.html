@@ -11,7 +11,7 @@
 
 <div class="prose">
   <h1>Replace</h1>
-  <p>Use this simple search and replace form to make edits across this project.</p>
+  <p>Use this simple search and replace form to make edits across this project. The search supports regex.s</p>
   <form method="POST" class="bg-slate-100 p-4 my-4">
     
     {{ field(form.query) }}
@@ -45,9 +45,9 @@
               <div class="match" style="background-color: rgb(243, 239, 239);">
                 <input type="checkbox" name="match{{ page.slug }}-{{ match.line_num }}" id="match{{ page.slug }}-{{ match.line_num }}" value="selected">
                   <p>Page <a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}:</a> Line {{ match.line_num }}</p>
-                  <label for="match{{ page.slug }}-{{ match.line_num }}">{{ match.query }}</label>
+                  <label for="match{{ page.slug }}-{{ match.line_num }}">{{ match.query|safe }}</label>
                   <br>
-                  <label for="match{{ page.slug }}-{{ match.line_num }}-replace" style="color: rgb(97, 86, 66); background-color: rgb(219, 215, 215);"> {{ match.replace }} </label>
+                  <label for="match{{ page.slug }}-{{ match.line_num }}-replace" style="color: rgb(97, 86, 66); background-color: rgb(219, 215, 215);"> {{ match.replace|safe }} </label>
                   <input type="hidden" name="match{{ page.slug }}-{{ match.line_num }}-replace" id="match{{ page.slug }}-{{ match.line_num }}-replace" value="{{ match.replace }}">
               </div>
               <br>
