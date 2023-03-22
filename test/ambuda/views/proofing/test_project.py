@@ -134,11 +134,10 @@ def test_replace__bad_project(rama_client):
 def test_submit_changes(moderator_client):
     query = "test_query"
     replace = "test_replace"
-    form_data = {
-        "query": query,
-        "replace": replace
-    }
-    resp = moderator_client.post("/proofing/test-project/submit_changes", data=form_data)
+    form_data = {"query": query, "replace": replace}
+    resp = moderator_client.post(
+        "/proofing/test-project/submit_changes", data=form_data
+    )
     assert "Changes:" in resp.text
 
 
