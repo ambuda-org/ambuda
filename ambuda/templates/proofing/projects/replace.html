@@ -11,7 +11,7 @@
 
 <div class="prose">
   <h1>Replace</h1>
-  <p>Use this simple search and replace form to make edits across this project. The search supports regular expressions./p>
+  <p>Use this simple search and replace form to make edits across this project. The search supports regular expressions.</p>
   <form method="POST" class="bg-slate-100 p-4 my-4">
     
     {{ field(form.query) }}
@@ -33,8 +33,8 @@
     <p>Found {{ nr }} {{ sp("page", "pages", nr) }} that {{ sp("contains", "contain", nr) }} <kbd>{{ query }}</kbd>.</p>
     <ul>
     <div class="match">
-      <input type="checkbox" name="check-all" id="check-all">
-      <label for="check-all">Select all in this page </label>
+      <input type="checkbox" name="select-all" id="select-all">
+      <label for="select-all">Select all in this page </label>
     </div>
     {% for page in results %}
       {% set page_url = url_for("proofing.page.edit", project_slug=project.slug, page_slug=page.slug) %}
@@ -61,44 +61,44 @@
       <input class="btn btn-submit" type="submit" name="submit" value="Submit Changes">
     {% endif %}
   </form>
-  </ul>
-  <input type="hidden" name="form_submitted" value="1">
-  {% endif %}
-  
+  </ul>  
   <script>
-    // Get references to the "check-all" checkbox and all the other checkboxes
-    const checkAll = document.querySelector('#check-all');
-    const checkboxes = document.querySelectorAll('input[type="checkbox"][name$="selected"]');
-  
-    // Add a change event listener to the "check-all" checkbox
-    checkAll.addEventListener('change', function(event) {
-      // If the "check-all" checkbox is checked, check all the other checkboxes
-      if (event.target.checked) {
-        checkboxes.forEach(function(checkbox) {
-          checkbox.checked = true;
-        });
-      }
-      // If the "check-all" checkbox is not checked, uncheck all the other checkboxes
-      else {
-        checkboxes.forEach(function(checkbox) {
-          checkbox.checked = false;
-        });
-      }
-    });
-  
-    // Add change event listeners to each individual checkbox
-    checkboxes.forEach(function(checkbox) {
-      checkbox.addEventListener('change', function(event) {
-        const replaceField = document.querySelector(`#${event.target.id}-replace`);
-        if (event.target.checked) {
-          replaceField.style.display = '';
+    (function() {
+      // Get references to the "select-all" checkbox and all the other checkboxes
+      const checkAll = document.querySelector("#select-all");
+      const checkboxes = document.querySelectorAll('input[type="checkbox"][name^="match"]');
+    
+      // Function to update the visibility of the replaceField element
+      function updateReplaceFieldVisibility(checkbox) {
+        const replaceField = document.querySelector(`#${checkbox.id}-replace`);
+        if (checkbox.checked) {
+          replaceField.style.display = "";
         } else {
-          replaceField.style.display = 'none';
+          replaceField.style.display = "none";
         }
+      }
+    
+      // Add a change event listener to the "select-all" checkbox
+      checkAll.addEventListener("change", function(event) {
+        // If the "select-all" checkbox is checked, check all the other checkboxes
+        // and update the replaceField visibility
+        checkboxes.forEach(function(checkbox) {
+          checkbox.checked = event.target.checked;
+          updateReplaceFieldVisibility(checkbox);
+        });
       });
-    });
-  </script>
-  
+    
+      // Add change event listeners to each individual checkbox
+      checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener("change", function(event) {
+          updateReplaceFieldVisibility(event.target);
+    
+          // Update the state of the 'select-all' checkbox
+          checkAll.checked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+        });
+      });
+    })();
+</script>
 </div>
-
+{% endif %}
 {% endblock %}

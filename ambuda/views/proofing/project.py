@@ -419,6 +419,9 @@ def _select_changes(project_, selected_keys, query: str, replace: str):
     """
     results = []
     LOG.debug(f"{__name__}: Mark changes with {query} and {replace}")
+    query_pattern = re.compile(
+        query, re.UNICODE
+    )  # Compile the regex pattern with Unicode support
     for page_ in project_.pages:
         if not page_.revisions:
             continue
@@ -436,10 +439,11 @@ def _select_changes(project_, selected_keys, query: str, replace: str):
                     f"{__name__}: {replace_form_key}: {request.form.get(replace_form_key)}"
                 )
                 LOG.debug(f"{__name__}: {form_key}: Appended")
+                replaced_line = query_pattern.sub(replace, line)
                 matches.append(
                     {
                         "query": line,
-                        "replace": line.replace(query, replace),
+                        "replace": replaced_line,
                         "line_num": line_num,
                     }
                 )
