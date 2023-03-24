@@ -10,38 +10,95 @@
 {{ m.project_nav(project=project, active='edit') }}
 
 <div class="prose">
-  <p>Use this simple search and replace form to make edits across this project.</p>
+  <h1>Replace</h1>
+  <p>Use this simple search and replace form to make edits across this project. The search supports regular expressions.</p>
+  <form method="POST" class="bg-slate-100 p-4 my-4">
+    
+    {{ field(form.query) }}
+    {{ field(form.replace) }}
+    <input class="btn btn-submit" type="submit" name="search" value="Project-wide Search & Replace">
+  </form>
 </div>
 
-<form method="GET" class="bg-slate-100 p-4 my-4">
-  {{ field(form.query) }}
-  {{ field(form.replace) }}
-  <input class="btn btn-submit" type="submit" value="Project-wide Search & Replace">
-</form>
-
-{% if query %}
+{% if results %}
 <div class="prose">
+  <h1>Matches</h1>
+  {% macro sp(s, p, n) %}{% if n == 1 %}{{ s }}{% else %}{{ p }}{% endif %}{% endmacro %}
+  <form method="POST" action="{{ url_for('proofing.project.submit_changes', slug=project.slug) }}" class="bg-slate-100 p-4 my-4">
+    {{ submit_changes_form.csrf_token }}
+    <input type="hidden" name="query" value="{{ query }}">
+    <input type="hidden" name="replace" value="{{ replace }}">
 
-{% macro sp(s, p, n) %}{% if n == 1 %}{{ s }}{% else %}{{ p }}{% endif %}{% endmacro %}
-
-{% set nr = results|length %}
-<p>Found {{ nr }} {{ sp("page", "pages", nr) }} that {{ sp("contains", "contain", nr) }} <kbd>{{ query }}</kbd>.</p>
-
-<ul>
-{% for page in results %}
-{% set page_url = url_for("proofing.page.edit", project_slug=project.slug, page_slug=page.slug) %}
-<li>
-    <a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}</a>
-    <div class="p-2 border-l my-2">
-    {% for match in page.matches %}
-    <pre class="p-0.5">{{ match.query }}</pre>
-    <pre class="p-0.5">{{ match.update }}</pre>
-    {%- endfor %}
+    {% set nr = results|length %}
+    <p>Found {{ nr }} {{ sp("page", "pages", nr) }} that {{ sp("contains", "contain", nr) }} <kbd>{{ query }}</kbd>.</p>
+    <ul>
+    <div class="match">
+      <input type="checkbox" name="select-all" id="select-all">
+      <label for="select-all">Select all in this page </label>
     </div>
-</li>
-{% endfor %}
-</ul>
-
+    {% for page in results %}
+      {% set page_url = url_for("proofing.page.edit", project_slug=project.slug, page_slug=page.slug) %}
+      <li>
+          <a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}</a>
+          <div class="p-2 border-l my-2">                  
+            {% for match in page.matches %}
+              <div class="match" style="background-color: rgb(243, 239, 239);">
+                <input type="checkbox" name="match{{ page.slug }}-{{ match.line_num }}" id="match{{ page.slug }}-{{ match.line_num }}" value="selected">
+                  <p>Page <a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}:</a> Line {{ match.line_num }}</p>
+                  <label for="match{{ page.slug }}-{{ match.line_num }}">{{ match.query|safe }}</label>
+                  <br>
+                  <label for="match{{ page.slug }}-{{ match.line_num }}-replace" style="color: rgb(97, 86, 66); background-color: rgb(219, 215, 215);"> {{ match.replace|safe }} </label>
+                  <input type="hidden" name="match{{ page.slug }}-{{ match.line_num }}-replace" id="match{{ page.slug }}-{{ match.line_num }}-replace" value="{{ match.replace }}">
+              </div>
+              <br>
+            {% endfor %}
+          </div>
+      </li>
+    {% endfor %}
+    {% if submit_changes_form %}
+      {{ submit_changes_form.submit(class="btn btn-submit") }}
+    {% else %}
+      <input class="btn btn-submit" type="submit" name="submit" value="Submit Changes">
+    {% endif %}
+  </form>
+  </ul>  
+  <script>
+    (function() {
+      // Get references to the "select-all" checkbox and all the other checkboxes
+      const checkAll = document.querySelector("#select-all");
+      const checkboxes = document.querySelectorAll('input[type="checkbox"][name^="match"]');
+    
+      // Function to update the visibility of the replaceField element
+      function updateReplaceFieldVisibility(checkbox) {
+        const replaceField = document.querySelector(`#${checkbox.id}-replace`);
+        if (checkbox.checked) {
+          replaceField.style.display = "";
+        } else {
+          replaceField.style.display = "none";
+        }
+      }
+    
+      // Add a change event listener to the "select-all" checkbox
+      checkAll.addEventListener("change", function(event) {
+        // If the "select-all" checkbox is checked, check all the other checkboxes
+        // and update the replaceField visibility
+        checkboxes.forEach(function(checkbox) {
+          checkbox.checked = event.target.checked;
+          updateReplaceFieldVisibility(checkbox);
+        });
+      });
+    
+      // Add change event listeners to each individual checkbox
+      checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener("change", function(event) {
+          updateReplaceFieldVisibility(event.target);
+    
+          // Update the state of the 'select-all' checkbox
+          checkAll.checked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+        });
+      });
+    })();
+</script>
 </div>
 {% endif %}
 {% endblock %}
