@@ -174,7 +174,7 @@ select = [
     "B",     # flake8-bugbear
     "F",     # pyflakes
     "N818",  # error-suffix-on-exception-name
-    "UP",
+    "UP",    # pyupgrade
     "W",     # pycodestyle
     "I001",  # isort
 ]
