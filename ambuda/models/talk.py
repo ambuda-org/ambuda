@@ -1,4 +1,4 @@
-"""For discussion forums."""
+"""Models for discussion forums."""
 
 from datetime import datetime
 

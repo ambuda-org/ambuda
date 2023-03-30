@@ -1,3 +1,5 @@
+"""Logic for displaying a parsed TextBlock."""
+
 from flask import Blueprint, abort, render_template
 
 import ambuda.queries as q

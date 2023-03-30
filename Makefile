@@ -52,6 +52,7 @@ endif
 
 DB_FILE = ${PWD}/deploy/data/database/database.db
 
+
 # Setup commands
 # ===============================================
 
@@ -122,18 +123,24 @@ db-seed-all: py-venv-check
 	python -m ambuda.seed.dictionaries.shabdasagara
 	python -m ambuda.seed.dictionaries.vacaspatyam
 
+
 # Local run commands
 # ===============================================
+
 .PHONY: devserver celery
-devserver: 
-	make mode=dev docker-start
+
+# For Docker try `make mode=dev docker-start`
+devserver: py-venv-check
+	./node_modules/.bin/concurrently "flask run -h 0.0.0.0 -p 5000" "npx tailwindcss -i ambuda/static/css/style.css -o ambuda/static/gen/style.css --watch" "npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --watch"
 	
 # Run a local Celery instance for background tasks.
 celery: 
 	celery -A ambuda.tasks worker --loglevel=INFO
 
+
 # Docker commands
 # ===============================================
+
 .PHONY: docker-setup-db docker-build docker-start docker-stop docker-logs
 # Start DB using Docker.
 docker-setup-db: docker-build 
@@ -171,9 +178,9 @@ docker-logs:
 	@docker compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml logs
 
 
-
 # Lint commands
 # ===============================================
+
 # Check imports in Python code
 lint-isort:
 	@echo "Running Python isort to organize module imports"
@@ -198,8 +205,10 @@ lint-check: js-lint py-lint
 	black . --diff
 	@echo 'Lint completed'
 
+
 # Test, coverage and documentation commands
 # ===============================================
+
 # Run all Python unit tests.
 test: py-venv-check
 	pytest .
@@ -261,7 +270,7 @@ js-check-types:
 # i18n and l10n commands
 # ===============================================
 
-# Extract all translatable text from the application.
+# Extract all translatable text from the application and save it in `messages.pot`.
 babel-extract: py-venv-check
 	pybabel extract --mapping babel.cfg --keywords _l --output-file messages.pot .
 
@@ -280,6 +289,7 @@ babel-compile: py-venv-check
 
 # Clean up
 # ===============================================
+
 clean:
 	@rm -rf deploy/data/
 	@rm -rf ambuda/translations/*

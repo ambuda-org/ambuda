@@ -65,7 +65,13 @@ def _make_section_url(
         return None
 
 
-def _section_groups(sections: list[db.TextSection]):
+def _section_groups(sections: list[db.TextSection]) -> dict[str, list[db.TextSection]]:
+    """Groups section hierarchically according to their slug.
+
+    For example, the sections `[1.1, 1.2, 2.1, 2.2]` will be grouped as::
+
+        { "1": [1.1, 1.2], "2": [2.1, 2.2] }
+    """
     grouper = {}
     for s in sections:
         key, _, _ = s.slug.rpartition(".")

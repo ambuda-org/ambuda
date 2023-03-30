@@ -1,3 +1,5 @@
+"""Models related to our proofing work."""
+
 from datetime import datetime
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
@@ -13,12 +15,16 @@ def string():
 
 
 def text():
+    """Create a non-nullable text column that defaults to the empty string."""
     return Column(Text_, nullable=False, default="")
 
 
 class Project(Base):
 
-    """A proofreading project. Each project has exactly one book."""
+    """A proofreading project.
+
+    Each project corresponds to exactly one printed book.
+    """
 
     __tablename__ = "proof_projects"
 
@@ -67,7 +73,8 @@ class Page(Base):
 
     """A page in a proofreading project.
 
-    This corresponds to a specific page in a PDF."""
+    This corresponds to a specific page in a PDF.
+    """
 
     __tablename__ = "proof_pages"
 

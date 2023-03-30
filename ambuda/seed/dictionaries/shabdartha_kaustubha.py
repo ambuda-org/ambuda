@@ -27,7 +27,7 @@ from ambuda.seed.utils.cdsl_utils import create_from_scratch
 from ambuda.seed.utils.data_utils import create_db, fetch_text
 from ambuda.utils.dict_utils import standardize_key
 
-RAW_URL = "https://raw.githubusercontent.com/indic-dict/stardict-sanskrit/raw/master/sa-head/other-indic-entries/shabdArtha_kaustubha/shabdArtha_kaustubha.babylon"
+RAW_URL = "https://raw.githubusercontent.com/indic-dict/stardict-sanskrit/master/sa-head/other-indic-entries/shabdArtha_kaustubha/shabdArtha_kaustubha.babylon"
 
 
 def create_entries(key: str, body: str) -> Iterator[tuple[str, str]]:
@@ -74,6 +74,7 @@ def run(use_cache):
     engine = create_db()
 
     print(f"Fetching data from GitHub (use_cache = {use_cache})...")
+    print(RAW_URL)
     text_blob = fetch_text(RAW_URL, read_from_cache=use_cache)
 
     print("Adding items to database ...")

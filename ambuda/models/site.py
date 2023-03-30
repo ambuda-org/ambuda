@@ -1,7 +1,8 @@
 """Various site content unrelated to texts and proofing.
 
-The idea is that a trusted user can edit site content directly without waiting
-for a site deploy.
+The idea is that a trusted user can edit site content by creating and modifyng
+these objects. By doing so, they can update the site without waiting for a site
+deploy.
 """
 
 from sqlalchemy import Column, Integer, String
@@ -22,7 +23,7 @@ class ProjectSponsorship(Base):
     sa_title = Column(String, nullable=False)
     #: English title.
     en_title = Column(String, nullable=False)
-    #: Description.
+    #: A short description of this project.
     description = Column(Text_, nullable=False)
-    #: The estimated cost of this project in INR.
+    #: The estimated cost of this project in Indian rupees (INR).
     cost_inr = Column(Integer, nullable=False)
