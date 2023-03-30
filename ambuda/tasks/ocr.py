@@ -53,8 +53,10 @@ def _run_ocr_for_page_inner(
                 version=0,
                 author_id=bot_user.id,
             )
-        except Exception:
-            raise ValueError(f'OCR failed for page "{project.slug}/{page.slug}".')
+        except Exception as e:
+            raise ValueError(
+                f'OCR failed for page "{project.slug}/{page.slug}".'
+            ) from e
 
 
 @app.task(bind=True)

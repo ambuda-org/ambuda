@@ -171,7 +171,11 @@ pytest-cov = "4.0.0"
 [tool.ruff]
 # https://beta.ruff.rs/docs/rules/
 select = [
+    "B",     # flake8-bugbear
+    "F401",  # unused-import
     "I001",  # isort
 ]
-# Path to first-party modules.
-src = ["ambuda/ambuda", "config"]
+ignore = [
+    "B007",  # unused-loop-control-variable
+    "B905"   # zip-without-explicit-strict
+]

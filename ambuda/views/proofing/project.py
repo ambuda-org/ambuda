@@ -45,8 +45,8 @@ LOG = logging.getLogger(__name__)
 def _is_valid_page_number_spec(_, field):
     try:
         _ = project_utils.parse_page_number_spec(field.data)
-    except Exception:
-        raise ValidationError("The page number spec isn't valid.")
+    except Exception as e:
+        raise ValidationError("The page number spec isn't valid.") from e
 
 
 class EditMetadataForm(FlaskForm):

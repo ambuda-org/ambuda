@@ -183,7 +183,7 @@ docker-logs:
 
 # Link checks on Python code
 py-lint: py-venv-check
-	ruff .
+	ruff . --fix
 	black .
 
 # Lint our Python and JavaScript code. Fail on any issues.

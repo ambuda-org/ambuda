@@ -11,8 +11,10 @@ from ambuda.seed.utils.data_utils import create_db
 def _create_bot_user(session):
     try:
         password = os.environ["AMBUDA_BOT_PASSWORD"]
-    except KeyError:
-        raise ValueError("Please set the AMBUDA_BOT_PASSWORD environment variable.")
+    except KeyError as e:
+        raise ValueError(
+            "Please set the AMBUDA_BOT_PASSWORD environment variable."
+        ) from e
 
     user = db.User(username=consts.BOT_USERNAME, email="bot@ambuda.org")
     user.set_password(password)

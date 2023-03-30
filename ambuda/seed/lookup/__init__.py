@@ -14,4 +14,4 @@ def run():
             "Error: Failed to create page statuses, "
             "create roles, and creat bot user."
             f"Error: {ex}"
-        )
+        ) from ex
