@@ -1,7 +1,6 @@
 """Views related to texts: title pages, sections, verses, etc."""
 
 import json
-from typing import Optional
 
 from flask import Blueprint, abort, jsonify, render_template, url_for
 from indic_transliteration import sanscript
@@ -56,9 +55,7 @@ def _prev_cur_next(sections: list[db.TextSection], slug: str):
     return prev, cur, next
 
 
-def _make_section_url(
-    text: db.Text, section: Optional[db.TextSection]
-) -> Optional[str]:
+def _make_section_url(text: db.Text, section: db.TextSection | None) -> str | None:
     if section:
         return url_for("texts.section", text_slug=text.slug, section_slug=section.slug)
     else:

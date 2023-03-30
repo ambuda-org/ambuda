@@ -1,8 +1,8 @@
 """Add the Mahabharata parse data from DCS."""
 
 
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 import ambuda.scripts.analysis.dcs_utils as dcs
 from ambuda.scripts.analysis.ramayana import get_kanda_and_sarga, map_and_write

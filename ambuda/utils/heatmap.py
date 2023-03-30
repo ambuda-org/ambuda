@@ -7,9 +7,9 @@ Known issues:
 
 import calendar
 import math
+from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from typing import Iterator, Optional
 
 #: ISO weekday correspanding to Sunday.
 ISO_SUNDAY = 7
@@ -46,7 +46,7 @@ def _count_per_date(iter_date: Iterator[date]) -> dict[date, int]:
     return counts
 
 
-def _create_calendar_dates(last_date: Optional[date] = None) -> list[date]:
+def _create_calendar_dates(last_date: date | None = None) -> list[date]:
     """Return a year's worth of dates up to and including `last_date`.
 
     We construct a year's worth of dates then backfill until the first date is

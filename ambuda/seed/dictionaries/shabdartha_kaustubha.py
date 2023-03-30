@@ -18,7 +18,7 @@ where each `value` is on a single line.
 """
 
 import re
-from typing import Iterator
+from collections.abc import Iterator
 
 import click
 from indic_transliteration import sanscript

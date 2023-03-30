@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Database utility functions."""
 
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterator
 
 from dotenv import load_dotenv
 from indic_transliteration import sanscript

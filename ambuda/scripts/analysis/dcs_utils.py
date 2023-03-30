@@ -4,8 +4,8 @@ One term of art I use here: a "chunk" is a space-separated segment in the text.
 """
 
 import re
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Iterator
 
 import conllu
 from indic_transliteration import sanscript

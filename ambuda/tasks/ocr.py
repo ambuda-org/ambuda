@@ -1,6 +1,5 @@
 """Background tasks for proofing projects."""
 
-from typing import Optional
 
 from celery import group
 from celery.result import GroupResult
@@ -77,7 +76,7 @@ def run_ocr_for_page(
 def run_ocr_for_project(
     app_env: str,
     project: db.Project,
-) -> Optional[GroupResult]:
+) -> GroupResult | None:
     """Create a `group` task to run OCR on a project.
 
     Usage:

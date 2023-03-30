@@ -5,7 +5,6 @@ For simple or adhoc queries, you can just write them in their corresponding view
 """
 
 import functools
-from typing import Optional
 
 from flask import current_app
 from sqlalchemy import create_engine
@@ -66,7 +65,7 @@ def page_statuses() -> list[db.PageStatus]:
     return session.query(db.PageStatus).all()
 
 
-def text(slug: str) -> Optional[db.Text]:
+def text(slug: str) -> db.Text | None:
     session = get_session()
     return (
         session.query(db.Text)
@@ -99,17 +98,17 @@ def text_meta(slug: str) -> db.Text:
     )
 
 
-def text_section(text_id: int, slug: str) -> Optional[db.TextSection]:
+def text_section(text_id: int, slug: str) -> db.TextSection | None:
     session = get_session()
     return session.query(db.TextSection).filter_by(text_id=text_id, slug=slug).first()
 
 
-def block(text_id: int, slug: str) -> Optional[db.TextBlock]:
+def block(text_id: int, slug: str) -> db.TextBlock | None:
     session = get_session()
     return session.query(db.TextBlock).filter_by(text_id=text_id, slug=slug).first()
 
 
-def block_parse(block_id: int) -> Optional[db.BlockParse]:
+def block_parse(block_id: int) -> db.BlockParse | None:
     session = get_session()
     return session.query(db.BlockParse).filter_by(block_id=block_id).first()
 
@@ -153,17 +152,17 @@ def projects() -> list[db.Project]:
     return session.query(db.Project).all()
 
 
-def project(slug: str) -> Optional[db.Project]:
+def project(slug: str) -> db.Project | None:
     session = get_session()
     return session.query(db.Project).filter(db.Project.slug == slug).first()
 
 
-def thread(*, id: int) -> Optional[db.Thread]:
+def thread(*, id: int) -> db.Thread | None:
     session = get_session()
     return session.query(db.Thread).filter_by(id=id).first()
 
 
-def post(*, id: int) -> Optional[db.Post]:
+def post(*, id: int) -> db.Post | None:
     session = get_session()
     return session.query(db.Post).filter_by(id=id).first()
 
@@ -197,7 +196,7 @@ def create_post(*, board_id: int, thread: db.Thread, user_id: int, content: str)
     session.commit()
 
 
-def page(project_id, page_slug: str) -> Optional[db.Page]:
+def page(project_id, page_slug: str) -> db.Page | None:
     session = get_session()
     return (
         session.query(db.Page)
@@ -206,7 +205,7 @@ def page(project_id, page_slug: str) -> Optional[db.Page]:
     )
 
 
-def user(username: str) -> Optional[db.User]:
+def user(username: str) -> db.User | None:
     session = get_session()
     return (
         session.query(db.User)
@@ -233,7 +232,7 @@ def create_user(*, username: str, email: str, raw_password: str) -> db.User:
     return user
 
 
-def blog_post(slug: str) -> Optional[db.BlogPost]:
+def blog_post(slug: str) -> db.BlogPost | None:
     """Fetch the given blog post."""
     session = get_session()
     return session.query(db.BlogPost).filter_by(slug=slug).first()

@@ -1,5 +1,5 @@
+from collections.abc import Iterator
 from datetime import date
-from typing import Iterator
 
 DOUBLE_DANDA = "\u0965"
 
