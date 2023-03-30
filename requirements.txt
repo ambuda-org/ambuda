@@ -28,7 +28,6 @@ dnspython==2.2.1
 docutils==0.17.1
 email-validator==1.2.1
 fabric==2.7.0
-flake8==5.0.4
 Flask==2.1.2
 Flask-Admin==1.6.0
 Flask-Babel==2.0.0
@@ -53,7 +52,6 @@ importlib-metadata==4.11.4
 indic-transliteration==2.3.31
 iniconfig==1.1.1
 invoke==1.7.1
-isort==5.10.1
 itsdangerous==2.1.2
 jaconv==0.3
 Jinja2==3.1.2
@@ -89,7 +87,6 @@ pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pycodestyle==2.9.1
 pycparser==2.21
-pyflakes==2.5.0
 Pygments==2.12.0
 pykakasi==2.2.1
 PyMuPDF==1.20.2
@@ -99,8 +96,6 @@ pyparsing==3.0.9
 PySocks==1.7.1
 pytest==7.1.2
 pytest-cov==4.0.0
-pytest-cover==3.0.0
-pytest-coverage==0.0
 python-dateutil==2.8.2
 python-dotenv==0.20.0
 python-slugify==6.1.2
@@ -110,6 +105,7 @@ redis==4.3.4
 regex==2022.6.2
 requests==2.27.1
 roman==3.3
+ruff=0.0.260
 rsa==4.8
 selenium==4.2.0
 sentry-sdk==1.6.0
