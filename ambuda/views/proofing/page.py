@@ -21,7 +21,7 @@ from ambuda.enums import SitePageStatus
 from ambuda.utils import google_ocr, project_utils
 from ambuda.utils.assets import get_page_image_filepath
 from ambuda.utils.diff import revision_diff
-from ambuda.utils.revisions import EditException, add_revision
+from ambuda.utils.revisions import EditError, add_revision
 from ambuda.views.api import bp as api
 from ambuda.views.site import bp as site
 
@@ -177,7 +177,7 @@ def edit_post(project_slug, page_slug):
             )
             form.version.data = new_version
             flash("Saved changes.", "success")
-        except EditException:
+        except EditError:
             # FIXME: in the future, use a proper edit conflict view.
             flash("Edit conflict. Please incorporate the changes below:")
             conflict = cur.revisions[-1]

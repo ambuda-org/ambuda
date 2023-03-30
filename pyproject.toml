@@ -172,8 +172,9 @@ pytest-cov = "4.0.0"
 # https://beta.ruff.rs/docs/rules/
 select = [
     "B",     # flake8-bugbear
-    "W",
     "F",     # pyflakes
+    "N818",  # error-suffix-on-exception-name
+    "W",     # pycodestyle
     "I001",  # isort
 ]
 ignore = [
