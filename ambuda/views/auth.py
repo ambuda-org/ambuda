@@ -130,7 +130,7 @@ def get_field_validators(field_name: str, min_len: int, max_len: int):
 def get_username_validators():
     validators = get_field_validators("username", MIN_USERNAME_LEN, MAX_USERNAME_LEN)
     validators.append(
-        val.Regexp("^[^\s]*$", message="Username must not contain spaces")
+        val.Regexp(r"^[^\s]*$", message="Username must not contain spaces")
     )
     return validators
 

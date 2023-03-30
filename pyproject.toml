@@ -172,7 +172,8 @@ pytest-cov = "4.0.0"
 # https://beta.ruff.rs/docs/rules/
 select = [
     "B",     # flake8-bugbear
-    "F401",  # unused-import
+    "W",
+    "F",     # pyflakes
     "I001",  # isort
 ]
 ignore = [
