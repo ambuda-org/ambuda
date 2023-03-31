@@ -29,7 +29,6 @@ def test_create_project_inner(flask_app):
             title="Cool project",
             pdf_path=f.name,
             output_dir=flask_app.config["UPLOAD_FOLDER"],
-            app_environment=flask_app.config["AMBUDA_ENVIRONMENT"],
             creator_id=1,
             task_status=ambuda.tasks.utils.LocalTaskStatus(),
         )

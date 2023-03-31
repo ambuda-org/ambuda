@@ -1,10 +1,10 @@
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 
-from ambuda.models.base import Base, foreign_key, pk
+from ambuda.models.base import db, foreign_key, pk
 
 
-class Dictionary(Base):
+class Dictionary(db.Model):
 
     """A dictionary that maps Sanskrit expressions to definitions in
     various languages."""
@@ -21,7 +21,7 @@ class Dictionary(Base):
     entries = relationship("DictionaryEntry", backref="dictionary", cascade="delete")
 
 
-class DictionaryEntry(Base):
+class DictionaryEntry(db.Model):
 
     """Dictionary definitions for a specific entry key.
 

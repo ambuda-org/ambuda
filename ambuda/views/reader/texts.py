@@ -150,9 +150,7 @@ def section(text_slug, section_slug):
 
     # Fetch with content blocks
     cur = q.text_section(text_.id, section_slug)
-
-    with q.get_session() as _:
-        _ = cur.blocks
+    _ = cur.blocks
 
     blocks = []
     for block in cur.blocks:

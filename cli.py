@@ -101,7 +101,6 @@ def create_project(title, pdf_path):
             title=title,
             pdf_path=pdf_path,
             output_dir=str(page_image_dir),
-            app_environment=current_app.config["AMBUDA_ENVIRONMENT"],
             creator_id=arbitrary_user.id,
             task_status=LocalTaskStatus(),
         )

@@ -4,10 +4,10 @@ from sqlalchemy import Column, DateTime, String
 from sqlalchemy import Text as Text_
 from sqlalchemy.orm import relationship
 
-from ambuda.models.base import Base, foreign_key, pk, same_as
+from ambuda.models.base import db, foreign_key, pk, same_as
 
 
-class BlogPost(Base):
+class BlogPost(db.Model):
 
     """A blog post."""
 

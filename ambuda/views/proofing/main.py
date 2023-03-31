@@ -199,7 +199,6 @@ def create_project():
             title=title,
             pdf_path=str(pdf_path),
             output_dir=str(page_image_dir),
-            app_environment=current_app.config["AMBUDA_ENVIRONMENT"],
             creator_id=current_user.id,
         )
         return render_template(

@@ -6,7 +6,7 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy import Text as Text_
 from sqlalchemy.orm import relationship
 
-from ambuda.models.base import Base, foreign_key, pk, same_as
+from ambuda.models.base import db, foreign_key, pk, same_as
 
 
 def string():
@@ -19,7 +19,7 @@ def text():
     return Column(Text_, nullable=False, default="")
 
 
-class Project(Base):
+class Project(db.Model):
 
     """A proofreading project.
 
@@ -69,7 +69,7 @@ class Project(Base):
     )
 
 
-class Page(Base):
+class Page(db.Model):
 
     """A page in a proofreading project.
 
@@ -115,7 +115,7 @@ class Page(Base):
     )
 
 
-class PageStatus(Base):
+class PageStatus(db.Model):
 
     """The transcription status of a given page.
 
@@ -130,7 +130,7 @@ class PageStatus(Base):
     name = Column(String, nullable=False, unique=True)
 
 
-class Revision(Base):
+class Revision(db.Model):
 
     """A specific page revision.
 

@@ -1,11 +1,10 @@
 """Base model and utilities."""
 
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, ForeignKey, Integer
-from sqlalchemy.orm import declarative_base
 
-#: The base class for all of Ambuda's models. All new models should inherit
-#: from this class.
-Base = declarative_base()
+
+db = SQLAlchemy()
 
 
 def pk():

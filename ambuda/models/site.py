@@ -8,10 +8,10 @@ deploy.
 from sqlalchemy import Column, Integer, String
 from sqlalchemy import Text as Text_
 
-from ambuda.models.base import Base, pk
+from ambuda.models.base import db, pk
 
 
-class ProjectSponsorship(Base):
+class ProjectSponsorship(db.Model):
 
     """A project that a donor can sponsor."""
 

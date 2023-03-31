@@ -6,52 +6,14 @@ For simple or adhoc queries, you can just write them in their corresponding view
 
 import functools
 
-from flask import current_app
-from sqlalchemy import create_engine
-from sqlalchemy.orm import load_only, scoped_session, selectinload, sessionmaker
+from sqlalchemy.orm import load_only, selectinload
 
 import ambuda.database as db
-
-# NOTE: this logic is copied from Flask-SQLAlchemy. We avoid Flask-SQLAlchemy
-# because we also need to access the database from a non-Flask context when
-# we run database seed scripts.
-# ~~~
-# Scope the session to the current greenlet if greenlet is available,
-# otherwise fall back to the current thread.
-try:
-    from greenlet import getcurrent as _ident_func
-except ImportError:
-    from threading import get_ident as _ident_func
-
-
-# functools.cache makes this return value a singleton.
-@functools.cache
-def get_engine():
-    database_uri = current_app.config["SQLALCHEMY_DATABASE_URI"]
-    return create_engine(database_uri)
-
-
-# functools.cache makes this return value a singleton.
-@functools.cache
-def get_session_class():
-    # Scoped sessions remove various kinds of errors, e.g. when using database
-    # objects created on different threads.
-    #
-    # For details, see:
-    # - https://stackoverflow.com/questions/12223335
-    # - https://flask.palletsprojects.com/en/2.1.x/patterns/sqlalchemy/
-    session_factory = sessionmaker(bind=get_engine(), autoflush=False, autocommit=False)
-    return scoped_session(session_factory, scopefunc=_ident_func)
+from ambuda.models.base import db as flask_sqla
 
 
 def get_session():
-    """Instantiate a scoped session.
-
-    If we implemented this right, there should be exactly one unique session
-    per request.
-    """
-    Session = get_session_class()
-    return Session()
+    return flask_sqla.session
 
 
 def texts() -> list[db.Text]:

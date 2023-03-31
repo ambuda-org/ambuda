@@ -9,11 +9,10 @@ from pathlib import Path
 import fitz
 from slugify import slugify
 
+from celery import shared_task
 from ambuda import database as db
 from ambuda import queries as q
-from ambuda.tasks import app
 from ambuda.tasks.utils import CeleryTaskStatus, TaskStatus
-from config import create_config_only_app
 
 
 def _split_pdf_into_pages(
@@ -75,7 +74,6 @@ def create_project_inner(
     title: str,
     pdf_path: str,
     output_dir: str,
-    app_environment: str,
     creator_id: int,
     task_status: TaskStatus,
 ):
@@ -87,18 +85,15 @@ def create_project_inner(
     :param title: the project title.
     :param pdf_path: local path to the source PDF.
     :param output_dir: local path where page images will be stored.
-    :param app_environment: the app environment, e.g. `"development"`.
     :param creator_id: the user that created this project.
     :param task_status: tracks progress on the task.
     """
     logging.info(f'Received upload task "{title}" for path {pdf_path}.')
 
     # Tasks must be idempotent. Exit if the project already exists.
-    app = create_config_only_app(app_environment)
-    with app.app_context():
-        session = q.get_session()
-        slug = slugify(title)
-        project = session.query(db.Project).filter_by(slug=slug).first()
+    session = q.get_session()
+    slug = slugify(title)
+    project = session.query(db.Project).filter_by(slug=slug).first()
 
     if project:
         raise ValueError(
@@ -109,25 +104,23 @@ def create_project_inner(
     pages_dir = Path(output_dir)
 
     num_pages = _split_pdf_into_pages(Path(pdf_path), Path(pages_dir), task_status)
-    with app.app_context():
-        _add_project_to_database(
-            title=title,
-            slug=slug,
-            num_pages=num_pages,
-            creator_id=creator_id,
-        )
+    _add_project_to_database(
+        title=title,
+        slug=slug,
+        num_pages=num_pages,
+        creator_id=creator_id,
+    )
 
     task_status.success(num_pages, slug)
 
 
-@app.task(bind=True)
+@shared_task(bind=True)
 def create_project(
     self,
     *,
     title: str,
     pdf_path: str,
     output_dir: str,
-    app_environment: str,
     creator_id: int,
 ):
     """Split the given PDF into pages and register the project on the database.
@@ -139,7 +132,6 @@ def create_project(
         title=title,
         pdf_path=pdf_path,
         output_dir=output_dir,
-        app_environment=app_environment,
         creator_id=creator_id,
         task_status=task_status,
     )

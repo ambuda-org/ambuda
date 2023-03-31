@@ -13,23 +13,42 @@ https://ambuda.readthedocs.io/en/latest/
 
 import os
 
-from celery import Celery
+from celery import Celery, Task
+from flask import Flask
 
 # For context on why we use Redis for both the backend and the broker, see the
 # "Background tasks with Celery" doc.
 redis_url = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-app = Celery(
-    "ambuda-tasks",
-    backend=redis_url,
-    broker=redis_url,
-    include=[
-        "ambuda.tasks.projects",
-        "ambuda.tasks.ocr",
-    ],
-)
-app.conf.update(
-    # Run all tasks asynchronously by default.
-    task_always_eager=False,
-    # Force arguments to be plain data by requiring them to be JSON-compatible.
-    task_serializer="json",
-)
+
+
+def celery_init_app(app: Flask) -> Celery:
+    """Initialize the Celery app against our Flask instance.
+
+    Source: https://flask.palletsprojects.com/en/2.2.x/patterns/celery/
+    """
+
+    class FlaskTask(Task):
+        def __call__(self, *args: object, **kwargs: object) -> object:
+            with flask_app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery_app = Celery(
+        "ambuda-tasks",
+        task_cls=FlaskTask,
+        backend=redis_url,
+        broker=redis_url,
+        include=[
+            "ambuda.tasks.projects",
+            "ambuda.tasks.ocr",
+        ],
+    )
+    celery_app.set_default()
+    celery_app.conf.update(
+        # Run all tasks asynchronously by default.
+        task_always_eager=False,
+        # Force arguments to be plain data by requiring them to be JSON-compatible.
+        task_serializer="json",
+    )
+
+    app.extensions["celery"] = celery_app
+    return celery_app

@@ -7,11 +7,11 @@ from sqlalchemy import Text as Text_
 from sqlalchemy.orm import relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from ambuda.models.base import Base, foreign_key, pk
+from ambuda.models.base import db, foreign_key, pk
 from ambuda.utils.user_mixins import AmbudaUserMixin
 
 
-class User(AmbudaUserMixin, Base):
+class User(AmbudaUserMixin, db.Model):
     """A user."""
 
     __tablename__ = "users"
@@ -63,7 +63,7 @@ class User(AmbudaUserMixin, Base):
         return check_password_hash(self.password_hash, raw_password)
 
 
-class Role(Base):
+class Role(db.Model):
 
     """A role.
 
@@ -83,7 +83,7 @@ class Role(Base):
         return f"<Role({self.id}, {self.name!r})>"
 
 
-class UserRoles(Base):
+class UserRoles(db.Model):
 
     """Secondary table for users and roles."""
 
@@ -95,7 +95,7 @@ class UserRoles(Base):
     role_id = Column(Integer, ForeignKey("roles.id"), primary_key=True, index=True)
 
 
-class PasswordResetToken(Base):
+class PasswordResetToken(db.Model):
 
     """Models a "forgot password" recovery token."""
 

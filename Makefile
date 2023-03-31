@@ -135,7 +135,7 @@ devserver: py-venv-check
 	
 # Run a local Celery instance for background tasks.
 celery: 
-	celery -A ambuda.tasks worker --loglevel=INFO
+	celery -A make_celery worker --loglevel=INFO
 
 
 # Docker commands

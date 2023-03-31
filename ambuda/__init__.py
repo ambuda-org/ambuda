@@ -13,17 +13,18 @@ from dotenv import load_dotenv
 from flask import Flask, session
 from flask_babel import Babel, pgettext
 from sentry_sdk.integrations.flask import FlaskIntegration
-from sqlalchemy import exc
 
 import config
 from ambuda import admin as admin_manager
 from ambuda import auth as auth_manager
-from ambuda import checks, filters, queries
+from ambuda import checks, filters
 from ambuda.consts import LOCALES
 from ambuda.mail import mailer
+from ambuda.tasks import celery_init_app
 from ambuda.utils import assets
 from ambuda.utils.json_serde import AmbudaJSONEncoder
 from ambuda.utils.url_converters import ListConverter
+from ambuda.models.base import db
 from ambuda.views.about import bp as about
 from ambuda.views.api import bp as api
 from ambuda.views.auth import bp as auth
@@ -40,32 +41,6 @@ def _initialize_sentry(sentry_dsn: str):
     sentry_sdk.init(
         dsn=sentry_dsn, integrations=[FlaskIntegration()], traces_sample_rate=0
     )
-
-
-def _initialize_db_session(app, config_name: str):
-    """Ensure that our SQLAlchemy session behaves well.
-
-    The Flask-SQLAlchemy library manages all of this boilerplate for us
-    automatically, but Flask-SQLAlchemy has relatively poor support for using
-    our models outside of the application context, e.g. when running seed
-    scripts or other batch jobs. So instead of using that extension, we manage
-    the boilerplate ourselves.
-    """
-
-    @app.teardown_appcontext
-    def shutdown_session(exception=None):
-        """Reset session state to prevent caching and memory leaks."""
-        queries.get_session_class().remove()
-
-    if config_name == config.PRODUCTION:
-        # The hook below hides database errors. So, install the hook only if
-        # we're in production.
-
-        @app.errorhandler(exc.SQLAlchemyError)
-        def handle_db_exceptions(error):
-            """Rollback errors so that the db can handle future requests."""
-            session = queries.get_session()
-            session.rollback()
 
 
 def _initialize_logger(log_level: int) -> None:
@@ -99,6 +74,12 @@ def create_app(config_env: str):
     # Config
     app.config.from_object(config_spec)
 
+    # Database
+    db.init_app(app)
+
+    # Celery
+    celery_init_app(app)
+
     # Sanity checks
     assert config_env == config_spec.AMBUDA_ENVIRONMENT
     if config_env != config.TESTING:
@@ -107,9 +88,6 @@ def create_app(config_env: str):
 
     # Logger
     _initialize_logger(config_spec.LOG_LEVEL)
-
-    # Database
-    _initialize_db_session(app, config_env)
 
     # Extensions
     babel = Babel(app)
@@ -144,7 +122,7 @@ def create_app(config_env: str):
     if app.debug:
         from flask_debugtoolbar import DebugToolbarExtension
 
-        toolbar = DebugToolbarExtension(app)
+        DebugToolbarExtension(app)
 
         from ambuda.views.debug import bp as debug_bp
 

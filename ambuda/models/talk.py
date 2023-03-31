@@ -6,7 +6,7 @@ from sqlalchemy import Column, DateTime, String
 from sqlalchemy import Text as Text_
 from sqlalchemy.orm import relationship
 
-from ambuda.models.base import Base, foreign_key, pk, same_as
+from ambuda.models.base import db, foreign_key, pk, same_as
 
 
 def string():
@@ -14,7 +14,7 @@ def string():
     return Column(String, nullable=False, default="")
 
 
-class Board(Base):
+class Board(db.Model):
 
     """A list of threads."""
 
@@ -34,7 +34,7 @@ class Board(Base):
     )
 
 
-class Thread(Base):
+class Thread(db.Model):
 
     """A list of posts."""
 
@@ -59,7 +59,7 @@ class Thread(Base):
     posts = relationship("Post", order_by=lambda: Post.created_at, backref="thread")
 
 
-class Post(Base):
+class Post(db.Model):
 
     """A post."""
 

@@ -4,7 +4,6 @@
 
 from ambuda.enums import SiteRole  # NOQA F401
 from ambuda.models.auth import *  # NOQA F401,F403
-from ambuda.models.base import Base  # NOQA F401,F403
 from ambuda.models.blog import *  # NOQA F401,F403
 from ambuda.models.dictionaries import *  # NOQA F401,F403
 from ambuda.models.parse import *  # NOQA F401,F403

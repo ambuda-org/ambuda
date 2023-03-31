@@ -3,8 +3,8 @@ from flask_login import FlaskLoginClient
 
 import ambuda.database as db
 from ambuda import create_app
+from ambuda.models.base import db as flask_sqla
 from ambuda.consts import BOT_USERNAME, TEXT_CATEGORIES
-from ambuda.queries import get_engine, get_session
 
 
 def _add_dictionaries(session):
@@ -21,13 +21,10 @@ def _add_dictionaries(session):
 
 
 def initialize_test_db():
-    engine = get_engine()
-    assert ":memory:" in engine.url
+    flask_sqla.drop_all()
+    flask_sqla.create_all()
 
-    db.Base.metadata.drop_all(engine)
-    db.Base.metadata.create_all(engine)
-
-    session = get_session()
+    session = flask_sqla.session
 
     # Text and parse data
     text = db.Text(slug="pariksha", title="parIkSA")

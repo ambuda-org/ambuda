@@ -3,10 +3,10 @@
 from sqlalchemy import Column
 from sqlalchemy import Text as _Text
 
-from ambuda.models.base import Base, foreign_key, pk
+from ambuda.models.base import db, foreign_key, pk
 
 
-class BlockParse(Base):
+class BlockParse(db.Model):
     """Parse data for a `TextBlock`."""
 
     __tablename__ = "block_parses"

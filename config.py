@@ -80,6 +80,9 @@ class BaseConfig:
     #: https://docs.sqlalchemy.org/en/14/core/engines.html#database-urls
     SQLALCHEMY_DATABASE_URI = _env("SQLALCHEMY_DATABASE_URI")
 
+    #: If set, record queries during a request.
+    SQLALCHEMY_RECORD_QUERIES = False
+
     #: Where to store user uploads (PDFs, images, etc.).
     UPLOAD_FOLDER = _env("FLASK_UPLOAD_FOLDER")
 
@@ -172,6 +175,9 @@ class UnitTestConfig(BaseConfig):
 
 class DevelopmentConfig(BaseConfig):
     """For local development."""
+
+    #: Disable redirect intercepts when using flask-debugtoolbar
+    DEBUG_TB_INTERCEPT_REDIRECTS = False
 
     AMBUDA_ENVIRONMENT = DEVELOPMENT
     DEBUG = True
@@ -269,7 +275,7 @@ def _validate_config(config: BaseConfig):
         assert Path(google_creds).exists()
 
 
-def load_config_object(name: str):
+def load_config_object(name: str) -> BaseConfig:
     """Load and validate an application config."""
     config_map = {
         TESTING: UnitTestConfig,

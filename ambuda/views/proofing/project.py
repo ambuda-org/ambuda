@@ -32,7 +32,6 @@ from wtforms.widgets import TextArea
 
 from ambuda import database as db
 from ambuda import queries as q
-from ambuda.tasks import app as celery_app
 from ambuda.tasks import ocr as ocr_tasks
 from ambuda.utils import project_utils, proofing_utils
 from ambuda.utils.revisions import add_revision
@@ -40,6 +39,10 @@ from ambuda.views.proofing.decorators import moderator_required, p2_required
 
 bp = Blueprint("project", __name__)
 LOG = logging.getLogger(__name__)
+
+
+def get_celery_app():
+    return current_app.extensions["celery"]
 
 
 def _is_valid_page_number_spec(_, field):
@@ -632,7 +635,7 @@ def batch_ocr(slug):
 
 @bp.route("/batch-ocr-status/<task_id>")
 def batch_ocr_status(task_id):
-    r = GroupResult.restore(task_id, app=celery_app)
+    r = GroupResult.restore(task_id, app=get_celery_app())
     assert r, task_id
 
     if r.results:
