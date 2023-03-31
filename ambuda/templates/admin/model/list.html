@@ -11,7 +11,6 @@
 {% endblock %}
 
 {% block body %}
-
   <nav class="rounded border my-4 a-hover-underline">
     <ul class="flex items-center">
       <li class="p-2">{{ count }} row(s)</li>
@@ -46,4 +45,16 @@
       {% endfor %}
     </tbody>
   </table>
+
+  {% block list_pager %}
+    {% if num_pages is not none %}
+    {{ lib.pager(page, num_pages, pager_url) }}
+    {% else %}
+    {{ lib.simple_pager(page, data|length == page_size, pager_url) }}
+    {% endif %}
+  {% endblock %}
+
+  {% block actions %}
+    {{ actionlib.form(actions, get_url('.action_view')) }}
+  {% endblock %}
 {% endblock %}

@@ -120,11 +120,20 @@
     @apply text-green-600;
   }
 
+  /* Classes created by Flask-admin */
+  .pagination {
+    @apply border rounded my-4;
+  }
+  .pagination ul { @apply flex; }
+  .pagination li.active { @apply font-bold bg-slate-100; }
+  .pagination a { @apply py-2 px-4 block hover:bg-slate-200; }
+
   /* heatmap */
   .heatmap text { @apply text-xs; }
   .heatmap rect.l1 { @apply fill-slate-100; }
   .heatmap rect.l2 { @apply fill-sky-100; }
   .heatmap rect.l3 { @apply fill-sky-200; }
   .heatmap rect.l4 { @apply fill-sky-300; }
+
 }
 
