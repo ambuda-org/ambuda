@@ -35,6 +35,7 @@ Flask-Bcrypt==1.0.1
 Flask-Login==0.6.1
 Flask-Mail==0.9.1
 Flask-WTF==1.0.1
+flask-debugtoolbar==0.13.1
 fonttools==4.33.3
 gevent==21.12.0
 google-api-core==2.8.2

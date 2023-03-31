@@ -142,6 +142,10 @@ def create_app(config_env: str):
 
     # Debug-only routes for local development.
     if app.debug:
+        from flask_debugtoolbar import DebugToolbarExtension
+
+        toolbar = DebugToolbarExtension(app)
+
         from ambuda.views.debug import bp as debug_bp
 
         app.register_blueprint(debug_bp, url_prefix="/debug")
