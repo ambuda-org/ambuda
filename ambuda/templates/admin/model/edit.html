@@ -25,11 +25,17 @@
   {% endblock %}
 
   {% block edit_form %}
-  <form method="POST" action="" class="bg-slate-100 rounded p-4">
+  <form method="POST" action="" class="bg-slate-100 border border-slate-200 rounded p-4">
     {% for field in form %}
-      {{ mf.field(field) }}
+      <div class="my-2 flex items-center">
+        <div class="w-1/3 text-right pr-4 font-bold">{{ mf.label(field.label) }}</div>
+        <div class="w-2/3">{{ field(class_="p-2 block w-full my-2") }}</div>
+      </div>
     {% endfor %}
-    {{ mf.submit("Save changes") }}
+    <div class="flex">
+      <div class="w-1/3">&nbsp;</div>
+      <div>{{ mf.submit("Save changes") }}</div>
+    </div>
   </form>
   {% endblock %}
 

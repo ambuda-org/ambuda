@@ -46,6 +46,8 @@ class TextBlockView(BaseView):
 class TextView(BaseView):
     column_list = form_columns = ["slug", "title"]
 
+    form_widget_args = {"header": {"readonly": True}}
+
 
 class ProjectView(BaseView):
     column_list = form_columns = ["slug", "title", "creator_id"]
