@@ -35,7 +35,7 @@ def initialize_test_db():
     session.flush()
 
     # Create stubs for all texts so that texts.index doesn't break
-    for category, slugs in TEXT_CATEGORIES.items():
+    for _category, slugs in TEXT_CATEGORIES.items():
         for slug in slugs:
             t = db.Text(slug=slug, title=slug)
             session.add(t)

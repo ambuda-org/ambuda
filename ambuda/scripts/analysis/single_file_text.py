@@ -1,8 +1,8 @@
 """Add parse data from DCS for a simple text."""
 
 import argparse
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 from sqlalchemy.orm import Session
 
@@ -23,8 +23,7 @@ def iter_sections(dcs_text_name):
         / "files"
         / f"{dcs_text_name}-all.conllu"
     )
-    for section in dcs.parse_file(text_path):
-        yield section
+    yield from dcs.parse_file(text_path)
 
 
 def iter_parsed_blocks(dcs_text_name) -> Iterator[tuple[str, str]]:

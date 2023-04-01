@@ -1,7 +1,6 @@
 """Manages the auth/authentication data flow."""
 
 from http import HTTPStatus
-from typing import Optional
 
 from flask import abort, redirect, request, url_for
 from flask_login import LoginManager
@@ -11,7 +10,7 @@ from ambuda.queries import get_session
 from ambuda.utils.user_mixins import AmbudaAnonymousUser
 
 
-def _load_user(user_id: int) -> Optional[User]:
+def _load_user(user_id: int) -> User | None:
     """Load a user from the database.
 
     Flask-Login uses this function to populate the `current_user` variable.

@@ -1,8 +1,8 @@
 """Add the Ramayana parse data from DCS."""
 
 import xml.etree.ElementTree as ET
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 from indic_transliteration import sanscript
 from sqlalchemy.orm import Session

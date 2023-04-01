@@ -18,7 +18,6 @@ package: From the Flask docs (emphasis added):
 import logging
 import os
 from pathlib import Path
-from typing import Optional
 
 from dotenv import load_dotenv
 from flask import Flask
@@ -48,7 +47,7 @@ def _make_path(path: Path):
     return path
 
 
-def _env(key: str, default=None) -> Optional[str]:
+def _env(key: str, default=None) -> str | None:
     """Fetch a value from the local environment.
 
     :param key: the environment variable to fetch

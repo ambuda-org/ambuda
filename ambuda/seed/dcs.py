@@ -11,7 +11,7 @@ PROJECT_DIR = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_DIR / "data" / "ambuda-dcs"
 
 
-class UpdateException(Exception):
+class UpdateError(Exception):
     pass
 
 
@@ -80,7 +80,7 @@ def add_parse_data(text_slug: str, path: Path):
     with Session(engine) as session:
         text = session.query(db.Text).filter_by(slug=text_slug).first()
         if not text:
-            raise UpdateException()
+            raise UpdateError()
 
         drop_existing_parse_data(session, text.id)
 
@@ -102,7 +102,7 @@ def run():
             try:
                 add_parse_data(path.stem, path)
                 log(f"- Added {path.stem} parse data to the database.")
-            except UpdateException:
+            except UpdateError:
                 log(f"- Skipped {path.stem}.")
                 skipped.append(path.stem)
 

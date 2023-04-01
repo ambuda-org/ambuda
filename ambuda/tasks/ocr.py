@@ -1,6 +1,5 @@
 """Background tasks for proofing projects."""
 
-from typing import Optional
 
 from celery import group
 from celery.result import GroupResult
@@ -53,8 +52,10 @@ def _run_ocr_for_page_inner(
                 version=0,
                 author_id=bot_user.id,
             )
-        except Exception:
-            raise ValueError(f'OCR failed for page "{project.slug}/{page.slug}".')
+        except Exception as e:
+            raise ValueError(
+                f'OCR failed for page "{project.slug}/{page.slug}".'
+            ) from e
 
 
 @app.task(bind=True)
@@ -75,7 +76,7 @@ def run_ocr_for_page(
 def run_ocr_for_project(
     app_env: str,
     project: db.Project,
-) -> Optional[GroupResult]:
+) -> GroupResult | None:
     """Create a `group` task to run OCR on a project.
 
     Usage:

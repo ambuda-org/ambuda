@@ -4,9 +4,6 @@ omit = [
     "ambuda/seed/**",
 ]
 
-[tool.isort]
-profile = "black"
-
 [tool.poetry]
 name = "ambuda"
 version = "0.1.0"
@@ -15,7 +12,7 @@ authors = ["Arun Prasad"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 aksharamukha = "2.0.1"
 alabaster = "0.7.12"
 alembic = "1.8.0"
@@ -176,3 +173,18 @@ pytest-coverage = "0.0"
 requires = ["poetry-core", "swig", "freetype"]
 build-backend = "poetry.core.masonry.api"
 
+
+[tool.ruff]
+# https://beta.ruff.rs/docs/rules/
+select = [
+    "B",     # flake8-bugbear
+    "F",     # pyflakes
+    "N818",  # error-suffix-on-exception-name
+    "UP",    # pyupgrade
+    "W",     # pycodestyle
+    "I001",  # isort
+]
+ignore = [
+    "B007",  # unused-loop-control-variable
+    "B905"   # zip-without-explicit-strict
+]

@@ -5,8 +5,8 @@ This is difficult because we should perform this alignment while respecting
 element boundaries and sandhi changes.
 """
 
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Iterator
 from xml.etree import ElementTree as ET
 
 from indic_transliteration import sanscript

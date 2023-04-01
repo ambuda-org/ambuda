@@ -17,7 +17,6 @@ Max lengths:
 import secrets
 import sys
 from datetime import datetime, timedelta
-from typing import Optional
 
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_babel import lazy_gettext as _l
@@ -58,7 +57,7 @@ def _create_reset_token(user_id) -> str:
     return raw_token
 
 
-def _get_reset_token_for_user(user_id: int) -> Optional[db.PasswordResetToken]:
+def _get_reset_token_for_user(user_id: int) -> db.PasswordResetToken | None:
     # User might have requested multiple tokens -- get the latest one.
     session = q.get_session()
     return (
@@ -101,7 +100,7 @@ def _is_valid_reset_token(row: db.PasswordResetToken, raw_token: str, now=None):
 # exceed MAX_##_LEN bytes. I'm not sure if it is a bug or a feature
 # in the val.Length()
 # Copied from https://wtforms.readthedocs.io/en/2.3.x/validators/
-class FieldLength(object):
+class FieldLength:
     def __init__(self, min=None, max=None, message=None):
         self.min = min or 0
         self.max = max or sys.maxsize
@@ -130,7 +129,7 @@ def get_field_validators(field_name: str, min_len: int, max_len: int):
 def get_username_validators():
     validators = get_field_validators("username", MIN_USERNAME_LEN, MAX_USERNAME_LEN)
     validators.append(
-        val.Regexp("^[^\s]*$", message="Username must not contain spaces")
+        val.Regexp(r"^[^\s]*$", message="Username must not contain spaces")
     )
     return validators
 

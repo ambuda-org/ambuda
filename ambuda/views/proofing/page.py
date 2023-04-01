@@ -4,7 +4,6 @@ The main route here is `edit`, which defines the page editor and the edit flow.
 """
 
 from dataclasses import dataclass
-from typing import Optional
 
 from flask import Blueprint, current_app, flash, render_template, send_file
 from flask_babel import lazy_gettext as _l
@@ -21,7 +20,7 @@ from ambuda.enums import SitePageStatus
 from ambuda.utils import google_ocr, project_utils
 from ambuda.utils.assets import get_page_image_filepath
 from ambuda.utils.diff import revision_diff
-from ambuda.utils.revisions import EditException, add_revision
+from ambuda.utils.revisions import EditError, add_revision
 from ambuda.views.api import bp as api
 from ambuda.views.site import bp as site
 
@@ -37,9 +36,9 @@ class PageContext:
     #: The current page.
     cur: db.Page
     #: The page before `cur`, if it exists.
-    prev: Optional[db.Page]
+    prev: db.Page | None
     #: The page after `cur`, if it exists.
-    next: Optional[db.Page]
+    next: db.Page | None
 
 
 class EditPageForm(FlaskForm):
@@ -64,7 +63,7 @@ class EditPageForm(FlaskForm):
     )
 
 
-def _get_page_context(project_slug: str, page_slug: str) -> Optional[PageContext]:
+def _get_page_context(project_slug: str, page_slug: str) -> PageContext | None:
     """Get the previous, current, and next pages for the given project.
 
     :param project_slug: slug for the current project
@@ -177,7 +176,7 @@ def edit_post(project_slug, page_slug):
             )
             form.version.data = new_version
             flash("Saved changes.", "success")
-        except EditException:
+        except EditError:
             # FIXME: in the future, use a proper edit conflict view.
             flash("Edit conflict. Please incorporate the changes below:")
             conflict = cur.revisions[-1]

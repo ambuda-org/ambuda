@@ -24,7 +24,7 @@ And a sample entry:
 """
 
 import xml.etree.ElementTree as ET
-from typing import Iterator
+from collections.abc import Iterator
 
 import click
 from indic_transliteration import sanscript

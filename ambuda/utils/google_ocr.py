@@ -6,7 +6,6 @@
 # Return format: https://cloud.google.com/vision/docs/reference/rest/v1/images/annotate#TextAnnotation
 # Billing: https://console.cloud.google.com/billing/
 
-import io
 import logging
 from dataclasses import dataclass
 from pathlib import Path
@@ -41,7 +40,7 @@ def post_process(text: str) -> str:
 
 def prepare_image(file_path: Path):
     """Read an image into a protocol buffer for the OCR request."""
-    with io.open(file_path, "rb") as file_path:
+    with open(file_path, "rb") as file_path:
         content = file_path.read()
     return vision.Image(content=content)
 
@@ -64,7 +63,7 @@ def run(file_path: Path) -> OcrResponse:
     :return: an OCR response containing the image's text content and
         bounding boxes.
     """
-    logging.debug("Starting full text annotation: {}".format(file_path))
+    logging.debug(f"Starting full text annotation: {file_path}")
 
     client = vision.ImageAnnotatorClient()
     image = prepare_image(file_path)

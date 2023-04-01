@@ -16,7 +16,7 @@ class AmbudaIndexView(AdminIndexView):
             # Abort so that a malicious scraper can't infer that there's an
             # interesting page here.
             abort(404)
-        return super(AmbudaIndexView, self).index()
+        return super().index()
 
 
 class BaseView(sqla.ModelView):

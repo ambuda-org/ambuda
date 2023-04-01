@@ -13,7 +13,6 @@ If a source list is invalid, we raise a 404 error.
 
 
 import functools
-from typing import Optional
 
 from flask import Blueprint, abort, redirect, render_template, request, url_for
 from indic_transliteration import detect, sanscript
@@ -70,7 +69,7 @@ def _fetch_entries(sources: list[str], query: str) -> dict[str, str]:
 
 
 def _handle_form_submission(
-    url_sources: Optional[list[str]] = None, url_query: Optional[str] = None
+    url_sources: list[str] | None = None, url_query: str | None = None
 ):
     """Handle a search request defined with query parameters.
 

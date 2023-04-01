@@ -24,8 +24,9 @@ performance penalty for this work is minimal. In the future, we can also cache
 or pre-build common requests.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, NewType, Optional
+from typing import NewType
 from xml.etree import ElementTree as ET
 
 from indic_transliteration import sanscript
@@ -343,7 +344,7 @@ def _text_of(xml: ET.Element, path: str, default: str) -> str:
         return default
 
 
-def parse_tei_header(blob: Optional[str]) -> dict[str, str]:
+def parse_tei_header(blob: str | None) -> dict[str, str]:
     """Transform a TEI `teiHeader` element to HTML."""
     if not blob:
         return {}

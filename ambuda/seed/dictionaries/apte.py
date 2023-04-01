@@ -55,7 +55,7 @@ def _make_compounds(first_word, groups):
     for group in groups:
         child = group[0]
         # Case 1: simple and well-formed
-        if re.fullmatch("\w+", child.text):
+        if re.fullmatch(r"\w+", child.text):
             samasa = sandhi_utils.apply(first_word, child.text)
             group[0].text = first_word + "\u2014" + group[0].text
             yield samasa, group
