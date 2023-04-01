@@ -3,8 +3,9 @@ from flask_login import FlaskLoginClient
 
 import ambuda.database as db
 from ambuda import create_app
-from ambuda.models.base import db as flask_sqla
 from ambuda.consts import BOT_USERNAME, TEXT_CATEGORIES
+from ambuda.models.base import db as flask_sqla
+from ambuda.queries import get_session
 
 
 def _add_dictionaries(session):
@@ -70,7 +71,7 @@ def initialize_test_db():
     session.flush()
 
     # Moderator
-    moderator = db.User(username="user-mod", email="mod@ambuda.org")
+    moderator = db.User(username="u-mod", email="mod@ambuda.org")
     moderator.set_password("secret password")
     session.add(moderator)
     session.flush()
@@ -82,11 +83,11 @@ def initialize_test_db():
     session.flush()
 
     # Deleted and Banned
-    deleted_admin = db.User(username="sandrocottus-deleted", email="cgm@ambuda.org")
+    deleted_admin = db.User(username="u-deleted-banned", email="cgm@ambuda.org")
     deleted_admin.set_password("maurya")
     deleted_admin.set_is_deleted(True)
 
-    banned = db.User(username="sikander-banned", email="alex@ambuda.org")
+    banned = db.User(username="u-banned", email="alex@ambuda.org")
     banned.set_password("onesicritus")
     banned.set_is_banned(True)
 
@@ -182,34 +183,39 @@ def client(flask_app):
 
 @pytest.fixture()
 def rama_client(flask_app):
-    session = get_session()
-    user = session.query(db.User).filter_by(username="ramacandra").first()
-    return flask_app.test_client(user=user)
+    with flask_app.app_context():
+        session = get_session()
+        user = session.query(db.User).filter_by(username="ramacandra").first()
+        return flask_app.test_client(user=user)
 
 
 @pytest.fixture()
 def moderator_client(flask_app):
-    session = get_session()
-    moderator = session.query(db.User).filter_by(username="user-mod").first()
-    return flask_app.test_client(user=moderator)
+    with flask_app.app_context():
+        session = get_session()
+        moderator = session.query(db.User).filter_by(username="u-mod").first()
+        return flask_app.test_client(user=moderator)
 
 
 @pytest.fixture()
 def admin_client(flask_app):
-    session = get_session()
-    user = session.query(db.User).filter_by(username="u-admin").first()
-    return flask_app.test_client(user=user)
+    with flask_app.app_context():
+        session = get_session()
+        user = session.query(db.User).filter_by(username="u-admin").first()
+        return flask_app.test_client(user=user)
 
 
 @pytest.fixture()
 def deleted_client(flask_app):
-    session = get_session()
-    user = session.query(db.User).filter_by(username="sandrocottus-deleted").first()
-    return flask_app.test_client(user=user)
+    with flask_app.app_context():
+        session = get_session()
+        user = session.query(db.User).filter_by(username="u-deleted-banned").first()
+        return flask_app.test_client(user=user)
 
 
 @pytest.fixture()
 def banned_client(flask_app):
-    session = get_session()
-    user = session.query(db.User).filter_by(username="sikander-banned").first()
-    return flask_app.test_client(user=user)
+    with flask_app.app_context():
+        session = get_session()
+        user = session.query(db.User).filter_by(username="u-banned").first()
+        return flask_app.test_client(user=user)
