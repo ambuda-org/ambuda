@@ -204,7 +204,7 @@ coverage:
 	pytest --cov=ambuda --cov-report=html test/
 
 coverage-report: coverage
-	coverage report --fail-under=77
+	coverage report --fail-under=80
 
 # Generate Ambuda's technical documentation.
 # After the command completes, open "docs/_build/index.html".
