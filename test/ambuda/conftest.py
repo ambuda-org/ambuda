@@ -1,10 +1,13 @@
 import pytest
 from flask_login import FlaskLoginClient
+from sqlalchemy.engine import Engine
 
 import ambuda.database as db
 from ambuda import create_app
 from ambuda.consts import BOT_USERNAME, TEXT_CATEGORIES
 from ambuda.queries import get_engine, get_session
+from ambuda.seed.lookup import page_status as page_status_seeding
+from ambuda.seed.lookup import role as role_seeding
 
 
 def _add_dictionaries(session):
@@ -26,6 +29,10 @@ def initialize_test_db():
 
     db.Base.metadata.drop_all(engine)
     db.Base.metadata.create_all(engine)
+
+    # Seed scripts
+    role_seeding.run(engine)
+    page_status_seeding.run(engine)
 
     session = get_session()
 
@@ -98,10 +105,11 @@ def initialize_test_db():
     session.flush()
 
     # Roles
-    p1_role = db.Role(name=db.SiteRole.P1.value)
-    p2_role = db.Role(name=db.SiteRole.P2.value)
-    moderator_role = db.Role(name=db.SiteRole.MODERATOR.value)
-    admin_role = db.Role(name=db.SiteRole.ADMIN.value)
+    p1_role = session.query(db.Role).filter_by(name="p1").one()
+    p2_role = session.query(db.Role).filter_by(name="p2").one()
+    moderator_role = session.query(db.Role).filter_by(name="moderator").one()
+    admin_role = session.query(db.Role).filter_by(name="admin").one()
+
     session.add(p1_role)
     session.add(p2_role)
     session.add(moderator_role)
@@ -145,11 +153,9 @@ def initialize_test_db():
     session.add(project)
     session.flush()
 
-    page_status = db.PageStatus(name="reviewed-0")
-    session.add(page_status)
-    session.flush()
+    reviewed_0 = session.query(db.PageStatus).filter_by(name="reviewed-0").one()
 
-    page = db.Page(project_id=project.id, slug="1", order=1, status_id=page_status.id)
+    page = db.Page(project_id=project.id, slug="1", order=1, status_id=reviewed_0.id)
     session.add(page)
     session.flush()
 
@@ -157,7 +163,7 @@ def initialize_test_db():
         project_id=project.id,
         page_id=page.id,
         author_id=admin.id,
-        status_id=page_status.id,
+        status_id=reviewed_0.id,
         content="Foo",
     )
     session.add(revision)
@@ -175,6 +181,12 @@ def flask_app():
         initialize_test_db()
 
     yield app
+
+
+@pytest.fixture(scope="session")
+def db_engine(flask_app) -> Engine:
+    with flask_app.app_context():
+        return get_engine()
 
 
 @pytest.fixture()

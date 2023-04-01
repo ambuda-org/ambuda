@@ -14,9 +14,9 @@ def get_default_id():
         return session.query(db.PageStatus).filter_by(name=SitePageStatus.R0).one()
 
 
-def run():
+def run(engine=None):
     """Create page statuses iff they don't exist already."""
-    engine = create_db()
+    engine = engine or create_db()
     logging.debug("Creating PageStatus rows ...")
     with Session(engine) as session:
         statuses = session.query(db.PageStatus).all()
