@@ -30,20 +30,20 @@ def create_user():
     email = input("Email: ")
 
     session = q.get_session()
-    u = (
+    existing_user = (
         session.query(db.User)
         .where(or_(db.User.username == username, db.User.email == email))
         .first()
     )
-    if u is not None:
-        if u.username == username:
+    if existing_user is not None:
+        if existing_user.username == username:
             raise click.ClickException(f'User "{username}" already exists.')
         else:
             raise click.ClickException(f'Email "{email}" already exists.')
 
-    user = db.User(username=username, email=email)
-    user.set_password(raw_password)
-    session.add(user)
+    new_user = db.User(username=username, email=email)
+    new_user.set_password(raw_password)
+    session.add(new_user)
     session.commit()
 
 

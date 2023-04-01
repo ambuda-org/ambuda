@@ -3,6 +3,8 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, ForeignKey, Integer
 
+# TODO(arun): rename and standardize this across the project. Avoid confusion
+# with the `database` module, which is usually imported as `db`.
 db = SQLAlchemy(session_options=dict(autoflush=False, autocommit=False))
 
 

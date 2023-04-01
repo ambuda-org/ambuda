@@ -9,7 +9,7 @@ from sqlalchemy.schema import Column
 from ambuda import consts, enums
 from ambuda import database as db
 from ambuda import queries as q
-from ambuda.models.base import db as fsqa
+from ambuda.models.base import db as flask_sqla
 
 
 def _warn(text: str = ""):
@@ -70,7 +70,7 @@ def _check_app_schema_matches_db_schema(database_uri: str) -> list[str]:
 
     errors = []
 
-    for table_name, table in fsqa.Model.metadata.tables.items():
+    for table_name, table in flask_sqla.Model.metadata.tables.items():
         app_columns = table.columns
         db_columns = {c["name"]: c for c in inspector.get_columns(table_name)}
 

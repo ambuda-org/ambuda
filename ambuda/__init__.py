@@ -53,7 +53,11 @@ def _initialize_logger(log_level: int) -> None:
 
 
 def create_app(config_env: str):
-    """Initialize the Ambuda application."""
+    """Initialize the Ambuda application.
+
+    :param config_env: the config environment to use. For valid values, see
+        the string constants in `config.py`.
+    """
 
     # We store all env variables in a `.env` file so that it's easier to manage
     # different configurations.
@@ -88,7 +92,7 @@ def create_app(config_env: str):
     # Logger
     _initialize_logger(config_spec.LOG_LEVEL)
 
-    # Extensions
+    # Various Flask extensions
     babel = Babel(app)
 
     @babel.localeselector
@@ -121,14 +125,15 @@ def create_app(config_env: str):
     if app.debug:
         from flask_debugtoolbar import DebugToolbarExtension
 
-        DebugToolbarExtension(app)
-
         from ambuda.views.debug import bp as debug_bp
 
+        DebugToolbarExtension(app)
         app.register_blueprint(debug_bp, url_prefix="/debug")
 
     # i18n string trimming
+    # For more, see:https://jinja.palletsprojects.com/en/3.1.x/api/#ext-i18n-trimmed
     app.jinja_env.policies["ext.i18n.trimmed"] = True
+
     # Template functions and filters
     app.jinja_env.filters.update(
         {
