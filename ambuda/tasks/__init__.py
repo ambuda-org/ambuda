@@ -29,7 +29,7 @@ def celery_init_app(app: Flask) -> Celery:
 
     class FlaskTask(Task):
         def __call__(self, *args: object, **kwargs: object) -> object:
-            with flask_app.app_context():
+            with app.app_context():
                 return self.run(*args, **kwargs)
 
     celery_app = Celery(
