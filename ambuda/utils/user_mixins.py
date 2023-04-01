@@ -8,7 +8,7 @@ from ambuda.enums import SiteRole
 class AmbudaAnonymousUser(AnonymousUserMixin):
     """An anonymous user with limited permissions."""
 
-    def has_role(self, *a):
+    def has_role(self, _role: SiteRole):
         return False
 
     @property

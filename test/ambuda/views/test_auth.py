@@ -89,8 +89,8 @@ def test_sign_in__unauth_post__ok(client):
     r = client.post(
         "/sign-in",
         data={
-            "username": "ramacandra",
-            "password": "maithili",
+            "username": "u-basic",
+            "password": "pass_basic",
         },
     )
     assert r.status_code == 302
@@ -100,8 +100,8 @@ def test_sign_in__unauth_post__bad_username(client):
     r = client.post(
         "/sign-in",
         data={
-            "username": "ravana",
-            "password": "maithili",
+            "username": "u-attacker",
+            "password": "pass_basic",
         },
     )
     assert "Invalid username or password" in r.text
@@ -111,8 +111,8 @@ def test_sign_in__unauth_post__bad_password(client):
     r = client.post(
         "/sign-in",
         data={
-            "username": "ramacandra",
-            "password": "dasharatha",
+            "username": "u-basic",
+            "password": "bad password",
         },
     )
     assert "Invalid username or password" in r.text
@@ -171,6 +171,47 @@ def test_change_password(rama_client):
     assert ">Change" in r.text
 
 
+def test_change_password__ok(client):
+    # Create a dummy user
+    session = q.get_session()
+    user = db.User(username="sample-user", email="foo@ambuda.org")
+    user.set_password("password")
+    session.add(user)
+    session.commit()
+
+    # Sign in
+    r = client.post(
+        "/sign-in",
+        data={
+            "username": "sample-user",
+            "password": "password",
+        },
+    )
+    assert r.status_code == 302
+
+    # Try the password change
+    r = client.post(
+        "/change-password",
+        data={
+            "old_password": "password",
+            "new_password": "password2",
+        },
+    )
+    # `302` indicates success.
+    assert r.status_code == 302
+
+
 def test_change_password__unauth(client):
     r = client.get("/change-password")
     assert r.status_code == 302
+
+
+def test_change_password__bad_old_password(rama_client):
+    r = rama_client.post(
+        "/change-password",
+        data={
+            "old_password": "bad-password",
+            "new_password": "new-password",
+        },
+    )
+    assert "Old password isn&#39;t valid" in r.text

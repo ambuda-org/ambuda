@@ -8,6 +8,11 @@ def _cleanup(session, *objects):
     session.commit()
 
 
+def test_text__str(client):
+    t = db.Text(slug="test-slug", title="Test title")
+    assert str(t) == "test-slug"
+
+
 def test_user__is_ok_when_created(client):
     session = get_session()
     user = db.User(username="test", email="test@ambuda.org")

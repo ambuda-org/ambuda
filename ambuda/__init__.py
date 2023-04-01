@@ -103,7 +103,7 @@ def create_app(config_env: str):
     assert config_env == config_spec.AMBUDA_ENVIRONMENT
     if config_env != config.TESTING:
         with app.app_context():
-            checks.check_database(config_spec.SQLALCHEMY_DATABASE_URI)
+            checks.check_database_uri(config_spec.SQLALCHEMY_DATABASE_URI)
 
     # Logger
     _initialize_logger(config_spec.LOG_LEVEL)
@@ -141,7 +141,7 @@ def create_app(config_env: str):
     app.register_blueprint(texts, url_prefix="/texts")
 
     # Debug-only routes for local development.
-    if app.debug:
+    if app.debug or config.TESTING:
         from ambuda.views.debug import bp as debug_bp
 
         app.register_blueprint(debug_bp, url_prefix="/debug")

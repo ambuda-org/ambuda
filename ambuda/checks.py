@@ -4,6 +4,7 @@ import sys
 
 from click import style
 from sqlalchemy import create_engine, inspect
+from sqlalchemy.engine import Engine
 from sqlalchemy.schema import Column
 
 from ambuda import consts, enums
@@ -42,7 +43,7 @@ def _check_column(app_col: Column, db_col: dict[str, str]) -> list[str]:
     return errors
 
 
-def _check_app_schema_matches_db_schema(database_uri: str) -> list[str]:
+def _check_app_schema_matches_db_schema(engine: Engine) -> list[str]:
     """Check that our application tables and database tables match.
 
     Currently, we apply the following checks:
@@ -62,12 +63,11 @@ def _check_app_schema_matches_db_schema(database_uri: str) -> list[str]:
     If any check fails, exit gracefully and tell the user how to resolve the
     issue.
 
-    :param database_uri:
+    :param engine: the engine to check. We pass `engine` directly so that we
+        can test this logic more easily in unit tests.
     """
 
-    engine = create_engine(database_uri)
     inspector = inspect(engine)
-
     errors = []
 
     for table_name, table in Base.metadata.tables.items():
@@ -141,8 +141,8 @@ def _check_bot_user(session) -> list[str]:
         return [f'Bot user "{username}" does not exist.']
 
 
-def check_database(database_uri: str):
-    errors = _check_app_schema_matches_db_schema(database_uri)
+def _check_database_engine(engine: Engine):
+    errors = _check_app_schema_matches_db_schema(engine)
 
     session = q.get_session()
     errors += _check_lookup_tables(session)
@@ -170,3 +170,8 @@ def check_database(database_uri: str):
     else:
         # Style the output to match Flask's styling.
         print(" * [OK] Ambuda database check has passed.", flush=True)
+
+
+def check_database_uri(database_uri: str):
+    engine = create_engine(database_uri)
+    _check_database_engine(engine)
