@@ -251,8 +251,8 @@ def recent_changes():
         db.select(Revision)
         # Defer slow columns
         .options(orm.defer(Revision.content))
-        # .filter(Revision.author_id != bot_user.id)
-        .order_by(Revision.created.desc()),
+        # Avoid bot changes, which dominate the logs.
+        .filter(Revision.author_id != bot_user.id).order_by(Revision.created.desc()),
         per_page=per_page,
         max_per_page=per_page,
     )
