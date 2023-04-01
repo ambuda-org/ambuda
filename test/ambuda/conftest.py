@@ -62,35 +62,35 @@ def initialize_test_db():
 
     # Bot
     bot = db.User(username=BOT_USERNAME, email="ambuda-bot@ambuda.org")
-    bot.set_password("password")
+    bot.set_password("pass_bod")
     session.add(bot)
     session.flush()
 
     # Auth
-    rama = db.User(username="ramacandra", email="rama@ayodhya.com")
-    rama.set_password("maithili")
-    session.add(rama)
+    u_basic = db.User(username="u-basic", email="u_basic@ambuda.org")
+    u_basic.set_password("pass_basic")
+    session.add(u_basic)
     session.flush()
 
     # Moderator
-    moderator = db.User(username="user-mod", email="mod@ambuda.org")
-    moderator.set_password("secret password")
+    moderator = db.User(username="u-moderator", email="u_moderator@ambuda.org")
+    moderator.set_password("pass_moderator")
     session.add(moderator)
     session.flush()
 
     # Admin
-    admin = db.User(username="u-admin", email="admin@ambuda.org")
-    admin.set_password("secret password")
+    admin = db.User(username="u-admin", email="u_admin@ambuda.org")
+    admin.set_password("pass_admin")
     session.add(admin)
     session.flush()
 
     # Deleted and Banned
-    deleted_admin = db.User(username="sandrocottus-deleted", email="cgm@ambuda.org")
-    deleted_admin.set_password("maurya")
+    deleted_admin = db.User(username="u-deleted", email="u_deleted@ambuda.org")
+    deleted_admin.set_password("pass_deleted")
     deleted_admin.set_is_deleted(True)
 
-    banned = db.User(username="sikander-banned", email="alex@ambuda.org")
-    banned.set_password("onesicritus")
+    banned = db.User(username="u-banned", email="u_banned@ambuda.org")
+    banned.set_password("pass_banned")
     banned.set_is_banned(True)
 
     session.add(deleted_admin)
@@ -108,12 +108,12 @@ def initialize_test_db():
     session.add(admin_role)
     session.flush()
 
-    rama.roles = [p1_role, p2_role]
+    u_basic.roles = [p1_role, p2_role]
     moderator.roles = [p1_role, p2_role, moderator_role]
     admin.roles = [p1_role, p2_role, admin_role]
     deleted_admin.roles = [p1_role, p2_role, admin_role]
     banned.roles = [p1_role]
-    session.add(rama)
+    session.add(u_basic)
     session.add(moderator)
     session.add(admin)
     session.add(deleted_admin)
@@ -185,14 +185,14 @@ def client(flask_app):
 @pytest.fixture()
 def rama_client(flask_app):
     session = get_session()
-    user = session.query(db.User).filter_by(username="ramacandra").first()
+    user = session.query(db.User).filter_by(username="u-basic").first()
     return flask_app.test_client(user=user)
 
 
 @pytest.fixture()
 def moderator_client(flask_app):
     session = get_session()
-    moderator = session.query(db.User).filter_by(username="user-mod").first()
+    moderator = session.query(db.User).filter_by(username="u-moderator").first()
     return flask_app.test_client(user=moderator)
 
 
@@ -206,12 +206,12 @@ def admin_client(flask_app):
 @pytest.fixture()
 def deleted_client(flask_app):
     session = get_session()
-    user = session.query(db.User).filter_by(username="sandrocottus-deleted").first()
+    user = session.query(db.User).filter_by(username="u-deleted").first()
     return flask_app.test_client(user=user)
 
 
 @pytest.fixture()
 def banned_client(flask_app):
     session = get_session()
-    user = session.query(db.User).filter_by(username="sikander-banned").first()
+    user = session.query(db.User).filter_by(username="u-banned").first()
     return flask_app.test_client(user=user)

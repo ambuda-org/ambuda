@@ -4,21 +4,21 @@ def test_summary(client):
 
 
 def test_edit__user_match(rama_client):
-    resp = rama_client.get("/proofing/users/ramacandra/edit")
+    resp = rama_client.get("/proofing/users/u-basic/edit")
     assert resp.status_code == 200
 
 
 def test_edit__user_match__post(rama_client):
-    resp = rama_client.get("/proofing/users/ramacandra/")
+    resp = rama_client.get("/proofing/users/u-basic/")
     assert resp.status_code == 200
     assert "Tell others who you are" in resp.text
 
     resp = rama_client.post(
-        "/proofing/users/ramacandra/edit", data={"description": "My description"}
+        "/proofing/users/u-basic/edit", data={"description": "My description"}
     )
     assert resp.status_code == 302
 
-    resp = rama_client.get("/proofing/users/ramacandra/")
+    resp = rama_client.get("/proofing/users/u-basic/")
     assert resp.status_code == 200
     assert "My description" in resp.text
 
@@ -34,7 +34,7 @@ def test_edit__user_does_not_exist(rama_client):
 
 
 def test_edit__unauth(client):
-    resp = client.get("/proofing/users/ramacandra/edit")
+    resp = client.get("/proofing/users/u-basic/edit")
     assert resp.status_code == 302
 
 

@@ -89,8 +89,8 @@ def test_sign_in__unauth_post__ok(client):
     r = client.post(
         "/sign-in",
         data={
-            "username": "ramacandra",
-            "password": "maithili",
+            "username": "u-basic",
+            "password": "pass_basic",
         },
     )
     assert r.status_code == 302
@@ -100,8 +100,8 @@ def test_sign_in__unauth_post__bad_username(client):
     r = client.post(
         "/sign-in",
         data={
-            "username": "ravana",
-            "password": "maithili",
+            "username": "u-attacker",
+            "password": "pass_basic",
         },
     )
     assert "Invalid username or password" in r.text
@@ -111,8 +111,8 @@ def test_sign_in__unauth_post__bad_password(client):
     r = client.post(
         "/sign-in",
         data={
-            "username": "ramacandra",
-            "password": "dasharatha",
+            "username": "u-basic",
+            "password": "bad password",
         },
     )
     assert "Invalid username or password" in r.text
@@ -174,3 +174,8 @@ def test_change_password(rama_client):
 def test_change_password__unauth(client):
     r = client.get("/change-password")
     assert r.status_code == 302
+
+
+def test_change_password(rama_client):
+    r = rama_client.get("/change-password")
+    assert ">Change" in r.text
