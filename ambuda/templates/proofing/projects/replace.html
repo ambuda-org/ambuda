@@ -53,11 +53,10 @@
 <div class="prose">
   <h2>Matches</h2>
 
-  {% set nr = results|length %}
-  {% if nr == 1 %}
-  <p>Found {{ nr }} page that contains <kbd>{{ query }}</kbd>.</p>
+  {% if num_matches == 1 %}
+  <p>Found {{ num_matches }} matching lines for query <kbd>{{ query }}</kbd>.</p>
   {% else %}
-  <p>Found {{ nr }} pages that contain <kbd>{{ query }}</kbd>.</p>
+  <p>Found {{ num_matches }} matching lines for query <kbd>{{ query }}</kbd>.</p>
   {% endif %}
 </div>
 
@@ -70,7 +69,7 @@
     <label class="px-4">
       <input type="checkbox" name="select-all" id="select-all">
     </label>
-    <label for="select-all">Select all {{ nr }} matches.</label>
+    <label for="select-all">Select all {{ num_matches }} matches.</label>
   </div>
 
   <ul>
