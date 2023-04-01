@@ -610,10 +610,7 @@ def batch_ocr(slug):
         abort(404)
 
     if request.method == "POST":
-        task = ocr_tasks.run_ocr_for_project(
-            app_env=current_app.config["AMBUDA_ENVIRONMENT"],
-            project=project_,
-        )
+        task = ocr_tasks.run_ocr_for_project(project=project_)
         if task:
             return render_template(
                 "proofing/projects/batch-ocr-post.html",
