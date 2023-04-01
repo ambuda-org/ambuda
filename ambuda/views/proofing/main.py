@@ -240,7 +240,7 @@ def create_project_status(task_id):
 @bp.route("/recent-changes")
 def recent_changes():
     """Show recent changes across all projects."""
-    per_page = 100
+    per_page = 50
 
     # Exclude bot edits, which overwhelm all other edits on the site.
     bot_user = q.user(consts.BOT_USERNAME)

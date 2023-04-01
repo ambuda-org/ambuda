@@ -53,21 +53,13 @@ def activity(username):
         .limit(100)
         .all()
     )
-    recent_projects = (
-        session.query(db.Project)
-        .filter_by(creator_id=user_.id)
-        .order_by(db.Project.created_at.desc())
-        .all()
-    )
 
-    recent_activity = [("revision", r.created, r) for r in recent_revisions]
-    recent_activity += [("project", p.created_at, p) for p in recent_projects]
-    hm = heatmap.create(x[1].date() for x in recent_activity)
+    hm = heatmap.create(r.created.date() for r in recent_revisions)
 
     return render_template(
         "proofing/user/activity.html",
         user=user_,
-        recent_activity=recent_activity,
+        recent_revisions=recent_revisions,
         heatmap=hm,
     )
 

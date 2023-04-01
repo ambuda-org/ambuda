@@ -188,13 +188,11 @@ def activity(slug):
         .limit(100)
         .all()
     )
-    recent_activity = [("revision", r.created, r) for r in recent_revisions]
-    recent_activity.append(("project", project_.created_at, project_))
 
     return render_template(
         "proofing/projects/activity.html",
         project=project_,
-        recent_activity=recent_activity,
+        recent_revisions=recent_revisions,
     )
 
 

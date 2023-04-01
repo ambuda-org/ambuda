@@ -15,6 +15,6 @@
 {{ m.project_nav(project=project, active='activity') }}
 {% set search_url = url_for("proofing.project.search", slug=project.slug)  %}
 
-{{ m.activity_log(recent_activity) }}
+{{ m.revision_list(recent_revisions) }}
 
 {% endblock %}
