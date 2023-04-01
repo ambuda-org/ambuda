@@ -4,6 +4,7 @@
 import os
 
 from dotenv import load_dotenv
+
 from ambuda import create_app
 
 load_dotenv(".env")

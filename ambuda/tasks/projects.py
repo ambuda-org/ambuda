@@ -7,9 +7,9 @@ from pathlib import Path
 # package called `fitz` (https://pypi.org/project/fitz/) that is completely
 # unrelated to PDF parsing.
 import fitz
+from celery import shared_task
 from slugify import slugify
 
-from celery import shared_task
 from ambuda import database as db
 from ambuda import queries as q
 from ambuda.tasks.utils import CeleryTaskStatus, TaskStatus

@@ -3,7 +3,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, ForeignKey, Integer
 
-
 db = SQLAlchemy(session_options=dict(autoflush=False, autocommit=False))
 
 

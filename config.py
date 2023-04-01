@@ -178,6 +178,8 @@ class DevelopmentConfig(BaseConfig):
 
     #: Disable redirect intercepts when using flask-debugtoolbar
     DEBUG_TB_INTERCEPT_REDIRECTS = False
+    #: Record queries for debugging
+    SQLALCHEMY_RECORD_QUERIES = True
 
     AMBUDA_ENVIRONMENT = DEVELOPMENT
     DEBUG = True

@@ -15,8 +15,6 @@ from ambuda.seed.utils.data_utils import create_db
 from ambuda.tasks.projects import create_project_inner
 from ambuda.tasks.utils import LocalTaskStatus
 
-engine = create_db()
-
 
 @click.group()
 def cli():
@@ -33,22 +31,22 @@ def create_user():
     raw_password = getpass.getpass("Password: ")
     email = input("Email: ")
 
-    with Session(engine) as session:
-        u = (
-            session.query(db.User)
-            .where(or_(db.User.username == username, db.User.email == email))
-            .first()
-        )
-        if u is not None:
-            if u.username == username:
-                raise click.ClickException(f'User "{username}" already exists.')
-            else:
-                raise click.ClickException(f'Email "{email}" already exists.')
+    session = q.get_session()
+    u = (
+        session.query(db.User)
+        .where(or_(db.User.username == username, db.User.email == email))
+        .first()
+    )
+    if u is not None:
+        if u.username == username:
+            raise click.ClickException(f'User "{username}" already exists.')
+        else:
+            raise click.ClickException(f'Email "{email}" already exists.')
 
-        user = db.User(username=username, email=email)
-        user.set_password(raw_password)
-        session.add(user)
-        session.commit()
+    user = db.User(username=username, email=email)
+    user.set_password(raw_password)
+    session.add(user)
+    session.commit()
 
 
 @cli.command()
@@ -60,19 +58,19 @@ def add_role(username, role):
     In particular, `add-role <user> admin` will give a user administrator
     privileges and grant them full access to Ambuda's data and content.
     """
-    with Session(engine) as session:
-        u = session.query(db.User).where(db.User.username == username).first()
-        if u is None:
-            raise click.ClickException(f'User "{username}" does not exist.')
-        r = session.query(db.Role).where(db.Role.name == role).first()
-        if r is None:
-            raise click.ClickException(f'Role "{role}" does not exist.')
-        if r in u.roles:
-            raise click.ClickException(f'User "{username}" already has role "{role}".')
+    session = q.get_session()
+    u = session.query(db.User).where(db.User.username == username).first()
+    if u is None:
+        raise click.ClickException(f'User "{username}" does not exist.')
+    r = session.query(db.Role).where(db.Role.name == role).first()
+    if r is None:
+        raise click.ClickException(f'Role "{role}" does not exist.')
+    if r in u.roles:
+        raise click.ClickException(f'User "{username}" already has role "{role}".')
 
-        u.roles.append(r)
-        session.add(u)
-        session.commit()
+    u.roles.append(r)
+    session.add(u)
+    session.commit()
     print(f'Added role "{role}" to user "{username}".')
 
 

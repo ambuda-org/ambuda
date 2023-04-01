@@ -20,10 +20,10 @@ from ambuda import auth as auth_manager
 from ambuda import checks, filters
 from ambuda.consts import LOCALES
 from ambuda.mail import mailer
+from ambuda.models.base import db
 from ambuda.tasks import celery_init_app
 from ambuda.utils import assets
 from ambuda.utils.url_converters import ListConverter
-from ambuda.models.base import db
 from ambuda.views.about import bp as about
 from ambuda.views.api import bp as api
 from ambuda.views.auth import bp as auth
