@@ -22,7 +22,6 @@ from ambuda.consts import LOCALES
 from ambuda.mail import mailer
 from ambuda.tasks import celery_init_app
 from ambuda.utils import assets
-from ambuda.utils.json_serde import AmbudaJSONEncoder
 from ambuda.utils.url_converters import ListConverter
 from ambuda.models.base import db
 from ambuda.views.about import bp as about
@@ -149,5 +148,4 @@ def create_app(config_env: str):
         }
     )
 
-    app.json_encoder = AmbudaJSONEncoder
     return app

@@ -1,15 +1,12 @@
 """Views related to texts: title pages, sections, verses, etc."""
 
-import json
-
-from flask import Blueprint, abort, jsonify, render_template, url_for
+from flask import Blueprint, abort, json, jsonify, render_template, url_for
 from indic_transliteration import sanscript
 
 import ambuda.database as db
 import ambuda.queries as q
 from ambuda.consts import TEXT_CATEGORIES
 from ambuda.utils import xml
-from ambuda.utils.json_serde import AmbudaJSONEncoder
 from ambuda.views.api import bp as api
 from ambuda.views.reader.schema import Block, Section
 
@@ -168,7 +165,7 @@ def section(text_slug, section_slug):
         prev_url=_make_section_url(text_, prev),
         next_url=_make_section_url(text_, next_),
     )
-    json_payload = json.dumps(data, cls=AmbudaJSONEncoder)
+    json_payload = json.dumps(data)
 
     return render_template(
         "texts/section.html",
