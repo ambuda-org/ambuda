@@ -118,8 +118,6 @@ def create_app(config_env: str):
     def get_locale():
         return session.get("locale", config_spec.BABEL_DEFAULT_LOCALE)
 
-    babel.init_app(app)
-
     login_manager = auth_manager.create_login_manager()
     login_manager.init_app(app)
 
