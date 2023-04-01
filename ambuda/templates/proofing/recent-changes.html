@@ -2,6 +2,16 @@
 {% import "macros/proofing.html" as m %}
 
 
+{% macro page_link(text, page) %}
+{% if page %}
+  {% set url = url_for("proofing.recent_changes", page=page) %}
+  <li><a class="block px-4 py-2 hover:bg-slate-100" href="{{ url }}">{{ text|safe }}</a></li>
+{% else %}
+  <li class="px-4 py-2 text-slate-400">{{ text|safe }}</li>
+{% endif %}
+{% endmacro %}
+
+
 {% block title %}Recent changes | Ambuda{% endblock %}
 
 
@@ -13,8 +23,36 @@
     _("Recent changes"),
     "Recent edits and revisions made by people like you!") }}
 
-{% if recent_activity -%}
-{{ m.activity_log(recent_activity) }}
+{% if recent_revisions -%}
+  <ul class="a-hover-underline">
+    {% for r in recent_revisions -%}
+      {{ m.revision_li(r) }}
+    {%- endfor %}
+  </ul>
+
+  {# Page links #}
+  {% set revs = recent_revisions %}
+  <nav class="my-8">
+    <p class="text-sm mb-2">Showing {{ revs.first }} to {{ revs.last }} of {{ revs.total }} results.</p>
+    <ul class="flex border rounded items-center text-center">
+      {{ page_link("&laquo;", revs.prev_num) }}
+      {% for page in revs.iter_pages() %}
+        <li>
+        {% if page %}
+          {% if page == revs.page %}
+            <div class="px-4 py-2 bg-sky-900 text-white font-bold">{{ page }}</div>
+          {% else %}
+            {% set url = url_for("proofing.recent_changes", page=page) %}
+            <a href="{{ url }}" class="px-4 py-2 block hover:bg-slate-100">{{ page }}</a>
+          {% endif %}
+        {% else %}
+          <div class="px-4 py-2">&hellip;</div>
+        {% endif %}
+        </li>
+      {% endfor %}
+      {{ page_link("&raquo;", revs.next_num) }}
+    </ul>
+  </nav>
 {% else %}
 <p>No changes found.</p>
 {% endif %}

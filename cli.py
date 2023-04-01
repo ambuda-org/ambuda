@@ -6,12 +6,10 @@ from pathlib import Path
 import click
 from slugify import slugify
 from sqlalchemy import or_
-from sqlalchemy.orm import Session
 
 import ambuda
 from ambuda import database as db
 from ambuda import queries as q
-from ambuda.seed.utils.data_utils import create_db
 from ambuda.tasks.projects import create_project_inner
 from ambuda.tasks.utils import LocalTaskStatus
 

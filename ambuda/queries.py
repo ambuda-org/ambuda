@@ -4,7 +4,6 @@ We use this module to organize repetitive query logic and keep our views readabl
 For simple or adhoc queries, you can just write them in their corresponding view.
 """
 
-import functools
 
 from flask import current_app
 from sqlalchemy.orm import load_only, selectinload

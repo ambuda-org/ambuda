@@ -170,22 +170,12 @@
 {% endmacro %}
 
 
-{# List various activity (edits, new projects, etc.) #}
-{% macro activity_log(activity) %}
-<ul class="a-hover-underline">
-{% for type_, _, obj in activity %}
-  {% if type_ == 'revision' %}{{ revision_li(obj) }}
-  {% elif type_ == 'project' %}{{ project_li(obj) }}
-  {% endif %}
-{% endfor %}
-</ul>
-{% endmacro %}
-
-
 {# List the given revisions. Revisions might correspond to multiple pages. #}
 {% macro revision_list(revisions) %}
 <ul class="a-hover-underline">
-  {% for r in revisions %}{{ revision_li(r) }}{% endfor %}
+  {% for r in revisions -%}
+    {{ revision_li(r) }}
+  {%- endfor %}
 </ul>
 {% endmacro %}
 

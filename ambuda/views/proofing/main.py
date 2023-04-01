@@ -13,9 +13,10 @@ from wtforms.validators import DataRequired, ValidationError
 from wtforms.widgets import TextArea
 
 from ambuda import consts
-from ambuda import database as db
 from ambuda import queries as q
+from ambuda.database import Page, Project, Revision, User
 from ambuda.enums import SitePageStatus
+from ambuda.models.base import db
 from ambuda.tasks import projects as project_tasks
 from ambuda.views.proofing.decorators import moderator_required, p2_required
 
@@ -97,11 +98,9 @@ def index():
     # Fetch all project data in a single query for better performance.
     session = q.get_session()
     projects = (
-        session.query(db.Project)
+        session.query(Project)
         .options(
-            orm.joinedload(db.Project.pages)
-            .load_only(db.Page.id)
-            .joinedload(db.Page.status)
+            orm.joinedload(Project.pages).load_only(Page.id).joinedload(Page.status)
         )
         .all()
     )
@@ -241,35 +240,25 @@ def create_project_status(task_id):
 @bp.route("/recent-changes")
 def recent_changes():
     """Show recent changes across all projects."""
-    num_per_page = 100
+    per_page = 100
 
     # Exclude bot edits, which overwhelm all other edits on the site.
     bot_user = q.user(consts.BOT_USERNAME)
     assert bot_user, "Bot user not defined"
 
-    session = q.get_session()
-    recent_revisions = (
-        session.query(db.Revision)
-        .options(orm.defer(db.Revision.content))
-        .filter(db.Revision.author_id != bot_user.id)
-        .order_by(db.Revision.created.desc())
-        .limit(num_per_page)
-        .all()
+    q.get_session()
+    recent_revisions = db.paginate(
+        db.select(Revision)
+        # Defer slow columns
+        .options(orm.defer(Revision.content))
+        # .filter(Revision.author_id != bot_user.id)
+        .order_by(Revision.created.desc()),
+        per_page=per_page,
+        max_per_page=per_page,
     )
-    recent_activity = [("revision", r.created, r) for r in recent_revisions]
 
-    recent_projects = (
-        session.query(db.Project)
-        .order_by(db.Project.created_at.desc())
-        .limit(num_per_page)
-        .all()
-    )
-    recent_activity += [("project", p.created_at, p) for p in recent_projects]
-
-    recent_activity.sort(key=lambda x: x[1], reverse=True)
-    recent_activity = recent_activity[:num_per_page]
     return render_template(
-        "proofing/recent-changes.html", recent_activity=recent_activity
+        "proofing/recent-changes.html", recent_revisions=recent_revisions
     )
 
 
@@ -294,16 +283,14 @@ def dashboard():
     days_ago_1d = now - timedelta(days=1)
 
     session = q.get_session()
-    bot = session.query(db.User).filter_by(username=consts.BOT_USERNAME).one()
+    bot = session.query(User).filter_by(username=consts.BOT_USERNAME).one()
     bot_id = bot.id
 
     revisions_30d = (
-        session.query(db.Revision)
-        .filter(
-            (db.Revision.created >= days_ago_30d) & (db.Revision.author_id != bot_id)
-        )
-        .options(orm.load_only(db.Revision.created, db.Revision.author_id))
-        .order_by(db.Revision.created)
+        session.query(Revision)
+        .filter((Revision.created >= days_ago_30d) & (Revision.author_id != bot_id))
+        .options(orm.load_only(Revision.created, Revision.author_id))
+        .order_by(Revision.created)
         .all()
     )
     revisions_7d = [x for x in revisions_30d if x.created >= days_ago_7d]
