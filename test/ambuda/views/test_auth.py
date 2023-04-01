@@ -176,6 +176,12 @@ def test_change_password__unauth(client):
     assert r.status_code == 302
 
 
-def test_change_password(rama_client):
-    r = rama_client.get("/change-password")
-    assert ">Change" in r.text
+def test_change_password__bad_old_password(rama_client):
+    r = rama_client.post(
+        "/change-password",
+        data={
+            "old_password": "bad-password",
+            "new_password": "new-password",
+        },
+    )
+    assert "Old password isn&#39;t valid" in r.text
