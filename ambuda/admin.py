@@ -48,7 +48,7 @@ class UserView(BaseView):
 
 
 class TextBlockView(BaseView):
-    column_list = form_columns = ["text_id", "slug", "xml"]
+    column_list = form_columns = ["text", "slug", "xml"]
 
 
 class TextView(BaseView):
@@ -58,8 +58,7 @@ class TextView(BaseView):
 
 
 class ProjectView(BaseView):
-    column_list = ["slug", "title", "creator_id"]
-    # column_select_related_list = ["creator"]
+    column_list = ["slug", "title", "creator"]
     form_excluded_columns = ["creator", "board", "pages", "created_at", "updated_at"]
 
 
@@ -82,8 +81,8 @@ def create_admin_manager(app):
     admin = Admin(
         app,
         name="Ambuda",
-        # index_view=AmbudaIndexView(),
-        # base_template="admin/master.html",
+        index_view=AmbudaIndexView(),
+        base_template="admin/master.html",
     )
 
     admin.add_view(DictionaryView(db.Dictionary, session))

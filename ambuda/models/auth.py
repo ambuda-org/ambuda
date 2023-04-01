@@ -42,6 +42,9 @@ class User(AmbudaUserMixin, Base):
     #: All roles available for this user.
     roles = relationship("Role", secondary="user_roles")
 
+    def __str__(self):
+        return self.username
+
     def __repr__(self):
         username = self.username
         return f'<User(username="{username}")>'

@@ -31,6 +31,9 @@ class Text(Base):
     #: An ordered list of the sections contained within this text.
     sections = relationship("TextSection", backref="text", cascade="delete")
 
+    def __str__(self):
+        return self.slug
+
 
 class TextSection(Base):
 
@@ -84,3 +87,5 @@ class TextBlock(Base):
     xml = Column(_Text, nullable=False)
     #: (internal-only) Block A comes before block B iff A.n < B.n.
     n = Column(Integer, nullable=False)
+
+    text = relationship("Text")
