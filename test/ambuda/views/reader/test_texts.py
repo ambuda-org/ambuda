@@ -20,6 +20,26 @@ def test_text__missing(client):
     assert resp.status_code == 404
 
 
+def test_about(client):
+    resp = client.get("/texts/pariksha/about")
+    assert resp.status_code == 200
+
+
+def test_about__missing(client):
+    resp = client.get("/texts/unknown-test/about")
+    assert resp.status_code == 404
+
+
+def test_resources(client):
+    resp = client.get("/texts/pariksha/resources")
+    assert resp.status_code == 200
+
+
+def test_resources__missing(client):
+    resp = client.get("/texts/unknown-test/resources")
+    assert resp.status_code == 404
+
+
 def test_section(client):
     resp = client.get("/texts/pariksha/1")
     assert resp.status_code == 200
