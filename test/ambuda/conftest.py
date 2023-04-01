@@ -57,13 +57,13 @@ def initialize_test_db():
 
     _add_dictionaries(session)
 
-    # Bot
+    # Bot user
     bot = db.User(username=BOT_USERNAME, email="ambuda-bot@ambuda.org")
     bot.set_password("password")
     session.add(bot)
     session.flush()
 
-    # Auth
+    # Basic user
     rama = db.User(username="ramacandra", email="rama@ayodhya.com")
     rama.set_password("maithili")
     session.add(rama)
@@ -117,7 +117,7 @@ def initialize_test_db():
     session.add(banned)
     session.flush()
 
-    # Blog
+    # Blog posts
     post = db.BlogPost(
         title="Sample post",
         slug="sample-post",
@@ -176,7 +176,8 @@ def flask_app():
 
 @pytest.fixture()
 def client(flask_app):
-    return flask_app.test_client()
+    with flask_app.app_context():
+        yield flask_app.test_client()
 
 
 @pytest.fixture()

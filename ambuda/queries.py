@@ -6,6 +6,7 @@ For simple or adhoc queries, you can just write them in their corresponding view
 
 import functools
 
+from flask import current_app
 from sqlalchemy.orm import load_only, selectinload
 
 import ambuda.database as db
@@ -13,7 +14,8 @@ from ambuda.models.base import db as flask_sqla
 
 
 def get_session():
-    return flask_sqla.session
+    with current_app.app_context():
+        return flask_sqla.session
 
 
 def texts() -> list[db.Text]:
