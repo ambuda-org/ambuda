@@ -1,7 +1,7 @@
 ARG BUILD_TYPE=release
 
 ## 1. Build the base image. This build is a rare event.
-FROM python:3.9.13-slim-buster as base
+FROM python:3.10.10-slim-buster as base
 ENV PYTHONFAULTHANDLER=1 \
     PYTHONHASHSEED=random \
     PYTHONUNBUFFERED=1
