@@ -111,12 +111,12 @@ def create_app(config_env: str):
     # Database
     _initialize_db_session(app, config_env)
 
-    # Extensions
-    babel = Babel(app)
-
-    @babel.localeselector
     def get_locale():
         return session.get("locale", config_spec.BABEL_DEFAULT_LOCALE)
+
+    # Extensions
+    babel = Babel(app)
+    babel.init_app(app, locale_selector=get_locale)
 
     login_manager = auth_manager.create_login_manager()
     login_manager.init_app(app)
