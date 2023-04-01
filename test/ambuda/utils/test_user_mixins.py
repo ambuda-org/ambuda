@@ -11,6 +11,9 @@ def test_anonymous_user():
     assert not u.is_proofreader
     assert not u.is_moderator
     assert not u.is_admin
+    assert not u.has_role(SiteRole.P1)
+
+    assert u.is_ok
 
 
 def test_new_authenticated_user(client):
