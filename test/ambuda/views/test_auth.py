@@ -171,6 +171,36 @@ def test_change_password(rama_client):
     assert ">Change" in r.text
 
 
+def test_change_password__ok(client):
+    # Create a dummy user
+    session = q.get_session()
+    user = db.User(username="sample-user", email="foo@ambuda.org")
+    user.set_password("password")
+    session.add(user)
+    session.commit()
+
+    # Sign in
+    r = client.post(
+        "/sign-in",
+        data={
+            "username": "sample-user",
+            "password": "password",
+        },
+    )
+    assert r.status_code == 302
+
+    # Try the password change
+    r = client.post(
+        "/change-password",
+        data={
+            "old_password": "password",
+            "new_password": "password2",
+        },
+    )
+    # `302` indicates success.
+    assert r.status_code == 302
+
+
 def test_change_password__unauth(client):
     r = client.get("/change-password")
     assert r.status_code == 302

@@ -336,7 +336,9 @@ def change_password():
         session.commit()
 
         flash("Changed password successfully!", "success")
-        return redirect(url_for("proofing.user", username=current_user.username))
+        return redirect(
+            url_for("proofing.user.summary", username=current_user.username)
+        )
     else:
         flash("Old password isn't valid.")
 
