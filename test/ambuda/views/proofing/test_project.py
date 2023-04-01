@@ -139,14 +139,14 @@ def test_submit_changes(moderator_client):
     replace = "test_replace"
     form_data = {"query": query, "replace": replace}
     resp = moderator_client.post(
-        "/proofing/test-project/submit_changes", data=form_data
+        "/proofing/test-project/submit-changes", data=form_data
     )
     assert "Changes:" in resp.text
 
 
 def test_submit_changes_post(moderator_client):
     resp = moderator_client.post(
-        "/proofing/test-project/submit_changes",
+        "/proofing/test-project/submit-changes",
         data={
             "query": "the",
             "replace": "the",
@@ -159,7 +159,7 @@ def test_submit_changes_post(moderator_client):
 
 
 def test_submit_unauth(client):
-    resp = client.get("/proofing/test-project/submit_changes")
+    resp = client.get("/proofing/test-project/submit-changes")
     assert resp.status_code == 302
 
 

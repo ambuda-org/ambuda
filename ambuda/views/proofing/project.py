@@ -127,12 +127,12 @@ def validate_matches(form, field):
             raise ValidationError("Invalid match form values.")
 
 
-class SubmitChangesForm(ReplaceForm):
+class PreviewChangesForm(ReplaceForm):
     class Meta:
         csrf = False
 
     matches = FieldList(FormField(MatchForm), validators=[validate_matches])
-    submit = SubmitField("Submit Changes")
+    submit = SubmitField("Preview changes")
 
 
 class ConfirmChangesForm(ReplaceForm):
@@ -380,7 +380,7 @@ def _replace_text(project_, replace_form: ReplaceForm, query: str, replace: str)
         "proofing/projects/replace.html",
         project=project_,
         form=replace_form,
-        submit_changes_form=SubmitChangesForm(),
+        submit_changes_form=PreviewChangesForm(),
         query=query,
         replace=replace,
         results=results,
@@ -464,7 +464,7 @@ def _select_changes(project_, selected_keys, query: str, replace: str):
     )
 
 
-@bp.route("/<slug>/submit_changes", methods=["GET", "POST"])
+@bp.route("/<slug>/submit-changes", methods=["GET", "POST"])
 @p2_required
 def submit_changes(slug):
     """Submit selected changes across all of the project's pages.
@@ -481,7 +481,7 @@ def submit_changes(slug):
     )
 
     # FIXME: find a way to validate this form. Current `matches` are coming in the way of validators.
-    form = SubmitChangesForm(request.form)
+    form = PreviewChangesForm(request.form)
     # if not form.validate():
     #     # elif request.form.get("form_submitted") is None:
     #     invalid_keys = list(form.errors.keys())
