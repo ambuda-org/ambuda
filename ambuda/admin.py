@@ -82,8 +82,8 @@ def create_admin_manager(app):
     admin = Admin(
         app,
         name="Ambuda",
-        index_view=AmbudaIndexView(),
-        base_template="admin/master.html",
+        # index_view=AmbudaIndexView(),
+        # base_template="admin/master.html",
     )
 
     admin.add_view(DictionaryView(db.Dictionary, session))
