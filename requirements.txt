@@ -104,7 +104,7 @@ pytz==2022.2.1
 PyYAML==6.0
 redis==4.3.4
 regex==2022.6.2
-requests==2.27.1
+requests==2.28.2
 roman==3.3
 ruff==0.0.260
 rsa==4.8
@@ -134,7 +134,6 @@ typer==0.6.1
 typing_extensions==4.2.0
 uc-micro-py==1.0.1
 unicodedata2==14.0.0
-urllib3==1.26.9
 vine==5.0.0
 watchdog==2.1.9
 watchdog-gevent==0.1.1
