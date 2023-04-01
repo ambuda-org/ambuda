@@ -20,6 +20,11 @@ class AmbudaIndexView(AdminIndexView):
 
 
 class BaseView(sqla.ModelView):
+    """Base view for models.
+
+    By default, only admins can see model data.
+    """
+
     def is_accessible(self):
         return current_user.is_admin
 
@@ -28,6 +33,8 @@ class BaseView(sqla.ModelView):
 
 
 class ModeratorBaseView(sqla.ModelView):
+    """Base view for models that moderators are allowed to access."""
+
     def is_accessible(self):
         return current_user.is_moderator
 
@@ -37,10 +44,11 @@ class ModeratorBaseView(sqla.ModelView):
 
 class UserView(BaseView):
     column_list = form_columns = ["username", "email"]
+    can_delete = False
 
 
 class TextBlockView(BaseView):
-    column_list = form_columns = ["text_id", "slug", "xml"]
+    column_list = form_columns = ["text", "slug", "xml"]
 
 
 class TextView(BaseView):
@@ -50,7 +58,8 @@ class TextView(BaseView):
 
 
 class ProjectView(BaseView):
-    column_list = form_columns = ["slug", "title", "creator_id"]
+    column_list = ["slug", "title", "creator"]
+    form_excluded_columns = ["creator", "board", "pages", "created_at", "updated_at"]
 
 
 class DictionaryView(BaseView):
@@ -75,11 +84,12 @@ def create_admin_manager(app):
         index_view=AmbudaIndexView(),
         base_template="admin/master.html",
     )
+
     admin.add_view(DictionaryView(db.Dictionary, session))
     admin.add_view(ProjectView(db.Project, session))
     admin.add_view(TextBlockView(db.TextBlock, session))
     admin.add_view(TextView(db.Text, session))
     admin.add_view(UserView(db.User, session))
-
     admin.add_view(SponsorshipView(db.ProjectSponsorship, session))
+
     return admin

@@ -42,6 +42,13 @@ class User(AmbudaUserMixin, Base):
     #: All roles available for this user.
     roles = relationship("Role", secondary="user_roles")
 
+    def __str__(self):
+        return self.username
+
+    def __repr__(self):
+        username = self.username
+        return f'<User(username="{username}")>'
+
     def set_password(self, raw_password: str):
         """Hash and save the given password."""
         self.password_hash = generate_password_hash(raw_password)

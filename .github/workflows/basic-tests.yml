@@ -69,7 +69,7 @@ jobs:
         run: make coverage
       
       - name: Check coverage
-        run: coverage report --fail-under=80
+        run: make coverage-report
 
   run-js-tests:
     runs-on: ubuntu-22.04
