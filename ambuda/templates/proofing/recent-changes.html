@@ -33,7 +33,9 @@
   {# Page links #}
   {% set revs = recent_revisions %}
   <nav class="my-8">
-    <p class="text-sm mb-2">Showing {{ revs.first }} to {{ revs.last }} of {{ revs.total }} results.</p>
+    <p class="text-sm mb-2 text-slate-700">
+      Showing {{ revs.first }} to {{ revs.last }} of {{ revs.total }} results.
+    </p>
     <ul class="flex border rounded items-center text-center">
       {{ page_link("&laquo;", revs.prev_num) }}
       {% for page in revs.iter_pages() %}
