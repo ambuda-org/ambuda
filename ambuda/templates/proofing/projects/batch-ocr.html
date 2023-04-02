@@ -1,10 +1,13 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% import "macros/components.html" as components %}
 {% from "macros/forms.html" import field %}
 {% import "macros/proofing.html" as m %}
 
 
 {% block title %}OCR {{ project.title }} | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
