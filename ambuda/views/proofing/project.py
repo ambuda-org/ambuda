@@ -329,8 +329,13 @@ def search(slug):
 
 @dataclass
 class Replacement:
+    """Models a replacement of a specific page/line."""
+
+    #: Regex splits of a line. Odd indices match the query phrase.
     splits: list[str]
+    #: The replacement for the odd indices in `splits`.
     replacement: str
+    #: The 0-indexed line number.
     line_num: int
 
     @property
@@ -338,7 +343,7 @@ class Replacement:
         return "match-{}-{}".format(self.page_slug, self.line_num)
 
     @property
-    def marked_query(self):
+    def marked_query(self) -> str:
         buf = []
         for i, t in enumerate(self.splits):
             if i % 2 == 1:
@@ -350,7 +355,7 @@ class Replacement:
         return "".join(buf)
 
     @property
-    def marked_replace(self):
+    def marked_replace(self) -> str:
         buf = []
         for i, t in enumerate(self.splits):
             if i % 2 == 1:
@@ -413,7 +418,6 @@ def replace(slug):
             "proofing/projects/replace.html", project=project_, form=ReplaceForm()
         )
 
-    # search for "query" string and replace with "update" string
     query = form.query.data
     replace = form.replace.data
     results = _find_replacements(project_, query=query, replace=replace)
