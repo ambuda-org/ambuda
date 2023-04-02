@@ -12,7 +12,7 @@
 {% block content %}
 {{ m.title_and_subtitle(user.username) }}
 
-{{ m.user_tabs(user=user, active='about') }}
+{{ m.user_tabs(user=user, active='about', is_mod=current_user.is_moderator) }}
 
 {% if user.description %}
 <div class="prose border p-4 my-8">

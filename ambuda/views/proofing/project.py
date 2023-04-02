@@ -388,7 +388,7 @@ def _replace_text(project_, replace_form: ReplaceForm, query: str, replace: str)
 
 
 @bp.route("/<slug>/replace", methods=["GET", "POST"])
-@login_required
+@p2_required
 def replace(slug):
     """Search and replace a string across all of the project's pages.
 
@@ -465,7 +465,7 @@ def _select_changes(project_, selected_keys, query: str, replace: str):
 
 
 @bp.route("/<slug>/submit_changes", methods=["GET", "POST"])
-@login_required
+@p2_required
 def submit_changes(slug):
     """Submit selected changes across all of the project's pages.
 
@@ -508,7 +508,7 @@ def submit_changes(slug):
 
 
 @bp.route("/<slug>/confirm_changes", methods=["GET", "POST"])
-@login_required
+@p2_required
 def confirm_changes(slug):
     """Confirm changes to replace a string across all of the project's pages."""
     project_ = q.project(slug)
