@@ -1,4 +1,5 @@
 import logging
+from dataclasses import dataclass
 import re
 
 from celery.result import GroupResult
@@ -326,57 +327,70 @@ def search(slug):
     )
 
 
-def _replace_text(project_, replace_form: ReplaceForm, query: str, replace: str):
-    """
-    Gather all matches for the "query" string and pair them the "replace" string.
-    """
+@dataclass
+class Replacement:
+    splits: list[str]
+    replacement: str
+    line_num: int
 
+    @property
+    def name(self) -> str:
+        return "match-{}-{}".format(self.page_slug, self.line_num)
+
+    @property
+    def marked_query(self):
+        buf = []
+        for i, t in enumerate(self.splits):
+            if i % 2 == 1:
+                buf.append("<mark>")
+                buf.append(escape(t))
+                buf.append("</mark>")
+            else:
+                buf.append(escape(t))
+        return "".join(buf)
+
+    @property
+    def marked_replace(self):
+        buf = []
+        for i, t in enumerate(self.splits):
+            if i % 2 == 1:
+                buf.append("<mark>")
+                buf.append(escape(self.replacement))
+                buf.append("</mark>")
+            else:
+                buf.append(escape(t))
+        return "".join(buf)
+
+
+def _find_replacements(project_, query: str, replace: str):
+    """Gather all matches for the "query" string."""
+
+    # Use `re.UNICODE` to support unicode search/replace.
+    re_query = re.compile(f"({query})", re.UNICODE)
     results = []
-
-    query_pattern = re.compile(
-        query, re.UNICODE
-    )  # Compile the regex pattern with Unicode support
-
-    LOG.debug(f"Search/Replace text with {query} and {replace}")
     for page_ in project_.pages:
         if not page_.revisions:
             continue
+
         matches = []
         latest = page_.revisions[-1]
-        LOG.debug(f"{__name__}: {page_.slug}")
         for line_num, line in enumerate(latest.content.splitlines()):
-            if query_pattern.search(line):
-                try:
-                    marked_query = query_pattern.sub(
-                        lambda m: Markup(f"<mark>{escape(m.group(0))}</mark>"), line
-                    )
-                    marked_replace = query_pattern.sub(
-                        Markup(f"<mark>{escape(replace)}</mark>"), line
-                    )
-                    LOG.debug(f"Search/Replace > marked query: {marked_query}")
-                    LOG.debug(f"Search/Replace > marked replace: {marked_replace}")
-                    matches.append(
-                        {
-                            "query": marked_query,
-                            "replace": marked_replace,
-                            "checked": False,
-                            "line_num": line_num,
-                        }
-                    )
-                except TimeoutError:
-                    # Handle the timeout for regex operation, e.g., log a warning or show an error message
-                    LOG.warning(
-                        f"Regex operation timed out for line {line_num}: {line}"
-                    )
+            try:
+                splits = re_query.split(line)
+            except TimeoutError:
+                LOG.warning(f"Regex timed out for line: `{line}`")
+                continue
+
+            if len(splits) > 1:
+                # If length is 1, there are no matches.
+                matches.append(
+                    Replacement(splits=splits, line_num=line_num, replacement=replace)
+                )
 
         if matches:
-            results.append(
-                {
-                    "slug": page_.slug,
-                    "matches": matches,
-                }
-            )
+            results.append({"slug": page_.slug, "matches": matches})
 
+    assert results
     return results
 
 
@@ -391,7 +405,7 @@ def replace(slug):
     if project_ is None:
         abort(404)
 
-    form = ReplaceForm(request.form)
+    form = ReplaceForm(request.args)
     if not form.validate():
         invalid_keys = list(form.errors.keys())
         LOG.debug(f"Invalid form - {request.method}, invalid keys: {invalid_keys}")
@@ -402,7 +416,7 @@ def replace(slug):
     # search for "query" string and replace with "update" string
     query = form.query.data
     replace = form.replace.data
-    results = _replace_text(project_, replace_form=form, query=query, replace=replace)
+    results = _find_replacements(project_, query=query, replace=replace)
     num_matches = sum(len(r["matches"]) for r in results)
 
     return render_template(
@@ -412,8 +426,8 @@ def replace(slug):
         submit_changes_form=PreviewChangesForm(),
         query=query,
         replace=replace,
-        num_matches=num_matches,
         results=results,
+        num_matches=num_matches,
     )
 
 

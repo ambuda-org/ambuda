@@ -19,8 +19,8 @@
         line {{ match.line_num }}
       </p>
 
-      <p class="p-1 bg-slate-50 rounded mb-2" for="{{ match_name }}">{{ match.query|safe }}</p>
-      <p class="p-1 bg-slate-50 rounded" for="{{ match_name }}-replace">{{ match.replace|safe }}</p>
+      <p class="p-1 bg-slate-50 rounded mb-2" for="{{ match_name }}">{{ match.marked_query|safe }}</p>
+      <p class="p-1 bg-slate-50 rounded" for="{{ match_name }}-replace">{{ match.marked_replace|safe }}</p>
       <input type="hidden" name="{{ match_name }}-replace" id="{{ match_name }}-replace"
         value="{{ match.replace }}">
     </div>
@@ -41,8 +41,7 @@
 
 <div class="prose">
   <p>Use this simple search and replace form to make edits across this project. The search supports regular expressions.</p>
-  <form method="POST" class="bg-slate-100 p-4 my-4">
-
+  <form method="GET" class="bg-slate-100 p-4 my-4">
     {{ field(form.query) }}
     {{ field(form.replace) }}
     <input class="btn btn-submit" type="submit" name="search" value="Show matches">
