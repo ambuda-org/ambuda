@@ -8,6 +8,7 @@ https://ambuda.readthedocs.io/en/latest/
 import logging
 import sys
 
+import config
 import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask, session
@@ -15,7 +16,6 @@ from flask_babel import Babel, pgettext
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy import exc
 
-import config
 from ambuda import admin as admin_manager
 from ambuda import auth as auth_manager
 from ambuda import checks, filters, queries
@@ -111,12 +111,12 @@ def create_app(config_env: str):
     # Database
     _initialize_db_session(app, config_env)
 
-    # Extensions
-    babel = Babel(app)
-
-    @babel.localeselector
+    # A custom Babel locale_selector.
     def get_locale():
         return session.get("locale", config_spec.BABEL_DEFAULT_LOCALE)
+
+    # Extensions
+    Babel(app, locale_selector=get_locale)
 
     login_manager = auth_manager.create_login_manager()
     login_manager.init_app(app)
