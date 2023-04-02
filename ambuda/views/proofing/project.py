@@ -693,7 +693,7 @@ def admin(slug):
             flash(f"Deleted project {slug}")
             return redirect(url_for("proofing.index"))
         else:
-            form.slug.errors.append("Mismatch with project slug.")
+            form.slug.errors.append("Deletion failed (incorrect field value).")
 
     return render_template(
         "proofing/projects/admin.html",
