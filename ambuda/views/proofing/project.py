@@ -127,12 +127,12 @@ def validate_matches(form, field):
             raise ValidationError("Invalid match form values.")
 
 
-class SubmitChangesForm(ReplaceForm):
+class PreviewChangesForm(ReplaceForm):
     class Meta:
         csrf = False
 
     matches = FieldList(FormField(MatchForm), validators=[validate_matches])
-    submit = SubmitField("Submit Changes")
+    submit = SubmitField("Preview changes")
 
 
 class ConfirmChangesForm(ReplaceForm):
@@ -376,15 +376,8 @@ def _replace_text(project_, replace_form: ReplaceForm, query: str, replace: str)
                     "matches": matches,
                 }
             )
-    return render_template(
-        "proofing/projects/replace.html",
-        project=project_,
-        form=replace_form,
-        submit_changes_form=SubmitChangesForm(),
-        query=query,
-        replace=replace,
-        results=results,
-    )
+
+    return results
 
 
 @bp.route("/<slug>/replace", methods=["GET", "POST"])
@@ -409,8 +402,19 @@ def replace(slug):
     # search for "query" string and replace with "update" string
     query = form.query.data
     replace = form.replace.data
-    render = _replace_text(project_, replace_form=form, query=query, replace=replace)
-    return render
+    results = _replace_text(project_, replace_form=form, query=query, replace=replace)
+    num_matches = sum(len(r["matches"]) for r in results)
+
+    return render_template(
+        "proofing/projects/replace.html",
+        project=project_,
+        form=form,
+        submit_changes_form=PreviewChangesForm(),
+        query=query,
+        replace=replace,
+        num_matches=num_matches,
+        results=results,
+    )
 
 
 def _select_changes(project_, selected_keys, query: str, replace: str):
@@ -464,7 +468,7 @@ def _select_changes(project_, selected_keys, query: str, replace: str):
     )
 
 
-@bp.route("/<slug>/submit_changes", methods=["GET", "POST"])
+@bp.route("/<slug>/submit-changes", methods=["GET", "POST"])
 @p2_required
 def submit_changes(slug):
     """Submit selected changes across all of the project's pages.
@@ -481,7 +485,7 @@ def submit_changes(slug):
     )
 
     # FIXME: find a way to validate this form. Current `matches` are coming in the way of validators.
-    form = SubmitChangesForm(request.form)
+    form = PreviewChangesForm(request.form)
     # if not form.validate():
     #     # elif request.form.get("form_submitted") is None:
     #     invalid_keys = list(form.errors.keys())
@@ -579,7 +583,7 @@ def confirm_changes(slug):
             # Check if the page content has changed
             if new_content != latest.content:
                 # Add a new revision to the page
-                new_summary = f'Replaced "{query}" with "{replace}" on page {page.slug}'
+                new_summary = f'Replaced "{query}" with "{replace}"'
                 new_revision = add_revision(
                     page=page,
                     summary=new_summary,
