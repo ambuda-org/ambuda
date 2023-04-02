@@ -12,7 +12,7 @@
 
 {% block content %}
 {{ m.project_header_nested('Talk', project) }}
-{{ m.project_nav(project=project, active='talk') }}
+{{ m.project_tabs(project=project, active='talk') }}
 
 <div class="my-4">
 <a class="btn btn-basic" href="{{ url_for('proofing.talk.create_thread', slug=project.slug) }}">
