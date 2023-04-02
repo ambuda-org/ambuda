@@ -67,7 +67,7 @@
 
 
 {# Project-level tabs. #}
-{% macro project_nav(project, active, is_mod = false) %}
+{% macro project_tabs(project, active, is_mod = false) %}
 {% set routes = [
   ("summary",  _("Summary"),   url_for("proofing.project.summary", slug=project.slug)),
   ("activity", _("Activity"),  url_for("proofing.project.activity", slug=project.slug)),

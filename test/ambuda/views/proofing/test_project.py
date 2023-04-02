@@ -1,3 +1,7 @@
+import ambuda.queries as q
+from ambuda.database import Project
+
+
 def test_summary(client):
     resp = client.get("/proofing/test-project/")
     assert resp.status_code == 200
@@ -45,7 +49,6 @@ def test_edit__auth__post_succeeds(rama_client):
         },
     )
     assert resp.status_code == 302
-    print(resp.headers["Location"] == "/proofing/test-project/")
 
 
 def test_edit__auth__post_fails(rama_client):
@@ -168,6 +171,41 @@ def test_confirm_changes(moderator_client):
 def test_confirm_unauth(client):
     resp = client.get("/proofing/test-project/confirm_changes")
     assert resp.status_code == 302
+
+
+def test_admin(moderator_client):
+    session = q.get_session()
+
+    project = Project(slug="project-123", title="Dummy project", board_id=0)
+    session.add(project)
+    session.commit()
+
+    resp = moderator_client.post(
+        "/proofing/project-123/admin",
+        data={
+            "slug": "project-123",
+        },
+    )
+    # Redirect (to project index page) indicates success.
+    assert resp.status_code == 302
+
+
+def test_admin__slug_mismatch(moderator_client):
+    session = q.get_session()
+
+    project = Project(slug="project-1234", title="Dummy project", board_id=0)
+    session.add(project)
+    session.commit()
+
+    # Deletion fails due to a mismatched `slug` value.
+    resp = moderator_client.post(
+        "/proofing/project-1234/admin",
+        data={
+            "slug": "project-aoeu",
+        },
+    )
+    assert resp.status_code == 200
+    assert "Deletion failed" in resp.text
 
 
 def test_admin__unauth(client):

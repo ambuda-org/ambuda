@@ -12,7 +12,7 @@
 
 {% block content %}
 {{ m.project_header_nested("Admin", project) }}
-{{ m.project_nav(project=project, active='admin') }}
+{{ m.project_tabs(project=project, active='admin', is_mod=current_user.is_moderator) }}
 
 <div class="prose">
 
@@ -48,7 +48,7 @@
 
   {{ form.slug(class_="p-2 block w-full my-4 border") }}
 
-  <input class="btn bg-red-800 text-white" type="submit" value="Permanently delete this project and its data">
+  <input class="btn bg-red-700 hover:bg-red-900 transition text-white" type="submit" value="Permanently delete this project and its data">
 </form>
 
 </div>

@@ -1,13 +1,17 @@
-{% extends 'proofing/base.html' %}
+{% extends 'proofing/base-sidebar.html' %}
 {% from "macros/forms.html" import field %}
 {% import "macros/proofing.html" as m %}
 
+
 {% block title %}Search {{ project.title }} | Ambuda{% endblock %}
 
-{% block content %}
 
+{% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}
+
+
+{% block content %}
 {{ m.project_header_nested('Search', project) }}
-{{ m.project_nav(project=project, active='edit') }}
+{{ m.project_tabs(project=project, active='edit') }}
 
 <div class="prose">
   <p>Use this simple search form to find typos across this project.</p>
