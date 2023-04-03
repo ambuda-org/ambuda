@@ -55,7 +55,7 @@ redis = "4.3.4"
 regex = "2022.6.2"
 requests = "2.27.1"
 sentry-sdk = "1.6.0"
-SQLAlchemy = "1.4.37"
+SQLAlchemy = "2.0.8"
 Werkzeug = "2.1.2"
 WTForms = "3.0.1"
 
