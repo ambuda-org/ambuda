@@ -242,3 +242,30 @@ bg-gray-200 text-gray-800
 {% endif %}
 {% endmacro %}
 
+
+{# Show search/replace results for a given page. #}
+{% macro search_and_replace_results(project, results) %}
+<ul>
+  {% for r in results %}
+    {% set page_url = url_for("proofing.page.edit", project_slug=project.slug, page_slug=r.page_slug) %}
+    <li class="match my-4 pt-4 flex border-t">
+      <label class="p-4">
+        <input type="checkbox" name="{{ r.form_key }}" id="{{ r.form_key }}"
+          value="selected" />
+      </label>
+      <div>
+        <p class="prose text-sm mb-2">
+          <a href="{{ page_url }}">Page {{ r.page_slug }}</a>, line {{ r.line_num }}
+        </p>
+  
+        <p class="p-1 bg-slate-50 rounded mb-2" for="{{ r.form_key }}">{{ r.marked_query|safe }}</p>
+        <p class="p-1 bg-slate-50 rounded" for="{{ r.replace_key }}">{{ r.marked_replace|safe }}</p>
+        <input type="hidden" name="{{ r.replace_key }}" id="{{ r.replace_key }}"
+          value="{{ r.replace }}">
+      </div>
+    </li>
+  {% endfor %}
+</ul>
+{% endmacro %}
+
+
