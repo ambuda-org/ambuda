@@ -79,6 +79,18 @@ def initialize_test_db():
     session.add(u_basic)
     session.flush()
 
+    # Basic user with only P1 permissions.
+    u_p1 = db.User(username="u-p1", email="u-p1@ambuda.org")
+    u_p1.set_password("pass_p1")
+    session.add(u_p1)
+    session.flush()
+
+    # Basic user with P2 permissions.
+    u_p2 = db.User(username="u-p2", email="u-p2@ambuda.org")
+    u_p2.set_password("pass_p2")
+    session.add(u_p2)
+    session.flush()
+
     # Moderator
     moderator = db.User(username="u-moderator", email="u_moderator@ambuda.org")
     moderator.set_password("pass_moderator")
@@ -116,11 +128,15 @@ def initialize_test_db():
     session.add(admin_role)
     session.flush()
 
+    u_p1.roles = [p1_role]
+    u_p2.roles = [p1_role, p2_role]
     u_basic.roles = [p1_role, p2_role]
     moderator.roles = [p1_role, p2_role, moderator_role]
     admin.roles = [p1_role, p2_role, admin_role]
     deleted_admin.roles = [p1_role, p2_role, admin_role]
     banned.roles = [p1_role]
+    session.add(u_p1)
+    session.add(u_p2)
     session.add(u_basic)
     session.add(moderator)
     session.add(admin)
@@ -155,18 +171,22 @@ def initialize_test_db():
 
     reviewed_0 = session.query(db.PageStatus).filter_by(name="reviewed-0").one()
 
-    page = db.Page(project_id=project.id, slug="1", order=1, status_id=reviewed_0.id)
-    session.add(page)
-    session.flush()
+    # Add 100 dummy pages.
+    for i in range(1, 101):
+        page = db.Page(
+            project_id=project.id, slug=str(i), order=i, status_id=reviewed_0.id
+        )
+        session.add(page)
+        session.flush()
 
-    revision = db.Revision(
-        project_id=project.id,
-        page_id=page.id,
-        author_id=admin.id,
-        status_id=reviewed_0.id,
-        content="Foo",
-    )
-    session.add(revision)
+        revision = db.Revision(
+            project_id=project.id,
+            page_id=page.id,
+            author_id=admin.id,
+            status_id=reviewed_0.id,
+            content=f"This is page {i} of 100.",
+        )
+        session.add(revision)
 
     session.commit()
 
@@ -195,35 +215,49 @@ def client(flask_app):
 
 
 @pytest.fixture()
+def p1_client(flask_app):
+    session = get_session()
+    user = session.query(db.User).filter_by(username="u-p1").one()
+    return flask_app.test_client(user=user)
+
+
+@pytest.fixture()
+def p2_client(flask_app):
+    session = get_session()
+    user = session.query(db.User).filter_by(username="u-p2").one()
+    return flask_app.test_client(user=user)
+
+
+@pytest.fixture()
 def rama_client(flask_app):
     session = get_session()
-    user = session.query(db.User).filter_by(username="u-basic").first()
+    user = session.query(db.User).filter_by(username="u-basic").one()
     return flask_app.test_client(user=user)
 
 
 @pytest.fixture()
 def moderator_client(flask_app):
     session = get_session()
-    moderator = session.query(db.User).filter_by(username="u-moderator").first()
+    moderator = session.query(db.User).filter_by(username="u-moderator").one()
     return flask_app.test_client(user=moderator)
 
 
 @pytest.fixture()
 def admin_client(flask_app):
     session = get_session()
-    user = session.query(db.User).filter_by(username="u-admin").first()
+    user = session.query(db.User).filter_by(username="u-admin").one()
     return flask_app.test_client(user=user)
 
 
 @pytest.fixture()
 def deleted_client(flask_app):
     session = get_session()
-    user = session.query(db.User).filter_by(username="u-deleted").first()
+    user = session.query(db.User).filter_by(username="u-deleted").one()
     return flask_app.test_client(user=user)
 
 
 @pytest.fixture()
 def banned_client(flask_app):
     session = get_session()
-    user = session.query(db.User).filter_by(username="u-banned").first()
+    user = session.query(db.User).filter_by(username="u-banned").one()
     return flask_app.test_client(user=user)

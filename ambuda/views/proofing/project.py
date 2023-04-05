@@ -509,7 +509,7 @@ def replace_post(slug):
             "success",
         )
     else:
-        flash("No changes made.", "success")
+        flash("No changes made.", "warning")
     return redirect(url_for("proofing.project.edit", slug=slug))
 
 

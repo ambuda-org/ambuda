@@ -33,7 +33,6 @@
 
   {% set num_images = project.pages|length %}
   {{ editor.navigation_bar(page_context, page_number, image_number, num_images) }}
-  {{ mc.flash_messages() }}
 
   {% if conflict %}
   <pre class="p-2 bg-slate-100 my-4">{{ conflict.content }}</pre>

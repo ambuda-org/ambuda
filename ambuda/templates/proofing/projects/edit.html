@@ -26,7 +26,7 @@
   <li><a href="{{ ocr_url }}">{{ _('Run batch OCR') }}</a></p>
 </ul>
 
-{{ components.flash_messages() }}
+{# Flash messages are shown in base-sidebar.html #}
 {{ mf.show_errors_if_any(form.errors) }}
 
 <form method="POST" class="bg-slate-100 p-4">

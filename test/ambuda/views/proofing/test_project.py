@@ -108,69 +108,52 @@ def test_search__bad_project(rama_client):
     assert resp.status_code == 404
 
 
-def test_replace(moderator_client):
-    resp = moderator_client.get("/proofing/test-project/replace")
+def test_replace(p2_client):
+    resp = p2_client.get("/proofing/test-project/replace")
+    assert resp.status_code == 200
     assert "Replace:" in resp.text
 
-
-def test_replace_post(moderator_client):
-    resp = moderator_client.post(
+    resp = p2_client.get(
         "/proofing/test-project/replace",
-        data={
-            "query": "the",
-            "replace": "the",
+        query_string={
+            "query": "page 1",
+            "replace": "page x",
         },
     )
     assert resp.status_code == 200
+    assert "Found 12 matching lines for query" in resp.text
 
 
-def test_replace__unauth(client):
+def test_replace_post(p2_client):
+    resp = p2_client.post(
+        "/proofing/test-project/replace",
+        data={
+            "query": "page 1",
+            "replace": "page x",
+            "match1-0": "selected",
+            "match10-0": "selected",
+            "match11-0": "selected",
+        },
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert "Saved 3 changes across 3 page(s)" in resp.text
+
+
+def test_replace__requires_p2_role(client, p1_client, p2_client):
     resp = client.get("/proofing/test-project/replace")
     assert resp.status_code == 302
 
+    resp = p1_client.get("/proofing/test-project/replace")
+    assert resp.status_code == 302
 
-def test_replace__bad_project(rama_client):
-    resp = rama_client.get("/proofing/unknown/replace")
-    assert resp.status_code == 404
-
-
-def test_submit_changes(moderator_client):
-    query = "test_query"
-    replace = "test_replace"
-    form_data = {"query": query, "replace": replace}
-    resp = moderator_client.post(
-        "/proofing/test-project/submit-changes", data=form_data
-    )
-    assert "Changes:" in resp.text
-
-
-def test_submit_changes_post(moderator_client):
-    resp = moderator_client.post(
-        "/proofing/test-project/submit-changes",
-        data={
-            "query": "the",
-            "replace": "the",
-            "matches": [],
-            "submit": True,
-        },
-    )
-
+    resp = p2_client.get("/proofing/test-project/replace")
     assert resp.status_code == 200
 
 
-def test_submit_unauth(client):
-    resp = client.get("/proofing/test-project/submit-changes")
-    assert resp.status_code == 302
-
-
-def test_confirm_changes(moderator_client):
-    resp = moderator_client.get("/proofing/test-project/confirm_changes")
-    assert "replace" in resp.text
-
-
-def test_confirm_unauth(client):
-    resp = client.get("/proofing/test-project/confirm_changes")
-    assert resp.status_code == 302
+def test_replace__bad_project(moderator_client):
+    resp = moderator_client.get("/proofing/unknown/replace")
+    assert resp.status_code == 404
 
 
 def test_admin(moderator_client):
