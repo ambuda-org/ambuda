@@ -493,10 +493,15 @@ def replace_post(slug):
             )
 
     if num_replacements:
-        flash(
-            f"Saved {num_replacements} changes across {num_pages_changed} page(s).",
-            "success",
-        )
+        replace_text = f"{num_replacements} change"
+        if num_replacements > 1:
+            replace_text += "s"
+
+        page_text = f"{num_pages_changed} page"
+        if num_pages_changed > 1:
+            page_text += "s"
+
+        flash(f"Saved {replace_text} across {page_text}.", "success")
     else:
         flash("No changes made.", "warning")
     return redirect(url_for("proofing.project.edit", slug=slug))

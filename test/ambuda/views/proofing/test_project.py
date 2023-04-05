@@ -152,7 +152,7 @@ def test_replace_post__match(p2_client):
         follow_redirects=True,
     )
     assert resp.status_code == 200
-    assert "Saved 3 changes across 3 page(s)" in resp.text
+    assert "Saved 3 changes across 3 pages." in resp.text
 
 
 def test_replace_post__mismatch(p2_client):
