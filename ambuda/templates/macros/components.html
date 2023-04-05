@@ -51,14 +51,15 @@
 
 {# A list of tabs. #}
 {% macro tabs(urls, active) %}
-<nav class="border-b mb-8">
-  <ul class="flex a-hover-underline">
+<nav class="md:border-b mb-8">
+  <ul class="border-l pl-4 md:border-0 md:p-0 md:flex a-hover-underline">
     {% for name, label, url in urls %}
     {% if name == active %}
-    <li class="p-4 font-semibold border-b-2 border-black">{{ label }}</li>
+    <li class="md:p-4 font-semibold underline 
+        md:no-underline md:border-b-2 md:border-black">{{ label }}</li>
     {% else %}
     <li class="font-semibold border-b-2 border-transparent text-slate-400">
-      <a class="block p-4" href="{{ url }}">{{ label }}</a>
+      <a class="block md:p-4" href="{{ url }}">{{ label }}</a>
     </li>
     {% endif %}
     {% endfor %}
