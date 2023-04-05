@@ -108,11 +108,14 @@ def test_search__bad_project(rama_client):
     assert resp.status_code == 404
 
 
-def test_replace__match(p2_client):
+def test_replace__default_page(p2_client):
     resp = p2_client.get("/proofing/test-project/replace")
     assert resp.status_code == 200
     assert "Replace:" in resp.text
+    assert "matching lines" not in resp.text
 
+
+def test_replace__match(p2_client):
     resp = p2_client.get(
         "/proofing/test-project/replace",
         query_string={
