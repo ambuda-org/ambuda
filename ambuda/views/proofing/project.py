@@ -128,7 +128,7 @@ def validate_matches(form, field):
             raise ValidationError("Invalid match form values.")
 
 
-class PreviewChangesForm(ReplaceForm):
+class SaveChangesForm(ReplaceForm):
     class Meta:
         csrf = False
 
@@ -337,14 +337,6 @@ class Replacement:
         return f"match{self.page_slug}-{self.line_num}"
 
     @property
-    def replace_key(self) -> str:
-        return self.form_key + "-replace"
-
-    @property
-    def name(self) -> str:
-        return f"match-{self.page_slug}-{self.line_num}"
-
-    @property
     def marked_query(self) -> str:
         buf = []
         for i, t in enumerate(self.splits):
@@ -437,7 +429,7 @@ def replace(slug):
         "proofing/projects/replace.html",
         project=project_,
         form=form,
-        submit_changes_form=PreviewChangesForm(),
+        submit_changes_form=SaveChangesForm(),
         query=query,
         replace=replace,
         results=results,
@@ -454,7 +446,7 @@ def replace_post(slug):
 
     # FIXME(Kishore): find a way to validate this form. Current `matches` are
     # coming in the way of validators.
-    form = PreviewChangesForm(request.form)
+    form = SaveChangesForm(request.form)
 
     query = form.query.data
     replace = form.replace.data
@@ -463,9 +455,7 @@ def replace_post(slug):
     selected_keys = {
         key
         for key, value in request.form.items()
-        if key.startswith("match")
-        and not key.endswith("replace")
-        and value == "selected"
+        if key.startswith("match") and value == "selected"
     }
     selected_matches = {
         (x.page_slug, x.line_num): x for x in all_matches if x.form_key in selected_keys
@@ -492,7 +482,6 @@ def replace_post(slug):
         new_content = "\n".join(buf)
         if new_content != latest.content:
             num_pages_changed += 1
-            # Add a new revision to the page
             new_summary = f'Replaced "{query}" with "{replace}"'
             add_revision(
                 page=page_,

@@ -108,7 +108,7 @@ def test_search__bad_project(rama_client):
     assert resp.status_code == 404
 
 
-def test_replace(p2_client):
+def test_replace__match(p2_client):
     resp = p2_client.get("/proofing/test-project/replace")
     assert resp.status_code == 200
     assert "Replace:" in resp.text
@@ -124,7 +124,19 @@ def test_replace(p2_client):
     assert "Found 12 matching lines for query" in resp.text
 
 
-def test_replace_post(p2_client):
+def test_replace__mismatch(p2_client):
+    resp = p2_client.get(
+        "/proofing/test-project/replace",
+        query_string={
+            "query": "unknown",
+            "replace": "page x",
+        },
+    )
+    assert resp.status_code == 200
+    assert "Found 0 matching lines for query" in resp.text
+
+
+def test_replace_post__match(p2_client):
     resp = p2_client.post(
         "/proofing/test-project/replace",
         data={
@@ -138,6 +150,22 @@ def test_replace_post(p2_client):
     )
     assert resp.status_code == 200
     assert "Saved 3 changes across 3 page(s)" in resp.text
+
+
+def test_replace_post__mismatch(p2_client):
+    resp = p2_client.post(
+        "/proofing/test-project/replace",
+        data={
+            "query": "unknown",
+            "replace": "page x",
+            "match1-0": "selected",
+            "match10-0": "selected",
+            "match11-0": "selected",
+        },
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert "No changes made." in resp.text
 
 
 def test_replace__requires_p2_role(client, p1_client, p2_client):
