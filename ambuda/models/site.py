@@ -29,15 +29,21 @@ class ProjectSponsorship(Base):
     cost_inr = Column(Integer, nullable=False)
 
 
-class ProoferBiography(Base):
+class ContributorInfo(Base):
 
-    """A proofer's name and short bio."""
+    """Information about an Ambuda contributor.
 
-    __tablename__ = "site_proofer_bio"
+    For now, we use this for just proofreaders. Long-term, we might include
+    other types of contributors here as well.
+    """
+
+    __tablename__ = "contributor_info"
 
     #: Primary key.
     id = pk()
-    #: The proofer's name.
+    #: The contributor's name.
     name = Column(String, nullable=False)
-    #: A short description/biography of this proofer.
-    description = Column(Text_, nullable=False)
+    #: The contributor's title, role, occupation, etc.
+    title = Column(String, nullable=False, default="")
+    #: A short description of this proofer.
+    description = Column(Text_, nullable=False, default="")

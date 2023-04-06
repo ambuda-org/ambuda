@@ -250,6 +250,6 @@ def project_sponsorships() -> list[db.ProjectSponsorship]:
     return sorted(results, key=lambda s: s.sa_title or s.en_title)
 
 
-def proofer_biographies() -> list[db.ProoferBiography]:
+def contributor_info() -> list[db.ContributorInfo]:
     session = get_session()
-    return session.query(db.ProoferBiography).order_by(db.ProoferBiography.name).all()
+    return session.query(db.ContributorInfo).order_by(db.ContributorInfo.name).all()

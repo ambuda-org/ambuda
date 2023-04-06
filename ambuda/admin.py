@@ -76,7 +76,7 @@ class SponsorshipView(ModeratorBaseView):
     edit_template = "admin/sponsorship_edit.html"
 
 
-class ProoferBiographyView(ModeratorBaseView):
+class ContributorInfoView(ModeratorBaseView):
     create_template = "admin/sponsorship_create.html"
     edit_template = "admin/sponsorship_edit.html"
 
@@ -96,6 +96,6 @@ def create_admin_manager(app):
     admin.add_view(TextView(db.Text, session))
     admin.add_view(UserView(db.User, session))
     admin.add_view(SponsorshipView(db.ProjectSponsorship, session))
-    admin.add_view(ProoferBiographyView(db.ProoferBiography, session))
+    admin.add_view(ContributorInfoView(db.ContributorInfo, session))
 
     return admin
