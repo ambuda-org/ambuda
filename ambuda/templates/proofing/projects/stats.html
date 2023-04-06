@@ -23,17 +23,17 @@
     <tr>
         <th>Words</th>
         <td>{{ "{:,}".format(stats.num_words) }}</td>
-        <td>{{ "{:,.1f}".format(stats.num_words / stats.num_pages) }}</td>
+        <td>{{ "{:,}".format(stats.num_words // stats.num_pages) }}</td>
     </tr>
     <tr>
         <th>Roman characters</th>
         <td>{{ "{:,}".format(stats.num_roman_characters) }}</td>
-        <td>{{ "{:,.1f}".format(stats.num_roman_characters / stats.num_pages) }}</td></tr>
+        <td>{{ "{:,}".format(stats.num_roman_characters // stats.num_pages) }}</td></tr>
     </tr>
     <tr>
         <th>Aksharas</th>
         <td>{{ "{:,}".format(stats.num_aksharas) }}</td>
-        <td>{{ "{:,.1f}".format(stats.num_aksharas / stats.num_pages) }}</td>
+        <td>{{ "{:,}".format(stats.num_aksharas // stats.num_pages) }}</td>
     </tr>
   </table>
 </div>

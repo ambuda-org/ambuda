@@ -279,7 +279,11 @@ def download_as_xml(slug):
 @bp.route("/<slug>/stats")
 @moderator_required
 def stats(slug):
-    """Show basic statistics about this project."""
+    """Show basic statistics about this project.
+
+    Currently, these stats don't show any sensitive information. But since that
+    might change in the future, limit this page to moderators only.
+    """
     project_ = q.project(slug)
     if project_ is None:
         abort(404)
