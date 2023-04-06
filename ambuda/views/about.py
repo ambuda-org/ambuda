@@ -2,6 +2,8 @@
 
 from flask import Blueprint, render_template
 
+from ambuda import queries as q
+
 bp = Blueprint("about", __name__)
 
 
@@ -22,7 +24,8 @@ def values():
 
 @bp.route("/people")
 def people():
-    return render_template("about/people.html")
+    proofers = q.proofer_biographies()
+    return render_template("about/people.html", proofers=proofers)
 
 
 @bp.route("/code-and-data")

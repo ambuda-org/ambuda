@@ -29,8 +29,9 @@ Ambuda receives contributions from dozens of volunteer <a href="{{ proofers_url 
 who are passionate about making Sanskrit accessible to all.
 {% endtrans %}</p>
 
+<h2>{{ _('Core') }}</h2>
 <p>{% trans %}
-Our core team builds and maintains the overall project:
+Our core team builds and maintains the overall project.
 {% endtrans %}</p>
 </div>
 
@@ -94,5 +95,17 @@ Library of India).
 {% endtrans %}</p>
 {% endcall %}
 
+<div class="prose">
+<h2>{{ _('Proofers') }}</h2>
+</div>
+
+{% for p in proofers %}
+<section>
+  <h1 class="mb-2 mt-8"><span class="font-bold">{{ p.name }}</span></h1>
+  <div class="prose">
+    {{ p.description|markdown|safe }}
+  </div>
+</section>
+{% endfor %}
 
 {% endblock %}
