@@ -77,6 +77,11 @@ class SponsorshipView(ModeratorBaseView):
 
 
 class ContributorInfoView(ModeratorBaseView):
+    column_labels = dict(
+        sa_title="Sanskrit title",
+        title="Title, occupation, role, etc.",
+        description="Description (short biography)",
+    )
     create_template = "admin/sponsorship_create.html"
     edit_template = "admin/sponsorship_edit.html"
 

@@ -1,5 +1,6 @@
 {% extends 'admin/model/create.html' %}
 {% import "macros/forms.html" as mf %}
+{% import "admin/macros.html" as m_admin %}
 
 
 {% block body %}
@@ -9,6 +10,6 @@
   {% endfor %}
   {{ mf.markdown_field(form.description) }}
 
-  {{ mf.submit("Create") }}
+  {{ m_admin.create_buttons() }}
 </form>
 {% endblock %}

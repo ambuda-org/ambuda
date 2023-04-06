@@ -1,3 +1,6 @@
+{% import "macros/forms.html" as mf %}
+
+
 {# Show models in the menu bar. #}
 {% macro nav_menu(admin_view) %}
   <ul class="flex items-center a-hover-underline">
@@ -24,10 +27,20 @@
             'message': 'bg-yellow-200 text-yellow-800',
             'success': 'bg-green-200 text-green-800',
         } %}
-        <div class="p-2 {{ mapping.get(category, "") }} alert-dismissable">
+        <div class="p-2 {{ mapping.get(category, "") }} my-4 alert-dismissable">
           {{ m }}
         </div>
       {% endfor %}
     {% endif %}
   {% endwith %}
+{% endmacro %}
+
+
+{% macro create_buttons() %}
+<div class="mt-4">
+  {{ mf.submit("Save") }}
+  <input name="_add_another" type="submit"
+      class="btn border border-black transition hover:bg-slate-300"
+      value="Save and add another" />
+</div>
 {% endmacro %}
