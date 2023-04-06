@@ -1,0 +1,40 @@
+{% extends 'proofing/base-sidebar.html' %}
+{% import "macros/proofing.html" as m %}
+
+
+{% block title %}Stats: {{ project.title }} | Ambuda{% endblock %}
+
+
+{% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}
+
+
+{% block content %}
+{{ m.project_header_nested('Stats', project) }}
+{{ m.project_tabs(project=project, active='stats', is_mod=current_user.is_moderator) }}
+
+<div class="prose">
+  <table>
+    <tr><th>&nbsp;</th><th>Total</th><th>Per page</th></tr>
+    <tr>
+        <th>Pages</th>
+        <td>{{ "{:,}".format(stats.num_pages) }}</td>
+        <td>&ndash;</td>
+    </tr>
+    <tr>
+        <th>Words</th>
+        <td>{{ "{:,}".format(stats.num_words) }}</td>
+        <td>{{ "{:,.1f}".format(stats.num_words / stats.num_pages) }}</td>
+    </tr>
+    <tr>
+        <th>Roman characters</th>
+        <td>{{ "{:,}".format(stats.num_roman_characters) }}</td>
+        <td>{{ "{:,.1f}".format(stats.num_roman_characters / stats.num_pages) }}</td></tr>
+    </tr>
+    <tr>
+        <th>Aksharas</th>
+        <td>{{ "{:,}".format(stats.num_aksharas) }}</td>
+        <td>{{ "{:,.1f}".format(stats.num_aksharas / stats.num_pages) }}</td>
+    </tr>
+  </table>
+</div>
+{% endblock %}

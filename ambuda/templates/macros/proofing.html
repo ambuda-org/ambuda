@@ -76,6 +76,7 @@
   ("download", _("Download"),  url_for("proofing.project.download", slug=project.slug)),
 ] %}
 {% if is_mod %}{% set routes = routes + [
+  ("stats",    _("Stats"),     url_for("proofing.project.stats", slug=project.slug)),
   ("admin",    _("Admin"),     url_for("proofing.project.admin", slug=project.slug)),
 ] %}{% endif %}
 

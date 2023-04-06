@@ -8,7 +8,6 @@ https://ambuda.readthedocs.io/en/latest/
 import logging
 import sys
 
-import config
 import sentry_sdk
 from dotenv import load_dotenv
 from flask import Flask, session
@@ -16,6 +15,7 @@ from flask_babel import Babel, pgettext
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy import exc
 
+import config
 from ambuda import admin as admin_manager
 from ambuda import auth as auth_manager
 from ambuda import checks, filters, queries

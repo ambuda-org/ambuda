@@ -37,6 +37,7 @@ from ambuda.tasks import ocr as ocr_tasks
 from ambuda.utils import project_utils, proofing_utils
 from ambuda.utils.revisions import add_revision
 from ambuda.views.proofing.decorators import moderator_required, p2_required
+from ambuda.views.proofing.stats import calculate_stats
 
 bp = Blueprint("project", __name__)
 LOG = logging.getLogger(__name__)
@@ -273,6 +274,20 @@ def download_as_xml(slug):
     response = make_response(xml_blob, 200)
     response.mimetype = "text/xml"
     return response
+
+
+@bp.route("/<slug>/stats")
+@moderator_required
+def stats(slug):
+    """Show basic statistics about this project."""
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    stats_ = calculate_stats(project_)
+    return render_template(
+        "proofing/projects/stats.html", project=project_, stats=stats_
+    )
 
 
 @bp.route("/<slug>/search")
