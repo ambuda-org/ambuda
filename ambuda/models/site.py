@@ -27,3 +27,17 @@ class ProjectSponsorship(Base):
     description = Column(Text_, nullable=False)
     #: The estimated cost of this project in Indian rupees (INR).
     cost_inr = Column(Integer, nullable=False)
+
+
+class ProoferBiography(Base):
+
+    """A proofer's name and short bio."""
+
+    __tablename__ = "site_proofer_bio"
+
+    #: Primary key.
+    id = pk()
+    #: The proofer's name.
+    name = Column(String, nullable=False)
+    #: A short description/biography of this proofer.
+    description = Column(Text_, nullable=False)
