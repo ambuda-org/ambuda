@@ -5,7 +5,7 @@
 {% block body %}
 <form method="POST" action="" class="bg-slate-100 rounded p-4">
   {% for field in form %}
-  {% if field.name != "description" %}{{ mf.field(field) }}{% endif %}
+    {% if field.name != "description" %}{{ mf.field(field) }}{% endif %}
   {% endfor %}
   {{ mf.markdown_field(form.description) }}
 
