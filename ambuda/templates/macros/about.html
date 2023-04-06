@@ -1,0 +1,10 @@
+{% import "macros/components.html" as components %}
+
+{% macro people_tabs(active) %}
+{% set routes = [
+  ("core",  _("Core"),   url_for("about.people.core")),
+  ("proofing", _("Proofing"),  url_for("about.people.proofing")),
+] %}
+{{ components.tabs(routes, active) }}
+{% endmacro %}
+

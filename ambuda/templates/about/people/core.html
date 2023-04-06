@@ -1,4 +1,5 @@
-{% extends 'base-text.html' %}
+{% extends 'about/people/base.html' %}
+{% import "macros/about.html" as m_about %}
 {% import "macros/components.html" as m %}
 
 
@@ -15,21 +16,10 @@
 {% block title %}{{ m.title(_('People')) }}{% endblock %}
 
 
-{% block content %}
+{% block people_content %}
+{{ m_about.people_tabs('core') }}
+
 <div class="prose">
-<h1>{{ _('People') }}</h1>
-
-{% set proofers_url = url_for('proofing.recent_changes') %}
-{% set coders_url = 'https://github.com/ambuda-org/ambuda/graphs/contributors' %}
-{% set translators_url = 'https://transifex.com/ambuda/ambuda' %}
-
-<p>{% trans %}
-Ambuda receives contributions from dozens of volunteer <a href="{{ proofers_url }}">proofers</a>,
-<a href="{{ translators_url }}">translators</a>, and <a href="{{ coders_url }}">programmers</a>
-who are passionate about making Sanskrit accessible to all.
-{% endtrans %}</p>
-
-<h2>{{ _('Core') }}</h2>
 <p>{% trans %}
 Our core team builds and maintains the overall project.
 {% endtrans %}</p>
@@ -94,18 +84,4 @@ ornate retelling of the myth of the churning of the ocean (Murty Classical
 Library of India).
 {% endtrans %}</p>
 {% endcall %}
-
-<div class="prose">
-<h2>{{ _('Proofers') }}</h2>
-</div>
-
-{% for p in proofers %}
-<section>
-  <h1 class="mb-2 mt-8"><span class="font-bold">{{ p.name }}</span></h1>
-  <div class="prose">
-    {{ p.description|markdown|safe }}
-  </div>
-</section>
-{% endfor %}
-
 {% endblock %}

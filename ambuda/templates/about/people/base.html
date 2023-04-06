@@ -1,0 +1,35 @@
+{% extends 'base-text.html' %}
+{% import "macros/about.html" as m_about %}
+{% import "macros/components.html" as m %}
+
+
+{% macro bio(name, resp, desc) %}
+<section>
+  <h1 class="mb-2 mt-8"><span class="font-bold">{{ name }}</span> &mdash; {{ resp|safe }}</h1>
+  <div class="prose">
+  {{ caller() }}
+  </div>
+</section>
+{% endmacro %}
+
+
+{% block title %}{{ m.title(_('People')) }}{% endblock %}
+
+
+{% block content %}
+<div class="prose">
+<h1>{{ _('People') }}</h1>
+
+{% set proofers_url = url_for('proofing.recent_changes') %}
+{% set coders_url = 'https://github.com/ambuda-org/ambuda/graphs/contributors' %}
+{% set translators_url = 'https://transifex.com/ambuda/ambuda' %}
+
+<p>{% trans %}
+Ambuda receives contributions from dozens of volunteer <a href="{{ proofers_url }}">proofers</a>,
+<a href="{{ translators_url }}">translators</a>, and <a href="{{ coders_url }}">programmers</a>
+who are passionate about making Sanskrit accessible to all.
+{% endtrans %}</p>
+</div>
+
+{% block people_content %}{% endblock %}
+{% endblock %}

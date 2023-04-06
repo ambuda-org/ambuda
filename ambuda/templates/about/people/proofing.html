@@ -1,0 +1,39 @@
+{% extends 'about/people/base.html' %}
+{% import "macros/about.html" as m_about %}
+{% import "macros/components.html" as m %}
+
+
+{% macro bio(name, resp, desc) %}
+<section>
+  <h1 class="mb-2 mt-8"><span class="font-bold">{{ name }}</span> &mdash; {{ resp|safe }}</h1>
+  <div class="prose">
+  {{ caller() }}
+  </div>
+</section>
+{% endmacro %}
+
+
+{% block title %}{{ m.title(_('People')) }}{% endblock %}
+
+
+{% block people_content %}
+{{ m_about.people_tabs('proofing') }}
+
+<div class="prose">
+<p>{% trans %}
+Dozens of proofers have contributed to Ambuda. Here we recognize our most
+active contributors.
+{% endtrans %}</p>
+</div>
+
+{% for p in proofers %}
+<section>
+  <h1 class="mb-2 mt-8"><span class="font-bold">{{ p.name }}</span></h1>
+  <div class="prose">
+    {{ p.description|markdown|safe }}
+  </div>
+</section>
+{% endfor %}
+
+{% endblock %}
+
