@@ -1,14 +1,15 @@
 {% extends 'admin/model/create.html' %}
 {% import "macros/forms.html" as mf %}
+{% import "admin/macros.html" as m_admin %}
 
 
 {% block body %}
 <form method="POST" action="" class="bg-slate-100 rounded p-4">
   {% for field in form %}
-  {% if field.name != "description" %}{{ mf.field(field) }}{% endif %}
+    {% if field.name != "description" %}{{ mf.field(field) }}{% endif %}
   {% endfor %}
   {{ mf.markdown_field(form.description) }}
 
-  {{ mf.submit("Create") }}
+  {{ m_admin.create_buttons() }}
 </form>
 {% endblock %}

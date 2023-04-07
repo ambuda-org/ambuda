@@ -76,6 +76,16 @@ class SponsorshipView(ModeratorBaseView):
     edit_template = "admin/sponsorship_edit.html"
 
 
+class ContributorInfoView(ModeratorBaseView):
+    column_labels = dict(
+        sa_title="Sanskrit title",
+        title="Title, occupation, role, etc.",
+        description="Description (short biography)",
+    )
+    create_template = "admin/sponsorship_create.html"
+    edit_template = "admin/sponsorship_edit.html"
+
+
 def create_admin_manager(app):
     session = q.get_session_class()
     admin = Admin(
@@ -91,5 +101,6 @@ def create_admin_manager(app):
     admin.add_view(TextView(db.Text, session))
     admin.add_view(UserView(db.User, session))
     admin.add_view(SponsorshipView(db.ProjectSponsorship, session))
+    admin.add_view(ContributorInfoView(db.ContributorInfo, session))
 
     return admin

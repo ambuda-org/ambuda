@@ -1,8 +1,13 @@
 """General information about Ambuda."""
 
-from flask import Blueprint, render_template
+from flask import Blueprint, redirect, render_template, url_for
+
+from ambuda import queries as q
 
 bp = Blueprint("about", __name__)
+
+people = Blueprint("people", __name__)
+bp.register_blueprint(people, url_prefix="/people")
 
 
 @bp.route("/")
@@ -20,9 +25,20 @@ def values():
     return render_template("about/values.html")
 
 
-@bp.route("/people")
-def people():
-    return render_template("about/people.html")
+@people.route("/", endpoint="index")
+def people_index():
+    return redirect(url_for("about.people.core"))
+
+
+@people.route("/core")
+def core():
+    return render_template("about/people/core.html")
+
+
+@people.route("/proofing")
+def proofing():
+    contributors = q.contributor_info()
+    return render_template("about/people/proofing.html", contributors=contributors)
 
 
 @bp.route("/code-and-data")

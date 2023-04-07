@@ -27,3 +27,23 @@ class ProjectSponsorship(Base):
     description = Column(Text_, nullable=False)
     #: The estimated cost of this project in Indian rupees (INR).
     cost_inr = Column(Integer, nullable=False)
+
+
+class ContributorInfo(Base):
+
+    """Information about an Ambuda contributor.
+
+    For now, we use this for just proofreaders. Long-term, we might include
+    other types of contributors here as well.
+    """
+
+    __tablename__ = "contributor_info"
+
+    #: Primary key.
+    id = pk()
+    #: The contributor's name.
+    name = Column(String, nullable=False)
+    #: The contributor's title, role, occupation, etc.
+    title = Column(String, nullable=False, default="")
+    #: A short description of this proofer.
+    description = Column(Text_, nullable=False, default="")

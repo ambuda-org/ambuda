@@ -1,6 +1,7 @@
 {% extends 'admin/master.html' %}
-{% import "macros/forms.html" as mf %}
+{% import "admin/macros.html" as m_admin %}
 {% import 'admin/lib.html' as lib with context %}
+{% import "macros/forms.html" as mf %}
 
 
 {% block body %}
@@ -22,7 +23,8 @@
     {% for field in form %}
       {{ mf.field(field) }}
     {% endfor %}
-    {{ mf.submit("Create") }}
+
+    {{ m_admin.create_buttons() }}
   </form>
   {% endblock %}
 {% endblock %}
