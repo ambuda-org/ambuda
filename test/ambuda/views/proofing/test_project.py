@@ -98,6 +98,15 @@ def test_download_as_xml__bad_project(client):
     assert resp.status_code == 404
 
 
+def test_stats(moderator_client, rama_client):
+    resp = moderator_client.get("/proofing/test-project/stats")
+    assert resp.status_code == 200
+    assert "Roman characters" in resp.text
+
+    resp = rama_client.get("/proofing/test-project/stats")
+    assert resp.status_code == 302
+
+
 def test_search(rama_client):
     resp = rama_client.get("/proofing/test-project/search")
     assert "Search:" in resp.text
