@@ -43,6 +43,8 @@ class Project(Base):
     publisher = string()
     #: The document's publication year.
     publication_year = string()
+    #: A link to the book's WorldCat entry, if available.
+    worldcat_link = string()
 
     #: Markdown for this project (to entice contributors, etc.)
     description = text()

@@ -66,8 +66,7 @@ pytest = "^7.1.2"
 pytest-cov = "4.0.0"
 # Linting / formatting
 black = "^22.3.0"
-flake8 = "5.0.4"
-isort = "^5.10.1"
+ruff = "0.0.260"
 # Documentation
 Sphinx = "5.0.2"
 sphinx-rtd-theme = "1.0.0"
