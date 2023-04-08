@@ -33,6 +33,9 @@ class Genre(Base):
     #: The name of this genre.
     name = Column(String, unique=True, nullable=False)
 
+    def __str__(self):
+        return self.name
+
 
 class Project(Base):
 
