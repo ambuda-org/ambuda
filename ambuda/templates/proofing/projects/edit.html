@@ -29,18 +29,38 @@
 {{ components.flash_messages() }}
 {{ mf.show_errors_if_any(form.errors) }}
 
-<form method="POST" class="bg-slate-100 p-4">
+<form method="POST">
   {{ form.csrf_token }}
-  {{ mf.markdown_field(form.description) }}
-  {{ mf.field(form.page_numbers) }}
-  {{ mf.field(form.display_title) }}
-  {{ mf.field(form.print_title) }}
-  {{ mf.field(form.author) }}
-  {{ mf.field(form.editor) }}
-  {{ mf.field(form.publisher) }}
-  {{ mf.field(form.publication_year) }}
 
-  <input class="btn btn-submit" type="submit" value="{{ _('Save changes') }}">
+  <fieldset>
+    <legend class="text-lg font-bold mt-8 mb-4">Basic information</legend>
+    <div class="bg-slate-100 p-4">
+      {{ mf.field(form.display_title) }}
+      {{ mf.markdown_field(form.description) }}
+      {{ mf.field(form.page_numbers) }}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend class="text-lg font-bold mt-8 mb-4">Book metadata</legend>
+    <div class="bg-slate-100 p-4">
+      {{ mf.field(form.print_title) }}
+      {{ mf.field(form.author) }}
+      {{ mf.field(form.editor) }}
+      {{ mf.field(form.publisher) }}
+      {{ mf.field(form.publication_year) }}
+      {{ mf.field(form.worldcat_link) }}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend class="text-lg font-bold mt-8 mb-4">Internal notes</legend>
+    <div class="bg-slate-100 p-4">
+      {{ mf.field(form.notes) }}
+    </div>
+  </fieldset>
+
+  <input class="btn btn-submit mt-4" type="submit" value="{{ _('Save changes') }}">
 </form>
 
 {% endblock %}

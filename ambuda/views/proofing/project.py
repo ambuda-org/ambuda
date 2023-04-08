@@ -51,6 +51,21 @@ def _is_valid_page_number_spec(_, field):
 
 
 class EditMetadataForm(FlaskForm):
+    display_title = StringField(
+        _l("Display title"),
+        render_kw={
+            "placeholder": _l("e.g. Avantisundarīkathā"),
+        },
+        validators=[DataRequired()],
+    )
+    print_title = StringField(
+        _l("Print title"),
+        render_kw={
+            "placeholder": _l(
+                "e.g. Śrīdaṇḍimahākaviviracitam avantisundarīkathā nāma gadyakāvyam"
+            ),
+        },
+    )
     description = StringField(
         _l("Description (optional)"),
         widget=TextArea(),
@@ -58,6 +73,13 @@ class EditMetadataForm(FlaskForm):
             "placeholder": _l(
                 "What is this book about? Why is this project interesting?"
             ),
+        },
+    )
+    notes = StringField(
+        _l("Notes (optional)"),
+        widget=TextArea(),
+        render_kw={
+            "placeholder": _l("Internal notes for scholars and other proofreaders."),
         },
     )
     page_numbers = StringField(
@@ -68,8 +90,6 @@ class EditMetadataForm(FlaskForm):
             "placeholder": "Coming soon.",
         },
     )
-    display_title = StringField(_l("Display title"), validators=[DataRequired()])
-    print_title = StringField(_l("Print title"))
     author = StringField(
         _l("Author"),
         render_kw={
@@ -80,7 +100,7 @@ class EditMetadataForm(FlaskForm):
         _l("Editor"),
         render_kw={
             "placeholder": _l(
-                "The person or organization that created this edition of the text."
+                "The person or organization that created this edition, e.g. M.R. Kale."
             ),
         },
     )
@@ -90,6 +110,12 @@ class EditMetadataForm(FlaskForm):
             "placeholder": _l(
                 "The original publisher of this book, e.g. Nirnayasagar."
             ),
+        },
+    )
+    worldcat_link = StringField(
+        _l("Worldcat link"),
+        render_kw={
+            "placeholder": _l("A link to this book's entry on worldcat.org."),
         },
     )
     publication_year = StringField(
