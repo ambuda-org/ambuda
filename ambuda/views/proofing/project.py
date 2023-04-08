@@ -29,6 +29,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, ValidationError
 from wtforms.widgets import TextArea
+from wtforms_sqlalchemy.fields import QuerySelectField
 
 from ambuda import database as db
 from ambuda import queries as q
@@ -58,14 +59,6 @@ class EditMetadataForm(FlaskForm):
         },
         validators=[DataRequired()],
     )
-    print_title = StringField(
-        _l("Print title"),
-        render_kw={
-            "placeholder": _l(
-                "e.g. Śrīdaṇḍimahākaviviracitam avantisundarīkathā nāma gadyakāvyam"
-            ),
-        },
-    )
     description = StringField(
         _l("Description (optional)"),
         widget=TextArea(),
@@ -75,19 +68,24 @@ class EditMetadataForm(FlaskForm):
             ),
         },
     )
-    notes = StringField(
-        _l("Notes (optional)"),
-        widget=TextArea(),
-        render_kw={
-            "placeholder": _l("Internal notes for scholars and other proofreaders."),
-        },
-    )
     page_numbers = StringField(
         _l("Page numbers (optional)"),
         widget=TextArea(),
         validators=[_is_valid_page_number_spec],
         render_kw={
             "placeholder": "Coming soon.",
+        },
+    )
+    genre = QuerySelectField(
+        query_factory=q.genres, allow_blank=True, blank_text=_l("(none)")
+    )
+
+    print_title = StringField(
+        _l("Print title"),
+        render_kw={
+            "placeholder": _l(
+                "e.g. Śrīdaṇḍimahākaviviracitam avantisundarīkathā nāma gadyakāvyam"
+            ),
         },
     )
     author = StringField(
@@ -122,6 +120,14 @@ class EditMetadataForm(FlaskForm):
         _l("Publication year"),
         render_kw={
             "placeholder": _l("The year in which this specific edition was published."),
+        },
+    )
+
+    notes = StringField(
+        _l("Notes (optional)"),
+        widget=TextArea(),
+        render_kw={
+            "placeholder": _l("Internal notes for scholars and other proofreaders."),
         },
     )
 

@@ -253,3 +253,8 @@ def project_sponsorships() -> list[db.ProjectSponsorship]:
 def contributor_info() -> list[db.ContributorInfo]:
     session = get_session()
     return session.query(db.ContributorInfo).order_by(db.ContributorInfo.name).all()
+
+
+def genres() -> list[db.Genre]:
+    session = get_session()
+    return session.query(db.Genre).all()
