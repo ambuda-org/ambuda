@@ -56,7 +56,7 @@ these components in our help text and documentation.
   <h1 class="text pr-4">
     <a class="text-black font-bold text-xl"
         href="{{ url_for("proofing.project.summary", slug=project.slug) }}">
-      {{ project.title }}</a> / {{ image_number }}</a>
+      {{ project.display_title }}</a> / {{ image_number }}</a>
     <span class="block text-sm text-slate-500">
       Image {{ image_number }} of {{ num_images }}
       {% if image_title != page_number %}

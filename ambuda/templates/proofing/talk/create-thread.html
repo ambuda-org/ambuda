@@ -4,7 +4,7 @@
 {% import "macros/talk.html" as m_talk %}
 
 
-{% block title %}Create thread on {{ project.title }} | Ambuda{% endblock %}
+{% block title %}Create thread on {{ project.display_title }} | Ambuda{% endblock %}
 
 
 {% block sidebar %}{{ m.main_nav('talk', current_user=current_user) }}{% endblock %}
@@ -12,7 +12,7 @@
 
 {% block content %}
 <div class="prose">
-  <h1>{{ project.title }} &mdash; create thread</h1>
+  <h1>{{ project.display_title }} &mdash; create thread</h1>
 </div>
 
 {{ mf.show_errors_if_any(form.errors) }}

@@ -185,7 +185,7 @@ def test_confirm_unauth(client):
 def test_admin(moderator_client):
     session = q.get_session()
 
-    project = Project(slug="project-123", title="Dummy project", board_id=0)
+    project = Project(slug="project-123", display_title="Dummy project", board_id=0)
     session.add(project)
     session.commit()
 
@@ -202,7 +202,7 @@ def test_admin(moderator_client):
 def test_admin__slug_mismatch(moderator_client):
     session = q.get_session()
 
-    project = Project(slug="project-1234", title="Dummy project", board_id=0)
+    project = Project(slug="project-1234", display_title="Dummy project", board_id=0)
     session.add(project)
     session.commit()
 

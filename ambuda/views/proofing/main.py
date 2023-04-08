@@ -137,7 +137,7 @@ def index():
         statuses_per_project[project.id] = project_counts
         pages_per_project[project.id] = num_pages
 
-    projects.sort(key=lambda x: x.title)
+    projects.sort(key=lambda x: x.display_title)
     return render_template(
         "proofing/index.html",
         projects=projects,
@@ -196,7 +196,7 @@ def create_project():
         form.local_file.data.save(pdf_path)
 
         task = project_tasks.create_project.delay(
-            title=title,
+            display_title=title,
             pdf_path=str(pdf_path),
             output_dir=str(page_image_dir),
             app_environment=current_app.config["AMBUDA_ENVIRONMENT"],

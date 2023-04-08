@@ -12,7 +12,7 @@
 
 {% macro project_header_nested(label, project) %}
 {% set url = url_for("proofing.project.summary", slug=project.slug) %}
-{{ nested_header(label, project.title, url) }}
+{{ nested_header(label, project.display_title, url) }}
 {% endmacro %}
 
 
@@ -113,7 +113,7 @@
     <h1 class="text-3xl">
       <a class="text-slate-400 font-bold"
           href="{{ url_for("proofing.project.summary", slug=project.slug) }}">
-         {{ project.title }}</a>
+         {{ project.display_title }}</a>
       /{{ cur.slug }}
     </h1>
 
@@ -141,7 +141,7 @@
       project_slug=r.project.slug, page_slug=r.page.slug) %}
   {% set author_url = url_for('proofing.user.summary',
       username=r.author.username) %}
-  {% set page_title = r.project.title + "/" + r.page.slug %}
+  {% set page_title = r.project.display_title + "/" + r.page.slug %}
   {% set author = r.author.username %}
 
   <span class="{{ revision_colors(r.status.name) }} inline-block w-2 h-2 mr-0.5 rounded-sm"></span>
@@ -158,7 +158,7 @@
 {% macro project_li(p) %}
 <li class="my-2 flex justify-between">
   {% set project_url = url_for('proofing.project.summary', slug=p.slug) %}
-  {% set title = p.title %}
+  {% set title = p.display_title %}
   {% set creator = p.creator.username %}
   {% set creator_url = url_for('proofing.user.summary', username=creator) %}
   <div>
@@ -202,7 +202,7 @@
         project_slug=r.project.slug, page_slug=r.page.slug) %}
     {% set author_url = url_for('proofing.user.summary',
         username=r.author.username) %}
-    {% set page_title = r.project.title + "/" + r.page.slug %}
+    {% set page_title = r.project.display_title + "/" + r.page.slug %}
     {% set author = r.author.username %}
 
     <span class="{{ revision_colors(r.status.name) }} inline-block w-2 h-2 mr-0.5 rounded-full"></span>

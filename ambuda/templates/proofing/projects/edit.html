@@ -4,7 +4,7 @@
 {% import "macros/proofing.html" as m %}
 
 
-{% block title %}Edit: {{ project.title }} | Ambuda{% endblock %}
+{% block title %}Edit: {{ project.display_title }} | Ambuda{% endblock %}
 
 
 {% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}
@@ -33,7 +33,8 @@
   {{ form.csrf_token }}
   {{ mf.markdown_field(form.description) }}
   {{ mf.field(form.page_numbers) }}
-  {{ mf.field(form.title) }}
+  {{ mf.field(form.display_title) }}
+  {{ mf.field(form.print_title) }}
   {{ mf.field(form.author) }}
   {{ mf.field(form.editor) }}
   {{ mf.field(form.publisher) }}

@@ -15,7 +15,7 @@
     </label>
     <div>
       <p class="prose text-sm mb-2">
-        <a href="{{ page_url }}">{{ project.title }}, page {{ page.slug }}</a>,
+        <a href="{{ page_url }}">{{ project.display_title }}, page {{ page.slug }}</a>,
         line {{ match.line_num }}
       </p>
 
@@ -29,7 +29,7 @@
 {% endmacro %}
 
 
-{% block title %}Search and Replace {{ project.title }} | Ambuda{% endblock %}
+{% block title %}Search and Replace {{ project.display_title }} | Ambuda{% endblock %}
 
 
 {% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}

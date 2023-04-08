@@ -68,7 +68,8 @@ class EditMetadataForm(FlaskForm):
             "placeholder": "Coming soon.",
         },
     )
-    title = StringField(_l("Title"), validators=[DataRequired()])
+    display_title = StringField(_l("Display title"), validators=[DataRequired()])
+    print_title = StringField(_l("Print title"))
     author = StringField(
         _l("Author"),
         render_kw={
@@ -259,7 +260,7 @@ def download_as_xml(slug):
         abort(404)
 
     project_meta = {
-        "title": project_.title,
+        "title": project_.display_title,
         "author": project_.author,
         "publication_year": project_.publication_year,
         "publisher": project_.publisher,

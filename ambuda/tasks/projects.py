@@ -36,10 +36,12 @@ def _split_pdf_into_pages(
     return doc.page_count
 
 
-def _add_project_to_database(title: str, slug: str, num_pages: int, creator_id: int):
+def _add_project_to_database(
+    display_title: str, slug: str, num_pages: int, creator_id: int
+):
     """Create a project on the database.
 
-    :param title: the project title
+    :param display_title: the project title
     :param num_pages: the number of pages in the project
     """
 
@@ -49,7 +51,7 @@ def _add_project_to_database(title: str, slug: str, num_pages: int, creator_id: 
     session.add(board)
     session.flush()
 
-    project = db.Project(slug=slug, title=title, creator_id=creator_id)
+    project = db.Project(slug=slug, display_title=display_title, creator_id=creator_id)
     project.board_id = board.id
     session.add(project)
     session.flush()
@@ -72,7 +74,7 @@ def _add_project_to_database(title: str, slug: str, num_pages: int, creator_id: 
 
 def create_project_inner(
     *,
-    title: str,
+    display_title: str,
     pdf_path: str,
     output_dir: str,
     app_environment: str,
@@ -84,25 +86,25 @@ def create_project_inner(
     We separate this function from `create_project` so that we can run this
     function in a non-Celery context (for example, in `cli.py`).
 
-    :param title: the project title.
+    :param display_title: the project's title.
     :param pdf_path: local path to the source PDF.
     :param output_dir: local path where page images will be stored.
     :param app_environment: the app environment, e.g. `"development"`.
     :param creator_id: the user that created this project.
     :param task_status: tracks progress on the task.
     """
-    logging.info(f'Received upload task "{title}" for path {pdf_path}.')
+    logging.info(f'Received upload task "{display_title}" for path {pdf_path}.')
 
     # Tasks must be idempotent. Exit if the project already exists.
     app = create_config_only_app(app_environment)
     with app.app_context():
         session = q.get_session()
-        slug = slugify(title)
+        slug = slugify(display_title)
         project = session.query(db.Project).filter_by(slug=slug).first()
 
     if project:
         raise ValueError(
-            f'Project "{title}" already exists. Please choose a different title.'
+            f'Project "{display_title}" already exists. Please choose a different title.'
         )
 
     pdf_path = Path(pdf_path)
@@ -111,7 +113,7 @@ def create_project_inner(
     num_pages = _split_pdf_into_pages(Path(pdf_path), Path(pages_dir), task_status)
     with app.app_context():
         _add_project_to_database(
-            title=title,
+            display_title=display_title,
             slug=slug,
             num_pages=num_pages,
             creator_id=creator_id,
@@ -124,7 +126,7 @@ def create_project_inner(
 def create_project(
     self,
     *,
-    title: str,
+    display_title: str,
     pdf_path: str,
     output_dir: str,
     app_environment: str,
@@ -136,7 +138,7 @@ def create_project(
     """
     task_status = CeleryTaskStatus(self)
     create_project_inner(
-        title=title,
+        display_title=display_title,
         pdf_path=pdf_path,
         output_dir=output_dir,
         app_environment=app_environment,
