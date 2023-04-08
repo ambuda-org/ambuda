@@ -19,6 +19,21 @@ def text():
     return Column(Text_, nullable=False, default="")
 
 
+class Genre(Base):
+    """A text genre.
+
+    We use genre to help proofers sort through different projects and select
+    one to work on.
+    """
+
+    __tablename__ = "genres"
+
+    #: Primary key.
+    id = pk()
+    #: The name of this genre.
+    name = Column(String, unique=True, nullable=False)
+
+
 class Project(Base):
 
     """A proofreading project.
@@ -32,9 +47,11 @@ class Project(Base):
     id = pk()
     #: Human-readable ID, which we display in the URL.
     slug = Column(String, unique=True, nullable=False)
-    #: Human-readable title, which we show on the page.
-    title = Column(String, nullable=False)
 
+    #: Human-readable title, which we show on the page.
+    display_title = Column(String, nullable=False)
+    #: The full book title as it appears in print.
+    print_title = string()
     #: The document's author.
     author = string()
     #: The document's editor.
@@ -48,6 +65,8 @@ class Project(Base):
 
     #: Markdown for this project (to entice contributors, etc.)
     description = text()
+    #: Notes about the project, for internal and scholarly use.
+    notes = text()
     #: Defines page numbers (e.g. "x", "vii", ...)
     page_numbers = text()
 
@@ -61,9 +80,12 @@ class Project(Base):
     #: Creator of this project.
     #: FIXME: make non-nullable once we manually migrate the production setup.
     creator_id = Column(Integer, ForeignKey("users.id"), index=True)
+    #: The genre of this project.
+    genre_id = Column(Integer, ForeignKey("genres.id"), index=True)
 
     creator = relationship("User")
     board = relationship("Board", cascade="delete")
+    genre = relationship("Genre")
 
     #: An ordered list of pages belonging to this project.
     pages = relationship(
@@ -128,7 +150,7 @@ class PageStatus(Base):
 
     #: Primary key.
     id = pk()
-    #: Short human-readable label for this status.
+    #: A short human-readable label for this status.
     name = Column(String, nullable=False, unique=True)
 
 
