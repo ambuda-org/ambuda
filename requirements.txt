@@ -58,3 +58,4 @@ sphinxcontrib-serializinghtml==1.1.5
 sqlalchemy==1.4.37
 werkzeug==2.1.2
 wtforms==3.0.1
+wtforms-sqlalchemy==0.3
