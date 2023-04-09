@@ -58,12 +58,16 @@ class TextView(BaseView):
 
 
 class ProjectView(BaseView):
-    column_list = ["slug", "title", "creator"]
+    column_list = ["slug", "display_title", "creator"]
     form_excluded_columns = ["creator", "board", "pages", "created_at", "updated_at"]
 
 
 class DictionaryView(BaseView):
     column_list = form_columns = ["slug", "title"]
+
+
+class GenreView(ModeratorBaseView):
+    pass
 
 
 class SponsorshipView(ModeratorBaseView):
@@ -100,6 +104,7 @@ def create_admin_manager(app):
     admin.add_view(TextBlockView(db.TextBlock, session))
     admin.add_view(TextView(db.Text, session))
     admin.add_view(UserView(db.User, session))
+    admin.add_view(GenreView(db.Genre, session))
     admin.add_view(SponsorshipView(db.ProjectSponsorship, session))
     admin.add_view(ContributorInfoView(db.ContributorInfo, session))
 

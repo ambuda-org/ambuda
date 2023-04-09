@@ -53,12 +53,12 @@
 <ul x-ref="list">
   {% for p in projects %}
   <li data-key="{{ p.id }}"
-      data-title="{{ p.title }}"
+      data-title="{{ p.display_title }}"
       data-created="{{ p.created_at }}"
       data-progress="{{ progress_per_project[p.id] }}"
       x-show="displayed.has('{{ p.id }}')">
     <div class="mt-4 a-hover-underline flex justify-between items-baseline">
-      <a href="{{ url_for("proofing.project.summary", slug=p.slug) }}">{{ p.title }}</a>
+      <a href="{{ url_for("proofing.project.summary", slug=p.slug) }}">{{ p.display_title }}</a>
       {% set count = pages_per_project[p.id] %}
       <span class="text-xs">
         {{ ngettext('%(num)d page', '%(num)d pages', count) }}

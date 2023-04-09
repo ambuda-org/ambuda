@@ -2,7 +2,7 @@
 {% import "macros/proofing.html" as m %}
 
 
-{% block title %}Download: {{ project.title }} | Ambuda{% endblock %}
+{% block title %}Download: {{ project.display_title }} | Ambuda{% endblock %}
 
 
 {% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}

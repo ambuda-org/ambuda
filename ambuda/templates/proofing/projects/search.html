@@ -3,7 +3,7 @@
 {% import "macros/proofing.html" as m %}
 
 
-{% block title %}Search {{ project.title }} | Ambuda{% endblock %}
+{% block title %}Search: {{ project.display_title }} | Ambuda{% endblock %}
 
 
 {% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}
@@ -34,7 +34,7 @@
 {% for page in results %}
 {% set page_url = url_for("proofing.page.edit", project_slug=project.slug, page_slug=page.slug) %}
 <li>
-    <a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}</a>
+    <a href="{{ page_url }}">{{ project.display_title }}/{{ page.slug }}</a>
     <div class="p-2 border-l my-2">
     {% for match in page.matches %}
     <pre class="p-0.5">{{ match.text }}</pre>

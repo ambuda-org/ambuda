@@ -2,7 +2,7 @@
 {% from "macros/forms.html" import field %}
 {% import "macros/proofing.html" as m %}
 
-{% block title %} Search and Replace | {{ project.title }}{% endblock %}
+{% block title %} Search and Replace | {{ project.display_title }}{% endblock %}
 
 {% block content %}
 
@@ -28,7 +28,7 @@
       {% set matches = result.matches %}
       {% for match in matches %}
         <div class="match" style="background-color: rgb(243, 239, 239);">
-          <p>Page <a href="{{ page_url }}">{{ project.title }}/{{ page.slug }}:</a> Line {{ match.line_num }}</p>
+          <p>Page <a href="{{ page_url }}">{{ project.display_title }}/{{ page.slug }}:</a> Line {{ match.line_num }}</p>
           <label for="match{{ page.slug }}-{{ match.line_num }}">{{ match.query }}</label>
           <input type="hidden" name="match{{ page.slug }}-{{ match.line_num }}-query" value="{{ match.query }}">
           <br>

@@ -4,7 +4,7 @@
 {% import "macros/proofing.html" as m %}
 
 
-{% block title %}Activity: {{ project.title }} | Ambuda{% endblock %}
+{% block title %}Activity: {{ project.display_title }} | Ambuda{% endblock %}
 
 
 {% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}

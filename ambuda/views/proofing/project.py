@@ -29,6 +29,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, ValidationError
 from wtforms.widgets import TextArea
+from wtforms_sqlalchemy.fields import QuerySelectField
 
 from ambuda import database as db
 from ambuda import queries as q
@@ -51,6 +52,13 @@ def _is_valid_page_number_spec(_, field):
 
 
 class EditMetadataForm(FlaskForm):
+    display_title = StringField(
+        _l("Display title"),
+        render_kw={
+            "placeholder": _l("e.g. Avantisundarīkathā"),
+        },
+        validators=[DataRequired()],
+    )
     description = StringField(
         _l("Description (optional)"),
         widget=TextArea(),
@@ -68,7 +76,18 @@ class EditMetadataForm(FlaskForm):
             "placeholder": "Coming soon.",
         },
     )
-    title = StringField(_l("Title"), validators=[DataRequired()])
+    genre = QuerySelectField(
+        query_factory=q.genres, allow_blank=True, blank_text=_l("(none)")
+    )
+
+    print_title = StringField(
+        _l("Print title"),
+        render_kw={
+            "placeholder": _l(
+                "e.g. Śrīdaṇḍimahākaviviracitam avantisundarīkathā nāma gadyakāvyam"
+            ),
+        },
+    )
     author = StringField(
         _l("Author"),
         render_kw={
@@ -79,7 +98,7 @@ class EditMetadataForm(FlaskForm):
         _l("Editor"),
         render_kw={
             "placeholder": _l(
-                "The person or organization that created this edition of the text."
+                "The person or organization that created this edition, e.g. M.R. Kale."
             ),
         },
     )
@@ -91,10 +110,24 @@ class EditMetadataForm(FlaskForm):
             ),
         },
     )
+    worldcat_link = StringField(
+        _l("Worldcat link"),
+        render_kw={
+            "placeholder": _l("A link to this book's entry on worldcat.org."),
+        },
+    )
     publication_year = StringField(
         _l("Publication year"),
         render_kw={
             "placeholder": _l("The year in which this specific edition was published."),
+        },
+    )
+
+    notes = StringField(
+        _l("Notes (optional)"),
+        widget=TextArea(),
+        render_kw={
+            "placeholder": _l("Internal notes for scholars and other proofreaders."),
         },
     )
 
@@ -259,7 +292,7 @@ def download_as_xml(slug):
         abort(404)
 
     project_meta = {
-        "title": project_.title,
+        "title": project_.display_title,
         "author": project_.author,
         "publication_year": project_.publication_year,
         "publisher": project_.publisher,

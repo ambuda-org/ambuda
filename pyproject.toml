@@ -58,6 +58,7 @@ sentry-sdk = "1.6.0"
 SQLAlchemy = "1.4.37"
 Werkzeug = "2.1.2"
 WTForms = "3.0.1"
+wtforms-sqlalchemy = "^0.3"
 
 
 [tool.poetry.dev-dependencies]
@@ -66,8 +67,7 @@ pytest = "^7.1.2"
 pytest-cov = "4.0.0"
 # Linting / formatting
 black = "^22.3.0"
-flake8 = "5.0.4"
-isort = "^5.10.1"
+ruff = "0.0.260"
 # Documentation
 Sphinx = "5.0.2"
 sphinx-rtd-theme = "1.0.0"

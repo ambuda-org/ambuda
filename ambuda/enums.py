@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class SiteRole(str, Enum):
-    """Defines user roles on Ambuda."""
+    """Defines user roles."""
 
     #: Basic proofer. Can mark pages as yellow and upload simple projects.
     P1 = "p1"

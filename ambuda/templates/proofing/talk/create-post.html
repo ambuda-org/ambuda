@@ -4,7 +4,7 @@
 {% import "macros/forms.html" as mf %}
 
 
-{% block title %}Create post on {{ project.title }} | Ambuda{% endblock %}
+{% block title %}Create post on {{ project.display_title }} | Ambuda{% endblock %}
 
 
 {% block sidebar %}{{ m.main_nav('talk', current_user=current_user) }}{% endblock %}

@@ -4,14 +4,14 @@
 {% import "macros/proofing.html" as m %}
 
 
-{% block title %}{{ project.title }} | Ambuda{% endblock %}
+{% block title %}{{ project.display_title }} | Ambuda{% endblock %}
 
 
 {% block sidebar %}{{ m.main_nav('projects', current_user=current_user) }}{% endblock %}
 
 
 {% block content %}
-<h1 class="font-bold text-3xl mb-4">{{ project.title }}</h1>
+<h1 class="font-bold text-3xl mb-4">{{ project.display_title }}</h1>
 {{ m.project_tabs(project=project, active='summary', is_mod=current_user.is_moderator) }}
 
 {% if project.description %}
@@ -45,7 +45,7 @@
 <table class="w-full">
   <tr>
     <th class="text-left">{{ _('Title') }}</th>
-    <td class="text-right">{{ project.title or _("(none)") }}</td>
+    <td class="text-right">{{ project.display_title or _("(none)") }}</td>
   </tr>
   <tr>
     <th class="text-left">{{ _('Author') }}</th>
