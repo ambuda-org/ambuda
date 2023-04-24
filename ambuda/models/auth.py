@@ -90,6 +90,40 @@ class Role(Base):
         return f"<Role({self.id}, {self.name!r})>"
 
 
+class UserStatusLog(AmbudaUserMixin, Base):
+    """Tracks changes to user statuses."""
+
+    __tablename__ = "user_status_log"
+
+    #: Primary key.
+    id = pk()
+
+    #: The user whose status was changed.
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    #: Timestamp at which this status change occured.
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    #: Describes the status change that occurred.
+    change_description = Column(String, nullable=False)
+
+    #: When should this status change expire/revert, defaults to never.
+    expiry = Column(DateTime, default=None, nullable=True)
+
+    @property
+    def is_expired(self) -> bool:
+        """Check if the action has expired."""
+        return self.expiry and self.expiry < datetime.utcnow()
+
+    @property
+    def is_temporary(self) -> bool:
+        """
+        Check if the action has an expiry and will be reverted
+        in the future.
+        """
+        return self.expiry
+
+
 class UserRoles(Base):
 
     """Secondary table for users and roles."""
