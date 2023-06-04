@@ -55,10 +55,14 @@ TEXT_CATEGORIES = {
         "saundaranandam",
         "hamsadutam",
     ],
-    "upanishat": ["shivopanishat"],
+    "upanishat": [
+        "shivopanishat", 
+        "isa"
+    ],
     "anye": [
         "bodhicaryavatara",
         "catuhshloki",
+
     ],
 }
 

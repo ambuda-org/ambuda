@@ -2,22 +2,9 @@
 
 import logging
 import subprocess
-from dataclasses import dataclass
 from pathlib import Path
 
-from sqlalchemy.orm import Session
-
-import ambuda.database as db
-from ambuda.seed.utils.data_utils import create_db
-from ambuda.utils.tei_parser import Document, parse_document
-
-
-@dataclass
-class Spec:
-    slug: str
-    title: str
-    filename: str
-
+from ambuda.seed.utils.data_utils import Spec, add_document, create_db
 
 REPO = "https://github.com/ambuda-org/gretil.git"
 PROJECT_DIR = Path(__file__).resolve().parents[3]
@@ -62,47 +49,6 @@ def fetch_latest_data():
     subprocess.call("git reset --hard origin/main", shell=True, cwd=DATA_DIR)
 
 
-def _create_new_text(session, spec: Spec, document: Document):
-    text = db.Text(slug=spec.slug, title=spec.title, header=document.header)
-    session.add(text)
-    session.flush()
-
-    n = 1
-    for section in document.sections:
-        db_section = db.TextSection(
-            text_id=text.id, slug=section.slug, title=section.slug
-        )
-        session.add(db_section)
-        session.flush()
-
-        for block in section.blocks:
-            db_block = db.TextBlock(
-                text_id=text.id,
-                section_id=db_section.id,
-                slug=block.slug,
-                xml=block.blob,
-                n=n,
-            )
-            session.add(db_block)
-            n += 1
-
-    session.commit()
-
-
-def add_document(engine, spec: Spec):
-    document_path = DATA_DIR / "1_sanskr" / "tei" / spec.filename
-
-    with Session(engine) as session:
-        if session.query(db.Text).filter_by(slug=spec.slug).first():
-            # FIXME: update existing texts in-place so that we can capture
-            # changes. As a workaround for now, we can delete then re-create.
-            log(f"- Skipped {spec.slug} (already exists)")
-        else:
-            document = parse_document(document_path)
-            _create_new_text(session, spec, document)
-            log(f"- Created {spec.slug}")
-
-
 def run():
     logging.getLogger().setLevel(0)
     log("Downloading the latest data ...")
@@ -114,7 +60,8 @@ def run():
         engine = create_db()
 
         for spec in ALLOW:
-            add_document(engine, spec)
+            document_path = DATA_DIR / "1_sanskr" / "tei" / spec.filename
+            add_document(engine, spec, document_path)
     except Exception as ex:
         raise Exception("Error: Failed to get latest from GRETIL.") from ex
 
