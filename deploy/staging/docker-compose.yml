@@ -19,7 +19,7 @@ services:
       - FLASK_UPLOAD_FOLDER=/app/data/file-uploads
       - SQLALCHEMY_DATABASE_URI=sqlite:////app/data/database/database.db
       - SECRET_KEY=insecure development secret key
-      - GOOGLE_APPLICATION_CREDENTIALS=<Google API credentials>
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/data/.google.key
       - REDIS_URL=redis://redis:6579/0
       - VIRTUAL_ENV=.
       - AMBUDA_BOT_PASSWORD=insecure bot password
@@ -30,7 +30,11 @@ services:
     image: ${AMBUDA_IMAGE}
     command: /app/scripts/start_celery.sh
     environment:
-    - REDIS_URL=redis://redis:6579/0
+      - REDIS_URL=redis://redis:6579/0
+      - SQLALCHEMY_DATABASE_URI=sqlite:////app/data/database/database.db
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/data/.google.key
+      - PATH=$PATH:/venv/bin/
+    
     depends_on:
     - redis
 

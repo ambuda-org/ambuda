@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 import ambuda
 from ambuda import database as db
 from ambuda import queries as q
+from ambuda.consts import TEXT_CATEGORIES
 from ambuda.seed.utils.data_utils import Spec, add_document, create_db
 from ambuda.tasks.projects import create_project_inner
 from ambuda.tasks.utils import LocalTaskStatus
@@ -113,6 +114,7 @@ def create_project(title, pdf_path):
 @click.option("--tei-path", help="path to the source PDF")
 def publish_text(slug, title, tei_path):
     """Publish a proofread text from a TEI-XML."""
+    TEXT_CATEGORIES['anye'].append(slug)
     spec = Spec(slug, title, tei_path)
     add_document(engine, spec, tei_path)
 
