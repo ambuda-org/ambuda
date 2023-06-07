@@ -20,6 +20,7 @@ class Spec:
     slug: str
     title: str
     filename: str
+    genre: db.TextGenre
 
 
 def fetch_text(url: str, read_from_cache: bool = True) -> str:
@@ -98,7 +99,8 @@ def create_db():
 
 def _create_new_text(session, spec: Spec, document: Document):
     """Create new text in the database."""
-    text = db.Text(slug=spec.slug, title=spec.title, header=document.header)
+    text_genre = session.query(db.Genre).filter_by(name=spec.genre.value).first()
+    text = db.Text(slug=spec.slug, title=spec.title, header=document.header, genre=text_genre)
     session.add(text)
     session.flush()
 

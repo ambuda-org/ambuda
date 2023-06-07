@@ -1,4 +1,4 @@
-from . import create_bot_user, page_status, role
+from . import create_bot_user, genres, page_status, role
 
 
 def run():
@@ -9,9 +9,10 @@ def run():
         page_status.run()
         role.run()
         create_bot_user.run()
+        genres.run()
     except Exception as ex:
         raise Exception(
-            "Error: Failed to create page statuses, "
+            "Error: Failed to genres, create page statuses, "
             "create roles, and creat bot user."
             f"Error: {ex}"
         ) from ex

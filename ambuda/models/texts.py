@@ -7,11 +7,10 @@ We define texts with three different tables:
 - `TextBlock` is typically a verse or paragraph within a `TextSection`.
 """
 
+from ambuda.models.base import Base, foreign_key, pk
 from sqlalchemy import Column, Integer, String
 from sqlalchemy import Text as _Text
 from sqlalchemy.orm import relationship
-
-from ambuda.models.base import Base, foreign_key, pk
 
 
 class Text(Base):
@@ -30,6 +29,9 @@ class Text(Base):
     header = Column(_Text)
     #: An ordered list of the sections contained within this text.
     sections = relationship("TextSection", backref="text", cascade="delete")
+    #: Add a genre for the text
+    genre_id = foreign_key("genres.id")
+    genre = relationship("Genre")
 
     def __str__(self):
         return self.slug

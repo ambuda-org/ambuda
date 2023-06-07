@@ -5,11 +5,10 @@ from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 
+import ambuda.database as db
 from dotenv import load_dotenv
 from indic_transliteration import sanscript
 from sqlalchemy.orm import Session
-
-import ambuda.database as db
 
 load_dotenv()
 PROJECT_DIR = Path(__file__).parent.parent.parent
@@ -106,7 +105,8 @@ def write_kandas(
     xml_id_prefix: str,
 ):
     with Session(engine) as session:
-        text = db.Text(slug=text_slug, title=text_title, header=tei_header)
+        iti_genre = session.query(db.Genre).filter_by(name=db.TextGenre.ITIHASA.value).first()
+        text = db.Text(slug=text_slug, title=text_title, header=tei_header, genre=iti_genre)
         session.add(text)
         session.flush()
 

@@ -4,6 +4,7 @@ import logging
 import subprocess
 from pathlib import Path
 
+from ambuda.enums import TextGenre
 from ambuda.seed.utils.data_utils import Spec, add_document, create_db
 
 REPO = "https://github.com/ambuda-org/gretil.git"
@@ -12,25 +13,25 @@ DATA_DIR = PROJECT_DIR / "data" / "ambuda-gretil"
 #: Slug to use for texts that have only one section.
 
 ALLOW = [
-    Spec("amarushatakam", "amaruzatakam", "sa_amaru-amaruzataka.xml"),
-    Spec("kumarasambhavam", "kumArasambhavam", "sa_kAlidAsa-kumArasaMbhava.xml"),
-    Spec("raghuvamsham", "raghuvaMzam", "sa_kAlidAsa-raghuvaMza.xml"),
-    Spec("kiratarjuniyam", "kirAtArjunIyam", "sa_bhAravi-kirAtArjunIya.xml"),
-    Spec("shishupalavadham", "zizupAlavadham", "sa_mAgha-zizupAlavadha.xml"),
-    Spec("rtusamharam", "RtusaMhAram", "sa_kAlidAsa-RtusaMhAra.xml"),
-    Spec("shatakatrayam", "zatakatrayam", "sa_bhatRhari-zatakatraya.xml"),
-    Spec("bhattikavyam", "bhaTTikAvyam", "sa_bhaTTi-rAvaNavadha.xml"),
-    Spec("meghadutam-kale", "meghadUtam", "sa_kAlidAsa-meghadUta-edkale.xml"),
-    Spec("kokilasandesha", "kokilasaMdezaH", "sa_uddaNDa-kokilasaMdesa.xml"),
-    Spec("bodhicaryavatara", "bodhicaryAvatAraH", "sa_zAntideva-bodhicaryAvatAra.xml"),
+    Spec("amarushatakam", "amaruzatakam", "sa_amaru-amaruzataka.xml", TextGenre.KAVYA),
+    Spec("kumarasambhavam", "kumArasambhavam", "sa_kAlidAsa-kumArasaMbhava.xml", TextGenre.KAVYA),
+    Spec("raghuvamsham", "raghuvaMzam", "sa_kAlidAsa-raghuvaMza.xml", TextGenre.KAVYA),
+    Spec("kiratarjuniyam", "kirAtArjunIyam", "sa_bhAravi-kirAtArjunIya.xml", TextGenre.KAVYA),
+    Spec("shishupalavadham", "zizupAlavadham", "sa_mAgha-zizupAlavadha.xml", TextGenre.KAVYA),
+    Spec("rtusamharam", "RtusaMhAram", "sa_kAlidAsa-RtusaMhAra.xml", TextGenre.KAVYA),
+    Spec("shatakatrayam", "zatakatrayam", "sa_bhatRhari-zatakatraya.xml", TextGenre.KAVYA),
+    Spec("bhattikavyam", "bhaTTikAvyam", "sa_bhaTTi-rAvaNavadha.xml", TextGenre.KAVYA),
+    Spec("meghadutam-kale", "meghadUtam", "sa_kAlidAsa-meghadUta-edkale.xml", TextGenre.KAVYA),
+    Spec("kokilasandesha", "kokilasaMdezaH", "sa_uddaNDa-kokilasaMdesa.xml", TextGenre.KAVYA),
+    Spec("bodhicaryavatara", "bodhicaryAvatAraH", "sa_zAntideva-bodhicaryAvatAra.xml", TextGenre.ANYE),
     Spec(
-        "saundaranandam", "saundaranandam", "sa_azvaghoSa-saundarAnanda-edmatsunami.xml"
+        "saundaranandam", "saundaranandam", "sa_azvaghoSa-saundarAnanda-edmatsunami.xml", TextGenre.KAVYA
     ),
-    Spec("caurapancashika", "caurapaJcAzikA", "sa_bilhaNa-caurapaJcAzikA.xml"),
-    Spec("hamsadutam", "haMsadUtam", "sa_rUpagosvAmin-haMsadUta.xml"),
-    Spec("mukundamala", "mukundamAlA", "sa_kulazekhara-mukundamAlA-eddurgaprasad.xml"),
-    Spec("shivopanishat", "zivopaniSat", "sa_zivopaniSad.xml"),
-    Spec("catuhshloki", "catuHzlokI", "sa_yAmuna-catuHzlokI.xml"),
+    Spec("caurapancashika", "caurapaJcAzikA", "sa_bilhaNa-caurapaJcAzikA.xml", TextGenre.KAVYA),
+    Spec("hamsadutam", "haMsadUtam", "sa_rUpagosvAmin-haMsadUta.xml", TextGenre.KAVYA),
+    Spec("mukundamala", "mukundamAlA", "sa_kulazekhara-mukundamAlA-eddurgaprasad.xml", TextGenre.KAVYA),
+    Spec("shivopanishat", "zivopaniSat", "sa_zivopaniSad.xml", TextGenre.UPANISHAT),
+    Spec("catuhshloki", "catuHzlokI", "sa_yAmuna-catuHzlokI.xml", TextGenre.ANYE),
 ]
 
 

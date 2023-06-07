@@ -112,10 +112,16 @@ def create_project(title, pdf_path):
 @click.option("--title", help="title of the new text")
 @click.option("--slug", help="slug of the new text")
 @click.option("--tei-path", help="path to the source PDF")
-def publish_text(slug, title, tei_path):
+@click.option("--genre", help="text genre from [Itihasa, Upanishat, Kavya, Anye]")
+def publish_text(slug, title, tei_path, genre="Anye"):
     """Publish a proofread text from a TEI-XML."""
-    TEXT_CATEGORIES['anye'].append(slug)
-    spec = Spec(slug, title, tei_path)
+
+    # reverse mapping genre to an TextGenre enum member 
+    genre_formatted = genre.title()
+    genre_enum = next((g for g in db.TextGenre if g.value == genre_formatted), None)
+    if genre_enum is None:
+        raise ValueError(f"Enter a valid genre: {genre}")
+    spec = Spec(slug, title, tei_path, genre_enum)
     add_document(engine, spec, tei_path)
 
 
