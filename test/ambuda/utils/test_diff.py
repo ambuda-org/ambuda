@@ -24,15 +24,10 @@ def test_split_graphemes():
     split = diff._split_graphemes("उत्क्रामन्तं")
     assert split == [
         "उ",
-        "त्",
-        "क्",
-        "रा",
+        "त्क्रा",
         "म",
-        "न्",
-        "तं",
+        "न्तं",
     ]
-    assert split[0] == "उ"
-    assert split[0:2] == "उत्"
 
 
 def test_create_markup():

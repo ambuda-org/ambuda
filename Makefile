@@ -45,7 +45,7 @@ AMBUDA_IMAGE_LATEST="$(AMBUDA_NAME)-rel:latest"
 py-venv-check: 
 ifeq ("$(VIRTUAL_ENV)","")
 	@echo "Error! Python venv not activated. Activate venv to proceed. Run: "
-	@echo "  > source env/bin/activate"
+	@echo "  > source .venv/bin/activate"
 	@echo
 	exit 1
 endif	
@@ -68,9 +68,7 @@ install-frontend:
 
 # Install Python dependencies.
 install-python:
-	python3 -m venv env
-	. env/bin/activate; pip install --upgrade pip
-	. env/bin/activate; pip install -r requirements.txt
+	uv sync
 
 # Fetch and build all i18n files.
 install-i18n: py-venv-check

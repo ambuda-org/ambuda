@@ -23,7 +23,7 @@ EOF
     python3 -c "exit(0) if input('Are you sure you want to continue? (y/n): ') == 'y' else exit(1)"
 
     echo "Cleaning up old state ..."
-    rm -Rf .env deploy/data/ env/ node_modules/
+    rm -Rf .env .venv deploy/data/ env/ node_modules/
 fi
 
 
