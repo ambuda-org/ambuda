@@ -129,7 +129,7 @@ db-seed-all: py-venv-check
 
 # For Docker try `make mode=dev docker-start`
 devserver: py-venv-check
-	./node_modules/.bin/concurrently "flask run -h 0.0.0.0 -p 5000" "npx tailwindcss -i ambuda/static/css/style.css -o ambuda/static/gen/style.css --watch" "npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --watch"
+	./node_modules/.bin/concurrently "flask run --debug -h 0.0.0.0 -p 5000" "npx tailwindcss -i ambuda/static/css/style.css -o ambuda/static/gen/style.css --watch" "npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --watch"
 	
 # Run a local Celery instance for background tasks.
 celery: 
