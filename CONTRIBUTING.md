@@ -26,11 +26,11 @@ assigned to it. No need to ask if you can work on it -- just go ahead.
 
 Patch standards:
 
-- Format your code with `black`.
+- Format your code with `ruff format`.
 
   On Linux and OS X, you can enable the included pre-commit hook to automate this:
   ```bash
-  ln -snfr infra/pre-commit .git/hooks/pre-commit
+  ln -snf infra/pre-commit .git/hooks/pre-commit
   ```
 
 - Include tests if you're changing code. Your tests should succeed with your

@@ -6,10 +6,10 @@ modified_python_files=`git diff "$@" --no-prefix --cached --name-only --diff-fil
 
 if [ -n "${modified_python_files}" ]; then
     # When black is not available or fails to run, refuse to commit
-    { black --version && black ${modified_python_files}; } \
+    { black --version && ruff format ${modified_python_files}; } \
         || \
-        { echo "Failed to format with 'black', refusing to commit." \
-               "Please ensure you have black installed: 'python -m pip install black'." \
+        { echo "Failed to format with 'ruff', refusing to commit." \
+               "Please ensure you have ruff installed. Try 'uv sync'." \
                "Alternatively, you can skip the pre-commit hook by" \
                "commiting with the '--no-verify' option." && exit 1 \
         ;}
