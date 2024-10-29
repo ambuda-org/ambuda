@@ -1,6 +1,5 @@
 """Add the Mahabharata parse data from DCS."""
 
-
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -38,8 +37,7 @@ def iter_sections():
         / "Mahābhārata"
     )
     for section_path in sorted(text_path.iterdir()):
-        for section in dcs.parse_file(section_path):
-            yield section
+        yield from dcs.parse_file(section_path)
 
 
 def iter_parsed_blocks() -> Iterator[tuple[str, str, str]]:

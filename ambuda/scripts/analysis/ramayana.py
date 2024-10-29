@@ -37,8 +37,7 @@ def iter_sections():
         / "Rāmāyaṇa"
     )
     for section_path in sorted(text_path.iterdir()):
-        for section in dcs.parse_file(section_path):
-            yield section
+        yield from dcs.parse_file(section_path)
 
 
 def iter_parsed_blocks() -> Iterator[tuple[str, str, str]]:

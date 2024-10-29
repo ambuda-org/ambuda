@@ -38,7 +38,6 @@ class Genre(Base):
 
 
 class Project(Base):
-
     """A proofreading project.
 
     Each project corresponds to exactly one printed book.
@@ -97,7 +96,6 @@ class Project(Base):
 
 
 class Page(Base):
-
     """A page in a proofreading project.
 
     This corresponds to a specific page in a PDF.
@@ -143,7 +141,6 @@ class Page(Base):
 
 
 class PageStatus(Base):
-
     """The transcription status of a given page.
 
     For specific values, see `ambuda.seed.lookup.page_status`.
@@ -158,7 +155,6 @@ class PageStatus(Base):
 
 
 class Revision(Base):
-
     """A specific page revision.
 
     To get the latest revision, sort by `created`.

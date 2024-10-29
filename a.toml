@@ -6,12 +6,6 @@ authors = ["Arun Prasad"]
 readme = "README.md"
 requires-python = ">=3.13"
 
-[tool.coverage.run]
-omit = [
-    "ambuda/scripts/*",
-    "ambuda/seed/**",
-]
-
 [tool.poetry.dependencies]
 python = "^3.10"
 alembic = "1.8.0"
@@ -85,7 +79,7 @@ requires = ["poetry-core", "freetype"]
 build-backend = "poetry.core.masonry.api"
 
 
-[tool.ruff]
+[tool.ruff.lint]
 # https://beta.ruff.rs/docs/rules/
 select = [
     "B",     # flake8-bugbear

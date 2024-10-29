@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Convert the raw Mahabharata text to XML."""
 
-
 import re
 
 import ambuda.seed.utils.data_utils

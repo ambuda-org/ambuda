@@ -40,10 +40,8 @@ Linting and testing
 
 For linting, you can use::
 
-    # Lints both JS and Python.
-    # - To lint just Python, run `black .`
-    # - To lint just JS, run `make js-lint`.
-    make lint
+    make py-lint
+    make js-lint
 
 To run unit tests, you can simply run::
 

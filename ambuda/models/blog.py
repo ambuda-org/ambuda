@@ -8,7 +8,6 @@ from ambuda.models.base import Base, foreign_key, pk, same_as
 
 
 class BlogPost(Base):
-
     """A blog post."""
 
     __tablename__ = "blog_posts"

@@ -36,7 +36,6 @@ Attributes = NewType("Attributes", dict[str, str])
 
 @dataclass
 class Rule:
-
     """Describes how to modify an XML element."""
 
     #: The tag to apply to this element.

@@ -71,7 +71,6 @@ class User(AmbudaUserMixin, Base):
 
 
 class Role(Base):
-
     """A role.
 
     Roles are how we model fine-grained permissions on Ambuda.
@@ -91,7 +90,6 @@ class Role(Base):
 
 
 class UserRoles(Base):
-
     """Secondary table for users and roles."""
 
     __tablename__ = "user_roles"
@@ -103,7 +101,6 @@ class UserRoles(Base):
 
 
 class PasswordResetToken(Base):
-
     """Models a "forgot password" recovery token."""
 
     __tablename__ = "auth_password_reset_tokens"

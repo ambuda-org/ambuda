@@ -42,7 +42,7 @@ omit = [
     "ambuda/seed/**",
 ]
 
-[tool.ruff]
+[tool.ruff.lint]
 # https://beta.ruff.rs/docs/rules/
 select = [
     "B",     # flake8-bugbear

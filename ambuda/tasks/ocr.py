@@ -1,6 +1,5 @@
 """Background tasks for proofing projects."""
 
-
 from celery import group
 from celery.result import GroupResult
 

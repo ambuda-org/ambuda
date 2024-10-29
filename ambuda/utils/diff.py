@@ -1,5 +1,4 @@
-"""Utilities for working with diffs.
-"""
+"""Utilities for working with diffs."""
 
 import difflib
 

@@ -485,7 +485,6 @@ def _select_changes(project_, selected_keys, query: str, replace: str):
         latest = page_.revisions[-1]
         matches = []
         for line_num, line in enumerate(latest.content.splitlines()):
-
             form_key = f"match{page_.slug}-{line_num}"
             replace_form_key = f"match{page_.slug}-{line_num}-replace"
 
