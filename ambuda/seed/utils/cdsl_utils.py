@@ -84,12 +84,11 @@ def create_from_scratch(engine, slug: str, title: str, generator):
 
     entries = db.DictionaryEntry.__table__
     ins = entries.insert()
-    with engine.connect() as conn:
+    with engine.begin() as conn:
         for i, batch in enumerate(batches(generator, BATCH_SIZE)):
-            items = []
-            for key, value in batch:
-                items.append(
-                    {"dictionary_id": dictionary.id, "key": key, "value": value}
-                )
+            items = [
+                {"dictionary_id": dictionary.id, "key": key, "value": value}
+                for key, value in batch
+            ]
             conn.execute(ins, items)
             logging.info(BATCH_SIZE * (i + 1))

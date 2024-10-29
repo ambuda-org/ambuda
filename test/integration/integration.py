@@ -1,10 +1,6 @@
 """Integration tests with Playwright."""
-import re
 
-
-import pytest
-from playwright.sync_api import expect, Page
-
+from playwright.sync_api import Page, expect
 
 TEST_INDEX_URL = "http://localhost:5000/"
 

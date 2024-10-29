@@ -99,6 +99,7 @@ def create_admin_manager(app):
     )
 
     admin.add_view(DictionaryView(db.Dictionary, session))
+    admin.add_view(BaseView(db.DictionaryEntry, session))
     admin.add_view(ProjectView(db.Project, session))
     admin.add_view(TextBlockView(db.TextBlock, session))
     admin.add_view(TextView(db.Text, session))
