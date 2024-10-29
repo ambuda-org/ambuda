@@ -194,6 +194,9 @@ lint-check: js-lint
 
 # Run all Python unit tests.
 test: py-venv-check
+	pytest . --ignore=test/integration
+
+test_all: py-venv-check
 	pytest .
 
 # Run all Python unit tests with a coverage report.
