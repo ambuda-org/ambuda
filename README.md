@@ -23,7 +23,7 @@ To install and run Ambuda locally, please run the commands below:
 ```
 $ git clone https://github.com/ambuda-org/ambuda.git
 $ cd ambuda
-$ make devserver
+$ make install
 ```
 
 Then, navigate to `http://localhost:5000` in your web browser.
