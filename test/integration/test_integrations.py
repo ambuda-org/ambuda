@@ -60,7 +60,6 @@ def test_basic_reader(page: Page) -> None:
     page.get_by_role("heading", name="1.1").click()
 
 
-
 def test_dictionary_options(page: Page) -> None:
     """Tests that we can make dictionary queries against our production dictionaries.
 
@@ -86,14 +85,22 @@ def test_dictionary_options(page: Page) -> None:
     page.get_by_placeholder("राम, ರಾಮ, rāma, rAma,").click()
 
     # Collapse dictionaries
-    expect(page.locator("header").filter(has_text="Monier-Williams Sanskrit-")).to_be_visible()
-    expect(page.locator("header").filter(has_text="Apte Practical Sanskrit-")).to_be_visible()
-    expect(page.locator("header").filter(has_text="Shabda-Sagara (1900) ▼")).to_be_visible()
-    expect(page.locator("header").filter(has_text="Vācaspatyam (1873) ▼")).to_be_visible()
+    expect(
+        page.locator("header").filter(has_text="Monier-Williams Sanskrit-")
+    ).to_be_visible()
+    expect(
+        page.locator("header").filter(has_text="Apte Practical Sanskrit-")
+    ).to_be_visible()
+    expect(
+        page.locator("header").filter(has_text="Shabda-Sagara (1900) ▼")
+    ).to_be_visible()
+    expect(
+        page.locator("header").filter(has_text="Vācaspatyam (1873) ▼")
+    ).to_be_visible()
     expect(page.locator("header").filter(has_text="अमरकोशः ▼")).to_be_visible()
-    expect(page.locator("header").filter(has_text="आप्टे संस्कृत-हिन्दी कोश (")).to_be_visible()
+    expect(
+        page.locator("header").filter(has_text="आप्टे संस्कृत-हिन्दी कोश (")
+    ).to_be_visible()
 
 
 # TODO: test that we can create a proofing project, upload a PDF, run OCR, and save changes
-
-

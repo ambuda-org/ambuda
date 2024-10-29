@@ -19,6 +19,12 @@ class Dictionary(Base):
 
     entries = relationship("DictionaryEntry", backref="dictionary", cascade="delete")
 
+    def __repr__(self):
+        return f"<Dictionary({self.id}, {self.slug})>"
+
+    def __str__(self):
+        return self.title
+
 
 class DictionaryEntry(Base):
     """Dictionary definitions for a specific entry key.
@@ -37,3 +43,6 @@ class DictionaryEntry(Base):
     key = Column(String, index=True, nullable=False)
     #: XML payload. We convert this to HTML at serving time.
     value = Column(String, nullable=False)
+
+    def __repr__(self):
+        return f"<DictionaryEntry({self.id}, {self.dictionary_id}, {self.key})>"
