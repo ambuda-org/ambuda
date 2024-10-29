@@ -41,7 +41,7 @@
       {{ _('Explore the library') }}
   </a>
 
-  <ul class="flex text-slate-300 justify-center mt-24 a-hover-underline">
+  <ul name="i18n-menu" class="flex text-slate-300 justify-center mt-24 a-hover-underline">
     {% for L in ambuda_locales %}
     <li><a class="p-2" href="{{ url_for('site.set_language', slug=L.slug) }}">
       {{ L.text }}

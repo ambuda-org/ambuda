@@ -30,6 +30,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest-cov>=5.0.0",
+    "pytest-playwright>=0.5.2",
     "pytest>=8.3.3",
     "requests>=2.32.3",
     "ruff>=0.7.1",
