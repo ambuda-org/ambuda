@@ -196,6 +196,7 @@ lint-check: js-lint
 test: py-venv-check
 	pytest . --ignore=test/integration
 
+# Run all Python unit and integration tests.
 test_all: py-venv-check
 	pytest .
 
