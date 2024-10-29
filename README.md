@@ -7,16 +7,12 @@ Ambuda
 Ambuda is an online Sanskrit library whose mission is to make Sanskrit
 literature accessible to all. Our library is hosted at https://ambuda.org.
 
-This repository contains Ambuda's core code. It also includes *seed* scripts,
-which will automatically pull external data sources and populate a development
-database.
+This repository contains Ambuda's core code and various scripts to populate a
+development database.
 
 
 Quickstart
 ----------
-
-(This setup process requires Docker. If you don't have Docker installed on your
-machine, you can install it [here][docker].)
 
 To install and run Ambuda locally, please run the commands below:
 
@@ -27,8 +23,6 @@ $ make install
 ```
 
 Then, navigate to `http://localhost:5000` in your web browser.
-
-[docker]: https://docs.docker.com/get-docker/
 
 
 Documentation
