@@ -16,7 +16,7 @@ Max lengths:
 
 import secrets
 import sys
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_babel import lazy_gettext as _l

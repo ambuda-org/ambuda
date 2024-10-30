@@ -1,7 +1,5 @@
 """Models related to our proofing work."""
 
-from datetime import datetime
-
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy import Text as Text_
 from sqlalchemy.orm import relationship

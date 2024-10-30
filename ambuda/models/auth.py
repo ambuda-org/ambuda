@@ -6,8 +6,8 @@ from sqlalchemy.orm import relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from ambuda.models.base import Base, foreign_key, pk
-from ambuda.utils.user_mixins import AmbudaUserMixin
 from ambuda.models.utils import utc_now
+from ambuda.utils.user_mixins import AmbudaUserMixin
 
 
 class User(AmbudaUserMixin, Base):

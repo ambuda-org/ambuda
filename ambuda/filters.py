@@ -1,6 +1,6 @@
 """Manages various small template filters."""
 
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
 from dateutil.relativedelta import relativedelta
 from indic_transliteration import sanscript

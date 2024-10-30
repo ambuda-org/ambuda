@@ -1,8 +1,17 @@
-"""Integration tests with Playwright."""
+"""Integration tests with Playwright.
+
+NOTE: these tests currently assume an initialized development database with
+admins, etc. In the future, our test code will create a custom test database.
+"""
+
+from pathlib import Path
 
 from playwright.sync_api import Page, expect
 
 TEST_INDEX_URL = "http://localhost:5000/"
+ADMIN_USERNAME = "adhiraja"
+ADMIN_PASSWORD = "password12345"
+SAMPLE_BOOK = Path(__file__).parent / "sample-book.pdf"
 
 
 def test_i18n_switching(page: Page) -> None:
@@ -24,7 +33,7 @@ def test_i18n_switching(page: Page) -> None:
     expect(page.locator("header h1")).to_contain_text("ఒక ఆధునిక సంస్కృత గ్రంథాలయము")
 
 
-def test_basic_reader(page: Page) -> None:
+def test_basic_reader_ui(page: Page) -> None:
     """Tests that we can use basic functions on the reader page."""
 
     page.goto(TEST_INDEX_URL)
@@ -60,7 +69,7 @@ def test_basic_reader(page: Page) -> None:
     page.get_by_role("heading", name="1.1").click()
 
 
-def test_dictionary_options(page: Page) -> None:
+def test_basic_dictionary_ui(page: Page) -> None:
     """Tests that we can make dictionary queries against our production dictionaries.
 
     NOTE: this test expects that the site has all production dictionary data.
@@ -103,4 +112,53 @@ def test_dictionary_options(page: Page) -> None:
     ).to_be_visible()
 
 
-# TODO: test that we can create a proofing project, upload a PDF, run OCR, and save changes
+def test_basic_proofing_ui(page: Page) -> None:
+    """Tests that we can use basic functions on the proofing page.
+
+    If the test fails:
+    - Confirm that Celery is running.
+    - Confirm that `My sample book` doesn't exist.
+    """
+
+    page.goto(TEST_INDEX_URL)
+
+    # Log in as admin. Admin should have the `p2` role.
+    # (./cli.py add-role --username $ADMIN --role p2)
+    page.locator("#navbar").get_by_role("link", name="Proofing").click()
+    page.locator("#navbar").get_by_role("link", name="Sign in").click()
+    page.get_by_label("Username").click()
+    page.get_by_label("Username").fill(ADMIN_USERNAME)
+    page.get_by_label("Password").click()
+    page.get_by_label("Password").fill(ADMIN_PASSWORD)
+    page.get_by_role("button", name="Sign in").click()
+
+    # Upload project to celery.
+    page.get_by_role("link", name="Create project").click()
+    page.get_by_label("From my computer").check()
+
+    with page.expect_file_chooser() as fc:
+        page.locator("#local_file").click()
+    fc.value.set_files(SAMPLE_BOOK)
+
+    page.get_by_placeholder("My book title").click()
+    page.get_by_placeholder("My book title").fill("My sample book")
+    page.get_by_label("Public domain").check()
+    page.get_by_role("button", name="Create project").click()
+
+    # Waiting ...
+
+    # Project ready. Move to project page ...
+    page.get_by_role("link", name="Click here").click()
+
+    page.get_by_role("link", name="Activity").click()
+    page.get_by_role("link", name="Edit", exact=True).click()
+    page.get_by_role("link", name="Download").click()
+    page.get_by_role("link", name="Stats").click()
+
+    # TODO: add more interesting logic here.
+
+    # Delete project.
+    page.get_by_role("link", name="Admin").click()
+    page.locator("#slug").click()
+    page.locator("#slug").fill("my-sample-book")
+    page.get_by_role("button", name="Permanently delete this").click()
