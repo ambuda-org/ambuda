@@ -4,14 +4,25 @@ NOTE: these tests currently assume an initialized development database with
 admins, etc. In the future, our test code will create a custom test database.
 """
 
+import tempfile
 from pathlib import Path
 
+import fitz
 from playwright.sync_api import Page, expect
 
 TEST_INDEX_URL = "http://localhost:5000/"
 ADMIN_USERNAME = "adhiraja"
 ADMIN_PASSWORD = "password12345"
-SAMPLE_BOOK = Path(__file__).parent / "sample-book.pdf"
+
+
+def _create_sample_pdf(output_path: str, num_pages: int):
+    """Create a toy PDF with 10 pages."""
+    doc = fitz.open()
+    for i in range(1, num_pages + 1):
+        page = doc.new_page()
+        where = fitz.Point(50, 50)
+        page.insert_text(where, f"This is page {i}", fontsize=30)
+    doc.save(output_path)
 
 
 def test_i18n_switching(page: Page) -> None:
@@ -136,9 +147,13 @@ def test_basic_proofing_ui(page: Page) -> None:
     page.get_by_role("link", name="Create project").click()
     page.get_by_label("From my computer").check()
 
+
     with page.expect_file_chooser() as fc:
         page.locator("#local_file").click()
-    fc.value.set_files(SAMPLE_BOOK)
+
+    f = tempfile.NamedTemporaryFile(suffix=".pdf")
+    _create_sample_pdf(f.name, num_pages=10)
+    fc.value.set_files(f.name)
 
     page.get_by_placeholder("My book title").click()
     page.get_by_placeholder("My book title").fill("My sample book")
