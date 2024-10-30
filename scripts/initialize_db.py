@@ -1,4 +1,4 @@
-"""Initializes the development database by creating all tables.
+"""Initializes the database by creating all tables.
 
 This module is used in `scripts/initialize_from_scratch.sh`.
 
@@ -18,6 +18,8 @@ def run():
     conf = config.load_config_object("development")
     engine = create_engine(conf.SQLALCHEMY_DATABASE_URI)
     db.Base.metadata.create_all(engine)
+
+    print("Initialized database through `Base.metadata.create-all`.")
 
 
 if __name__ == "__main__":
