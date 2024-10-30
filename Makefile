@@ -128,16 +128,20 @@ db-seed-all: py-venv-check
 
 .PHONY: devserver celery
 
+# Creates a local devserver with main server, CSS dev, and JS dev.
+#
 # For Docker try `make mode=dev docker-start`
 devserver: py-venv-check
 	./node_modules/.bin/concurrently "flask run --debug -h 0.0.0.0 -p 5000" "npx tailwindcss -i ambuda/static/css/style.css -o ambuda/static/gen/style.css --watch" "npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --watch"
 	
-# Run a local Celery instance for background tasks.
+# Runs a local Celery instance for background tasks.
 celery: 
 	celery -A ambuda.tasks worker --loglevel=INFO
 
 
 # Docker commands
+#
+# TODO: not recently tested
 # ===============================================
 
 .PHONY: docker-setup-db docker-build docker-start docker-stop docker-logs
@@ -188,12 +192,12 @@ docker-logs:
 # Lint commands
 # ===============================================
 
-# Link checks on Python code
+# Lint checks on Python code
 py-lint: py-venv-check
 	ruff check --fix
 	ruff format
 
-# Lint our Python and JavaScript code. Fail on any issues.
+# Lints our Python and JavaScript code. Fails on any issues.
 lint-check: js-lint
 	ruff check
 
@@ -201,15 +205,15 @@ lint-check: js-lint
 # Test, coverage and documentation commands
 # ===============================================
 
-# Run all Python unit tests.
+# Runs all Python unit tests.
 test: py-venv-check
 	pytest . --ignore=test/integration
 
-# Run all Python unit and integration tests.
+# Runs all Python unit and integration tests.
 test_all: py-venv-check
 	pytest .
 
-# Run all Python unit tests with a coverage report.
+# Runs all Python unit tests with a coverage report.
 # After the command completes, open "htmlcov/index.html".
 coverage:
 	pytest --cov=ambuda --cov-report=html test/
@@ -217,7 +221,7 @@ coverage:
 coverage-report: coverage
 	coverage report --fail-under=80
 
-# Generate Ambuda's technical documentation.
+# Generates Ambuda's technical documentation.
 # After the command completes, open "docs/_build/index.html".
 docs: py-venv-check
 	cd docs && make html
@@ -226,12 +230,13 @@ docs: py-venv-check
 # CSS commands
 # ===============================================
 
-# Run Tailwind to build our CSS, and rebuild our CSS every time a relevant file
-# changes.
+# Runs Tailwind to build our CSS.
+#
+# This command rebuilds our CSS every time a relevant file changes.
 css-dev:
 	npx tailwindcss -i ./ambuda/static/css/style.css -o ./ambuda/static/gen/style.css --watch
 
-# Build CSS for production.
+# Builds CSS for production.
 css-prod:
 	npx tailwindcss -i ./ambuda/static/css/style.css -o ./ambuda/static/gen/style.css --minify
 
@@ -239,26 +244,29 @@ css-prod:
 # JavaScript commands
 # ===============================================
 
-# Run esbuild to build our JavaScript, and rebuild our JavaScript every time a
-# relevant file changes.
+# Runs esbuild to build our JavaScript.
+#
+# This command rebuilds our JavaScript every time a relevant file changes.
 js-dev:
 	npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --watch
 
-# Build JS for production.
+# Builds JS for production.
 js-prod:
 	npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --minify
 
+# Runs unit tests for JS code.
 js-test:
 	npx jest
 
+# Runs unit tests for JS code with coverage.
 js-coverage:
 	npx jest --coverage
 
-# Lint our JavaScript code.
+# Lints our JavaScript code.
 js-lint:
 	npx eslint --fix ambuda/static/js/* --ext .js,.ts
 
-# Check our JavaScript code for type consistency.
+# Checks our JavaScript code for type consistency.
 js-check-types:
 	npx tsc ambuda/static/js/*.ts -noEmit
 
@@ -266,27 +274,31 @@ js-check-types:
 # i18n and l10n commands
 # ===============================================
 
-# Extract all translatable text from the application and save it in `messages.pot`.
+# Extracts all translatable text from the application and save it in `messages.pot`.
 babel-extract: py-venv-check
 	pybabel extract --mapping babel.cfg --keywords _l --output-file messages.pot .
 
-# Create a new translation file from `messages.pot`.
+# Creates a new translation file from `messages.pot`.
+# 
+# Usage: `make locale=es babel-init`
 babel-init: py-venv-check
 	pybabel init -i messages.pot -d ambuda/translations --locale $(locale)
 
-# Update all translation files with new text from `messages.pot`
+# Updates all translation files with new text from `messages.pot`
 babel-update: py-venv-check
 	pybabel update -i messages.pot -d ambuda/translations
 
-# Compile all translation files.
-# NOTE: you probably want `make install-i18n` instead.
+# Compiles all translation files.
+#
+# NOTE: you probably want to run `make install-i18n` instead.
 babel-compile: py-venv-check
 	pybabel compile -d ambuda/translations
 
 
-# Clean up
+# Clean-up
 # ===============================================
 
+# Cleans up various data files.
 clean:
 	@rm -rf deploy/data/
 	@rm -rf ambuda/translations/*
