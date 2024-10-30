@@ -32,6 +32,9 @@ echo "Beginning clean install of Ambuda."
 make install-frontend
 make install-python
 
+# For pybabel, etc. (install-i18n)
+source .venv/bin/activate
+
 # i18n/l10n setup
 make install-i18n
 
