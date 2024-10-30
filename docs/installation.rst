@@ -10,7 +10,7 @@ Before you begin
 ----------------
 
 We recommend using the latest version of Python. At a mininum, Ambuda requires
-Python 3.10.
+Python 3.13.
 
 We also recommend having a recent version of `npm`. We use `npm` to fetch our
 Tailwind watcher, which generates CSS based on changes to our HTML files. (We
@@ -42,7 +42,7 @@ running the following commands::
     # Enter the virtual environment.
     # (If you're using a non-Bash shell, you might need to use a different
     # command. Search "virtualenv $YOUR_SHELL_HERE" for details.
-    $ source env/bin/activate
+    $ source .venv/bin/activate
 
     # Then, start the development server.
     $ make devserver
@@ -103,9 +103,9 @@ might take several minutes to run.
 
 .. note::
 
-    Generally, our seed scripts cache any downloaded data in a cache directory
-    at `data/download-cache`. We define this cache so that you can quickly
-    rebuild the database if you need to install from scratch.
+    Our seed scripts might cache downloaded data in a cache directory at
+    `data/download-cache`. We define this cache so that you can quickly rebuild
+    the database if you need to install from scratch.
 
 
 Service dependencies

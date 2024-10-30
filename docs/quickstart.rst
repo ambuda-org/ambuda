@@ -29,10 +29,12 @@ To add support for these in your local setup, run the following::
     ./scripts/install_osx_dependencies.sh
     make celery
 
-Roughly, Tailwind generates a new CSS file whenever it detects certain changes
-to Ambuda's HTML files. For more details, see the `Tailwind docs`_.
+To quickly create admin users, use `cli.py`::
 
-.. _Tailwind docs: https://tailwindcss.com/docs/
+    ./cli.py create-user
+
+    # For available roles, see the `SiteRole` enum in `enums.py`.
+    ./cli.py add-role --username $my_user --role admin
 
 
 Linting and testing
@@ -43,9 +45,13 @@ For linting, you can use::
     make py-lint
     make js-lint
 
-To run unit tests, you can simply run::
+To run unit tests, run::
 
     make test
+
+To run unit tests, including integration tests with Playwright, run::
+
+    make test_all
 
 And to check test coverage, run::
 

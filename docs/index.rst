@@ -1,7 +1,7 @@
 Ambuda Documentation
 ====================
 
-This is the technical documentation for Ambuda, a breakthrough Sanskrit library
+This is the technical documentation for Ambuda, a modern Sanskrit library
 hosted at https://ambuda.org. We wrote this guide for anyone who wants to run
 Ambuda locally or contribute to Ambuda's technical work.
 
