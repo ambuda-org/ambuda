@@ -162,18 +162,53 @@ def test_basic_proofing_ui(page: Page) -> None:
 
     # Waiting ...
 
-    # Project ready. Move to project page ...
+    # Project ready! Move to project page.
     page.get_by_role("link", name="Click here").click()
 
+    # Check navigation panes
     page.get_by_role("link", name="Activity").click()
     page.get_by_role("link", name="Edit", exact=True).click()
     page.get_by_role("link", name="Download").click()
     page.get_by_role("link", name="Stats").click()
+    page.get_by_role("link", name="Admin").click()
+    page.get_by_role("link", name="Summary").click()
 
-    # TODO: add more interesting logic here.
+    # Try navigating through pages, from page 1 to page 10 and back.
+    page.get_by_role("link", name="1", exact=True).click()
+    page.get_by_role("link", name="→").click()
+    page.get_by_role("link", name="→").click()
+    page.get_by_role("link", name="→").click()
+    page.get_by_role("link", name="→").click()
+    page.get_by_role("link", name="→").click()
+    page.get_by_role("link", name="→").click()
+    page.get_by_role("link", name="→").click()
+    page.get_by_role("link", name="→").click()
+    page.get_by_role("link", name="→").click()
+    page.get_by_role("link", name="←").click()
+    page.get_by_role("link", name="←").click()
+    page.get_by_role("link", name="←").click()
+    page.get_by_role("link", name="←").click()
+    page.get_by_role("link", name="←").click()
+    page.get_by_role("link", name="←").click()
+    page.get_by_role("link", name="←").click()
+    page.get_by_role("link", name="←").click()
+    page.get_by_role("link", name="←").click()
+
+    # Edit first page and save content.
+    page.locator("#content").click()
+    page.locator("#content").fill("This is page 1")
+    page.get_by_placeholder("Fixed various OCR errors").click()
+    page.get_by_placeholder("Fixed various OCR errors").fill("Transcribed")
+    page.get_by_text("Proofed once").click()
+    page.get_by_role("button", name="Publish changes").click()
+
+    # Return to main project nav.
+    page.get_by_role("link", name="My sample book").click()
 
     # Delete project.
     page.get_by_role("link", name="Admin").click()
     page.locator("#slug").click()
     page.locator("#slug").fill("my-sample-book")
     page.get_by_role("button", name="Permanently delete this").click()
+
+    # TODO: OCR, other editor features
