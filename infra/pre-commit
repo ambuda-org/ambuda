@@ -1,12 +1,12 @@
 #!/bin/bash
-# Runs 'black' over all modified Python files.
+# Runs `ruff` over all modified Python files.
 
 # Look for any added or modified (but not deleted) Python files in the diff.
 modified_python_files=`git diff "$@" --no-prefix --cached --name-only --diff-filter=d -- '***.py'`
 
 if [ -n "${modified_python_files}" ]; then
-    # When black is not available or fails to run, refuse to commit
-    { black --version && ruff format ${modified_python_files}; } \
+    # When `ruff` is not available or fails to run, refuse to commit
+    { ruff --version && ruff format ${modified_python_files}; } \
         || \
         { echo "Failed to format with 'ruff', refusing to commit." \
                "Please ensure you have ruff installed. Try 'uv sync'." \
