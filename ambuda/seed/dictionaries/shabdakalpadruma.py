@@ -6,7 +6,7 @@ from ambuda.seed.utils.data_utils import create_db, fetch_bytes, unzip_and_read
 from ambuda.utils.dict_utils import standardize_key
 
 ZIP_URL = (
-    "https://www.sanskrit-lexicon.uni-koeln.de/scans/SKDScan/2013/downloads/skdxml.zip"
+    "https://www.sanskrit-lexicon.uni-koeln.de/scans/SKDScan/2020/downloads/skdxml.zip"
 )
 
 
