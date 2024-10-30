@@ -3,6 +3,13 @@
 # Exit if any step in this install script fails.
 set -e
 
+if ! command -v uv 2>&1 >/dev/null
+then
+    echo "Before installing Ambuda, please install the 'uv' command."
+    echo "You can download it here: https://docs.astral.sh/uv/getting-started/installation/"
+    exit 1
+fi
+
 if [ -f data ] || [ -f env ] || [ -f node_modules ] || [ -f .env ] || [ -f deploy/data/ ]; then
 cat << "EOF"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
