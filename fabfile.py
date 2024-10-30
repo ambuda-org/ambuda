@@ -12,7 +12,8 @@ SECRETS_DIRECTORY = Path(os.environ["SERVER_SECRETS_DIRECTORY"])
 USER = os.environ["SERVER_USER"]
 HOST = os.environ["SERVER_HOST"]
 
-r = Connection(f"root@{HOST}")
+SOURCE_VENV = "source .venv/bin/activate"
+
 c = Connection(f"{USER}@{HOST}")
 
 
@@ -20,8 +21,8 @@ c = Connection(f"{USER}@{HOST}")
 def init_python_3_10(_):
     py_3_10 = "https://www.python.org/ftp/python/3.10.4/Python-3.10.4.tgz"
 
-    r.sudo("apt-get install libssl-dev openssl make gcc")
-    r.sudo("apt-get install libsqlite3-dev")
+    c.sudo("apt-get install libssl-dev openssl make gcc")
+    c.sudo("apt-get install libsqlite3-dev")
 
     with c.cd("/opt"):
         c.sudo("cd /opt")
@@ -41,7 +42,7 @@ def init_python_3_10(_):
 def init_secrets(_):
     c.run(f"mkdir -p {SECRETS_DIRECTORY}")
     json_path = str(SECRETS_DIRECTORY / "google-cloud-credentials.json")
-    c.put("production/google-cloud-credentials.json", json_path)
+    c.put("secrets/google-cloud-credentials.json", json_path)
 
 
 @task
@@ -54,23 +55,22 @@ def init_repo(_):
 
 
 def deploy_to_commit(_, pointer: str):
-    """Deploy the given branch pointer to production.
+    """Deploy the given branch pointer to roduction.
 
     :param pointer: a commit SHA, branch name, etc.
     """
     with c.cd(APP_DIRECTORY):
         # Fetch the application code.
         c.run("git fetch origin")
-        c.run("git checkout main")
+        c.run("git checkout reboot")
         c.run(f"git reset --hard {pointer}")
 
         # Install project requirements.
-        c.run("python3.10 -m venv env")
         c.run("make install-python")
         c.run("make install-frontend")
 
         # Verify that unit tests pass on prod.
-        with c.prefix("source env/bin/activate"):
+        with c.prefix(SOURCE_VENV):
             c.run("make test")
 
         # Copy production config settings.
@@ -78,11 +78,11 @@ def deploy_to_commit(_, pointer: str):
         c.put("production/prod-env", env_path)
 
         # Build i18n and l10n files
-        with c.prefix("source env/bin/activate"):
+        with c.prefix(SOURCE_VENV):
             c.run("make install-i18n")
 
         # Verify that the production setup is well-formed.
-        with c.prefix("source env/bin/activate"):
+        with c.prefix(SOURCE_VENV):
             c.run("python -m scripts.check_prod_setup")
 
         # Upgrade the database last -- If we upgrade and a downstream check
@@ -104,7 +104,7 @@ def deploy_to_commit(_, pointer: str):
 @task
 def deploy(_):
     """Deploy the latest production commit."""
-    deploy_to_commit(_, "origin/main")
+    deploy_to_commit(_, "origin/reboot")
 
 
 @task
@@ -119,13 +119,13 @@ def rollback(_, commit):
 @task
 def restart_application(_):
     """Restart the production gunicorn instance."""
-    r.run("systemctl restart ambuda")
+    c.sudo("systemctl restart ambuda")
 
 
 @task
 def restart_celery(_):
     """Restart the production celery instance."""
-    r.run("systemctl restart celery")
+    c.sudo("systemctl restart celery")
 
 
 @task
