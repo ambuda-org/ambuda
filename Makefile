@@ -68,7 +68,6 @@ install-frontend:
 
 # Install Python dependencies.
 install-python:
-	pip install uv
 	uv sync
 
 # Fetch and build all i18n files.
