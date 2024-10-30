@@ -26,6 +26,7 @@ dependencies = [
     "flask-admin[sqlalchemy]==2.0.0a1",
     "wtforms-sqlalchemy>=0.4.2",
     "sqlalchemy>=2.0.36",
+    "redis>=5.2.0",
 ]
 
 [dependency-groups]

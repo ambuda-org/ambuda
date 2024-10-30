@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 
 from flask_login import current_user
 
@@ -29,23 +29,23 @@ def test_is_valid_reset_token():
 
     # OK
     assert auth._is_valid_reset_token(
-        row, "secret", now=datetime(2022, 1, 15, 13, 0, 0)
+        row, "secret", now=datetime(2022, 1, 15, 13, 0, 0, tzinfo=UTC)
     )
     # Too old
     assert not auth._is_valid_reset_token(
-        row, "secret", now=datetime(2022, 1, 18, 12, 0, 0)
+        row, "secret", now=datetime(2022, 1, 18, 12, 0, 0, tzinfo=UTC)
     )
     # Bad token
     assert not auth._is_valid_reset_token(
-        row, "secret2", now=datetime(2022, 1, 15, 13, 0, 0)
+        row, "secret2", now=datetime(2022, 1, 15, 13, 0, 0, tzinfo=UTC)
     )
     # Missing row
     assert not auth._is_valid_reset_token(
-        None, "secret", now=datetime(2022, 1, 15, 13, 0, 0)
+        None, "secret", now=datetime(2022, 1, 15, 13, 0, 0, tzinfo=UTC)
     )
     # Inactive
     assert not auth._is_valid_reset_token(
-        inactive_row, "secret", now=datetime(2022, 1, 15, 13, 0, 0)
+        inactive_row, "secret", now=datetime(2022, 1, 15, 13, 0, 0, tzinfo=UTC)
     )
 
 

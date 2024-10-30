@@ -1,12 +1,11 @@
 """Models for discussion forums."""
 
-from datetime import datetime
-
 from sqlalchemy import Column, DateTime, String
 from sqlalchemy import Text as Text_
 from sqlalchemy.orm import relationship
 
 from ambuda.models.base import Base, foreign_key, pk, same_as
+from ambuda.models.utils import utc_now
 
 
 def string():
@@ -47,7 +46,7 @@ class Thread(Base):
     #: The author of this thread.
     author_id = foreign_key("users.id")
     #: Timestamp at which this thread was created.
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=utc_now, nullable=False)
     #: Timestamp at which this thread was updated.
     updated_at = Column(DateTime, default=same_as("created_at"), nullable=False)
 
@@ -72,7 +71,7 @@ class Post(Base):
     #: The author of this post.
     author_id = foreign_key("users.id")
     #: Timestamp at which this post was created.
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=utc_now, nullable=False)
     #: Timestamp at which this post was updated (e.g. during an edit).
     updated_at = Column(DateTime, default=same_as("created_at"), nullable=False)
 
@@ -85,4 +84,4 @@ class Post(Base):
     def update_content(self, new_content: str):
         """Update the post's content and its timestamp."""
         self.content = new_content
-        self.updated_at = datetime.utcnow()
+        self.updated_at = utc_now()

@@ -68,6 +68,7 @@ install-frontend:
 
 # Install Python dependencies.
 install-python:
+	pip install uv
 	uv sync
 
 # Fetch and build all i18n files.
@@ -84,10 +85,10 @@ install-i18n: py-venv-check
 
 # Upgrade an existing setup.
 upgrade:
-	make install-frontend install-python
-	. env/bin/activate; make install-i18n
-	. env/bin/activate; alembic upgrade head
-	. env/bin/activate; python -m ambuda.seed.lookup
+	make install-frontend install-python;
+	. .venv/bin/activate && make install-i18n;
+	. .venv/bin/activate && alembic upgrade head;
+	. .venv/bin/activate && python -m ambuda.seed.lookup;
 
 # Seed the database with a minimal dataset for CI. We fetch data only if it is
 # hosted on GitHub. Other resources are less predictable.
@@ -149,6 +150,8 @@ else
 	@echo "Ambuda Database : ✔ "
 endif
 	
+# TODO: not recently tested
+#
 # Build docker image. All tag the latest to the most react image
 # docker-build: lint-check
 docker-build: 
@@ -157,6 +160,8 @@ docker-build:
 	@docker build ${DOCKER_VEBOSITY} -t ${AMBUDA_IMAGE} -t ${AMBUDA_IMAGE_LATEST} -f build/containers/Dockerfile.final ${PWD} ${IO_REDIRECT}
 	@echo "Ambuda Image    : ✔ (${AMBUDA_IMAGE}, ${AMBUDA_IMAGE_LATEST})"
 
+# TODO: not recently tested
+#
 # Start Docker services.
 docker-start: docker-build docker-setup-db
 	@docker ${DOCKER_LOG_LEVEL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up ${DOCKER_DETACH} ${IO_REDIRECT}
@@ -165,12 +170,16 @@ docker-start: docker-build docker-setup-db
 	@printf "%0.s-" {1..21} && echo
 	@echo 'To stop, run "make docker-stop".'
 
+# TODO: not recently tested
+#
 # Stop docker services
 docker-stop: 
 	@docker ${DOCKER_LOG_LEVEL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml stop
 	@docker ${DOCKER_LOG_LEVEL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml rm
 	@echo "Ambuda URL stopped"
 
+# TODO: not recently tested
+#
 # Show docker logs
 docker-logs: 
 	@docker compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml logs
@@ -273,6 +282,7 @@ babel-update: py-venv-check
 # NOTE: you probably want `make install-i18n` instead.
 babel-compile: py-venv-check
 	pybabel compile -d ambuda/translations
+
 
 # Clean up
 # ===============================================

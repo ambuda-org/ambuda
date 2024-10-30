@@ -1,10 +1,12 @@
 """Manages various small template filters."""
 
-from datetime import datetime
+from datetime import datetime, UTC
 
 from dateutil.relativedelta import relativedelta
 from indic_transliteration import sanscript
 from markdown_it import MarkdownIt
+
+from ambuda.models.utils import utc_now
 
 #: A markdown parser for user-generated text.
 #:
@@ -39,12 +41,12 @@ def time_ago(dt: datetime, now=None) -> str:
     """Print a datetime relative to right now.
 
     :param dt: the datetime to check
-    :param now: the "now" datetime. If not set, use `utcnow()`.
+    :param now: the "now" datetime. If not set, use `utc_now()`.
 
     """
     # FIXME: add i18n support
-    now = now or datetime.utcnow()
-    rd = relativedelta(now, dt)
+    now = now or utc_now()
+    rd = relativedelta(now, dt.replace(tzinfo=UTC))
     for name in ["years", "months", "days", "hours", "minutes", "seconds"]:
         n = getattr(rd, name)
         if n:

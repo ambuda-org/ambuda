@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 
 import pytest
 
@@ -32,7 +32,7 @@ def test_roman():
     ],
 )
 def test_time_ago(then, expected):
-    now = datetime(2022, 6, 2, 6, 0, 0)
+    now = datetime(2022, 6, 2, 6, 0, 0, tzinfo=UTC)
     assert f.time_ago(then, now=now) == expected
 
 

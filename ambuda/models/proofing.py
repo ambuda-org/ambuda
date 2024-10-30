@@ -7,6 +7,7 @@ from sqlalchemy import Text as Text_
 from sqlalchemy.orm import relationship
 
 from ambuda.models.base import Base, foreign_key, pk, same_as
+from ambuda.models.utils import utc_now
 
 
 def string():
@@ -73,7 +74,7 @@ class Project(Base):
     page_numbers = text()
 
     #: Timestamp at which this project was created.
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=utc_now, nullable=False)
     #: Timestamp at which this project was last updated.
     updated_at = Column(DateTime, default=same_as("created_at"), nullable=False)
 
@@ -176,7 +177,7 @@ class Revision(Base):
     )
     #: Timestamp at which this revision was created.
     #: FIXME: rename to `created_at` for consistency with other models.
-    created = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created = Column(DateTime, default=utc_now, nullable=False)
     #: An optional editor summary for this revision.
     summary = Column(Text_, nullable=False, default="")
     #: The actual content of this revision.
