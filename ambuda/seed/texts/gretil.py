@@ -8,7 +8,7 @@ from pathlib import Path
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
-from ambuda.seed.utils.data_utils import create_db
+from ambuda.seed.utils.data_utils import create_db, text_exists
 from ambuda.utils.tei_parser import Document, parse_document
 
 
@@ -93,33 +93,28 @@ def add_document(engine, spec: Spec):
     document_path = DATA_DIR / "1_sanskr" / "tei" / spec.filename
 
     with Session(engine) as session:
-        if session.query(db.Text).filter_by(slug=spec.slug).first():
+        if text_exists(session, spec.slug):
             # FIXME: update existing texts in-place so that we can capture
             # changes. As a workaround for now, we can delete then re-create.
-            log(f"- Skipped {spec.slug} (already exists)")
+            log(f"- Skipping: {spec.slug} (already exists)")
         else:
             document = parse_document(document_path)
             _create_new_text(session, spec, document)
-            log(f"- Created {spec.slug}")
+            log(f"- Created: {spec.slug}")
 
 
-def run():
+def run(engine):
     logging.getLogger().setLevel(0)
     log("Downloading the latest data ...")
 
     try:
         fetch_latest_data()
-
-        log("Initializing database ...")
-        engine = create_db()
-
         for spec in ALLOW:
             add_document(engine, spec)
     except Exception as ex:
         raise Exception("Error: Failed to get latest from GRETIL.") from ex
 
-    log("Done.")
-
 
 if __name__ == "__main__":
-    run()
+    engine = create_db()
+    run(engine)

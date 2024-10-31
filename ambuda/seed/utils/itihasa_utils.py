@@ -136,6 +136,7 @@ def write_kandas(
         session.commit()
 
 
+# TODO: find the right place for this function. Currently unused.
 def delete_existing_text(engine, slug: str):
     with Session(engine) as session:
         text = session.query(db.Text).where(db.Text.slug == slug).first()

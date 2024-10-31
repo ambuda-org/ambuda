@@ -6,12 +6,14 @@ Create Date: 2022-07-18 20:45:22.600084
 
 """
 
+import os
+
 import sqlalchemy as sa
 from alembic import op
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
-import ambuda.seed.lookup.page_status
+from ambuda.enums import SitePageStatus
 from ambuda.seed.utils.data_utils import create_db
 
 # revision identifiers, used by Alembic.
@@ -19,6 +21,13 @@ revision = "6c87b647ecaa"
 down_revision = "b3cf424f4ce5"
 branch_labels = None
 depends_on = None
+
+
+def get_default_id():
+    """Used in the `add_page_statuses` migration."""
+    engine = create_db()
+    with Session(engine) as session:
+        return session.query(db.PageStatus).filter_by(name=SitePageStatus.R0).one
 
 
 def _update_existing_pages():
@@ -40,8 +49,26 @@ def upgrade() -> None:
         sa.Column("id", sa.Integer, primary_key=True),
         sa.Column("name", sa.String, nullable=False),
     )
-    ambuda.seed.lookup.page_status.run()
-    default_id = str(ambuda.seed.lookup.page_status.get_default_id())
+
+    # Create roles
+    from ambuda import config
+
+    flask_env = os.environ["FLASK_ENV"]
+    conf = config.load_config_object(flask_env)
+    engine = sa.create_engine(conf.SQLALCHEMY_DATABASE_URI)
+    with sa.Session(engine) as session:
+        statuses = session.query(db.PageStatus).all()
+        existing_names = {s.name for s in statuses}
+        new_names = {n.value for n in SitePageStatus if n not in existing_names}
+
+        if new_names:
+            for name in new_names:
+                status = db.PageStatus(name=name)
+                session.add(status)
+            session.commit()
+    # End create roles
+
+    default_id = str(get_default_id())
 
     op.add_column(
         "proof_pages",

@@ -68,29 +68,7 @@ EOF
 
 source .env
 
-# Database setup
-# ==============
-
-
-# Extract file path from sqlite:///[file path]
-DB_FILE_PATH="${SQLALCHEMY_DATABASE_URI/sqlite:\/\/\//}"
-
-echo "Initializing database at $DB_FILE_PATH..."
-echo ">> Create $(dirname ${DB_FILE_PATH})"
-mkdir -p $(dirname ${DB_FILE_PATH})
-
-# Create tables
-python -m scripts.initialize_db
-
-# Add some starter data with a few basic seed scripts.
-make db-seed-basic
-
-# Create Alembic's migrations table.
-alembic ensure_version
-
-# Set the most recent revision as the current one.
-alembic stamp head
-
+make data-init
 
 cat << "EOF"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

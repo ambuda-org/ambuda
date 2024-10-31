@@ -2,7 +2,7 @@
 """Add the Shabda-sagara dictionary to the database."""
 
 from ambuda.seed.utils.cdsl_utils import create_from_scratch, iter_entries_as_strings
-from ambuda.seed.utils.data_utils import create_db, fetch_bytes, unzip_and_read
+from ambuda.seed.utils.data_utils import fetch_bytes, unzip_and_read
 from ambuda.utils.dict_utils import standardize_key
 
 ZIP_URL = (
@@ -16,27 +16,19 @@ def shs_generator(xml_blob: str):
         yield key, value
 
 
-def run():
-    title = "Shabda-Sagara (1900)"
+def run(session, spec, use_cache=False):
+    title = spec.title
 
-    print(f"Initializing {title} in database ...")
-    engine = create_db()
-
-    print("Fetching Shabda-Sagara data from CDSL ...")
+    print(f"Fetching {title} data from CDSL ...")
     zip_bytes = fetch_bytes(ZIP_URL)
     xml_blob = unzip_and_read(zip_bytes, "xml/shs.xml")
 
     print("Adding items to database ...")
     create_from_scratch(
-        engine,
-        slug="shabdasagara",
-        title=title,
+        session,
+        slug=spec.slug,
+        title=spec.title,
         generator=shs_generator(xml_blob),
     )
 
     print("Done.")
-    return True
-
-
-if __name__ == "__main__":
-    run()

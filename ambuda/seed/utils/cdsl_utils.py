@@ -3,8 +3,6 @@ import itertools
 import logging
 from xml.etree import ElementTree as ET
 
-from sqlalchemy.orm import Session
-
 import ambuda.database as db
 
 #: The maximum number of entries to add to the dictionary at one time.
@@ -74,16 +72,17 @@ def batches(generator, n):
             return
 
 
-def create_from_scratch(engine, slug: str, title: str, generator):
-    with Session(engine) as session:
-        delete_existing_dict(session, slug)
+def create_from_scratch(session, slug: str, title: str, generator):
+    delete_existing_dict(session, slug)
 
-        dictionary = create_dict(session, slug=slug, title=title)
-        dictionary_id = dictionary.id
-        assert dictionary_id
+    dictionary = create_dict(session, slug=slug, title=title)
+    dictionary_id = dictionary.id
+    assert dictionary_id
 
     entries = db.DictionaryEntry.__table__
     ins = entries.insert()
+
+    engine = session.get_bind()
     with engine.begin() as conn:
         for i, batch in enumerate(batches(generator, BATCH_SIZE)):
             items = [

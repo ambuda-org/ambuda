@@ -26,11 +26,10 @@ And a sample entry:
 import xml.etree.ElementTree as ET
 from collections.abc import Iterator
 
-import click
 from indic_transliteration import sanscript
 
 from ambuda.seed.utils.cdsl_utils import create_from_scratch
-from ambuda.seed.utils.data_utils import create_db, fetch_text
+from ambuda.seed.utils.data_utils import fetch_text
 from ambuda.utils.dict_utils import standardize_key
 
 #: All of the first letters used in the dictionary data.
@@ -156,12 +155,7 @@ def _iter_entries_as_xml(blobs: list[str]) -> Iterator[tuple[str, str]]:
             yield from _make_entries(entry)
 
 
-@click.command()
-@click.option("--use-cache/--no-use-cache", default=False)
-def run(use_cache):
-    print("Initializing database ...")
-    engine = create_db()
-
+def run(session, spec, use_cache=False):
     print(f"Fetching data from GitHub (use_cache = {use_cache})...")
 
     blobs = []
@@ -172,12 +166,8 @@ def run(use_cache):
         blobs.append(blob)
 
     create_from_scratch(
-        engine,
-        slug="apte-sh",
-        title="आप्टे संस्कृत-हिन्दी कोश (1966)",
+        session,
+        slug=spec.slug,
+        title=spec.title,
         generator=_iter_entries_as_xml(blobs),
     )
-
-
-if __name__ == "__main__":
-    run()

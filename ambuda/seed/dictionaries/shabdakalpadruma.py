@@ -2,7 +2,7 @@
 """Add the Vacaspatyam to the database."""
 
 from ambuda.seed.utils.cdsl_utils import create_from_scratch, iter_entries_as_strings
-from ambuda.seed.utils.data_utils import create_db, fetch_bytes, unzip_and_read
+from ambuda.seed.utils.data_utils import fetch_bytes, unzip_and_read
 from ambuda.utils.dict_utils import standardize_key
 
 ZIP_URL = (
@@ -16,11 +16,8 @@ def s_generator(xml_blob: str):
         yield key, value
 
 
-def run():
-    title = "Śabdakalpadrumaḥ (1886)"
-
-    print(f"Initializing {title} in database ...")
-    engine = create_db()
+def run(session, spec, _use_cache=False):
+    title = spec.title
 
     print(f"Fetching {title} data from CDSL ...")
     zip_bytes = fetch_bytes(ZIP_URL)
@@ -28,15 +25,9 @@ def run():
 
     print(f"Adding {title} items to database ...")
     create_from_scratch(
-        engine,
-        slug="shabdakalpadruma",
+        session,
+        slug=spec.slug,
         title=title,
         generator=s_generator(xml_blob),
     )
-
     print("Done.")
-    return True
-
-
-if __name__ == "__main__":
-    run()

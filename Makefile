@@ -86,40 +86,21 @@ install-i18n: py-venv-check
 upgrade:
 	make install-frontend install-python;
 	. .venv/bin/activate && make install-i18n;
-	. .venv/bin/activate && alembic upgrade head;
-	. .venv/bin/activate && python -m ambuda.seed.lookup;
+	. .venv/bin/activate && python -m scripts.initialize_data --mode=core
 
 # Seed the database with a minimal dataset for CI. We fetch data only if it is
 # hosted on GitHub. Other resources are less predictable.
 db-seed-ci: py-venv-check
-	python -m ambuda.seed.lookup
-	python -m ambuda.seed.texts.gretil
-	python -m ambuda.seed.dcs
+	python -m scripts.initialize_data --mode=core
 
 # Seed the database with just enough data for the devserver to be interesting.
 db-seed-basic: py-venv-check
-	python -m ambuda.seed.lookup
-	python -m ambuda.seed.texts.gretil
-	python -m ambuda.seed.dcs
-	python -m ambuda.seed.dictionaries.monier
+	python -m scripts.initialize_data --mode=sample
 
 # Seed the database with all of the text, parse, and dictionary data we serve
 # in production.
 db-seed-all: py-venv-check
-	python -m ambuda.seed.lookup.role
-	python -m ambuda.seed.lookup.page_status
-	python -m ambuda.seed.texts.gretil
-	python -m ambuda.seed.texts.ramayana
-	python -m ambuda.seed.texts.mahabharata
-	python -m ambuda.seed.dcs
-	python -m ambuda.seed.dictionaries.amarakosha
-	python -m ambuda.seed.dictionaries.apte
-	python -m ambuda.seed.dictionaries.apte_sanskrit_hindi
-	python -m ambuda.seed.dictionaries.monier
-	python -m ambuda.seed.dictionaries.shabdakalpadruma
-	python -m ambuda.seed.dictionaries.shabdartha_kaustubha
-	python -m ambuda.seed.dictionaries.shabdasagara
-	python -m ambuda.seed.dictionaries.vacaspatyam
+	python -m scripts.initialize_data --mode=all
 
 
 # Local run commands

@@ -83,3 +83,11 @@ def create_db():
 
     db.Base.metadata.create_all(engine)
     return engine
+
+
+def text_exists(session, slug: str) -> bool:
+    return bool(session.query(db.Text).filter_by(slug=slug).first())
+
+
+def dictionary_exists(session, slug: str) -> bool:
+    return bool(session.query(db.Dictionary).filter_by(slug=slug).first())

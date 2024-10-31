@@ -3,8 +3,10 @@
 
 import re
 
-import ambuda.seed.utils.data_utils
+from sqlalchemy.orm import Session
+
 import ambuda.seed.utils.itihasa_utils as iti
+from ambuda.seed.utils import data_utils
 
 BASE_URL = "https://bombay.indology.info/mahabharata/text/UD/MBh{n}.txt"
 
@@ -59,14 +61,12 @@ def parse_kanda(raw: str) -> iti.Kanda:
     return iti.Kanda(n=sections[0].kanda, sections=sections)
 
 
-def run():
+def run(engine):
     text_slug = "mahabharatam"
 
-    print("Initializing database ...")
-    engine = ambuda.seed.utils.data_utils.create_db()
-
-    print("Cleaning up old state ...")
-    iti.delete_existing_text(engine, text_slug)
+    with Session(engine) as session:
+        if data_utils.text_exists(session, text_slug):
+            return
 
     print("Parsing text ...")
     kandas = []
@@ -76,7 +76,7 @@ def run():
             n = "0" + n
 
         url = BASE_URL.format(n=n)
-        text = ambuda.seed.utils.data_utils.fetch_text(url)
+        text = data_utils.fetch_text(url)
         kandas.append(parse_kanda(text))
 
     print("Writing text ...")
@@ -93,4 +93,5 @@ def run():
 
 
 if __name__ == "__main__":
-    run()
+    engine = data_utils.create_db()
+    run(engine)
