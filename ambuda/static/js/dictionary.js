@@ -12,7 +12,7 @@ export default () => ({
   // The script to use for Sanskrit text.
   script: 'devanagari',
   // The dictionary sources to use.
-  sources: ['mw'],
+  sources: ['apte'],
 
   // (transient data)
 

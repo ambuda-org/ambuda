@@ -15,6 +15,7 @@ HOST = os.environ["SERVER_HOST"]
 SOURCE_VENV = "source .venv/bin/activate"
 
 c = Connection(f"{USER}@{HOST}")
+r = Connection(f"root@{HOST}")
 
 
 @task
@@ -119,13 +120,13 @@ def rollback(_, commit):
 @task
 def restart_application(_):
     """Restart the production gunicorn instance."""
-    c.sudo("systemctl restart ambuda")
+    r.run("systemctl restart ambuda")
 
 
 @task
 def restart_celery(_):
     """Restart the production celery instance."""
-    c.sudo("systemctl restart celery")
+    r.run("systemctl restart celery")
 
 
 @task
