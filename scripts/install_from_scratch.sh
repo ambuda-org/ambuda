@@ -61,6 +61,9 @@ SECRET_KEY="insecure development secret key"
 # Database
 SQLALCHEMY_DATABASE_URI="sqlite:///$(pwd)/deploy/data/database/database.db"
 
+# Side data
+VIDYUT_DATA_FOLDER="$(pwd)/deploy/vidyut-0.2.0"
+
 # OCR and BOT credentials
 AMBUDA_BOT_PASSWORD="insecure bot password"
 GOOGLE_APPLICATION_CREDENTIALS="<Google API credentials>"
