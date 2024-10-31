@@ -77,9 +77,12 @@ def iter_parse_data(path: Path):
 
 def add_parse_data(session, text_slug: str, path: Path):
     text = session.query(db.Text).filter_by(slug=text_slug).first()
+    if not text:
+        log(f"- Skipping: {text_slug} (Text doesn't exist, so can't add parse data)")
+        return
 
     if session.query(db.BlockParse).filter_by(text_id=text.id).first():
-        log(f"- Skipping: {text.slug} (already has parse data)")
+        log(f"- Skipping: {text_slug} (already has parse data)")
         return
 
     # drop_existing_parse_data(session, text.id)
