@@ -99,7 +99,7 @@ To start the development server, run the following commands:
 
     # This command works on Bash. You might need to change this command for
     # other shells.
-    source env/bin/activate
+    source .venv/bin/activate
 
     # Run the devserver.
     make devserver
