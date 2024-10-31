@@ -1,13 +1,13 @@
 import pytest
 from flask_login import FlaskLoginClient
 from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session
 
 import ambuda.database as db
 from ambuda import create_app
 from ambuda.consts import BOT_USERNAME, TEXT_CATEGORIES
+from ambuda.enums import SitePageStatus, SiteRole
 from ambuda.queries import get_engine, get_session
-from ambuda.seed.lookup import page_status as page_status_seeding
-from ambuda.seed.lookup import role as role_seeding
 
 
 def _add_dictionaries(session):
@@ -30,9 +30,14 @@ def initialize_test_db():
     db.Base.metadata.drop_all(engine)
     db.Base.metadata.create_all(engine)
 
-    # Seed scripts
-    role_seeding.run(engine)
-    page_status_seeding.run(engine)
+    with Session(engine) as session:
+        for r in SiteRole:
+            role = db.Role(name=r.value)
+            session.add(role)
+        for s in SitePageStatus:
+            status = db.PageStatus(name=s.value)
+            session.add(status)
+        session.commit()
 
     session = get_session()
 

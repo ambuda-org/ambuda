@@ -68,7 +68,7 @@ EOF
 
 source .env
 
-make data-init
+make db-seed-basic
 
 cat << "EOF"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
