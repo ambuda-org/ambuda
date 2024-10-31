@@ -5,7 +5,6 @@ admins, etc. In the future, our test code will create a custom test database.
 """
 
 import tempfile
-from pathlib import Path
 
 import fitz
 from playwright.sync_api import Page, expect
@@ -38,7 +37,9 @@ def test_i18n_switching(page: Page) -> None:
     expect(page.locator("header h1")).to_contain_text("एक आधुनिक संस्कृत ग्रन्थालय")
 
     page.locator("[name=i18n-menu]").get_by_role("link", name="मराठी").click()
-    expect(page.locator("header h1")).to_contain_text("एक चाकोरीबाहेरचे संस्कृत ग्रंथालय")
+    expect(page.locator("header h1")).to_contain_text(
+        "एक चाकोरीबाहेरचे संस्कृत ग्रंथालय"
+    )
 
     page.locator("[name=i18n-menu]").get_by_role("link", name="తెలుగు").click()
     expect(page.locator("header h1")).to_contain_text("ఒక ఆధునిక సంస్కృత గ్రంథాలయము")
@@ -146,7 +147,6 @@ def test_basic_proofing_ui(page: Page) -> None:
     # Upload project to celery.
     page.get_by_role("link", name="Create project").click()
     page.get_by_label("From my computer").check()
-
 
     with page.expect_file_chooser() as fc:
         page.locator("#local_file").click()
