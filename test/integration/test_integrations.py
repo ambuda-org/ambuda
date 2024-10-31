@@ -37,9 +37,7 @@ def test_i18n_switching(page: Page) -> None:
     expect(page.locator("header h1")).to_contain_text("एक आधुनिक संस्कृत ग्रन्थालय")
 
     page.locator("[name=i18n-menu]").get_by_role("link", name="मराठी").click()
-    expect(page.locator("header h1")).to_contain_text(
-        "एक चाकोरीबाहेरचे संस्कृत ग्रंथालय"
-    )
+    expect(page.locator("header h1")).to_contain_text("एक चाकोरीबाहेरचे संस्कृत ग्रंथालय")
 
     page.locator("[name=i18n-menu]").get_by_role("link", name="తెలుగు").click()
     expect(page.locator("header h1")).to_contain_text("ఒక ఆధునిక సంస్కృత గ్రంథాలయము")
