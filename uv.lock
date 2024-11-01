@@ -51,6 +51,7 @@ dependencies = [
     { name = "regex" },
     { name = "sentry-sdk" },
     { name = "sqlalchemy" },
+    { name = "vidyut" },
     { name = "wtforms-sqlalchemy" },
 ]
 
@@ -90,6 +91,7 @@ requires-dist = [
     { name = "regex", specifier = ">=2024.9.11" },
     { name = "sentry-sdk", specifier = ">=2.17.0" },
     { name = "sqlalchemy", specifier = ">=2.0.36" },
+    { name = "vidyut", specifier = ">=0.2.0" },
     { name = "wtforms-sqlalchemy", specifier = ">=0.4.2" },
 ]
 
@@ -1031,6 +1033,7 @@ sdist = { url = "https://files.pythonhosted.org/packages/22/39/84efca63af4e5a014
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ce/79/8d31a98ebeb329000406d6c36fb2ad42264d5a4a6915ebabbde332642204/PyMuPDF-1.24.13-cp39-abi3-macosx_10_9_x86_64.whl", hash = "sha256:c11bb9198af69d490b4b346421db827d875a28fbc760d239e691d4b3ed12b5ad", size = 19147116 },
     { url = "https://files.pythonhosted.org/packages/ea/fe/ff2bb633c0934ba43c36184b8ed025092e946994dc6b4c764a0079f0ab3c/PyMuPDF-1.24.13-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:240d5c43daa9278db50d609162b48f673ab256d7e5c73eea67af517c1fc2d47c", size = 18406545 },
+    { url = "https://files.pythonhosted.org/packages/5b/5f/916bb534fd498d069d68c7a52289ba78d27823c2d6f8c693889e288e31e4/PyMuPDF-1.24.13-cp39-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:e4c8808e62afbbde0f7b9c4151c4b1a5735911c2d39c34332860df600dba76f8", size = 19284324 },
     { url = "https://files.pythonhosted.org/packages/85/48/e4630eb58f4daed22a078e19db8a709d407d2e19316089675f6ed185f01a/PyMuPDF-1.24.13-cp39-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:c830610e4fde237fcf0532f1f8c1381453f48c164a5eadd0c6e5fd0bea1ca8e3", size = 19812221 },
     { url = "https://files.pythonhosted.org/packages/6d/22/5aa9e01747518878a54866b4d925abdc663c64c75f5fbc6a9706957a7a30/PyMuPDF-1.24.13-cp39-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:4520558580ac6b5a7164fda29fbc14e39d3114fd803420721500edbf47d04872", size = 20942140 },
     { url = "https://files.pythonhosted.org/packages/07/a4/2e545217436e7717642809c7392bd7d7156ba102e7a47acb22659bfd41de/PyMuPDF-1.24.13-cp39-abi3-win32.whl", hash = "sha256:ab22828d4fc205791ef1332a64893cbfc38cd9c331c5f46ae4537372ffee6fc1", size = 14943060 },
@@ -1495,6 +1498,28 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/ed/63/22ba4ebfe7430b76388e7cd448d5478814d3032121827c12a2cc287e2260/urllib3-2.2.3.tar.gz", hash = "sha256:e7d814a81dad81e6caf2ec9fdedb284ecc9c73076b62654547cc64ccdcae26e9", size = 300677 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ce/d9/5f4c13cecde62396b0d3fe530a50ccea91e7dfc1ccf0e09c228841bb5ba8/urllib3-2.2.3-py3-none-any.whl", hash = "sha256:ca899ca043dcb1bafa3e262d73aa25c465bfb49e0bd9dd5d59f1d0acba2f8fac", size = 126338 },
+]
+
+[[package]]
+name = "vidyut"
+version = "0.2.0"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/02/79/ccdea01b72fd6e12619f45274898f5525019d7ab13c79a18b98ee858b3f6/vidyut-0.2.0-cp37-abi3-macosx_10_7_x86_64.whl", hash = "sha256:0f5a75c1f25844007cd76d1d6e6b02c7cac0cbeb07de29eda688d2945f4a3cfe", size = 1201208 },
+    { url = "https://files.pythonhosted.org/packages/74/89/03416e8950c2f89678753084f8781348c5618113018dc2ba643460a9fa37/vidyut-0.2.0-cp37-abi3-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:8938c9e500b502e821c3682b513597ae71c514506480697014c4cce0a9ef4900", size = 2309547 },
+    { url = "https://files.pythonhosted.org/packages/32/0d/b2422c5105bf74aec32b6df7c51f438dcde15b66c1b51daea865db221b97/vidyut-0.2.0-cp37-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:8fcfe74ba53344db5af1e8653f6931b6b903d56d99d4580caed7070ec2487612", size = 2110575 },
+    { url = "https://files.pythonhosted.org/packages/04/4b/b5b951d446a533b32eb01851ae9a14f464a1e57a46944a2e74298d4745ff/vidyut-0.2.0-cp37-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:7b1bc70a5f10e5408066ddd98224e143d7fe5973c8fd48bdb023fe80dd32daf1", size = 2070665 },
+    { url = "https://files.pythonhosted.org/packages/a8/77/cdc5ad559a3aa86badf8acf3e83e99c195449242f25812a3ef401a725f71/vidyut-0.2.0-cp37-abi3-manylinux_2_17_ppc64.manylinux2014_ppc64.whl", hash = "sha256:139fe660af70ca56b6a56baa110d9e139e027573605fb0262cb7d1c4330d54eb", size = 2552368 },
+    { url = "https://files.pythonhosted.org/packages/d4/02/d40da4046f3f455e7cf4c9ca2280c1f83889de0e2e631412ada944f6e58f/vidyut-0.2.0-cp37-abi3-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:c1cda8469f7582022a65b83d7dd2c0e667a90887b0ca7b34d7708da83210d5da", size = 2464582 },
+    { url = "https://files.pythonhosted.org/packages/12/08/5cabcd55dbfa0d60bd8ac7a7cf0aa2db8f5fbab8a813551b9aabb1be2a16/vidyut-0.2.0-cp37-abi3-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:065eac81fcf852e5e0133c560569289502df5069c03d8a850094f7a1382c4a6d", size = 2411327 },
+    { url = "https://files.pythonhosted.org/packages/88/a7/e5d0b24cfd912cb30babea3a3c67236c39ed87278eb3c175ce2227c7c719/vidyut-0.2.0-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ee76ebfb4f62d48c79e6ace3a4e5c0b2ce560066f54ce41ec8b556f586025161", size = 2141505 },
+    { url = "https://files.pythonhosted.org/packages/aa/7c/e21ae895093f4b159f41f74068b2e8c8b5e0a29e5877084948af58ce7d9f/vidyut-0.2.0-cp37-abi3-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:e6f4a0b80f8d873fd59de5d07afb79201b7212e8700319c4aaad324a0e69122b", size = 2164441 },
+    { url = "https://files.pythonhosted.org/packages/62/19/73e18195f13a172c62177f99721114a56ae2e36517ccc4d155de2dc3b9c5/vidyut-0.2.0-cp37-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:532979ab2296ae5fdb1681bdb80be54242a11cbe8c0292edcbdf61e344aceb47", size = 2281738 },
+    { url = "https://files.pythonhosted.org/packages/a1/e1/136b84963dfa23b9eaa1b00b145fa896ef3c5d8aebcd31e8a399f0bd3e6a/vidyut-0.2.0-cp37-abi3-musllinux_1_2_armv7l.whl", hash = "sha256:f0c59262922bf94d6989ab7e16e6bb5c0ef423b5e52bd9623492eafcdfd7cf59", size = 2330437 },
+    { url = "https://files.pythonhosted.org/packages/50/1b/b9474591f8be0f3871668964d204b6144f5141fa97d88bd3fcb8ee4cb47e/vidyut-0.2.0-cp37-abi3-musllinux_1_2_i686.whl", hash = "sha256:230ac662874b45bda1ba20e6a707d0b45f2c3c3362788d1dbcad304f5269a1f5", size = 2280842 },
+    { url = "https://files.pythonhosted.org/packages/0e/16/dd0233c41d87bc794d7f5e9bdd1b945cbb972c502f6c52a804c0b7054227/vidyut-0.2.0-cp37-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:89835dce83be377527950bfb2a8ebcafc42c169e031ec0fac646167e0bb82f74", size = 2308279 },
+    { url = "https://files.pythonhosted.org/packages/f2/b8/db6c833e98fe5e293235aa99f0ed4108babe0472812cbde1ba4fffc40b26/vidyut-0.2.0-cp37-abi3-win32.whl", hash = "sha256:38b4ac7b8e8fad30a34d9a23d9fdeb0ee93f7ebe889dde05beecd718f0839722", size = 885417 },
+    { url = "https://files.pythonhosted.org/packages/d1/cd/ebc682ebb00560c4920e7ea95bf11ea91ca2e6baaa772386e9c375c832e2/vidyut-0.2.0-cp37-abi3-win_amd64.whl", hash = "sha256:202dfe443a0c1a626ea587d7a8808dd85c87db153a8970e9d075509aac1afac8", size = 956630 },
 ]
 
 [[package]]

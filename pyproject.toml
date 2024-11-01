@@ -28,6 +28,7 @@ dependencies = [
     "sqlalchemy>=2.0.36",
     "redis>=5.2.0",
     "gunicorn>=23.0.0",
+    "vidyut>=0.2.0",
 ]
 
 [dependency-groups]
