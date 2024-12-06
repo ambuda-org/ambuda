@@ -15,20 +15,23 @@ database.
 Quickstart
 ----------
 
-(This setup process requires Docker. If you don't have Docker installed on your
-machine, you can install it [here][docker].)
+(This setup process requires Docker and UV. If you don't have Docker installed on your
+machine, you can install it [here][docker] and [here][uv].)
 
 To install and run Ambuda locally, please run the commands below:
 
 ```
 $ git clone https://github.com/ambuda-org/ambuda.git
 $ cd ambuda
+$ uv venv env
+$ source env/bin/activate && uv pip install --upgrade pip && uv pip install -r requirements.txt
 $ make devserver
 ```
 
 Then, navigate to `http://localhost:5000` in your web browser.
 
 [docker]: https://docs.docker.com/get-docker/
+[uv]: https://github.com/astral-sh/uv
 
 
 Documentation
