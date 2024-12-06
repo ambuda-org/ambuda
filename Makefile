@@ -68,12 +68,11 @@ install-frontend:
 
 # Install Python dependencies.
 install-python:
-	python3 -m venv env
-	. env/bin/activate; pip install --upgrade pip
-	. env/bin/activate; pip install -r requirements.txt
+	uv venv env
+	. env/bin/activate && uv pip install --upgrade pip && uv pip install -r requirements.txt
 
 # Fetch and build all i18n files.
-install-i18n: py-venv-check
+install-i18n:
 	python -m ambuda.scripts.fetch_i18n_files
 	# Force a build with `-f`. Transifex files have a `fuzzy` annotation, so if
 	# we build without this flag, then all of the files will be skipped with:
@@ -87,7 +86,7 @@ install-i18n: py-venv-check
 # Upgrade an existing setup.
 upgrade:
 	make install-frontend install-python
-	. env/bin/activate; make install-i18n
+	./activate.sh install-i18n
 	. env/bin/activate; alembic upgrade head
 	. env/bin/activate; python -m ambuda.seed.lookup
 
