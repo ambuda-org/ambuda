@@ -3,7 +3,7 @@
 # Exit if any step in this install script fails.
 set -e
 
-if [ -f data ] || [ -f env ] || [ -f node_modules ] || [ -f .env ] || [ -f deploy/data/ ]; then
+if [ -e data ] || [ -e node_modules ] || [ -e .env ] || [ -e .venv ] || [ -e deploy/data/ ]; then
 cat << "EOF"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
@@ -13,10 +13,10 @@ Some of the files in your directory were created during a previous install. To
 ensure that you have a clean install, this script will delete the following
 files and directories, if they exist:
 
-- database.db
 - .env
+- .venv/
 - data/
-- env/
+- database.db
 - node_modules/
 
 EOF
@@ -70,16 +70,16 @@ echo ">> Create $(dirname ${DB_FILE_PATH})"
 mkdir -p $(dirname ${DB_FILE_PATH})
 
 # Create tables
-python -m scripts.initialize_db
+uv run python -m scripts.initialize_db
 
 # Add some starter data with a few basic seed scripts.
 make db-seed-basic
 
 # Create Alembic's migrations table.
-alembic ensure_version
+uv run alembic ensure_version
 
 # Set the most recent revision as the current one.
-alembic stamp head
+uv run alembic stamp head
 
 
 cat << "EOF"
@@ -104,14 +104,7 @@ In these commands, arguments in <angle-brackets> must be supplied by you:
     ./cli.py add-role --username <username> --role admin
     ./cli.py create-project <project-title> <path-to-project-pdf>
 
-To start the development server, run the following commands:
-
-    # This command works on Bash. You might need to change this command for
-    # other shells.
-    source env/bin/activate
-
-    # Run the devserver.
-    make devserver
+To start the development server, run `make devserver`.
 
 For help, join our Discord: https://discord.gg/7rGdTyWY7Z
 

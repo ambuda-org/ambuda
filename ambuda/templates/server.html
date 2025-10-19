@@ -1,0 +1,29 @@
+{% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
+
+{% block title %}{{ m.title(_('Server updates')) }}{% endblock %}
+
+
+{% block header %}
+{{ m.basic_header(_('Server updates')) }}
+{% endblock %}
+
+
+{% block content %}
+<div class="prose">
+
+<p>We're returning to Ambuda after a long break. Our first step is to updates our infrastructure so
+that we can better scale the project.</p>
+
+<p>For the rest of October, you may see occasional outages that last from a few minutes to a
+few hours. We will avoid these outages as much as we can, but if you see that the site is down,
+this is why.</p>
+
+<p>Once our foundations are solid, we look forward to greatly expanding our library. Thank you
+for your support.</p>
+
+<p>Arun Prasad</p>
+<p>2025-10-19</p>
+
+</div>
+{% endblock %}

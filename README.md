@@ -1,5 +1,8 @@
 ![Unit Tests](https://github.com/ambuda-org/ambuda/actions/workflows/basic-tests.yml/badge.svg)
 
+*We're in the middle of a build migration that started on 2025-10-19. These instructions may be
+out of date.*
+
 
 Ambuda
 ======

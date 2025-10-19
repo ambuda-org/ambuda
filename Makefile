@@ -30,7 +30,7 @@ else ifeq ($(BUILD_MODE),default)
 endif
 
 # Needed because we have folders called "docs" and "test" that confuse `make`.
-.PHONY: docs test py-venv-check clean
+.PHONY: docs test py-venv-check clean deploy
 
 .EXPORT_ALL_VARIABLES:
 
@@ -41,14 +41,6 @@ AMBUDA_VERSION=v0.1
 AMBUDA_NAME=ambuda
 AMBUDA_IMAGE=${AMBUDA_NAME}:${AMBUDA_VERSION}-${GITBRANCH}-${GITCOMMIT}
 AMBUDA_IMAGE_LATEST="$(AMBUDA_NAME)-rel:latest"
-
-py-venv-check: 
-ifeq ("$(VIRTUAL_ENV)","")
-	@echo "Error! Python venv not activated. Activate venv to proceed. Run: "
-	@echo "  > source env/bin/activate"
-	@echo
-	exit 1
-endif	
 
 DB_FILE = ${PWD}/deploy/data/database/database.db
 
@@ -68,13 +60,11 @@ install-frontend:
 
 # Install Python dependencies.
 install-python:
-	python3 -m venv env
-	. env/bin/activate; pip install --upgrade pip
-	. env/bin/activate; pip install -r requirements.txt
+	uv sync
 
 # Fetch and build all i18n files.
-install-i18n: py-venv-check
-	python -m ambuda.scripts.fetch_i18n_files
+install-i18n:
+	uv run python -m ambuda.scripts.fetch_i18n_files
 	# Force a build with `-f`. Transifex files have a `fuzzy` annotation, so if
 	# we build without this flag, then all of the files will be skipped with:
 	#
@@ -82,46 +72,46 @@ install-i18n: py-venv-check
 	#
 	# There's probably a nicer workaround for this, but `-f` works and unblocks
 	# this command for now.
-	pybabel compile -d ambuda/translations -f
+	uv run pybabel compile -d ambuda/translations -f
 
 # Upgrade an existing setup.
 upgrade:
 	make install-frontend install-python
-	. env/bin/activate; make install-i18n
-	. env/bin/activate; alembic upgrade head
-	. env/bin/activate; python -m ambuda.seed.lookup
+	uv run make install-i18n
+	uv run alembic upgrade head
+	uv run python -m ambuda.seed.lookup
 
 # Seed the database with a minimal dataset for CI. We fetch data only if it is
 # hosted on GitHub. Other resources are less predictable.
-db-seed-ci: py-venv-check
-	python -m ambuda.seed.lookup
-	python -m ambuda.seed.texts.gretil
-	python -m ambuda.seed.dcs
+db-seed-ci:
+	uv run python -m ambuda.seed.lookup
+	uv run python -m ambuda.seed.texts.gretil
+	uv run python -m ambuda.seed.dcs
 
 # Seed the database with just enough data for the devserver to be interesting.
-db-seed-basic: py-venv-check
-	python -m ambuda.seed.lookup
-	python -m ambuda.seed.texts.gretil
-	python -m ambuda.seed.dcs
-	python -m ambuda.seed.dictionaries.monier
+db-seed-basic:
+	uv run python -m ambuda.seed.lookup
+	uv run python -m ambuda.seed.texts.gretil
+	uv run python -m ambuda.seed.dcs
+	uv run python -m ambuda.seed.dictionaries.monier
 
 # Seed the database with all of the text, parse, and dictionary data we serve
 # in production.
-db-seed-all: py-venv-check
-	python -m ambuda.seed.lookup.role
-	python -m ambuda.seed.lookup.page_status
-	python -m ambuda.seed.texts.gretil
-	python -m ambuda.seed.texts.ramayana
-	python -m ambuda.seed.texts.mahabharata
-	python -m ambuda.seed.dcs
-	python -m ambuda.seed.dictionaries.amarakosha
-	python -m ambuda.seed.dictionaries.apte
-	python -m ambuda.seed.dictionaries.apte_sanskrit_hindi
-	python -m ambuda.seed.dictionaries.monier
-	python -m ambuda.seed.dictionaries.shabdakalpadruma
-	python -m ambuda.seed.dictionaries.shabdartha_kaustubha
-	python -m ambuda.seed.dictionaries.shabdasagara
-	python -m ambuda.seed.dictionaries.vacaspatyam
+db-seed-all:
+	uv run python -m ambuda.seed.lookup.role
+	uv run python -m ambuda.seed.lookup.page_status
+	uv run python -m ambuda.seed.texts.gretil
+	uv run python -m ambuda.seed.texts.ramayana
+	uv run python -m ambuda.seed.texts.mahabharata
+	uv run python -m ambuda.seed.dcs
+	uv run python -m ambuda.seed.dictionaries.amarakosha
+	uv run python -m ambuda.seed.dictionaries.apte
+	uv run python -m ambuda.seed.dictionaries.apte_sanskrit_hindi
+	uv run python -m ambuda.seed.dictionaries.monier
+	uv run python -m ambuda.seed.dictionaries.shabdakalpadruma
+	uv run python -m ambuda.seed.dictionaries.shabdartha_kaustubha
+	uv run python -m ambuda.seed.dictionaries.shabdasagara
+	uv run python -m ambuda.seed.dictionaries.vacaspatyam
 
 
 # Local run commands
@@ -130,12 +120,12 @@ db-seed-all: py-venv-check
 .PHONY: devserver celery
 
 # For Docker try `make mode=dev docker-start`
-devserver: py-venv-check
-	./node_modules/.bin/concurrently "flask run -h 0.0.0.0 -p 5000" "npx tailwindcss -i ambuda/static/css/style.css -o ambuda/static/gen/style.css --watch" "npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --watch"
+devserver:
+	./node_modules/.bin/concurrently "uv run flask run -h 0.0.0.0 -p 5000" "npx tailwindcss -i ambuda/static/css/style.css -o ambuda/static/gen/style.css --watch" "npx esbuild ambuda/static/js/main.js --outfile=ambuda/static/gen/main.js --bundle --watch"
 	
 # Run a local Celery instance for background tasks.
 celery: 
-	celery -A ambuda.tasks worker --loglevel=INFO
+	uv run celery -A ambuda.tasks worker --loglevel=INFO
 
 
 # Docker commands
@@ -178,37 +168,41 @@ docker-logs:
 	@docker compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml logs
 
 
+deploy:
+	uv run fab deploy
+
+
 # Lint commands
 # ===============================================
 
 # Link checks on Python code
-py-lint: py-venv-check
-	ruff . --fix
-	black .
+py-lint:
+	uv run ruff . --fix
+	uv run black .
 
 # Lint our Python and JavaScript code. Fail on any issues.
 lint-check: js-lint
-	black . --diff
+	uv run black . --diff
 
 
 # Test, coverage and documentation commands
 # ===============================================
 
 # Run all Python unit tests.
-test: py-venv-check
-	pytest .
+test:
+	uv run pytest .
 
 # Run all Python unit tests with a coverage report.
 # After the command completes, open "htmlcov/index.html".
 coverage:
-	pytest --cov=ambuda --cov-report=html test/
+	uv run pytest --cov=ambuda --cov-report=html test/
 
 coverage-report: coverage
 	coverage report --fail-under=80
 
 # Generate Ambuda's technical documentation.
 # After the command completes, open "docs/_build/index.html".
-docs: py-venv-check
+docs:
 	cd docs && make html
 
 
@@ -256,21 +250,21 @@ js-check-types:
 # ===============================================
 
 # Extract all translatable text from the application and save it in `messages.pot`.
-babel-extract: py-venv-check
-	pybabel extract --mapping babel.cfg --keywords _l --output-file messages.pot .
+babel-extract:
+	uv run pybabel extract --mapping babel.cfg --keywords _l --output-file messages.pot .
 
 # Create a new translation file from `messages.pot`.
-babel-init: py-venv-check
-	pybabel init -i messages.pot -d ambuda/translations --locale $(locale)
+babel-init:
+	uv run pybabel init -i messages.pot -d ambuda/translations --locale $(locale)
 
 # Update all translation files with new text from `messages.pot`
-babel-update: py-venv-check
-	pybabel update -i messages.pot -d ambuda/translations
+babel-update:
+	uv run pybabel update -i messages.pot -d ambuda/translations
 
 # Compile all translation files.
 # NOTE: you probably want `make install-i18n` instead.
-babel-compile: py-venv-check
-	pybabel compile -d ambuda/translations
+babel-compile:
+	uv run pybabel compile -d ambuda/translations
 
 # Clean up
 # ===============================================

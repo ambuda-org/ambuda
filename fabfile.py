@@ -11,6 +11,7 @@ SECRETS_DIRECTORY = Path(os.environ["SERVER_SECRETS_DIRECTORY"])
 
 USER = os.environ["SERVER_USER"]
 HOST = os.environ["SERVER_HOST"]
+DEPLOY_BRANCH = "origin/main"
 
 r = Connection(f"root@{HOST}")
 c = Connection(f"{USER}@{HOST}")
@@ -64,26 +65,25 @@ def deploy_to_commit(_, pointer: str):
         c.run("git checkout main")
         c.run(f"git reset --hard {pointer}")
 
+        # uv migration (first step)
+        c.run("uv sync")
+
         # Install project requirements.
-        c.run("python3.10 -m venv env")
         c.run("make install-python")
         c.run("make install-frontend")
 
         # Verify that unit tests pass on prod.
-        with c.prefix("source env/bin/activate"):
-            c.run("make test")
+        c.run("make test")
 
         # Copy production config settings.
         env_path = str(APP_DIRECTORY / ".env")
         c.put("production/prod-env", env_path)
 
         # Build i18n and l10n files
-        with c.prefix("source env/bin/activate"):
-            c.run("make install-i18n")
+        c.run("make install-i18n")
 
         # Verify that the production setup is well-formed.
-        with c.prefix("source env/bin/activate"):
-            c.run("python -m scripts.check_prod_setup")
+        c.run("uv run python -m scripts.check_prod_setup")
 
         # Upgrade the database last -- If we upgrade and a downstream check
         # fails, we'll affect the production application.
@@ -104,7 +104,7 @@ def deploy_to_commit(_, pointer: str):
 @task
 def deploy(_):
     """Deploy the latest production commit."""
-    deploy_to_commit(_, "origin/main")
+    deploy_to_commit(_, DEPLOY_BRANCH)
 
 
 @task
@@ -132,10 +132,9 @@ def restart_celery(_):
 def run_module(_, module):
     assert module
     with c.cd(APP_DIRECTORY):
-        with c.prefix("source env/bin/activate"):
-            print(f"{module}")
-            print("=" * len(module))
-            c.run(f"python -m {module}")
+        print(f"{module}")
+        print("=" * len(module))
+        c.run(f"uv run python -m {module}")
 
 
 @task
