@@ -1,6 +1,5 @@
 """Add the Mahabharata parse data from DCS."""
 
-
 from collections.abc import Iterator
 from pathlib import Path
 

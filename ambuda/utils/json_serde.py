@@ -1,9 +1,9 @@
 import dataclasses
 
-from flask import json
+from json import JSONEncoder
 
 
-class AmbudaJSONEncoder(json.JSONEncoder):
+class AmbudaJSONEncoder(JSONEncoder):
     """Extend Flask's default encoder to support dataclasses."""
 
     def default(self, o):

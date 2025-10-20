@@ -5,12 +5,7 @@ import ambuda.utils.tei_parser as tei
 
 def test_delete_unused_elements():
     blob = "".join(
-        [
-            "<lg>"
-            "<l><seg>segment</seg> <hi>hi</hi></l>"
-            "<l>text<note>note</note></l>"
-            "</lg>"
-        ]
+        ["<lg><l><seg>segment</seg> <hi>hi</hi></l><l>text<note>note</note></l></lg>"]
     )
     xml = ET.fromstring(blob)
     tei._delete_unused_elements(xml)

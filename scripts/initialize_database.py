@@ -42,11 +42,11 @@ def get_db_file_path(sql_uri):
 
 
 def run_module(module_name):
-    print(f'{"#"}' * 20)
+    print(f"{'#'}" * 20)
     print(f"Intializing {module_name}")
     module_name.run()
     print(f"{module_name} initialization successful!")
-    print(f'{"#"}' * 20)
+    print(f"{'#'}" * 20)
 
 
 def init_database(sql_uri, db_file_path):

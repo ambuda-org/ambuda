@@ -11,7 +11,6 @@ A source list is valid iff all of the following conditions are met:
 If a source list is invalid, we raise a 404 error.
 """
 
-
 import functools
 
 from flask import Blueprint, abort, redirect, render_template, request, url_for

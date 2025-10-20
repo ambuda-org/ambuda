@@ -11,7 +11,7 @@ SECRETS_DIRECTORY = Path(os.environ["SERVER_SECRETS_DIRECTORY"])
 
 USER = os.environ["SERVER_USER"]
 HOST = os.environ["SERVER_HOST"]
-DEPLOY_BRANCH = "origin/main"
+DEPLOY_BRANCH = "main"
 
 r = Connection(f"root@{HOST}")
 c = Connection(f"{USER}@{HOST}")
@@ -63,7 +63,7 @@ def deploy_to_commit(_, pointer: str):
         # Fetch the application code.
         c.run("git fetch origin")
         c.run("git checkout main")
-        c.run(f"git reset --hard {pointer}")
+        c.run(f"git reset --hard origin/{pointer}")
 
         # uv migration (first step)
         c.run("uv sync")
@@ -98,7 +98,7 @@ def deploy_to_commit(_, pointer: str):
     restart_celery(_)
 
     c.local("python test_prod.py")
-    print("Deploy complete")
+    print("Deploy complete! 🪔")
 
 
 @task

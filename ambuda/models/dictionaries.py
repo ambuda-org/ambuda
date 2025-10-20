@@ -5,7 +5,6 @@ from ambuda.models.base import Base, foreign_key, pk
 
 
 class Dictionary(Base):
-
     """A dictionary that maps Sanskrit expressions to definitions in
     various languages."""
 
@@ -22,7 +21,6 @@ class Dictionary(Base):
 
 
 class DictionaryEntry(Base):
-
     """Dictionary definitions for a specific entry key.
 
     A given key is allowed to have multiple entries.

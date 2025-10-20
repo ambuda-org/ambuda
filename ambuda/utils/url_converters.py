@@ -12,7 +12,6 @@ from werkzeug.routing import BaseConverter
 
 
 class ListConverter(BaseConverter):
-
     """Converter for list data. Empty entries are ignored.
 
     Usage:

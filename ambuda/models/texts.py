@@ -15,7 +15,6 @@ from ambuda.models.base import Base, foreign_key, pk
 
 
 class Text(Base):
-
     """A text with its metadata."""
 
     __tablename__ = "texts"
@@ -36,7 +35,6 @@ class Text(Base):
 
 
 class TextSection(Base):
-
     """Ordered divisions of text content. This represent divisions like kāṇḍas,
     sargas, etc.
 

@@ -12,7 +12,6 @@ from ambuda.models.base import Base, pk
 
 
 class ProjectSponsorship(Base):
-
     """A project that a donor can sponsor."""
 
     __tablename__ = "site_project_sponsorship"
@@ -30,7 +29,6 @@ class ProjectSponsorship(Base):
 
 
 class ContributorInfo(Base):
-
     """Information about an Ambuda contributor.
 
     For now, we use this for just proofreaders. Long-term, we might include

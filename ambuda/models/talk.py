@@ -15,7 +15,6 @@ def string():
 
 
 class Board(Base):
-
     """A list of threads."""
 
     __tablename__ = "discussion_boards"
@@ -35,7 +34,6 @@ class Board(Base):
 
 
 class Thread(Base):
-
     """A list of posts."""
 
     __tablename__ = "discussion_threads"
@@ -60,7 +58,6 @@ class Thread(Base):
 
 
 class Post(Base):
-
     """A post."""
 
     __tablename__ = "discussion_posts"

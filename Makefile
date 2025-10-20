@@ -177,12 +177,11 @@ deploy:
 
 # Link checks on Python code
 py-lint:
-	uv run ruff . --fix
-	uv run black .
+	uv run ruff format .
 
 # Lint our Python and JavaScript code. Fail on any issues.
 lint-check: js-lint
-	uv run black . --diff
+	uv run ruff format . --check
 
 
 # Test, coverage and documentation commands
