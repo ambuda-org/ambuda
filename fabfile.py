@@ -11,7 +11,7 @@ SECRETS_DIRECTORY = Path(os.environ["SERVER_SECRETS_DIRECTORY"])
 
 USER = os.environ["SERVER_USER"]
 HOST = os.environ["SERVER_HOST"]
-DEPLOY_BRANCH = "main"
+DEPLOY_BRANCH = "release"
 
 r = Connection(f"root@{HOST}")
 c = Connection(f"{USER}@{HOST}")
