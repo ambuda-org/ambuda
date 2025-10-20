@@ -8,7 +8,7 @@ from flask import Blueprint, current_app, flash, render_template
 from flask_login import current_user
 from flask_wtf import FlaskForm
 from slugify import slugify
-from sqlalchemy import func, orm
+from sqlalchemy import func, orm, select
 from wtforms import FileField, RadioField, StringField
 from wtforms.validators import DataRequired, ValidationError
 from wtforms.widgets import TextArea
@@ -103,17 +103,17 @@ def index():
         SitePageStatus.SKIP: "bg-slate-100",
     }
 
-    projects = session.query(db.Project).all()
-    stats = (
-        session.query(
+    projects = list(session.scalars(select(db.Project)).all())
+    stmt = (
+        select(
             db.Page.project_id,
             db.PageStatus.name,
-            func.count(db.Page.id).label('count')
+            func.count(db.Page.id).label("count"),
         )
         .join(db.PageStatus)
         .group_by(db.Page.project_id, db.PageStatus.name)
-        .all()
     )
+    stats = session.execute(stmt).all()
 
     status_counts_by_project = defaultdict(lambda: defaultdict(int))
     for project_id, status_name, count in stats:
@@ -257,22 +257,18 @@ def recent_changes():
     assert bot_user, "Bot user not defined"
 
     session = q.get_session()
-    recent_revisions = (
-        session.query(db.Revision)
+    stmt = (
+        select(db.Revision)
         .options(orm.defer(db.Revision.content))
         .filter(db.Revision.author_id != bot_user.id)
         .order_by(db.Revision.created.desc())
         .limit(num_per_page)
-        .all()
     )
+    recent_revisions = list(session.scalars(stmt).all())
     recent_activity = [("revision", r.created, r) for r in recent_revisions]
 
-    recent_projects = (
-        session.query(db.Project)
-        .order_by(db.Project.created_at.desc())
-        .limit(num_per_page)
-        .all()
-    )
+    stmt = select(db.Project).order_by(db.Project.created_at.desc()).limit(num_per_page)
+    recent_projects = list(session.scalars(stmt).all())
     recent_activity += [("project", p.created_at, p) for p in recent_projects]
 
     recent_activity.sort(key=lambda x: x[1], reverse=True)
@@ -303,18 +299,19 @@ def dashboard():
     days_ago_1d = now - timedelta(days=1)
 
     session = q.get_session()
-    bot = session.query(db.User).filter_by(username=consts.BOT_USERNAME).one()
+    stmt = select(db.User).filter_by(username=consts.BOT_USERNAME)
+    bot = session.scalars(stmt).one()
     bot_id = bot.id
 
-    revisions_30d = (
-        session.query(db.Revision)
+    stmt = (
+        select(db.Revision)
         .filter(
             (db.Revision.created >= days_ago_30d) & (db.Revision.author_id != bot_id)
         )
         .options(orm.load_only(db.Revision.created, db.Revision.author_id))
         .order_by(db.Revision.created)
-        .all()
     )
+    revisions_30d = list(session.scalars(stmt).all())
     revisions_7d = [x for x in revisions_30d if x.created >= days_ago_7d]
     revisions_1d = [x for x in revisions_7d if x.created >= days_ago_1d]
     num_revisions_30d = len(revisions_30d)

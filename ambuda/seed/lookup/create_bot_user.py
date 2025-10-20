@@ -1,6 +1,7 @@
 import logging
 import os
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ambuda import consts
@@ -27,7 +28,8 @@ def run():
     engine = create_db()
     logging.debug("Creating bot user ...")
     with Session(engine) as session:
-        user = session.query(db.User).filter_by(username=consts.BOT_USERNAME).first()
+        stmt = select(db.User).filter_by(username=consts.BOT_USERNAME)
+        user = session.scalars(stmt).first()
         if not user:
             _create_bot_user(session)
     logging.debug("Done.")

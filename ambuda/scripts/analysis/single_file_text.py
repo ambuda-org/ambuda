@@ -4,6 +4,7 @@ import argparse
 from collections.abc import Iterator
 from pathlib import Path
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
@@ -54,8 +55,10 @@ def _k(kv):
 def get_block_slugs(text_slug: str) -> set[str]:
     engine = create_db()
     with Session(engine) as session:
-        text = session.query(db.Text).filter_by(slug=text_slug).first()
-        blocks = session.query(db.TextBlock).filter_by(text_id=text.id).all()
+        stmt = select(db.Text).filter_by(slug=text_slug)
+        text = session.scalars(stmt).first()
+        stmt = select(db.TextBlock).filter_by(text_id=text.id)
+        blocks = list(session.scalars(stmt).all())
         return {b.slug for b in blocks}
 
 

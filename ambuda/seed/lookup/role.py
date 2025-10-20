@@ -1,5 +1,6 @@
 import logging
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
@@ -15,7 +16,8 @@ def run(engine=None):
 
     engine = engine or create_db()
     with Session(engine) as session:
-        roles = session.query(db.Role).all()
+        stmt = select(db.Role)
+        roles = list(session.scalars(stmt).all())
         existing_names = {s.name for s in roles}
         new_names = {r.value for r in SiteRole if r.value not in existing_names}
 
@@ -28,7 +30,8 @@ def run(engine=None):
 
     logging.debug("Done. The following roles are defined:")
     with Session(engine) as session:
-        for r in session.query(db.Role).all():
+        stmt = select(db.Role)
+        for r in session.scalars(stmt).all():
             logging.debug(f"- {r.name}")
 
 

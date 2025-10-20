@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 import ambuda.database as db
 from ambuda.queries import get_session
 
@@ -45,7 +47,8 @@ def test_user__set_and_check_role(client):
     session.add(user)
     session.flush()
 
-    p1 = session.query(db.Role).filter_by(name=db.SiteRole.P1.value).one()
+    stmt = select(db.Role).filter_by(name=db.SiteRole.P1.value)
+    p1 = session.scalars(stmt).one()
     user.roles.append(p1)
     session.commit()
 

@@ -28,6 +28,7 @@ from wtforms import validators as val
 import ambuda.queries as q
 from ambuda import database as db
 from ambuda import mail
+from sqlalchemy import select
 
 bp = Blueprint("auth", __name__)
 
@@ -60,12 +61,12 @@ def _create_reset_token(user_id) -> str:
 def _get_reset_token_for_user(user_id: int) -> db.PasswordResetToken | None:
     # User might have requested multiple tokens -- get the latest one.
     session = q.get_session()
-    return (
-        session.query(db.PasswordResetToken)
+    stmt = (
+        select(db.PasswordResetToken)
         .filter_by(user_id=user_id, is_active=True)
         .order_by(db.PasswordResetToken.created_at.desc())
-        .first()
     )
+    return session.scalars(stmt).first()
 
 
 def _is_valid_reset_token(row: db.PasswordResetToken, raw_token: str, now=None):
@@ -165,7 +166,8 @@ class SignupForm(FlaskForm):
     def validate_email(self, email):
         session = q.get_session()
         # TODO: make email case insensitive
-        user = session.query(db.User).filter_by(email=email.data).first()
+        stmt = select(db.User).filter_by(email=email.data)
+        user = session.scalars(stmt).first()
         if user:
             raise val.ValidationError("Please use a different email address.")
 
@@ -257,7 +259,8 @@ def get_reset_password_token():
     if form.validate_on_submit():
         email = form.email.data
         session = q.get_session()
-        user = session.query(db.User).filter_by(email=email).first()
+        stmt = select(db.User).filter_by(email=email)
+        user = session.scalars(stmt).first()
         if user:
             raw_token = _create_reset_token(user.id)
             mail.send_reset_password_link(

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import click
 from slugify import slugify
-from sqlalchemy import or_
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 import ambuda
@@ -34,11 +34,10 @@ def create_user():
     email = input("Email: ")
 
     with Session(engine) as session:
-        u = (
-            session.query(db.User)
-            .where(or_(db.User.username == username, db.User.email == email))
-            .first()
+        stmt = select(db.User).where(
+            or_(db.User.username == username, db.User.email == email)
         )
+        u = session.scalars(stmt).first()
         if u is not None:
             if u.username == username:
                 raise click.ClickException(f'User "{username}" already exists.')
@@ -61,10 +60,12 @@ def add_role(username, role):
     privileges and grant them full access to Ambuda's data and content.
     """
     with Session(engine) as session:
-        u = session.query(db.User).where(db.User.username == username).first()
+        stmt = select(db.User).where(db.User.username == username)
+        u = session.scalars(stmt).first()
         if u is None:
             raise click.ClickException(f'User "{username}" does not exist.')
-        r = session.query(db.Role).where(db.Role.name == role).first()
+        stmt = select(db.Role).where(db.Role.name == role)
+        r = session.scalars(stmt).first()
         if r is None:
             raise click.ClickException(f'Role "{role}" does not exist.')
         if r in u.roles:
@@ -84,7 +85,8 @@ def create_project(title, pdf_path):
     current_app = ambuda.create_app("development")
     with current_app.app_context():
         session = q.get_session()
-        arbitrary_user = session.query(db.User).first()
+        stmt = select(db.User)
+        arbitrary_user = session.scalars(stmt).first()
         if not arbitrary_user:
             raise click.ClickException(
                 "Every project must have a user that created it. "

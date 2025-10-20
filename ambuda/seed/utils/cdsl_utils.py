@@ -3,6 +3,7 @@ import itertools
 import logging
 from xml.etree import ElementTree as ET
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
@@ -55,12 +56,14 @@ def create_dict(session, **kw):
 
 def delete_existing_dict(session, slug: str):
     """Delete an existing dictionary and all of its entries."""
-    dictionary = session.query(db.Dictionary).filter_by(slug=slug).first()
+    stmt = select(db.Dictionary).filter_by(slug=slug)
+    dictionary = session.scalars(stmt).first()
     if dictionary:
         # Delete entries first to avoid slow relationship-based delete.
-        session.query(db.DictionaryEntry).filter_by(
-            dictionary_id=dictionary.id
-        ).delete()
+        stmt = select(db.DictionaryEntry).filter_by(dictionary_id=dictionary.id)
+        entries = list(session.scalars(stmt).all())
+        for entry in entries:
+            session.delete(entry)
         session.delete(dictionary)
         session.commit()
 

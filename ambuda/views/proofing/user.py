@@ -1,7 +1,7 @@
 from flask import Blueprint, abort, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
-from sqlalchemy import orm
+from sqlalchemy import orm, select
 from wtforms import BooleanField, StringField
 from wtforms.widgets import TextArea
 
@@ -42,8 +42,8 @@ def activity(username):
         abort(404)
 
     session = q.get_session()
-    recent_revisions = (
-        session.query(db.Revision)
+    stmt = (
+        select(db.Revision)
         .options(
             orm.defer(db.Revision.content),
             orm.joinedload(db.Revision.page).load_only(db.Page.id, db.Page.slug),
@@ -51,14 +51,14 @@ def activity(username):
         .filter_by(author_id=user_.id)
         .order_by(db.Revision.created.desc())
         .limit(100)
-        .all()
     )
-    recent_projects = (
-        session.query(db.Project)
+    recent_revisions = list(session.scalars(stmt).all())
+    stmt = (
+        select(db.Project)
         .filter_by(creator_id=user_.id)
         .order_by(db.Project.created_at.desc())
-        .all()
     )
+    recent_projects = list(session.scalars(stmt).all())
 
     recent_activity = [("revision", r.created, r) for r in recent_revisions]
     recent_activity += [("project", p.created_at, p) for p in recent_projects]
@@ -125,7 +125,8 @@ def admin(username):
     session = q.get_session()
     # Exclude admin.
     # (Admin roles should be added manually by the server administrator.)
-    all_roles = [r for r in session.query(db.Role).all() if r.name != "admin"]
+    stmt = select(db.Role)
+    all_roles = [r for r in session.scalars(stmt).all() if r.name != "admin"]
     all_roles = sorted(all_roles, key=lambda x: x.name)
 
     form = _make_role_form(all_roles, user_)

@@ -7,7 +7,7 @@ For simple or adhoc queries, you can just write them in their corresponding view
 import functools
 
 from flask import current_app
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import load_only, scoped_session, selectinload, sessionmaker
 
 import ambuda.database as db
@@ -57,18 +57,18 @@ def get_session():
 def texts() -> list[db.Text]:
     """Return a list of all texts in no particular older."""
     session = get_session()
-    return session.query(db.Text).all()
+    return list(session.scalars(select(db.Text)).all())
 
 
 def page_statuses() -> list[db.PageStatus]:
     session = get_session()
-    return session.query(db.PageStatus).all()
+    return list(session.scalars(select(db.PageStatus)).all())
 
 
 def text(slug: str) -> db.Text | None:
     session = get_session()
-    return (
-        session.query(db.Text)
+    stmt = (
+        select(db.Text)
         .filter_by(slug=slug)
         .options(
             selectinload(db.Text.sections).load_only(
@@ -76,8 +76,8 @@ def text(slug: str) -> db.Text | None:
                 db.TextSection.title,
             )
         )
-        .first()
     )
+    return session.scalars(stmt).first()
 
 
 def text_meta(slug: str) -> db.Text:
@@ -85,8 +85,8 @@ def text_meta(slug: str) -> db.Text:
     # TODO: is this method even useful? Is there a performance penalty for
     # using just `text`?
     session = get_session()
-    return (
-        session.query(db.Text)
+    stmt = (
+        select(db.Text)
         .filter_by(slug=slug)
         .options(
             load_only(
@@ -94,28 +94,31 @@ def text_meta(slug: str) -> db.Text:
                 db.Text.slug,
             )
         )
-        .first()
     )
+    return session.scalars(stmt).first()
 
 
 def text_section(text_id: int, slug: str) -> db.TextSection | None:
     session = get_session()
-    return session.query(db.TextSection).filter_by(text_id=text_id, slug=slug).first()
+    stmt = select(db.TextSection).filter_by(text_id=text_id, slug=slug)
+    return session.scalars(stmt).first()
 
 
 def block(text_id: int, slug: str) -> db.TextBlock | None:
     session = get_session()
-    return session.query(db.TextBlock).filter_by(text_id=text_id, slug=slug).first()
+    stmt = select(db.TextBlock).filter_by(text_id=text_id, slug=slug)
+    return session.scalars(stmt).first()
 
 
 def block_parse(block_id: int) -> db.BlockParse | None:
     session = get_session()
-    return session.query(db.BlockParse).filter_by(block_id=block_id).first()
+    stmt = select(db.BlockParse).filter_by(block_id=block_id)
+    return session.scalars(stmt).first()
 
 
 def dictionaries() -> list[db.Dictionary]:
     session = get_session()
-    return session.query(db.Dictionary).all()
+    return list(session.scalars(select(db.Dictionary)).all())
 
 
 def dict_entries(
@@ -129,14 +132,11 @@ def dict_entries(
     dicts = dictionaries()
     source_ids = [d.id for d in dicts if d.slug in sources]
 
-    rows = (
-        session.query(db.DictionaryEntry)
-        .filter(
-            (db.DictionaryEntry.dictionary_id.in_(source_ids))
-            & (db.DictionaryEntry.key.in_(keys))
-        )
-        .all()
+    stmt = select(db.DictionaryEntry).filter(
+        (db.DictionaryEntry.dictionary_id.in_(source_ids))
+        & (db.DictionaryEntry.key.in_(keys))
     )
+    rows = list(session.scalars(stmt).all())
 
     dict_id_to_slug = {d.id: d.slug for d in dicts}
     mapping = {s: [] for s in sources}
@@ -149,22 +149,25 @@ def dict_entries(
 def projects() -> list[db.Project]:
     """Return all projects in no particular order."""
     session = get_session()
-    return session.query(db.Project).all()
+    return list(session.scalars(select(db.Project)).all())
 
 
 def project(slug: str) -> db.Project | None:
     session = get_session()
-    return session.query(db.Project).filter(db.Project.slug == slug).first()
+    stmt = select(db.Project).filter(db.Project.slug == slug)
+    return session.scalars(stmt).first()
 
 
 def thread(*, id: int) -> db.Thread | None:
     session = get_session()
-    return session.query(db.Thread).filter_by(id=id).first()
+    stmt = select(db.Thread).filter_by(id=id)
+    return session.scalars(stmt).first()
 
 
 def post(*, id: int) -> db.Post | None:
     session = get_session()
-    return session.query(db.Post).filter_by(id=id).first()
+    stmt = select(db.Post).filter_by(id=id)
+    return session.scalars(stmt).first()
 
 
 def create_thread(*, board_id: int, user_id: int, title: str, content: str):
@@ -198,20 +201,18 @@ def create_post(*, board_id: int, thread: db.Thread, user_id: int, content: str)
 
 def page(project_id, page_slug: str) -> db.Page | None:
     session = get_session()
-    return (
-        session.query(db.Page)
-        .filter((db.Page.project_id == project_id) & (db.Page.slug == page_slug))
-        .first()
+    stmt = select(db.Page).filter(
+        (db.Page.project_id == project_id) & (db.Page.slug == page_slug)
     )
+    return session.scalars(stmt).first()
 
 
 def user(username: str) -> db.User | None:
     session = get_session()
-    return (
-        session.query(db.User)
-        .filter_by(username=username, is_deleted=False, is_banned=False)
-        .first()
+    stmt = select(db.User).filter_by(
+        username=username, is_deleted=False, is_banned=False
     )
+    return session.scalars(stmt).first()
 
 
 def create_user(*, username: str, email: str, raw_password: str) -> db.User:
@@ -222,9 +223,8 @@ def create_user(*, username: str, email: str, raw_password: str) -> db.User:
     session.flush()
 
     # Allow all users to be proofreaders
-    proofreader_role = (
-        session.query(db.Role).filter_by(name=db.SiteRole.P1.value).first()
-    )
+    stmt = select(db.Role).filter_by(name=db.SiteRole.P1.value)
+    proofreader_role = session.scalars(stmt).first()
     user_role = db.UserRoles(user_id=user.id, role_id=proofreader_role.id)
     session.add(user_role)
 
@@ -235,26 +235,29 @@ def create_user(*, username: str, email: str, raw_password: str) -> db.User:
 def blog_post(slug: str) -> db.BlogPost | None:
     """Fetch the given blog post."""
     session = get_session()
-    return session.query(db.BlogPost).filter_by(slug=slug).first()
+    stmt = select(db.BlogPost).filter_by(slug=slug)
+    return session.scalars(stmt).first()
 
 
 def blog_posts() -> list[db.BlogPost]:
     """Fetch all blog posts."""
     session = get_session()
-    return session.query(db.BlogPost).order_by(db.BlogPost.created_at.desc()).all()
+    stmt = select(db.BlogPost).order_by(db.BlogPost.created_at.desc())
+    return list(session.scalars(stmt).all())
 
 
 def project_sponsorships() -> list[db.ProjectSponsorship]:
     session = get_session()
-    results = session.query(db.ProjectSponsorship).all()
+    results = list(session.scalars(select(db.ProjectSponsorship)).all())
     return sorted(results, key=lambda s: s.sa_title or s.en_title)
 
 
 def contributor_info() -> list[db.ContributorInfo]:
     session = get_session()
-    return session.query(db.ContributorInfo).order_by(db.ContributorInfo.name).all()
+    stmt = select(db.ContributorInfo).order_by(db.ContributorInfo.name)
+    return list(session.scalars(stmt).all())
 
 
 def genres() -> list[db.Genre]:
     session = get_session()
-    return session.query(db.Genre).all()
+    return list(session.scalars(select(db.Genre)).all())

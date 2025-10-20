@@ -1,6 +1,7 @@
 from flask import Blueprint, abort, render_template
 from flask_login import login_required
 from flask_wtf import FlaskForm
+from sqlalchemy import select
 from wtforms import HiddenField, StringField
 from wtforms.validators import DataRequired
 from wtforms.widgets import TextArea
@@ -30,8 +31,10 @@ def text(slug):
         abort(404)
 
     session = q.get_session()
-    num_blocks = session.query(db.TextBlock).filter_by(text_id=text_.id).count()
-    num_parsed_blocks = session.query(db.BlockParse).filter_by(text_id=text_.id).count()
+    stmt = select(db.TextBlock).filter_by(text_id=text_.id)
+    num_blocks = len(list(session.scalars(stmt).all()))
+    stmt = select(db.BlockParse).filter_by(text_id=text_.id)
+    num_parsed_blocks = len(list(session.scalars(stmt).all()))
     return render_template(
         "proofing/tagging/text.html",
         text=text_,

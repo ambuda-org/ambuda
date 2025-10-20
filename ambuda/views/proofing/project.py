@@ -15,7 +15,7 @@ from flask_babel import lazy_gettext as _l
 from flask_login import current_user, login_required
 from flask_wtf import FlaskForm
 from markupsafe import Markup, escape
-from sqlalchemy import orm
+from sqlalchemy import orm, select
 from werkzeug.exceptions import abort
 from werkzeug.utils import redirect
 from wtforms import (
@@ -185,13 +185,13 @@ def summary(slug):
         abort(404)
 
     session = q.get_session()
-    recent_revisions = (
-        session.query(db.Revision)
+    stmt = (
+        select(db.Revision)
         .filter_by(project_id=project_.id)
         .order_by(db.Revision.created.desc())
         .limit(10)
-        .all()
     )
+    recent_revisions = list(session.scalars(stmt).all())
 
     page_rules = project_utils.parse_page_number_spec(project_.page_numbers)
     page_titles = project_utils.apply_rules(len(project_.pages), page_rules)
@@ -211,14 +211,14 @@ def activity(slug):
         abort(404)
 
     session = q.get_session()
-    recent_revisions = (
-        session.query(db.Revision)
+    stmt = (
+        select(db.Revision)
         .options(orm.defer(db.Revision.content))
         .filter_by(project_id=project_.id)
         .order_by(db.Revision.created.desc())
         .limit(100)
-        .all()
     )
+    recent_revisions = list(session.scalars(stmt).all())
     recent_activity = [("revision", r.created, r) for r in recent_revisions]
     recent_activity.append(("project", project_.created_at, project_))
 

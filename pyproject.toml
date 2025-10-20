@@ -34,7 +34,7 @@ dependencies = [
     "sentry-sdk==2.42.0",
     # Need to pin for flask_admin.
     "setuptools<81",
-    "sqlalchemy==1.4.37",
+    "sqlalchemy==2.0.44",
     # Need to pin for flask.
     "werkzeug==3.0.1",
     "wtforms==3.0.1",
@@ -43,7 +43,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "alembic==1.8.0",
+    "alembic==1.17.0",
     "click==8.1.3",
     "conllu==4.5.2",
     "fabric==3.2.2",

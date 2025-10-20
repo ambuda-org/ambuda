@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from ambuda import database as db
 from ambuda import queries as q
 from ambuda.enums import SiteRole
@@ -19,7 +21,8 @@ def test_anonymous_user():
 def test_new_authenticated_user(client):
     u = db.User()
     session = q.get_session()
-    p1 = session.query(db.Role).filter_by(name=SiteRole.P1).one()
+    stmt = select(db.Role).filter_by(name=SiteRole.P1)
+    p1 = session.scalars(stmt).one()
 
     u.roles = [p1]
     assert u.is_p1

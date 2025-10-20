@@ -7,6 +7,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from indic_transliteration import sanscript
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
@@ -138,7 +139,8 @@ def write_kandas(
 
 def delete_existing_text(engine, slug: str):
     with Session(engine) as session:
-        text = session.query(db.Text).where(db.Text.slug == slug).first()
+        stmt = select(db.Text).where(db.Text.slug == slug)
+        text = session.scalars(stmt).first()
         if text:
             session.delete(text)
             session.commit()

@@ -1,6 +1,7 @@
 import subprocess
 from pathlib import Path
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session, load_only
 
 import ambuda.database as db
@@ -33,13 +34,15 @@ def fetch_latest_data():
 
 
 def drop_existing_parse_data(session, text_id: int):
-    session.query(db.BlockParse).filter_by(text_id=text_id).delete()
+    stmt = select(db.BlockParse).filter_by(text_id=text_id)
+    for parse in session.scalars(stmt).all():
+        session.delete(parse)
 
 
 def get_slug_id_map(session, text_id: int) -> dict[str, int]:
     """For each block, map its slug to its ID."""
-    blocks = (
-        session.query(db.TextBlock)
+    stmt = (
+        select(db.TextBlock)
         .filter_by(text_id=text_id)
         .options(
             load_only(
@@ -47,8 +50,8 @@ def get_slug_id_map(session, text_id: int) -> dict[str, int]:
                 db.TextBlock.slug,
             )
         )
-        .all()
     )
+    blocks = list(session.scalars(stmt).all())
     return {b.slug: b.id for b in blocks}
 
 
@@ -78,7 +81,8 @@ def iter_parse_data(path: Path):
 def add_parse_data(text_slug: str, path: Path):
     engine = create_db()
     with Session(engine) as session:
-        text = session.query(db.Text).filter_by(slug=text_slug).first()
+        stmt = select(db.Text).filter_by(slug=text_slug)
+        text = session.scalars(stmt).first()
         if not text:
             raise UpdateError()
 

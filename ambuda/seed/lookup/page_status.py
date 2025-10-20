@@ -1,5 +1,6 @@
 import logging
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
@@ -11,7 +12,8 @@ def get_default_id():
     """Used in the `add_page_statuses` migration."""
     engine = create_db()
     with Session(engine) as session:
-        return session.query(db.PageStatus).filter_by(name=SitePageStatus.R0).one()
+        stmt = select(db.PageStatus).filter_by(name=SitePageStatus.R0)
+        return session.scalars(stmt).one()
 
 
 def run(engine=None):
@@ -19,7 +21,8 @@ def run(engine=None):
     engine = engine or create_db()
     logging.debug("Creating PageStatus rows ...")
     with Session(engine) as session:
-        statuses = session.query(db.PageStatus).all()
+        stmt = select(db.PageStatus)
+        statuses = list(session.scalars(stmt).all())
         existing_names = {s.name for s in statuses}
         new_names = {n.value for n in SitePageStatus if n not in existing_names}
 

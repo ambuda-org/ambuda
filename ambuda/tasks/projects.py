@@ -8,6 +8,7 @@ from pathlib import Path
 # unrelated to PDF parsing.
 import fitz
 from slugify import slugify
+from sqlalchemy import select
 
 from ambuda import database as db
 from ambuda import queries as q
@@ -57,7 +58,8 @@ def _add_project_to_database(
     session.flush()
 
     logging.info(f"Fetching project and status (slug = {slug}) ...")
-    unreviewed = session.query(db.PageStatus).filter_by(name="reviewed-0").one()
+    stmt = select(db.PageStatus).filter_by(name="reviewed-0")
+    unreviewed = session.scalars(stmt).one()
 
     logging.info(f"Creating {num_pages} Page entries (slug = {slug}) ...")
     for n in range(1, num_pages + 1):
@@ -100,7 +102,8 @@ def create_project_inner(
     with app.app_context():
         session = q.get_session()
         slug = slugify(display_title)
-        project = session.query(db.Project).filter_by(slug=slug).first()
+        stmt = select(db.Project).filter_by(slug=slug)
+        project = session.scalars(stmt).first()
 
     if project:
         raise ValueError(

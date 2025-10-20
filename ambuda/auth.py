@@ -18,7 +18,7 @@ def _load_user(user_id: int) -> User | None:
     import current_user`) and as a template variable injected into each template.
     """
     session = get_session()
-    user = session.query(User).get(int(user_id))
+    user = session.get(User, int(user_id))
     return user if user and user.is_ok else None
 
 

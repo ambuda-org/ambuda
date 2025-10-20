@@ -5,6 +5,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 from indic_transliteration import sanscript
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
@@ -59,8 +60,10 @@ def map_keys_to_slugs(text_slug):
 
     engine = create_db()
     with Session(engine) as session:
-        text = session.query(db.Text).filter_by(slug=text_slug).first()
-        blocks = session.query(db.TextBlock).filter_by(text_id=text.id).all()
+        stmt = select(db.Text).filter_by(slug=text_slug)
+        text = session.scalars(stmt).first()
+        stmt = select(db.TextBlock).filter_by(text_id=text.id)
+        blocks = list(session.scalars(stmt).all())
         for b in blocks:
             for line in ET.fromstring(b.xml).iter("l"):
                 raw_text = "".join(line.itertext())

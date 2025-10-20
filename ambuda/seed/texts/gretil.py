@@ -5,6 +5,7 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 import ambuda.database as db
@@ -93,7 +94,8 @@ def add_document(engine, spec: Spec):
     document_path = DATA_DIR / "1_sanskr" / "tei" / spec.filename
 
     with Session(engine) as session:
-        if session.query(db.Text).filter_by(slug=spec.slug).first():
+        stmt = select(db.Text).filter_by(slug=spec.slug)
+        if session.scalars(stmt).first():
             # FIXME: update existing texts in-place so that we can capture
             # changes. As a workaround for now, we can delete then re-create.
             log(f"- Skipped {spec.slug} (already exists)")

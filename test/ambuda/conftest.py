@@ -1,5 +1,6 @@
 import pytest
 from flask_login import FlaskLoginClient
+from sqlalchemy import select
 from sqlalchemy.engine import Engine
 
 import ambuda.database as db
@@ -105,10 +106,14 @@ def initialize_test_db():
     session.flush()
 
     # Roles
-    p1_role = session.query(db.Role).filter_by(name="p1").one()
-    p2_role = session.query(db.Role).filter_by(name="p2").one()
-    moderator_role = session.query(db.Role).filter_by(name="moderator").one()
-    admin_role = session.query(db.Role).filter_by(name="admin").one()
+    stmt = select(db.Role).filter_by(name="p1")
+    p1_role = session.scalars(stmt).one()
+    stmt = select(db.Role).filter_by(name="p2")
+    p2_role = session.scalars(stmt).one()
+    stmt = select(db.Role).filter_by(name="moderator")
+    moderator_role = session.scalars(stmt).one()
+    stmt = select(db.Role).filter_by(name="admin")
+    admin_role = session.scalars(stmt).one()
 
     session.add(p1_role)
     session.add(p2_role)
@@ -155,7 +160,8 @@ def initialize_test_db():
     session.add(project)
     session.flush()
 
-    reviewed_0 = session.query(db.PageStatus).filter_by(name="reviewed-0").one()
+    stmt = select(db.PageStatus).filter_by(name="reviewed-0")
+    reviewed_0 = session.scalars(stmt).one()
 
     page = db.Page(project_id=project.id, slug="1", order=1, status_id=reviewed_0.id)
     session.add(page)
@@ -199,33 +205,38 @@ def client(flask_app):
 @pytest.fixture()
 def rama_client(flask_app):
     session = get_session()
-    user = session.query(db.User).filter_by(username="u-basic").first()
+    stmt = select(db.User).filter_by(username="u-basic")
+    user = session.scalars(stmt).first()
     return flask_app.test_client(user=user)
 
 
 @pytest.fixture()
 def moderator_client(flask_app):
     session = get_session()
-    moderator = session.query(db.User).filter_by(username="u-moderator").first()
+    stmt = select(db.User).filter_by(username="u-moderator")
+    moderator = session.scalars(stmt).first()
     return flask_app.test_client(user=moderator)
 
 
 @pytest.fixture()
 def admin_client(flask_app):
     session = get_session()
-    user = session.query(db.User).filter_by(username="u-admin").first()
+    stmt = select(db.User).filter_by(username="u-admin")
+    user = session.scalars(stmt).first()
     return flask_app.test_client(user=user)
 
 
 @pytest.fixture()
 def deleted_client(flask_app):
     session = get_session()
-    user = session.query(db.User).filter_by(username="u-deleted").first()
+    stmt = select(db.User).filter_by(username="u-deleted")
+    user = session.scalars(stmt).first()
     return flask_app.test_client(user=user)
 
 
 @pytest.fixture()
 def banned_client(flask_app):
     session = get_session()
-    user = session.query(db.User).filter_by(username="u-banned").first()
+    stmt = select(db.User).filter_by(username="u-banned")
+    user = session.scalars(stmt).first()
     return flask_app.test_client(user=user)
