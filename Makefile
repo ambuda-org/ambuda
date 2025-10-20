@@ -1,49 +1,5 @@
-# Environment. Valid values are: local, staging, and prod
-AMBUDA_DEPLOYMENT_ENV=local
-AMBUDA_HOST_IP=0.0.0.0
-AMBUDA_HOST_PORT=5000
-
-# Control the verbosity of messages using a flag
-ifdef mode
-	ifeq ("$(origin mode)", "command line")
-		BUILD_MODE = $(mode)
-	endif
-else
-	BUILD_MODE = default
-endif
-
-ifdef ($(BUILD_MODE),dev)
-	IO_REDIRECT = 
-	DOCKER_VERBOSITY = 
-	DOCKER_LOG_LEVEL = 
-	DOCKER_DETACH = 
-else ifeq ($(BUILD_MODE),quiet)
-	IO_REDIRECT = &> /dev/null
-	DOCKER_VERBOSITY = -qq
-	DOCKER_LOG_LEVEL = --log-level ERROR
-	DOCKER_DETACH = --detach
-else ifeq ($(BUILD_MODE),default)
-	IO_REDIRECT = 
-	DOCKER_VERBOSITY = 
-	DOCKER_LOG_LEVEsL = 
-	DOCKER_DETACH = --detach
-endif
-
 # Needed because we have folders called "docs" and "test" that confuse `make`.
 .PHONY: docs test py-venv-check clean deploy
-
-.EXPORT_ALL_VARIABLES:
-
-# Git and docker params
-GITCOMMIT=$(shell git rev-parse --short HEAD)
-GITBRANCH=$(shell git rev-parse --abbrev-ref --short HEAD)
-AMBUDA_VERSION=v0.1
-AMBUDA_NAME=ambuda
-AMBUDA_IMAGE=${AMBUDA_NAME}:${AMBUDA_VERSION}-${GITBRANCH}-${GITCOMMIT}
-AMBUDA_IMAGE_LATEST="$(AMBUDA_NAME)-rel:latest"
-
-DB_FILE = ${PWD}/deploy/data/database/database.db
-
 
 # Setup commands
 # ===============================================
@@ -127,49 +83,33 @@ devserver:
 celery: 
 	uv run celery -A ambuda.tasks worker --loglevel=INFO
 
+deploy:
+	uv run fab deploy
+
 
 # Docker commands
 # ===============================================
 
-.PHONY: docker-setup-db docker-build docker-start docker-stop docker-logs
-# Start DB using Docker.
-docker-setup-db: docker-build 
-ifneq ("$(wildcard $(DB_FILE))","")
-	@echo "Ambuda using your existing database!"
-else
-	@docker ${DOCKER_LOG_LEVEL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose-dbsetup.yml up ${IO_REDIRECT}
-	@echo "Ambuda Database : ✔ "
-endif
-	
-# Build docker image. All tag the latest to the most react image
-# docker-build: lint-check
-docker-build: 
-	@echo "> Ambuda build is in progress. Expect it to take 2-5 minutes."
-	@printf "%0.s-" {1..21} && echo
-	@docker build ${DOCKER_VEBOSITY} -t ${AMBUDA_IMAGE} -t ${AMBUDA_IMAGE_LATEST} -f build/containers/Dockerfile.final ${PWD} ${IO_REDIRECT}
-	@echo "Ambuda Image    : ✔ (${AMBUDA_IMAGE}, ${AMBUDA_IMAGE_LATEST})"
+# Start all development services (web, celery, redis) with hot-reloading
+ambuda-dev:
+	@echo "🚀 Starting Ambuda development environment in Docker..."
+	@echo "   This will start: web server, Celery workers, and Redis"
+	@mkdir -p data/database data/file-uploads data/vidyut
+	docker compose -f docker-compose.dev.yml up
 
-# Start Docker services.
-docker-start: docker-build docker-setup-db
-	@docker ${DOCKER_LOG_LEVEL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml up ${DOCKER_DETACH} ${IO_REDIRECT}
-	@echo "Ambuda WebApp   : ✔ "
-	@echo "Ambuda URL      : http://${AMBUDA_HOST_IP}:${AMBUDA_HOST_PORT}"
-	@printf "%0.s-" {1..21} && echo
-	@echo 'To stop, run "make docker-stop".'
+ambuda-dev-shell:
+	docker compose -f docker-compose.dev.yml exec web /bin/bash
 
-# Stop docker services
-docker-stop: 
-	@docker ${DOCKER_LOG_LEVEL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml stop
-	@docker ${DOCKER_LOG_LEVEL} compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml rm
-	@echo "Ambuda URL stopped"
+# Run database migrations in Docker
+ambuda-dev-migrate:
+	docker compose -f docker-compose.dev.yml exec web uv run alembic upgrade head
 
-# Show docker logs
-docker-logs: 
-	@docker compose -p ambuda-${AMBUDA_DEPLOYMENT_ENV} -f deploy/${AMBUDA_DEPLOYMENT_ENV}/docker-compose.yml logs
-
-
-deploy:
-	uv run fab deploy
+# Seed the database with basic data
+ambuda-dev-seed-basic:
+	docker compose -f docker-compose.dev.yml exec web uv run python -m ambuda.seed.lookup
+	docker compose -f docker-compose.dev.yml exec web uv run python -m ambuda.seed.texts.gretil
+	docker compose -f docker-compose.dev.yml exec web uv run python -m ambuda.seed.dcs
+	docker compose -f docker-compose.dev.yml exec web uv run python -m ambuda.seed.dictionaries.monier
 
 
 # Lint commands

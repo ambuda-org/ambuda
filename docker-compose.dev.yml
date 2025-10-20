@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # Redis for inter-process communication
+  redis:
+    image: redis:7-alpine
+    container_name: ambuda-redis-dev
+    command: redis-server --port 6379
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Main web server with hot-reloading
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: ambuda-web-dev
+    command: /app/scripts/dev-entrypoint.sh
+    volumes:
+      # Mount source code for hot-reloading
+      - ./ambuda:/app/ambuda
+      - ./config.py:/app/config.py
+      - ./cli.py:/app/cli.py
+      - ./wsgi.py:/app/wsgi.py
+      - ./alembic.ini:/app/alembic.ini
+      - ./migrations:/app/migrations
+      - ./scripts:/app/scripts
+      - ./tests:/app/tests
+      - ./test:/app/test
+      # Mount data directories
+      - ./data/database:/app/data/database
+      - ./data/file-uploads:/app/data/file-uploads
+      - ./data/vidyut:/app/data/vidyut
+      # Mount node_modules as volume for performance
+      - node_modules:/app/node_modules
+    ports:
+      - "5000:5000"
+    env_file: .env.docker
+    depends_on:
+      redis:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+
+  # Celery worker for background tasks
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: ambuda-celery-dev
+    command: /app/scripts/start_celery.sh
+    volumes:
+      # Mount source code for hot-reloading
+      - ./ambuda:/app/ambuda
+      - ./config.py:/app/config.py
+      - ./cli.py:/app/cli.py
+      - ./scripts:/app/scripts
+      # Mount data directories
+      - ./data/database:/app/data/database
+      - ./data/file-uploads:/app/data/file-uploads
+      - ./data/vidyut:/app/data/vidyut
+    env_file: .env.docker
+    depends_on:
+      redis:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
+
+volumes:
+  redis-data:
+  node_modules:

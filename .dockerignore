@@ -1,5 +1,65 @@
-node_modules
-data
-env
-__pycache__
+# Git files
+.git
+.gitignore
+.gitattributes
 
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info
+dist
+build
+.pytest_cache
+.mypy_cache
+.ruff_cache
+
+# Virtual environments
+env
+venv
+ENV
+.venv
+
+# Node modules (installed in container)
+node_modules
+
+# Data directories (mounted as volumes)
+data
+deploy/data
+deploy/data_database
+deploy/data_files
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Documentation
+docs/_build
+
+# Test coverage
+htmlcov
+.coverage
+*.cover
+.hypothesis
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs
+
+# Temporary files
+*.tmp
+tmp/
+temp/

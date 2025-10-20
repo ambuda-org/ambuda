@@ -1,0 +1,54 @@
+# Development Dockerfile for Ambuda
+# This provides a complete development environment with hot-reloading for all services
+
+FROM python:3.13-slim-bookworm
+
+# Prevent Python from writing .pyc files and enable unbuffered output
+ENV PYTHONFAULTHANDLER=1 \
+    PYTHONHASHSEED=random \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_DEFAULT_TIMEOUT=100
+
+WORKDIR /app
+
+# Install system dependencies including Node.js
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    gcc \
+    g++ \
+    make \
+    python3-dev \
+    build-essential \
+    ca-certificates \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv for faster Python package management
+RUN pip install uv
+
+# Copy dependency files first for better layer caching
+COPY pyproject.toml ./
+COPY package.json package-lock.json tailwind.config.js ./
+
+# Install Python dependencies using uv
+RUN uv pip install --system -e .
+
+# Install Node.js dependencies
+RUN npm ci
+
+# Copy the rest of the application code
+# In development, most of this will be mounted as a volume
+COPY . .
+
+# Create necessary directories
+RUN mkdir -p /app/data/database /app/data/file-uploads /app/data/vidyut
+
+# Expose ports
+EXPOSE 5000
+
+# Default command (will be overridden by docker-compose for different services)
+CMD ["/bin/bash"]
