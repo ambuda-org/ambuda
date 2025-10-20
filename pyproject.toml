@@ -27,7 +27,7 @@ dependencies = [
     "pymupdf==1.26.5",
     "python-dateutil==2.8.2",
     "python-dotenv==0.20.0",
-    "python-slugify==6.1.2",
+    "python-slugify==8.0.4",
     "redis==4.3.4",
     "regex==2022.6.2",
     "requests>=2.27.1",
