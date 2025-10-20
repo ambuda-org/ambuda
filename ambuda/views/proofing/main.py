@@ -1,5 +1,6 @@
 """Views for basic site pages."""
 
+from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -7,7 +8,7 @@ from flask import Blueprint, current_app, flash, render_template
 from flask_login import current_user
 from flask_wtf import FlaskForm
 from slugify import slugify
-from sqlalchemy import orm
+from sqlalchemy import func, orm
 from wtforms import FileField, RadioField, StringField
 from wtforms.validators import DataRequired, ValidationError
 from wtforms.widgets import TextArea
@@ -94,17 +95,7 @@ class CreateProjectForm(FlaskForm):
 def index():
     """List all available proofing projects."""
 
-    # Fetch all project data in a single query for better performance.
     session = q.get_session()
-    projects = (
-        session.query(db.Project)
-        .options(
-            orm.joinedload(db.Project.pages)
-            .load_only(db.Page.id)
-            .joinedload(db.Page.status)
-        )
-        .all()
-    )
     status_classes = {
         SitePageStatus.R2: "bg-green-200",
         SitePageStatus.R1: "bg-yellow-200",
@@ -112,23 +103,44 @@ def index():
         SitePageStatus.SKIP: "bg-slate-100",
     }
 
-    projects = q.projects()
+    # Get all projects
+    projects = session.query(db.Project).all()
+
+    # Get aggregated page stats per project in a single query
+    stats = (
+        session.query(
+            db.Page.project_id,
+            db.PageStatus.name,
+            func.count(db.Page.id).label('count')
+        )
+        .join(db.PageStatus)
+        .group_by(db.Page.project_id, db.PageStatus.name)
+        .all()
+    )
+
+    # Reorganize into the data structure we need
+    status_counts_by_project = defaultdict(lambda: defaultdict(int))
+    for project_id, status_name, count in stats:
+        status_counts_by_project[project_id][status_name] = count
+
+    # Build display dictionaries
     statuses_per_project = {}
     progress_per_project = {}
     pages_per_project = {}
-    for project in projects:
-        page_statuses = [p.status.name for p in project.pages]
 
-        # FIXME(arun): catch this properly, prevent prod issues
-        if not page_statuses:
+    for project in projects:
+        counts = status_counts_by_project[project.id]
+        num_pages = sum(counts.values())
+
+        if num_pages == 0:
             statuses_per_project[project.id] = {}
             pages_per_project[project.id] = 0
             continue
 
-        num_pages = len(page_statuses)
         project_counts = {}
         for enum_value, class_ in status_classes.items():
-            fraction = page_statuses.count(enum_value) / num_pages
+            count = counts.get(enum_value.value, 0)
+            fraction = count / num_pages
             project_counts[class_] = fraction
             if enum_value == SitePageStatus.R0:
                 # The more red pages there are, the lower progress is.
