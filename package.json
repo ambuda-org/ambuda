@@ -18,7 +18,7 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
     "jest": "^29.0.1",
-    "jest-environment-jsdom": "^29.0.1",
+    "jest-environment-jsdom": "^30.2.0",
     "lint": "^1.1.2"
   },
   "scripts": {
