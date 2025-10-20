@@ -27,3 +27,11 @@ class SitePageStatus(str, Enum):
     R2 = "reviewed-2"
     #: Not relevant.
     SKIP = "skip"
+
+class TextGenre(str, Enum):
+    """Define text genres."""
+
+    ITIHASA = "Itihasa"
+    UPANISHAT = "Upanishat"
+    KAVYA = "Kavya"
+    ANYE = "Anye"

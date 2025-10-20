@@ -2,7 +2,7 @@
 
 # For convenience, import all models into this module.
 
-from ambuda.enums import SiteRole  # NOQA F401
+from ambuda.enums import SitePageStatus, SiteRole, TextGenre  # NOQA F401
 from ambuda.models.auth import *  # NOQA F401,F403
 from ambuda.models.base import Base  # NOQA F401,F403
 from ambuda.models.blog import *  # NOQA F401,F403

@@ -60,6 +60,16 @@ def texts() -> list[db.Text]:
     return session.query(db.Text).all()
 
 
+def texts_genre(genre=None) -> list[str]:
+    """Return a list of all texts in a genre."""
+    session = get_session()
+    query = session.query(db.Text.slug).join(db.Genre)  # Join the Text and Genre tables
+    if genre:
+        query = query.filter(db.Genre.name == genre.name)  # Filter by genre name
+    texts = query.all()
+    return [text[0] for text in texts]
+
+
 def page_statuses() -> list[db.PageStatus]:
     session = get_session()
     return session.query(db.PageStatus).all()

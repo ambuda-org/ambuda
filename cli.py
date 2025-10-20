@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 import ambuda
 from ambuda import database as db
 from ambuda import queries as q
-from ambuda.seed.utils.data_utils import create_db
+from ambuda.seed.utils.data_utils import Spec, add_document, create_db
 from ambuda.tasks.projects import create_project_inner
 from ambuda.tasks.utils import LocalTaskStatus
 
@@ -105,6 +105,23 @@ def create_project(title, pdf_path):
             creator_id=arbitrary_user.id,
             task_status=LocalTaskStatus(),
         )
+
+
+@cli.command()
+@click.option("--title", help="title of the new text")
+@click.option("--slug", help="slug of the new text")
+@click.option("--tei-path", help="path to the source PDF")
+@click.option("--genre", help="text genre from [Itihasa, Upanishat, Kavya, Anye]")
+def publish_text(slug, title, tei_path, genre="Anye"):
+    """Publish a proofread text from a TEI-XML."""
+
+    # reverse mapping genre to an TextGenre enum member 
+    genre_formatted = genre.title()
+    genre_enum = next((g for g in db.TextGenre if g.value == genre_formatted), None)
+    if genre_enum is None:
+        raise ValueError(f"Enter a valid genre: {genre}")
+    spec = Spec(slug, title, tei_path, genre_enum)
+    add_document(engine, spec, tei_path)
 
 
 if __name__ == "__main__":

@@ -1,14 +1,26 @@
 import hashlib
 import io
+import logging
 import os
 import zipfile
-
-import requests
-from sqlalchemy import create_engine
+from dataclasses import dataclass
 
 import config
+import requests
 from ambuda import database as db
 from ambuda.seed.utils.itihasa_utils import CACHE_DIR
+from ambuda.utils.tei_parser import Document, parse_document
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
+
+LOG = logging.getLogger(__name__)
+
+@dataclass
+class Spec:
+    slug: str
+    title: str
+    filename: str
+    genre: db.TextGenre
 
 
 def fetch_text(url: str, read_from_cache: bool = True) -> str:
@@ -83,3 +95,46 @@ def create_db():
 
     db.Base.metadata.create_all(engine)
     return engine
+
+
+def _create_new_text(session, spec: Spec, document: Document):
+    """Create new text in the database."""
+    text_genre = session.query(db.Genre).filter_by(name=spec.genre.value).first()
+    text = db.Text(slug=spec.slug, title=spec.title, header=document.header, genre=text_genre)
+    session.add(text)
+    session.flush()
+
+    n = 1
+    for section in document.sections:
+        db_section = db.TextSection(
+            text_id=text.id, slug=section.slug, title=section.slug
+        )
+        session.add(db_section)
+        session.flush()
+
+        for block in section.blocks:
+            db_block = db.TextBlock(
+                text_id=text.id,
+                section_id=db_section.id,
+                slug=block.slug,
+                xml=block.blob,
+                n=n,
+            )
+            session.add(db_block)
+            n += 1
+
+    session.commit()
+
+
+def add_document(engine, spec: Spec, document_path):
+    " Add a document to the database. "
+
+    with Session(engine) as session:  # noqa: F821
+        if session.query(db.Text).filter_by(slug=spec.slug).first():
+            # FIXME: update existing texts in-place so that we can capture
+            # changes. As a workaround for now, we can delete then re-create.
+            LOG.info(f"- Skipped {spec.slug} (already exists)")  # noqa: F821
+        else:
+            document = parse_document(document_path)
+            _create_new_text(session, spec, document)
+            LOG.info(f"- Created {spec.slug}")  # noqa: F821

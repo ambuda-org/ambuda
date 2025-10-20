@@ -1,19 +1,21 @@
 """Views related to texts: title pages, sections, verses, etc."""
 
 import json
-
-from flask import Blueprint, abort, jsonify, render_template, url_for
-from indic_transliteration import sanscript
+import logging
 
 import ambuda.database as db
 import ambuda.queries as q
-from ambuda.consts import TEXT_CATEGORIES
+
+#from ambuda.consts import TEXT_CATEGORIES
 from ambuda.utils import xml
 from ambuda.utils.json_serde import AmbudaJSONEncoder
 from ambuda.views.api import bp as api
 from ambuda.views.reader.schema import Block, Section
+from flask import Blueprint, abort, jsonify, render_template, url_for
+from indic_transliteration import sanscript
 
 bp = Blueprint("texts", __name__)
+LOG = logging.getLogger(__name__)
 
 # A hacky list that decides which texts have parse data.
 HAS_NO_PARSE = {
@@ -86,8 +88,19 @@ def _hk_to_dev(s: str) -> str:
 def index():
     """Show all texts."""
     all_texts = {t.slug: t for t in q.texts()}
+
+    # Initialize a dictionary with keys as genres and values as texts in those genres
+    text_genres = {}
+
+    # Retrieve all genres from the database
+    genres = q.genres()
+
+    # Iterate over each genre and retrieve texts in that genre
+    for genre in genres:
+        texts = q.texts_genre(genre=genre)
+        text_genres[genre.name.lower()] = texts
     return render_template(
-        "texts/index.html", categories=TEXT_CATEGORIES, texts=all_texts
+        "texts/index.html", categories=text_genres, texts=all_texts
     )
 
 

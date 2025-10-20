@@ -5,6 +5,7 @@ services:
     image: ${AMBUDA_IMAGE}
     command: "/app/scripts/initialize_data.sh"
     volumes:
+      - ${PWD}/deploy/data/:/app/data/
       - ${PWD}/deploy/data_database/:/app/data/database/
       - ${PWD}/deploy/data_files/vidyut:/app/data/vidyut/
     environment:
