@@ -47,7 +47,7 @@ dev = [
     "click==8.1.3",
     "conllu==4.5.2",
     "fabric==3.2.2",
-    "mypy-extensions==0.4.3",
+    "mypy-extensions==1.1.0",
     "pytest==8.4.2",
     "pytest-cov==7.0.0",
     "ruff>=0.14.1",
