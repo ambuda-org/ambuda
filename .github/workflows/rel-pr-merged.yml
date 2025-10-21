@@ -54,7 +54,7 @@ jobs:
     runs-on: [self-hosted, staging, linux]
     environment: staging
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v5
         id: image-name
         with:
           name: image-name
