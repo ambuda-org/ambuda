@@ -13,24 +13,25 @@ show you how to build it.
 Contents
 --------
 
-- [Quickstart][#quickstart]
-- [Architecture][#architecture]
-- [Documentation][#documentation]
-- [Contributing][#contributing]
+- [Quickstart](#quickstart)
+- [Architecture](#architecture)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
 
 
 Quickstart
 ----------
 
-The quickest way to run Ambuda on your computer is to use docker compose` from your command line.
-You can install `docker compose` through either the [Docker website][docker] or your favorite
+The quickest way to run Ambuda on your computer is to use `docker compose` from your command line.
+
+- You can install `docker compose` through either the [Docker website][docker] or your favorite
 package manager. If you have a Unix machine and don't like Docker Desktop, we recommend
 [Colima][colima].
 
 [docker]: https://docs.docker.com/get-docker/
 [colima]: https://github.com/abiosoft/colima
 
-Once you have both installed, starting the site is simple:
+Once you have `docker` configured, starting the site is simple:
 
 ```
 make ambuda-dev
@@ -47,9 +48,9 @@ This command will do the following:
 - Initialize a Sqlite database with sample data. Data is persisted to the `data/` directory and
   survives across restarts.
 
-- Set up hot-reloading for Python, CSS, and JavaScript
+- Set up hot reloading for Python, CSS, and JavaScript.
 
-- Start the web server at http://localhost:5000
+- Start the web server at http://localhost:5000.
 
 To quit, press `Ctrl+C` to stop all services.
 
@@ -75,8 +76,6 @@ documentation about Ambuda's technical design.
 
 Contributing
 ------------
-
-(Under revision.)
 
 For details on how to contribute to Ambuda, see [`CONTRIBUTING.md`][CONTRIBUTING.md]. We also
 strongly recommend joining our [Discord channel][discord], where we have an

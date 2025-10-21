@@ -209,5 +209,5 @@ babel-compile:
 # ===============================================
 
 clean:
-	@rm -rf deploy/data/
+	@rm -rf data/
 	@rm -rf ambuda/translations/*

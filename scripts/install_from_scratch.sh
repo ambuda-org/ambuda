@@ -3,7 +3,7 @@
 # Exit if any step in this install script fails.
 set -e
 
-if [ -e data ] || [ -e node_modules ] || [ -e .env ] || [ -e .venv ] || [ -e deploy/data/ ]; then
+if [ -e data ] || [ -e node_modules ] || [ -e .env ] || [ -e .venv ] || [ -e data/ ]; then
 cat << "EOF"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
@@ -23,7 +23,7 @@ EOF
     python3 -c "exit(0) if input('Are you sure you want to continue? (y/n): ') == 'y' else exit(1)"
 
     echo "Cleaning up old state ..."
-    rm -Rf .env deploy/data/ env/ node_modules/
+    rm -Rf .env data/ env/ node_modules/
 fi
 
 
@@ -45,11 +45,11 @@ cat << EOF > .env
 
 # Flask parameters
 FLASK_ENV=development
-FLASK_UPLOAD_FOLDER="$(pwd)/deploy/data/file-uploads"
+FLASK_UPLOAD_FOLDER="$(pwd)/data/file-uploads"
 SECRET_KEY="insecure development secret key"
 
 # Database
-SQLALCHEMY_DATABASE_URI="sqlite:///$(pwd)/deploy/data/database/database.db"
+SQLALCHEMY_DATABASE_URI="sqlite:///$(pwd)/data/database/database.db"
 
 # OCR and BOT credentials
 AMBUDA_BOT_PASSWORD="insecure bot password"
