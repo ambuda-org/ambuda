@@ -86,6 +86,8 @@ class BaseConfig:
     #: Logger setup
     LOG_LEVEL = logging.INFO
 
+    VIDYUT_DATA_DIR = _env("VIDYUT_DATA_DIR")
+
     # Extensions
     # ----------
 
@@ -245,6 +247,9 @@ def _validate_config(config: BaseConfig):
         raise ValueError("This config does not define SQLALCHEMY_DATABASE_URI")
 
     if not config.UPLOAD_FOLDER:
+        raise ValueError("This config does not define UPLOAD_FOLDER.")
+
+    if not config.VIDYUT_DATA_DIR:
         raise ValueError("This config does not define UPLOAD_FOLDER.")
 
     if not Path(config.UPLOAD_FOLDER).is_absolute():

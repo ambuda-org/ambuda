@@ -38,9 +38,6 @@ RUN npm ci
 # In development, most of this will be mounted as a volume
 COPY . .
 
-# Create necessary directories
-RUN mkdir -p /app/data/database /app/data/file-uploads /app/data/vidyut
-
 EXPOSE 5000
 
 # Default command (will be overridden by docker-compose for different services)

@@ -1,0 +1,31 @@
+{% extends 'header-main-footer.html' %}
+
+
+{% block title %}Bharati{% endblock %}
+
+
+{% block main %}
+<article class="mx-4 md:mx-auto max-w-2xl md:mt-12 mb-24 md:mb-36">
+<header>
+  <h1 class="text-center text-4xl md:text-6xl font-bold text-slate-700 my-8">
+    {{ 'bhAratI'|d }}
+  </h1>
+</header>
+<div x-data="bharati">
+  <form>
+    <div class="flex mb-2 drop-shadow-sm">
+      <input
+        name="q"
+          type="text"
+          class="border border-slate-200 text-lg p-2 flex-1 bg-slate-100 text-slate-900 rounded-tl rounded-bl placeholder:text-slate-400"
+          x-model="query"></input>
+      <input type="submit" value="{{ _('Search') }}"
+          class="cursor-pointer btn-submit p-2 rounded-tr rounded-br"></input>
+    </div>
+  </form>
+
+  <div id="bharati-response">
+  </div>
+</div>
+</article>
+{% endblock %}

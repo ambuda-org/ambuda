@@ -24,7 +24,7 @@ services:
     container_name: ambuda-web-dev
     command: /app/scripts/dev-entrypoint.sh
     volumes:
-      # Mount source code for hot-reloading
+      # Source code
       - ./ambuda:/app/ambuda
       - ./config.py:/app/config.py
       - ./cli.py:/app/cli.py
@@ -34,10 +34,8 @@ services:
       - ./scripts:/app/scripts
       - ./tests:/app/tests
       - ./test:/app/test
-      # Mount data directories
-      - ./data/database:/app/data/database
-      - ./data/file-uploads:/app/data/file-uploads
-      - ./data/vidyut:/app/data/vidyut
+      # Data
+      - ./data:/app/data
       # Mount node_modules as volume for performance
       - node_modules:/app/node_modules
     ports:
@@ -57,15 +55,13 @@ services:
     container_name: ambuda-celery-dev
     command: /app/scripts/start_celery.sh
     volumes:
-      # Mount source code for hot-reloading
+      # Mount source code for hot reloading
       - ./ambuda:/app/ambuda
       - ./config.py:/app/config.py
       - ./cli.py:/app/cli.py
       - ./scripts:/app/scripts
-      # Mount data directories
-      - ./data/database:/app/data/database
-      - ./data/file-uploads:/app/data/file-uploads
-      - ./data/vidyut:/app/data/vidyut
+      # Data
+      - ./data:/app/data
     env_file: .env.docker
     depends_on:
       redis:

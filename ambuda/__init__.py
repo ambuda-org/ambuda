@@ -27,6 +27,7 @@ from ambuda.utils.url_converters import ListConverter
 from ambuda.views.about import bp as about
 from ambuda.views.api import bp as api
 from ambuda.views.auth import bp as auth
+from ambuda.views.bharati import bp as bharati
 from ambuda.views.blog import bp as blog
 from ambuda.views.dictionaries import bp as dictionaries
 from ambuda.views.proofing import bp as proofing
@@ -133,6 +134,7 @@ def create_app(config_env: str):
     app.register_blueprint(about, url_prefix="/about")
     app.register_blueprint(api, url_prefix="/api")
     app.register_blueprint(auth)
+    app.register_blueprint(bharati, url_prefix="/bharati")
     app.register_blueprint(blog, url_prefix="/blog")
     app.register_blueprint(dictionaries, url_prefix="/tools/dictionaries")
     app.register_blueprint(parses, url_prefix="/parses")

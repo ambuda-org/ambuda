@@ -1,0 +1,44 @@
+{% extends 'header-main-footer.html' %}
+
+
+{% block title %}Bharati{% endblock %}
+
+
+{# SVG from: https://icons.getbootstrap.com/icons/search/ #}
+{% macro search_icon() %}
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" focusable="false">
+<path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+</svg>
+{% endmacro %}
+
+
+{% block main %}
+<article class="mx-4 md:mx-auto max-w-4xl md:mt-12 mb-24 md:mb-36">
+<div x-data="bharati">
+  <header class="flex items-center">
+    <h1 class="font-bold text-2xl pr-4">{{ 'bhAratI'|d }}</h1>
+    <form class="flex flex-1">
+      <input
+        name="q"
+          type="text"
+          class="border border-slate-200 flex-1 p-2 bg-slate-100 text-slate-900 rounded-tl rounded-bl placeholder:text-slate-400"
+          value="{{ query }}"></input>
+      <button type="submit" aria-label="Search" class="btn-submit cursor-pointer p-4 rounded-tr rounded-br">
+        {{ search_icon() }}
+      </button>
+    </form>
+  </header>
+
+  <section id="bharati-response" class="my-8">
+    <ul>
+      {% for e in entries %}
+      <li class="my-4">
+      {{ query|d }} &mdash;
+      {{ e.lemma|slp2dev }} &mdash;
+      {{ e.parse|slp2dev }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+</div>
+</article>
+{% endblock %}

@@ -3,7 +3,7 @@
 from datetime import datetime
 
 from dateutil.relativedelta import relativedelta
-from indic_transliteration import sanscript
+from vidyut.lipi import transliterate, Scheme
 from markdown_it import MarkdownIt
 
 #: A markdown parser for user-generated text.
@@ -22,17 +22,17 @@ MARKDOWN = MarkdownIt("js-default", {"typographer": True, "linkify": True}).enab
 
 def slp_to_devanagari(s: str) -> str:
     """SLP1 to Devanagari."""
-    return sanscript.transliterate(s, sanscript.SLP1, sanscript.DEVANAGARI)
+    return transliterate(s, Scheme.Slp1, Scheme.Devanagari)
 
 
 def devanagari(s: str) -> str:
     """HK to Devanagari."""
-    return sanscript.transliterate(s, sanscript.HK, sanscript.DEVANAGARI)
+    return transliterate(s, Scheme.HarvardKyoto, Scheme.Devanagari)
 
 
 def roman(s: str) -> str:
     """HK to Roman."""
-    return sanscript.transliterate(s, sanscript.HK, sanscript.IAST)
+    return transliterate(s, Scheme.HarvardKyoto, Scheme.Iast)
 
 
 def time_ago(dt: datetime, now=None) -> str:

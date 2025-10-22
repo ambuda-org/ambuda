@@ -7,6 +7,8 @@ export default {
     return `/api/dictionaries/${sourcesStr}/${query}`;
   },
 
+  ajaxBharatiQuery: (query) => `/api/bharati/query/${query}`,
+
   dictionaryQuery: (sources, query) => {
     const sourcesStr = sources.join(',');
     return `/tools/dictionaries/${sourcesStr}/${query}`;
