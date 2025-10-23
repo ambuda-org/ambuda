@@ -10,27 +10,31 @@
   </h1>
 </header>
 
-{% for table in lakaras %}
-<table class="table-fixed w-full border text-lg my-8">
-  <caption class="text-left font-bold p-2 bg-slate-100 text-slate-400">
-    {{ table.prayoga|md }} {{ table.lakara|md }}
-  </caption>
-  <thead>
-  </thead>
-  <tbody>
-    {% for row in table.rows %}
-      <tr class="border-b">
-      {% for padas in row %}
-        <td class="p-2">
-        {% for pada in padas %}
-          {{ pada.text|md }}{% if not loop.last %}, {% endif %}
+{% for lakara in tinantas %}
+  <section class="flex gap-4">
+  {% for table in lakara if table %}
+    <table class="table-fixed w-full border text-lg my-8">
+      <caption class="text-left font-bold p-2 bg-slate-100 text-slate-400">
+        {{ table.prayoga|md }} {{ table.lakara|md }}
+      </caption>
+      <thead>
+      </thead>
+      <tbody>
+        {% for row in table.rows %}
+          <tr class="border-b">
+          {% for padas in row %}
+            <td class="p-2">
+            {% for pada in padas %}
+              {{ pada.text|md }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+            </td>
+          {% endfor %}
+          </tr>
         {% endfor %}
-        </td>
-      {% endfor %}
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
+      </tbody>
+    </table>
+  {% endfor %}
+  </section>
 {% endfor %}
 
 {% endblock %}

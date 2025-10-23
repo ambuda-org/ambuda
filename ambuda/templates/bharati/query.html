@@ -7,30 +7,50 @@
 {% macro show_dhatu_entry(de) -%}
   {% set path = "{}-{}".format(de.dhatu.aupadeshika, de.dhatu.gana)|md %}
   <a class="text-sky-600 hover:underline" href="{{ url_for('bharati.dhatu', path=path) }}">
-  {{- de.dhatu.aupadeshika|md }} {{ de.artha_sa|md }} {{ (de.dhatu.gana|v_gloss).sa_short|md }}
+  {{- de.dhatu.aupadeshika|md }} ({{ (de.dhatu.gana|v_gloss).sa_short|md }})
   </a>
 {%- endmacro %}
 
 
+{% macro arr() -%}
+<span class="text-slate-400">&rarr;</span>
+{%- endmacro %}
+
+
 {% block response %}
-<p class="text-sm mb-4 text-slate-500">Showing {{ entries|length }} results for {{ query }}.</p>
+<p class="text-sm mb-4 text-slate-500">
+  Showing {{ entries|length }}
+  {% if entries|length == 1 %}result{% else %}results{% endif %}
+  for {{ query }}.
+</p>
+
 <ul>
   {% for e in entries %}
   <li class="my-4">
-    {{ query|d }} &mdash;
     {% if e is subanta %}
       {% set pe = e.pratipadika_entry %}
       {% if pe is basic_pratipadika %}
         {{ pe.pratipadika.text|md }}
       {% elif pe is krdanta %}
         {{ show_dhatu_entry(pe.dhatu_entry) }}
+        {{ arr() }}
+        {{ pe.dhatu_entry.clean_text|md }}
+        + {{ pe.krt|string|md }}
       {% endif %}
+
+      {{ arr() }}
+
+      {{ query|d }}
 
       ({{ (e.linga|v_gloss).sa_short|md }}
       {{ (e.vibhakti|v_gloss).sa_short|md }}
       {{ (e.vacana|v_gloss).sa_short|md }})
     {% elif e is tinanta %}
       {{ show_dhatu_entry(e.dhatu_entry) }}
+
+      {{ arr() }}
+
+      {{ query|d }}
 
       ({{ (e.prayoga|v_gloss).sa_short|md }}
       {{ (e.lakara|v_gloss).sa_short|md }}

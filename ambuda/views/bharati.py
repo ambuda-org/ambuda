@@ -17,6 +17,7 @@ from vidyut.prakriya import (
     Pada,
     Dhatu,
     Data,
+    DhatuPada,
 )
 
 from ambuda.views.api import bp as api
@@ -121,6 +122,7 @@ class Tinanta:
     vacana: Vacana
     lakara: Lakara
     prayoga: Prayoga
+    dhatu_pada: DhatuPada
 
     @property
     def url(self) -> str:
@@ -137,14 +139,16 @@ class Tinanta:
 class LakaraTable:
     lakara: str
     prayoga: str
+    pada: str
     # tinantas[purusha][vacana] = [padas]
     rows: list[list[list[Tinanta]]]
 
 
-def _create_lakara_table(dhatu: Dhatu, lakara: Lakara, prayoga: Prayoga) -> LakaraTable:
+def _create_lakara_table(dhatu: Dhatu, *, lakara: Lakara, prayoga: Prayoga, pada: DhatuPada) -> LakaraTable | None:
     tinantas = []
     v = Vyakarana()
 
+    had_any = False
     for purusha in [Purusha.Prathama, Purusha.Madhyama, Purusha.Uttama]:
         row = []
         for vacana in [Vacana.Eka, Vacana.Dvi, Vacana.Bahu]:
@@ -156,8 +160,12 @@ def _create_lakara_table(dhatu: Dhatu, lakara: Lakara, prayoga: Prayoga) -> Laka
                     prayoga=prayoga,
                     purusha=purusha,
                     vacana=vacana,
+                    dhatu_pada=pada,
                 )
             )
+            if prakriyas:
+                had_any = True
+
             for p in prakriyas:
                 text = p.text
                 if text.endswith("d"):
@@ -170,13 +178,18 @@ def _create_lakara_table(dhatu: Dhatu, lakara: Lakara, prayoga: Prayoga) -> Laka
                     vacana=vacana,
                     prayoga=prayoga,
                     lakara=lakara,
+                    dhatu_pada=pada,
                 )
                 cell.append(tinanta)
+
             cell = sorted(cell, key=lambda x: x.text)
             row.append(cell)
         tinantas.append(row)
 
-    return LakaraTable(lakara=str(lakara), prayoga=str(prayoga), rows=tinantas)
+    if had_any:
+        return LakaraTable(lakara=str(lakara), prayoga=str(prayoga), pada=str(pada), rows=tinantas)
+    else:
+        return None
 
 
 @functools.cache
@@ -190,8 +203,12 @@ def get_dhatus() -> map:
         Path(current_app.config["VIDYUT_DATA_DIR"]) / "prakriya"
     ).load_dhatu_entries()
     map = {}
+
+    v = Vyakarana()
     for e in entries:
-        key = f"{e.dhatu.aupadeshika}-{str(e.dhatu.gana)}"
+        aupadeshika_no_svara = e.dhatu.aupadeshika.replace("\\", "").replace("^", "")
+        key = f"{aupadeshika_no_svara}-{str(e.dhatu.gana)}"
+        print(key)
         map[key] = e
     return map
 
@@ -225,15 +242,17 @@ def index():
 def dhatu(path):
     input_scheme = detect(path) or Scheme.Devanagari
     dhatu_key = transliterate(path, input_scheme, Scheme.Slp1)
+    dhatu_key = dhatu_key.replace("^", "").replace("\\", "")
 
     dhatu_map = get_dhatus()
     try:
         dhatu_entry = dhatu_map[dhatu_key]
     except KeyError:
+        print(dhatu_key)
         return redirect(url_for("bharati.index"))
 
     dhatu = dhatu_entry.dhatu
-    lakaras = []
+    tinantas = []
     for la in [
         Lakara.Lat,
         Lakara.Lit,
@@ -245,9 +264,13 @@ def dhatu(path):
         Lakara.AshirLin,
         Lakara.Lun,
     ]:
-        lakaras.append(_create_lakara_table(dhatu, la, Prayoga.Kartari))
+        lakara = []
+        for pada in [DhatuPada.Parasmaipada, DhatuPada.Atmanepada]:
+            lakara.append(_create_lakara_table(dhatu, lakara=la, prayoga=Prayoga.Kartari,
+                                                pada=pada))
+        tinantas.append(lakara)
     return render_template(
-        "bharati/dhatu.html", dhatu_entry=dhatu_entry, lakaras=lakaras
+        "bharati/dhatu.html", dhatu_entry=dhatu_entry, tinantas=tinantas
     )
 
 

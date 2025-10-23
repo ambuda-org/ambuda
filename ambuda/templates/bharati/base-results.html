@@ -12,14 +12,6 @@
 {% endmacro %}
 
 
-{% macro show_dhatu_entry(de) -%}
-  {% set path = "{}-{}".format(de.dhatu.aupadeshika, de.dhatu.gana)|md %}
-  <a class="text-sky-600 hover:underline" href="{{ url_for('bharati.dhatu', path=path) }}">
-  {{- de.dhatu.aupadeshika|md }} {{ de.artha_sa|md }} {{ (de.dhatu.gana|v_gloss).sa_short|md }}
-  </a>
-{%- endmacro %}
-
-
 {% block main %}
 <article class="p-4 mx-auto max-w-6xl md:mt-12 mb-24 md:mb-36">
 <div x-data="bharati">
