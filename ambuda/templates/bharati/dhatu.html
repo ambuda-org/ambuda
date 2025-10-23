@@ -1,0 +1,36 @@
+{% extends 'bharati/base-results.html' %}
+
+
+{% block response %}
+<header class="text-4xl">
+  {% set de = dhatu_entry %}
+  <h1>
+    <span class="text-4xl">{{ de.dhatu.aupadeshika|md }}</span>
+    <span class="text-2xl pl-4 text-slate-500">{{ de.artha|md }}</span>
+  </h1>
+</header>
+
+{% for table in lakaras %}
+<table class="table-fixed w-full border text-lg my-8">
+  <caption class="text-left font-bold p-2 bg-slate-100 text-slate-400">
+    {{ table.prayoga|md }} {{ table.lakara|md }}
+  </caption>
+  <thead>
+  </thead>
+  <tbody>
+    {% for row in table.rows %}
+      <tr class="border-b">
+      {% for padas in row %}
+        <td class="p-2">
+        {% for pada in padas %}
+          {{ pada.text|md }}{% if not loop.last %}, {% endif %}
+        {% endfor %}
+        </td>
+      {% endfor %}
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endfor %}
+
+{% endblock %}

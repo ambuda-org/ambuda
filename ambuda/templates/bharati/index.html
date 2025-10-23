@@ -4,6 +4,12 @@
 {% block title %}Bharati{% endblock %}
 
 
+{% macro ex(text) -%}
+{%- set dev = text|d -%}
+<a href="{{ url_for('bharati.index', q=dev) }}">{{ dev }}</a>
+{%- endmacro %}
+
+
 {% block main %}
 <article class="mx-4 md:mx-auto max-w-2xl md:mt-12 mb-24 md:mb-36">
 <header>
@@ -24,8 +30,17 @@
     </div>
   </form>
 
-  <div id="bharati-response">
-  </div>
+  <section class="prose mt-8 mx-auto a-hover-underline">
+    Bharati is a smart Sanskrit dictionary. To see what Bharati can do, click one
+    of the examples below:
+    </p>
+
+    <ul>
+      <li>{{ ex("bhU") }}, {{ ex("udbhavati") }}, {{ ex("bhavantam") }}, {{ ex("sambabhUva") }}</li>
+      <li>{{ ex("deva") }}, {{ ex("devasya") }}</li>
+    </ul>
+  </section>
+
 </div>
 </article>
 {% endblock %}

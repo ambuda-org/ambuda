@@ -72,12 +72,12 @@ def deploy_to_commit(_, pointer: str):
         c.run("make install-python")
         c.run("make install-frontend")
 
-        # Verify that unit tests pass on prod.
-        c.run("make test")
-
         # Copy production config settings.
         env_path = str(APP_DIRECTORY / ".env")
         c.put("production/prod-env", env_path)
+
+        # Verify that unit tests pass on prod.
+        c.run("make test")
 
         # Build i18n and l10n files
         c.run("make install-i18n")
