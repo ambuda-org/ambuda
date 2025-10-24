@@ -1,8 +1,11 @@
 {% extends 'bharati/base-results.html' %}
 
 
+{% block title %}{{ dhatu_entry.dhatu.aupadeshika|md }} - Bharati{% endblock %}
+
+
 {% block response %}
-<header class="text-4xl">
+<header class="text-4xl my-8">
   {% set de = dhatu_entry %}
   <h1>
     <span class="text-4xl">{{ de.dhatu.aupadeshika|md }}</span>
@@ -13,7 +16,7 @@
 {% for lakara in tinantas %}
   <section class="flex gap-4">
   {% for table in lakara if table %}
-    <table class="table-fixed w-full border text-lg my-8">
+    <table class="table-fixed w-full border text-lg mb-8">
       <caption class="text-left font-bold p-2 bg-slate-100 text-slate-400">
         {{ table.prayoga|md }} {{ table.lakara|md }}
       </caption>
@@ -25,7 +28,9 @@
           {% for padas in row %}
             <td class="p-2">
             {% for pada in padas %}
-              {{ pada.text|md }}{% if not loop.last %}, {% endif %}
+              <a href="{{ pada.url }}">
+                {{ pada.text|md }}{% if not loop.last %}, {% endif %}
+              </a>
             {% endfor %}
             </td>
           {% endfor %}

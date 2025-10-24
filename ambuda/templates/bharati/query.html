@@ -6,7 +6,7 @@
 
 {% macro show_dhatu_entry(de) -%}
   {% set path = "{}-{}".format(de.dhatu.aupadeshika, de.dhatu.gana)|md %}
-  <a class="text-sky-600 hover:underline" href="{{ url_for('bharati.dhatu', path=path) }}">
+  <a class="text-sky-600 hover:underline" href="{{ url_for('bharati.dhatu', dhatu_spec=path) }}">
   {{- de.dhatu.aupadeshika|md }} ({{ (de.dhatu.gana|v_gloss).sa_short|md }})
   </a>
 {%- endmacro %}
@@ -35,7 +35,7 @@
         {{ show_dhatu_entry(pe.dhatu_entry) }}
         {{ arr() }}
         {{ pe.dhatu_entry.clean_text|md }}
-        + {{ pe.krt|string|md }}
+        + <a href="{{ url_for('bharati.krt', krt=pe.krt.value|md) }}">{{ pe.krt|string|md }}</a>
       {% endif %}
 
       {{ arr() }}

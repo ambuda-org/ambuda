@@ -1,0 +1,43 @@
+{% extends 'bharati/base-results.html' %}
+
+
+{% block title %}{{ prakriya.text|md }} - Bharati{% endblock %}
+
+
+{% block response %}
+<header class="text-4xl my-8">
+  {% set de = dhatu_entry %}
+  <h1>
+    <span class="text-4xl">{{ de.dhatu.aupadeshika|md }}</span>
+    <span class="text-2xl pl-4 text-slate-500">{{ de.artha|md }}</span>
+  </h1>
+</header>
+
+<table class="border table-auto w-full [&_th]:p-2 [&_th]:px-4 [&_td]:p-2 [&_td]:px-4">
+  <thead class="text-left bg-slate-100 text-slate-500">
+    <th>Result</th>
+    <th>Rule</th>
+    <th>&nbsp;</th>
+  </thead>
+  {% for (step, sutra_text, sutra_url) in short_history %}
+  <tr>
+    <td class="text-xl border-r">
+      {{ step.result|select|join(" + ")|md }}
+    </td>
+    <td>
+      {{ sutra_text|md }}
+    </td>
+    <td class="text-right">
+      <a class="underline text-sm text-blue-500" href="{{ sutra_url }}" target="_blank">
+        {{ step.code|md|replace("।", ".") }}
+      </a>
+    </td>
+  </tr>
+  {% endfor %}
+  <tr class="border-t">
+    <td class="text-xl font-bold">{{ prakriya.text|md }}</td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+
+{% endblock %}

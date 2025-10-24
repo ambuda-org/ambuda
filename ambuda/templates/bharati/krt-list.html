@@ -1,0 +1,25 @@
+{% extends 'bharati/base-results.html' %}
+
+
+{% block response %}
+<table class="[&_td]:text-xl [&_td]:p-2">
+  <thead>
+    <tr class="text-left">
+      <th>
+        Suffix
+      </th>
+      <th>
+        Description
+      </th>
+    </tr>
+  </thead>
+  {% for krt in krts %}
+    <tr>
+      <td>
+        <a href="{{ url_for('bharati.krt', krt=krt.value|md) }}">{{ krt.value|md }}</a>
+      </td>
+    </tr>
+  {% endfor %}
+</table>
+
+{% endblock %}

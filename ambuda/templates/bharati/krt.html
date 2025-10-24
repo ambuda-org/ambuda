@@ -1,0 +1,33 @@
+{% extends 'bharati/base-results.html' %}
+
+
+{% block title%}{{ krt.value|md }} - Bharati{% endblock %}
+
+
+{% block response %}
+<header class="my-8">
+  <h1 class="text-4xl">{{krt.drshya()|md }} ({{ krt.value|md }})</h1>
+</header>
+
+<table class="w-full [&_th]:p-2 [&_th]:px-4 [&_td]:p-2 [&_td]:px-4 [&_.code]:text-blue-500">
+  <thead class="text-left">
+    <th>Anubandha</th>
+    <th>Meaning</th>
+  </thead>
+  {% for (a, messages) in meanings %}
+  <tr class="border-t">
+    <td>{{ a.value|md }}</td>
+    <td>
+    {% for (message, code) in messages %}
+      {{ message }}
+      {% if code %}
+      (<a class="code" href="https://ashtadhyayi.com/sutraani/{{ code }}" target="_blank">{{ code }}</a>)
+      {% endif %}
+      <br>
+    {% endfor %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% endblock %}
