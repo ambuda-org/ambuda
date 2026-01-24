@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from flask import Flask, session
 from flask_babel import Babel, pgettext
 from flask_caching import Cache
+from flask_cors import CORS
 from sentry_sdk.integrations.flask import FlaskIntegration
 from sqlalchemy import exc
 
@@ -129,6 +130,10 @@ def create_app(config_env: str):
     app.register_blueprint(about, url_prefix="/about")
     app.register_blueprint(admin, url_prefix="/admin")
     app.register_blueprint(api, url_prefix="/api")
+    
+    # Enable CORS for API endpoints to allow cross-origin requests
+    CORS(api, resources={r"/*": {"origins": "*"}})
+    
     app.register_blueprint(auth)
     app.register_blueprint(bharati, url_prefix="/bharati")
     app.register_blueprint(blog, url_prefix="/blog")
