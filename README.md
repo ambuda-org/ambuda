@@ -62,7 +62,7 @@ To quit, press `Ctrl+C` to stop all services.
 > If you ever run into build issues with `make ambuda-dev`, first run `make ambuda-dev-build`
 > then try again.
 
-> [!TROUBLESHOOTING]
+> [!WARNING](Troubleshooting)
 > When running `make ambuda-dev` you see an error as follows: `env file /path/to/ambuda/.env.docker.local not found: stat /path/to/ambuda/.env.docker.local: no such file or directory` you can fix it by simply creating an empty file using the command `touch .env.docker.local`
 
 ## Creating an admin user
