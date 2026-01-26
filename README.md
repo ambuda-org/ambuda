@@ -8,25 +8,20 @@
 [Ambuda](https://ambuda.org) is an online Sanskrit library. This repository contains Ambuda's core
 code, and this README will show you how to build and change it.
 
-
-Contents
---------
+## Contents
 
 - [Quickstart](#quickstart)
 - [Architecture](#architecture)
 - [Documentation](#documentation)
 - [Contributing](#contributing)
 
-
-Quickstart
-----------
+## Quickstart
 
 This quickstart will show you how to:
 
 - start Ambuda with Docker
 - create an admin user
 - upload content to the site
-
 
 ## Starting Ambuda with Docker
 
@@ -46,7 +41,7 @@ Once you have `docker` configured, starting the site is simple:
 make ambuda-dev
 ```
 
-This command will do the following:
+The `make ambuda-dev` command will do the following:
 
 - Build an Ambuda Docker image. This will likely take a few minutes the first time it runs, but it
   will be substantially faster on subsequent runs.
@@ -64,9 +59,11 @@ This command will do the following:
 To quit, press `Ctrl+C` to stop all services.
 
 > [!TIP]
-> If you ever run into build issues with `make ambuda-dev`, first run `make ambuda-dev-rebuild`
+> If you ever run into build issues with `make ambuda-dev`, first run `make ambuda-dev-build`
 > then try again.
 
+> [!TROUBLESHOOTING]
+> When running `make ambuda-dev` you see an error as follows: `env file /path/to/ambuda/.env.docker.local not found: stat /path/to/ambuda/.env.docker.local: no such file or directory` you can fix it by simply creating an empty file using the command `touch .env.docker.local`
 
 ## Creating an admin user
 
@@ -92,9 +89,7 @@ After you've created your admin user, go to `http://localhost:5000/sign-in` to s
 
 Once you've logged in as an admin user go to `https://localhost:5000/admin/` to open the Admin UI.
 
-
-Architecture
-------------
+## Architecture
 
 (Under revision.)
 
@@ -105,15 +100,11 @@ Essentials:
 - Frontend: Alpine.js and small amounts of Typescript.
 - Storage: S3
 
-
-Documentation
--------------
+## Documentation
 
 (Under revision.)
 
-
-Contributing
-------------
+## Contributing
 
 For details on how to contribute to Ambuda, see [`CONTRIBUTING.md`][CONTRIBUTING.md]. We also
 strongly recommend joining our [Discord channel][discord], where we have an
