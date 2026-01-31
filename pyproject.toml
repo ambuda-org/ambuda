@@ -31,7 +31,7 @@ dependencies = [
     "python-dotenv==0.20.0",
     "python-slugify==6.1.2",
     "redis==4.3.4",
-    "regex==2022.6.2",
+    "regex==2026.1.15",
     "requests>=2.27.1",
     "sentry-sdk==2.42.0",
     "sqlalchemy==2.0.44",

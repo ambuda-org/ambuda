@@ -67,6 +67,9 @@ To quit, press `Ctrl+C` to stop all services.
 > `env file /path/to/ambuda/.env.docker.local not found: stat /path/to/ambuda/.env.docker.local: no such file or directory` \
 > then you can fix it by simply creating an empty file using the command `touch .env.docker.local`
 
+> [!WARNING]
+> In subsequent runs of the command if you see any database SQLite errors especially table already exists errors, maybe consider deleting the database at `/data/database/database.db` and trying again
+
 ## Creating an admin user
 
 Once the Docker service is up, create an admin user so that you can log in:

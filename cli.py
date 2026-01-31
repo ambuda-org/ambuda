@@ -15,12 +15,14 @@ from ambuda import database as db
 from ambuda import queries as q
 from ambuda.models.proofing import ProjectStatus
 from ambuda.seed.utils.data_utils import create_db
+from ambuda.seed.texts.gretil import _create_new_text, Spec
 from ambuda.tasks.projects import (
     create_project_from_local_pdf_inner,
 )
 from ambuda.tasks.text_exports import create_text_export_inner
 from ambuda.utils import text_exports
 from ambuda.utils.text_exports import ExportType
+from ambuda.utils.tei_parser import Document
 from ambuda.tasks.utils import LocalTaskStatus
 from ambuda.utils.s3 import S3Path
 
@@ -230,6 +232,9 @@ def create_toy_data():
             session.add(revision)
 
         session.commit()
+        
+        # Include toy example as a text so that it appears on home page and supports /<slug> & /<slug>/validate URLs
+        _create_new_text(session, Spec(slug, "bhagavadgItA udAharaNa", pdf_file.name), Document("", []))
         click.echo(f'Created toy project "{display_title}" with 10 pages.')
 
 
