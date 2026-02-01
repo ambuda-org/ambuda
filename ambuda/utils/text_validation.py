@@ -109,7 +109,7 @@ def validate_all_sanskrit_text_is_well_formed(block: ET.Element) -> ValidationRe
 def validate_verse_number_if_exists(block: ET.Element) -> ValidationResult:
     ret = ValidationResult()
     
-    # Captures verse numbers of the form १-३ १.३ and १
+    # Captures verse numbers of the form ॥१-३॥ ॥१.३॥ and ॥१॥
     RE_VERSE_NUMBERS = r"॥\s*([\u0966-\u096F]+(?:[-\.]+[\u0966-\u096F]+)?)\s*॥$"
     for el in block.iter():
         if (n := el.attrib.get('n', None)) is not None:
