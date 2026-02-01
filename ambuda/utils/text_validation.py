@@ -111,10 +111,10 @@ def validate_all_sanskrit_text_is_well_formed(block: ET.Element) -> ValidationRe
 
 @validation_rule(desc="Validate verse number if it exists")
 def validate_verse_number_if_exists(block: ET.Element) -> ValidationResult:
-    ret = ValidationResult()    
+    ret = ValidationResult()
     # Captures verse numbers of the form ॥१-३॥ ॥१.३॥ ॥१-३-३॥ ॥१॥ etc.
     RE_VERSE_NUMBERS = r"॥\s*([\u0966-\u096F]+(?:[-\.]+[\u0966-\u096F]+)*)\s*॥$"
-    for el in block.iter():
+    for el in block.findall('.//lg'):
         if (n := el.attrib.get('n', None)) is not None:
             n = n.removeprefix(el.tag)
             text = ''.join(el.itertext())
@@ -123,7 +123,6 @@ def validate_verse_number_if_exists(block: ET.Element) -> ValidationResult:
                 m_n = re.split(r'[-\.]', m.group(1))[-1]
                 if n != transliterate(m_n, Scheme.Devanagari, Scheme.Slp1):
                     ret.add_error(
-                        # Todo: do we want the message to highlight m.group(1) the entire verse number or only the final number m_n ?
                         f"Verse number mismatch. Expected '{transliterate(n, Scheme.Slp1, Scheme.Devanagari)}' actual in text <{m_n}>"
                     )
                 else:
