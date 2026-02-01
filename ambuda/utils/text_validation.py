@@ -101,19 +101,35 @@ def validate_all_sanskrit_text_is_well_formed(block: ET.Element) -> ValidationRe
             ret.add_error(
                 f"Unexpected character '{m.group(1)}' in text <{el.text or ''}>"
             )
-        elif m := re.search(RE_ILLEGAL, el.text or ""):
-            ret.add_error(
-                f"Unexpected character '{m.group(1)}' in text <{el.tail or ''}>"
-            )
         else:
             ret.incr_ok()
     return ret
 
+@validation_rule(desc="Validate verse number if it exists")
+def validate_verse_number_if_exists(block: ET.Element) -> ValidationResult:
+    ret = ValidationResult()
+    
+    # Captures verse numbers of the form १-३ १.३ and १
+    RE_VERSE_NUMBERS = r"॥\s*([\u0966-\u096F]+(?:[-\.]+[\u0966-\u096F]+)?)\s*॥$"
+    for el in block.iter():
+        if (n := el.attrib.get('n', None)) is not None:
+            n = n.removeprefix(el.tag)
+            text = ''.join(el.itertext())
+            if m := re.search(RE_VERSE_NUMBERS, text):
+                ret.incr_total()
+                if n != transliterate(m.group(1), Scheme.Devanagari, Scheme.Slp1):
+                    ret.add_error(
+                        f"Verse number mismatch. Expected '{transliterate(n, Scheme.Slp1, Scheme.Devanagari)}' actual in text <{m.group(1)}>"
+                    )
+                else:
+                    ret.incr_ok()
+    return ret
 
 RULES = [
     validate_all_blocks_have_unique_n,
     validate_xml_is_well_formed,
     validate_all_sanskrit_text_is_well_formed,
+    validate_verse_number_if_exists
 ]
 
 
@@ -126,5 +142,4 @@ def validate(text: db.Text) -> ValidationReport:
             section_div.append(el)
 
     results = [rule.validate(doc) for rule in RULES]
-
     return ValidationReport(results=results)
