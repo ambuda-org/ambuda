@@ -94,12 +94,16 @@ def validate_xml_is_well_formed(xml: ET.Element) -> ValidationResult:
 def validate_all_sanskrit_text_is_well_formed(block: ET.Element) -> ValidationResult:
     ret = ValidationResult()
     # Sanskrit text in Devanagari is expected to match this regex.
-    RE_ILLEGAL = r"([^\u0900-\u097F !,])"
+    RE_ILLEGAL = r"([^\u0900-\u097F !,\-\.])"
     for el in block.iter():
         ret.incr_total()
         if m := re.search(RE_ILLEGAL, el.text or ""):
             ret.add_error(
                 f"Unexpected character '{m.group(1)}' in text <{el.text or ''}>"
+            )
+        elif m := re.search(RE_ILLEGAL, el.tail or ""):
+            ret.add_error(
+                f"Unexpected character '{m.group(1)}' in text <{el.tail or ''}>"
             )
         else:
             ret.incr_ok()
@@ -107,19 +111,20 @@ def validate_all_sanskrit_text_is_well_formed(block: ET.Element) -> ValidationRe
 
 @validation_rule(desc="Validate verse number if it exists")
 def validate_verse_number_if_exists(block: ET.Element) -> ValidationResult:
-    ret = ValidationResult()
-    
-    # Captures verse numbers of the form ॥१-३॥ ॥१.३॥ and ॥१॥
-    RE_VERSE_NUMBERS = r"॥\s*([\u0966-\u096F]+(?:[-\.]+[\u0966-\u096F]+)?)\s*॥$"
+    ret = ValidationResult()    
+    # Captures verse numbers of the form ॥१-३॥ ॥१.३॥ ॥१-३-३॥ ॥१॥ etc.
+    RE_VERSE_NUMBERS = r"॥\s*([\u0966-\u096F]+(?:[-\.]+[\u0966-\u096F]+)*)\s*॥$"
     for el in block.iter():
         if (n := el.attrib.get('n', None)) is not None:
             n = n.removeprefix(el.tag)
             text = ''.join(el.itertext())
             if m := re.search(RE_VERSE_NUMBERS, text):
                 ret.incr_total()
-                if n != transliterate(m.group(1), Scheme.Devanagari, Scheme.Slp1):
+                m_n = re.split(r'[-\.]', m.group(1))[-1]
+                if n != transliterate(m_n, Scheme.Devanagari, Scheme.Slp1):
                     ret.add_error(
-                        f"Verse number mismatch. Expected '{transliterate(n, Scheme.Slp1, Scheme.Devanagari)}' actual in text <{m.group(1)}>"
+                        # Todo: do we want the message to highlight m.group(1) the entire verse number or only the final number m_n ?
+                        f"Verse number mismatch. Expected '{transliterate(n, Scheme.Slp1, Scheme.Devanagari)}' actual in text <{m_n}>"
                     )
                 else:
                     ret.incr_ok()
