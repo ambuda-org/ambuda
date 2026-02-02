@@ -123,7 +123,7 @@ def validate_verse_number_if_exists(block: ET.Element) -> ValidationResult:
                 m_n = re.split(r'[-\.]', m.group(1))[-1]
                 if n != transliterate(m_n, Scheme.Devanagari, Scheme.Slp1):
                     ret.add_error(
-                        f"Verse number mismatch. Expected '{transliterate(n, Scheme.Slp1, Scheme.Devanagari)}' actual in text <{m_n}>"
+                        f"Verse number mismatch. Expected '{transliterate(n, Scheme.Slp1, Scheme.Devanagari)}' actual was <{m_n}> in text <{m.group(1)}>"
                     )
                 else:
                     ret.incr_ok()

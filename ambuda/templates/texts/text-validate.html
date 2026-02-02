@@ -14,7 +14,7 @@
 
   <div class="space-y-4 not-prose">
     {% for result in report.results %}
-      {% if result.num_ok == result.num_total and result.num_total > 0 %}
+      {% if result.num_ok == result.num_total %}
         {% set status_class = 'border-l-4 border-green-500 bg-green-50' %}
         {% set icon = '✓' %}
         {% set icon_class = 'text-green-700' %}
