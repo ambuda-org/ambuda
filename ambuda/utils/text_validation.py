@@ -85,6 +85,9 @@ def validate_xml_is_well_formed(xml: ET.Element) -> ValidationResult:
         if block_results:
             for x in block_results:
                 ret.add_error(x.message)
+        elif block.tag == 'lg' and len(block) == 0:
+            xml_string = ET.tostring(block, encoding='unicode', method='xml')
+            ret.add_error(f'Element {xml_string} has no content')
         else:
             ret.incr_ok()
     return ret
