@@ -155,6 +155,7 @@ RULES = [
     validate_xml_is_well_formed,
     validate_all_sanskrit_text_is_well_formed,
     validate_verse_number_if_exists,
+    validate_chandas,
 ]
 
 
