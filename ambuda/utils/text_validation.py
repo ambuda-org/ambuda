@@ -2,7 +2,7 @@ import dataclasses as dc
 import re
 from typing import Callable
 import xml.etree.ElementTree as ET
-
+from chanda import analyze_text
 import defusedxml.ElementTree as DET
 from vidyut.lipi import transliterate, Scheme
 
@@ -133,6 +133,22 @@ def validate_verse_number_if_exists(block: ET.Element) -> ValidationResult:
                     ret.incr_ok()
     return ret
 
+@validation_rule(desc="Validate chandas")
+def validate_chandas(block: ET.Element) -> ValidationResult:
+    ret = ValidationResult()
+    clean_text = "\n".join(block.itertext()).strip()
+    results = analyze_text(clean_text, verse_mode=False, fuzzy=True)
+
+    if len(results.result.line) > 0:
+        for line in results.result.line:
+            ret.incr_total()
+            if line.result.found:
+                ret.incr_ok()
+            else:
+                ret.add_error(f'No valid chandas detected for line {line.result.line}')
+    else:
+        ret.add_error(f'No valid chandas detected for text {clean_text}')
+    return ret
 
 RULES = [
     validate_all_blocks_have_unique_n,

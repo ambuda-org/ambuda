@@ -8,6 +8,7 @@ dependencies = [
     "babel>=2.12.1",
     "boto3>=1.41.2",
     "celery==5.5.3",
+    "chanda==1.0.0",
     "defusedxml>=0.7.1",
     "dharmamitra-sanskrit-grammar>=0.1.7",
     "ebooklib>=0.20",
