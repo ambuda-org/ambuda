@@ -9,6 +9,9 @@ from vidyut.lipi import transliterate, Scheme
 import ambuda.database as db
 from ambuda.utils.xml_validation import validate_tei_xml
 
+# Whitelist of words if they exist in a line then we ignore chandas errors
+CHANDAS_WHITELIST = ['उवाच']
+
 # pass, fail, warning
 
 
@@ -142,7 +145,7 @@ def validate_chandas(block: ET.Element) -> ValidationResult:
     if len(results.result.line) > 0:
         for line in results.result.line:
             ret.incr_total()
-            if line.result.found:
+            if line.result.found or any(w in line.result.line.split() for w in CHANDAS_WHITELIST):
                 ret.incr_ok()
             else:
                 ret.add_error(f'No valid chandas detected for line {line.result.line}')
