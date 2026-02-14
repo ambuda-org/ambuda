@@ -381,6 +381,41 @@ On wide screens, the sidebar is on the right side of a split view.
           {% endif %}
         </tbody>
       </table>
+      {% if text.project and text.project.sources %}
+      <div class="mt-4">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">{{ _('Project Details') }}</h3>
+        <table class="text-sm w-full">
+          <tbody>
+            <tr>
+              <td class="pr-4 py-1.5 text-slate-500 align-top whitespace-nowrap">{{ _('Project') }}</td>
+              <td class="py-1.5">
+                <a class="text-blue-500 hover:underline" href="{{ url_for('proofing.project.summary', slug=text.project.slug) }}">{{ text.project.display_title }}</a>
+              </td>
+            </tr>
+            <tr>
+              <td class="pr-4 py-1.5 text-slate-500 align-top whitespace-nowrap">{{ _('Created') }}</td>
+              <td class="py-1.5">{{ text.project.created_at.strftime('%Y-%m-%d') }}</td>
+            </tr>
+            <tr>
+              <td class="pr-4 py-1.5 text-slate-500 align-top whitespace-nowrap">{{ _('Sources') }}</td>
+              <td class="py-1.5">
+                <ul class="space-y-1">
+                  {% for source in text.project.sources %}
+                  <li>
+                    {% if source.url %}
+                    <a class="text-blue-500 hover:underline" href="{{ source.url }}">{{ source.description }}</a>
+                    {% else %}
+                    {{ source.description }}
+                    {% endif %}
+                  </li>
+                  {% endfor %}
+                </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
       {% if text_about.credits %}
       <div class="mt-4">
         <h3 class="text-sm font-medium text-slate-600 mb-1">{{ _('Credits') }}</h3>

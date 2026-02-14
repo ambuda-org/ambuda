@@ -41,7 +41,7 @@ from wtforms_sqlalchemy.fields import QuerySelectField
 from ambuda import database as db
 from ambuda import queries as q
 from ambuda.enums import SitePageStatus
-from ambuda.models.proofing import ProjectStatus
+from ambuda.models.proofing import ProjectSource, ProjectStatus
 from ambuda.rate_limit import limiter
 from ambuda.tasks import app as celery_app
 from ambuda.tasks import batch_llm as batch_llm_tasks
@@ -324,6 +324,33 @@ def edit(slug):
         # Only allow p2 users to change status
         if not current_user.is_p2:
             project_.status = original_status
+
+        descriptions = request.form.getlist("source_description[]")
+        urls = request.form.getlist("source_url[]")
+        source_ids = request.form.getlist("source_id[]")
+        submitted_ids = {int(sid) for sid in source_ids if sid}
+        for source in list(project_.sources):
+            if source.id not in submitted_ids:
+                session.delete(source)
+        existing_map = {s.id: s for s in project_.sources}
+        for desc, url, sid in zip(descriptions, urls, source_ids):
+            desc = desc.strip()
+            url = url.strip() or None
+            if not desc:
+                continue
+            if sid and int(sid) in existing_map:
+                source = existing_map[int(sid)]
+                source.description = desc
+                source.url = url
+            else:
+                session.add(
+                    ProjectSource(
+                        project_id=project_.id,
+                        description=desc,
+                        url=url,
+                        author_id=current_user.id,
+                    )
+                )
 
         session.commit()
 
@@ -1091,10 +1118,6 @@ def replace_pdf(slug):
     pdf_source = form.pdf_source.data
 
     app_env = current_app.config["AMBUDA_ENVIRONMENT"]
-    bbox_task = ocr_tasks.replace_ocr_bounding_boxes_for_project.si(
-        app_env=app_env,
-        project_slug=slug,
-    )
 
     if pdf_source == "url":
         pdf_url = form.pdf_url.data
@@ -1138,8 +1161,7 @@ def replace_pdf(slug):
             app_environment=app_env,
         )
 
-    # Chain: replace PDF first, then update bounding boxes.
-    task = chain(pdf_task, bbox_task).apply_async()
+    task = pdf_task.apply_async()
 
     return render_template(
         "proofing/projects/replace-pdf-post.html",

@@ -207,6 +207,7 @@ class Project(Base):
         secondary=project_tag_association,
         back_populates="projects",
     )
+    sources = relationship("ProjectSource", back_populates="project", cascade="delete")
 
     def __str__(self):
         return self.slug
@@ -227,6 +228,24 @@ class ProjectTag(Base):
         secondary=project_tag_association,
         back_populates="tags",
     )
+
+
+class ProjectSource(Base):
+    """A source reference for a proofing project."""
+
+    __tablename__ = "project_sources"
+
+    id = pk()
+    project_id = foreign_key("proof_projects.id")
+    url: Mapped[str | None] = mapped_column(String, nullable=True)
+    description: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(UTC).replace(tzinfo=None), nullable=False
+    )
+    author_id = Column(Integer, ForeignKey("users.id"), index=True)
+
+    project = relationship("Project", back_populates="sources")
+    author = relationship("User")
 
 
 @event.listens_for(Project, "before_insert")

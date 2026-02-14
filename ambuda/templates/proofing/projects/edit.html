@@ -112,10 +112,40 @@
     </div>
   </fieldset>
 
+  <fieldset>
+    <legend class="text-lg font-bold mt-8 mb-4">Sources</legend>
+    <div class="bg-slate-100 rounded p-4 text-sm" id="sources-section">
+      <div id="sources-list">
+        {% for source in project.sources %}
+        <div class="source-row flex gap-2 mb-2 items-center">
+          <input type="text" name="source_description[]" value="{{ source.description }}" placeholder="Description" class="p-2 rounded border border-slate-300 flex-1" required>
+          <input type="text" name="source_url[]" value="{{ source.url or '' }}" placeholder="URL (optional)" class="p-2 rounded border border-slate-300 flex-1">
+          <input type="hidden" name="source_id[]" value="{{ source.id }}">
+          <button type="button" class="btn btn-secondary text-red-600" onclick="this.parentElement.remove()">✕</button>
+        </div>
+        {% endfor %}
+      </div>
+      <button type="button" class="btn btn-secondary mt-2" onclick="addSource()">{{ _('Add source') }}</button>
+    </div>
+  </fieldset>
+
   <input class="btn btn-submit mt-4" type="submit" value="{{ _('Save changes') }}">
 </form>
 
 <script>
+function addSource() {
+  const list = document.getElementById('sources-list');
+  const row = document.createElement('div');
+  row.className = 'source-row flex gap-2 mb-2 items-center';
+  row.innerHTML = `
+    <input type="text" name="source_description[]" placeholder="Description" class="p-2 rounded border border-slate-300 flex-1" required>
+    <input type="text" name="source_url[]" placeholder="URL (optional)" class="p-2 rounded border border-slate-300 flex-1">
+    <input type="hidden" name="source_id[]" value="">
+    <button type="button" class="btn btn-secondary text-red-600" onclick="this.parentElement.remove()">✕</button>
+  `;
+  list.appendChild(row);
+}
+
 function regenerateSlug() {
   const titleField = document.getElementById('display_title');
   const slugField = document.getElementById('slug-field');

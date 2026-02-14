@@ -27,7 +27,9 @@ from ambuda.tasks import app
 from ambuda.tasks.utils import CeleryTaskStatus, TaskStatus, get_db_session
 
 
-def _save_page_image(pdf_path: Path, page_index: int, output_path: Path, dpi: int = 200):
+def _save_page_image(
+    pdf_path: Path, page_index: int, output_path: Path, dpi: int = 200
+):
     """Render a single PDF page to a JPG file.
 
     Opens and closes the PDF document for each page to prevent PyMuPDF from
@@ -758,7 +760,7 @@ def replace_project_pdf_inner(
     task_status.success(new_count, project_slug)
 
 
-@app.task(bind=True)
+@app.task(bind=True, time_limit=1200)
 def replace_project_pdf(
     self, *, project_slug, pdf_path, app_environment, source_url=None
 ):
@@ -798,7 +800,7 @@ def replace_project_pdf_from_url_inner(
             temp_pdf_path.unlink()
 
 
-@app.task(bind=True)
+@app.task(bind=True, time_limit=1200)
 def replace_project_pdf_from_url(self, *, project_slug, pdf_url, app_environment):
     """Celery wrapper for `replace_project_pdf_from_url_inner`."""
     task_status = CeleryTaskStatus(self)
