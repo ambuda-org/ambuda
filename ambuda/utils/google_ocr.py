@@ -45,7 +45,7 @@ def prepare_image(
     page: db.Page, s3_bucket: str | None, cloudfront_base_url: str | None
 ) -> vision.Image | None:
     """Read an image into a protocol buffer for the OCR request."""
-    if s3.is_local and s3_bucket:
+    if s3.is_local() and s3_bucket:
         image_bytes = page.s3_path(s3_bucket).read_bytes()
         return vision.Image(content=image_bytes)
     elif cloudfront_base_url:

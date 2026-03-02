@@ -8,6 +8,7 @@ from ambuda.enums import SitePageStatus
 from ambuda.tasks import app
 from ambuda.tasks.utils import CeleryTaskStatus, TaskStatus, get_db_session
 from ambuda.utils import google_ocr
+from ambuda.utils import sarvam_ocr
 from ambuda.utils.revisions import add_revision
 
 
@@ -32,14 +33,15 @@ def _run_ocr_for_page_inner(
             raise ValueError(f"Unknown page {project_slug}/{page_slug}")
 
         # The actual API call.
-        ocr_response = google_ocr.run(page_, cfg.S3_BUCKET, cfg.CLOUDFRONT_BASE_URL)
-
+        google_ocr_response = google_ocr.run(page_, cfg.S3_BUCKET, cfg.CLOUDFRONT_BASE_URL)
         project = query.project(project_slug)
         page = query.page(project.id, page_slug)
 
         page.ocr_bounding_boxes = google_ocr.serialize_bounding_boxes(
-            ocr_response.bounding_boxes
+            google_ocr_response.bounding_boxes
         )
+        sarvam_ocr_response = sarvam_ocr.run(page, cfg.S3_BUCKET, cfg.CLOUDFRONT_BASE_URL)
+
         session.add(page)
         session.commit()
 
@@ -48,7 +50,7 @@ def _run_ocr_for_page_inner(
             _ = add_revision(
                 page=page,
                 summary=summary,
-                content=ocr_response.text_content,
+                content=sarvam_ocr_response.text_content or google_ocr_response.text_content,
                 version=0,
                 author_id=bot_user.id,
                 status=SitePageStatus.R0,

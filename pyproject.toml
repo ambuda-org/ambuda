@@ -35,6 +35,7 @@ dependencies = [
     "redis>=4.5.3",
     "regex==2022.6.2",
     "requests>=2.27.1",
+    "sarvamai>=0.1.24",
     "sentry-sdk==2.42.0",
     "sqlalchemy==2.0.44",
     "typst>=0.11.0",
