@@ -723,6 +723,26 @@ def save_xml_to_disk_cache(model_name, selected_ids: list | None = None):
     return redirect(url_for("admin.list_model", model_name=model_name))
 
 
+def export_text_archive(model_name, selected_ids: list | None = None):
+    """Batch action to export selected texts as a ZIP archive to S3."""
+    if not selected_ids:
+        flash("No texts selected", "error")
+        return redirect(url_for("admin.list_model", model_name=model_name))
+
+    from ambuda.tasks.text_archive import create_text_archive
+
+    app_environment = current_app.config["AMBUDA_ENVIRONMENT"]
+    text_ids = [int(id_str) for id_str in selected_ids]
+
+    create_text_archive.apply_async(
+        args=(text_ids, app_environment),
+        headers={"initiated_by": current_user.username},
+    )
+
+    flash(f"Started text archive export for {len(text_ids)} text(s).", "success")
+    return redirect(url_for("admin.list_model", model_name=model_name))
+
+
 def regenerate_pages(model_name, selected_ids: list | None = None):
     """Batch action to regenerate page images for selected projects."""
     if not selected_ids:
