@@ -311,6 +311,16 @@ MODEL_CONFIG = [
                 slug="manage-tree",
                 handler=lambda **kwargs: redirect(url_for("admin.manage_collections")),
             ),
+            Task(
+                name="Export collections",
+                slug="export-collections",
+                handler=tasks.export_collections,
+            ),
+            Task(
+                name="Import collections",
+                slug="import-collections",
+                handler=tasks.import_collections,
+            ),
         ],
     ),
     ModelConfig(

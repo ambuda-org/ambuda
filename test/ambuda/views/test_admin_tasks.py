@@ -7,7 +7,7 @@ from sqlalchemy import select
 
 import ambuda.database as db
 from ambuda.queries import get_session
-from ambuda.views.admin.tasks import serialize
+from ambuda.views.admin.tasks import serialize, CollectionExportData
 
 
 # Sentinel value
@@ -450,3 +450,192 @@ def test_import_projects_and_export_projects(admin_client):
                 "content": "Test content",
             },
         )
+
+
+# --- TextCollection export/import tests ---
+
+
+def _create_collection(session, slug, title, parent_id=None, order=0, texts=None):
+    """Helper to create a TextCollection."""
+    coll = db.TextCollection(
+        slug=slug, title=title, parent_id=parent_id, order=order
+    )
+    if texts:
+        coll.texts = texts
+    session.add(coll)
+    session.flush()
+    return coll
+
+
+def test_export_collections__success(admin_client):
+    session = get_session()
+    text = session.query(db.Text).first()
+
+    parent = _create_collection(session, "export-parent", "Export Parent")
+    child = _create_collection(
+        session,
+        "export-child",
+        "Export Child",
+        parent_id=parent.id,
+        order=1,
+        texts=[text] if text else None,
+    )
+    session.commit()
+
+    resp = admin_client.post(
+        "/admin/TextCollection/task/export-collections",
+        data={"selected_ids": [str(parent.id), str(child.id)]},
+    )
+    assert resp.status_code == 200
+    assert resp.content_type == "application/json"
+
+    data = CollectionExportData.model_validate_json(resp.data)
+    slugs = {c.slug for c in data.collections}
+    assert "export-parent" in slugs
+    assert "export-child" in slugs
+
+    child_export = next(c for c in data.collections if c.slug == "export-child")
+    assert child_export.parent_slug == "export-parent"
+    assert child_export.order == 1
+    if text:
+        assert text.slug in child_export.text_slugs
+
+    parent_export = next(c for c in data.collections if c.slug == "export-parent")
+    assert parent_export.parent_slug is None
+
+
+def test_export_collections__empty_selection(admin_client):
+    resp = admin_client.post(
+        "/admin/TextCollection/task/export-collections",
+        data={"selected_ids": []},
+    )
+    assert resp.status_code == 200
+    data = CollectionExportData.model_validate_json(resp.data)
+    assert data.collections == []
+
+
+def test_import_collections__get(admin_client):
+    resp = admin_client.get("/admin/TextCollection/task/import-collections")
+    assert resp.status_code == 200
+
+
+def test_import_collections__round_trip(admin_client):
+    """Export collections, then re-import them under new slugs."""
+    session = get_session()
+
+    text = session.query(db.Text).first()
+    parent = _create_collection(session, "rt-parent", "RT Parent")
+    child = _create_collection(
+        session,
+        "rt-child",
+        "RT Child",
+        parent_id=parent.id,
+        order=2,
+        texts=[text] if text else None,
+    )
+    session.commit()
+
+    # Export
+    resp = admin_client.post(
+        "/admin/TextCollection/task/export-collections",
+        data={"selected_ids": [str(parent.id), str(child.id)]},
+    )
+    data = CollectionExportData.model_validate_json(resp.data)
+
+    # Rename slugs so import creates new collections
+    for c in data.collections:
+        if c.slug == "rt-parent":
+            c.slug = "rt-parent-imported"
+        if c.slug == "rt-child":
+            c.slug = "rt-child-imported"
+            c.parent_slug = "rt-parent-imported"
+
+    json_data = data.model_dump_json().encode("utf-8")
+
+    # Import
+    resp = admin_client.post(
+        "/admin/TextCollection/task/import-collections",
+        data={
+            "json_file": (io.BytesIO(json_data), "collections.json"),
+            "csrf_token": "fake_token",
+        },
+        content_type="multipart/form-data",
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+
+    session = get_session()
+    imported_parent = (
+        session.query(db.TextCollection).filter_by(slug="rt-parent-imported").first()
+    )
+    imported_child = (
+        session.query(db.TextCollection).filter_by(slug="rt-child-imported").first()
+    )
+    assert imported_parent is not None
+    assert imported_child is not None
+    assert imported_child.parent_id == imported_parent.id
+    assert imported_child.order == 2
+
+    if text:
+        assert text.slug in [t.slug for t in imported_child.texts]
+
+
+def test_import_collections__updates_existing(admin_client):
+    """Import over an existing slug should update it, not duplicate."""
+    session = get_session()
+    existing = _create_collection(session, "update-me", "Old Title", order=0)
+    session.commit()
+    existing_id = existing.id
+
+    import_data = CollectionExportData(
+        collections=[
+            {
+                "slug": "update-me",
+                "title": "New Title",
+                "order": 5,
+                "description": "Updated desc",
+            }
+        ]
+    )
+    json_data = import_data.model_dump_json().encode("utf-8")
+
+    resp = admin_client.post(
+        "/admin/TextCollection/task/import-collections",
+        data={
+            "json_file": (io.BytesIO(json_data), "collections.json"),
+            "csrf_token": "fake_token",
+        },
+        content_type="multipart/form-data",
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+
+    session = get_session()
+    updated = session.query(db.TextCollection).filter_by(slug="update-me").first()
+    assert updated.id == existing_id
+    assert updated.title == "New Title"
+    assert updated.order == 5
+    assert updated.description == "Updated desc"
+
+
+def test_import_collections__invalid_json(admin_client):
+    resp = admin_client.post(
+        "/admin/TextCollection/task/import-collections",
+        data={
+            "json_file": (io.BytesIO(b"not valid json{"), "bad.json"),
+            "csrf_token": "fake_token",
+        },
+        content_type="multipart/form-data",
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
+    assert b"Error importing collections" in resp.data
+
+
+def test_import_collections__no_file(admin_client):
+    resp = admin_client.post(
+        "/admin/TextCollection/task/import-collections",
+        data={"csrf_token": "fake_token"},
+        follow_redirects=True,
+    )
+    assert resp.status_code == 200
