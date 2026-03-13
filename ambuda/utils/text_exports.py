@@ -500,7 +500,7 @@ def create_or_update_xml_export(
     tei_checksum = sha256_hash.hexdigest()
 
     export_slug = f"{text_slug}.xml"
-    s3_path = S3Path(s3_bucket, f"text-exports/{export_slug}")
+    s3_path = S3Path(s3_bucket, f"assets/text-exports/{export_slug}")
     s3_path.upload_file(tei_path)
 
     write_cached_xml(cache_dir, text_slug, tei_path)

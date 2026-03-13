@@ -1,4 +1,5 @@
 import dataclasses as dc
+import json
 from collections import OrderedDict
 from datetime import datetime, timedelta
 
@@ -6,6 +7,20 @@ from vidyut.lipi import transliterate, Scheme
 
 import ambuda.database as db
 from ambuda import queries as q
+
+
+def text_metadata(text: db.Text) -> dict:
+    """Return a metadata dict for a single text."""
+    return {
+        "slug": text.slug,
+        "title": text.title,
+        "header": text.header,
+        "config": json.loads(text.config) if text.config else None,
+        "genre": text.genre.name if text.genre else None,
+        "language": text.language,
+        "status": text.status,
+        "collections": [c.slug for c in text.collections],
+    }
 
 
 @dc.dataclass

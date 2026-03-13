@@ -119,7 +119,7 @@ def create_text_export_inner(
             )
 
             bucket = config_obj.S3_BUCKET
-            key = f"text-exports/{export_slug}"
+            key = f"assets/text-exports/{export_slug}"
             s3_path = S3Path(bucket, key)
             s3_path.upload_file(output_path)
             logging.info(f"Uploaded {export_key} export to {s3_path}")

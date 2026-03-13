@@ -319,27 +319,16 @@ def import_metadata(model_name, selected_ids: list | None = None):
 
 def export_metadata(model_name, selected_ids: list | None = None):
     """Export Text metadata as JSON."""
-    session = q.get_session()
+    from ambuda.utils.text_utils import text_metadata
 
-    query = session.query(db.Text)
+    session = q.get_session()
 
     if not selected_ids:
         selected_ids = []
 
     text_ids = [int(id_str) for id_str in selected_ids]
-    query = query.filter(db.Text.id.in_(text_ids))
-
-    texts = query.all()
-    export_data = []
-    for text in texts:
-        text_dict = {
-            "slug": text.slug,
-            "title": text.title,
-            "header": text.header,
-            "config": json.loads(text.config) if text.config else None,
-            "genre": text.genre.name if text.genre else None,
-        }
-        export_data.append(text_dict)
+    texts = session.query(db.Text).filter(db.Text.id.in_(text_ids)).all()
+    export_data = [text_metadata(t) for t in texts]
 
     response = make_response(jsonify(export_data))
     response.headers["Content-Disposition"] = "attachment; filename=texts_metadata.json"
