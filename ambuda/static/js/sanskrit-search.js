@@ -11,21 +11,27 @@ export function toHK(str) {
 
 /**
  * Normalize an HK string for fuzzy matching by collapsing similar sounds.
- * Strips whitespace, then: sh→s, z→s, aspirate→plain, RR→R, lR→l, G/J/M/m→n.
+ * Single-pass replacement using a combined regex and lookup table.
  */
-const NORM_RE = /\s+|sh|([kgcjTDtdpb])h|RR|lR|[zGJMm]/g;
-const NORM_MAP = { sh: 's', RR: 'R', lR: 'l', z: 's', G: 'n', J: 'n', M: 'n', m: 'n' };
+const _NORM_MAP = {
+  'ee': 'i', 'oo': 'u', 'ou': 'au', 'x': 'ks',
+  ' ': '',
+  'sh': 's', 'z': 's',
+  'kh': 'k', 'gh': 'g', 'ch': 'c', 'jh': 'j',
+  'Th': 'T', 'Dh': 'D', 'th': 't', 'dh': 'd',
+  'ph': 'p', 'bh': 'b',
+  'RR': 'R', 'lR': 'l',
+  'G': 'n', 'J': 'n', 'M': 'n', 'm': 'n',
+};
+const _NORM_RE = new RegExp(
+  Object.keys(_NORM_MAP)
+    .sort((a, b) => b.length - a.length)
+    .join('|'),
+  'g',
+);
 
 export function normalizeHK(str) {
-  return str
-    .replace(/ee/g, 'i')
-    .replace(/oo/g, 'u')
-    .replace(/ou/g, 'au')
-    .replace(/x/g, 'ks')
-    .replace(NORM_RE, (match, aspirate) => {
-      if (aspirate) return aspirate;
-      return NORM_MAP[match] || '';
-    });
+  return str.replace(_NORM_RE, (m) => _NORM_MAP[m]);
 }
 
 /**
