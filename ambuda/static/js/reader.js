@@ -147,7 +147,7 @@ export default () => ({
   },
 
   async changeScript(newScript) {
-    await fetch(`/script/${newScript}`);
+    await fetch(`/script/${newScript}`, { redirect: 'manual' });
     this.userScript = newScript;
 
     this.dictionaryResponse = null;
@@ -156,7 +156,10 @@ export default () => ({
       blockSlug: null, words: [], error: null, loading: false,
     };
 
-    const resp = await fetch(`/api${window.location.pathname}`);
+    // Build the API URL from the text slug and current section slug,
+    // since window.location.pathname may omit the section for single-section texts.
+    const textSlug = window.location.pathname.replace(/^\/texts\//, '').replace(/\/.*/, '');
+    const resp = await fetch(`/api/texts/${textSlug}/${this.sectionSlug}`);
     if (!resp.ok) return;
     this.data = await resp.json();
     this.$nextTick(() => this.insertSoftHyphensInDOM());
