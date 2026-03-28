@@ -61,4 +61,31 @@ describe('normalizeHK', () => {
     expect(norm('saMdesha')).toBe(canonical);
     expect(norm('sandesa')).toBe(canonical);
   });
+
+  test('space invariant: "bhagavad gItA" matches "bhagavadgItA"', () => {
+    const norm = (s) => normalizeHK(s).toLowerCase();
+    expect(norm('bhagavad gItA')).toBe(norm('bhagavadgItA'));
+  });
+
+  test('ee → i (casual long i)', () => {
+    expect(normalizeHK('geeta')).toBe('gita');
+    expect(normalizeHK('mahAbhAratam')).toBe(normalizeHK('mahAbhAratam'));
+  });
+
+  test('oo → u (casual long u)', () => {
+    expect(normalizeHK('roopa')).toBe('rupa');
+  });
+
+  test('x → ks', () => {
+    expect(normalizeHK('laxmi')).toBe('laksni');
+  });
+
+  test('ou → au (casual diphthong)', () => {
+    expect(normalizeHK('koustubha')).toBe('kaustuba');
+  });
+
+  test('casual romanization: "bhagavad geeta" matches "bhagavadgItA"', () => {
+    const norm = (s) => normalizeHK(s).toLowerCase();
+    expect(norm('bhagavad geeta')).toBe(norm('bhagavadgItA'));
+  });
 });

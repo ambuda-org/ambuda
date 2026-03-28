@@ -23,6 +23,11 @@ export default (items) => ({
     });
   },
 
+  /** True when the first character of the query is ASCII (roman input). */
+  get useRoman() {
+    return this.query.length > 0 && this.query.charCodeAt(0) < 128;
+  },
+
   search() {
     if (!this.query) {
       this.results = [];

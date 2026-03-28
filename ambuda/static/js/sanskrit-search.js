@@ -17,10 +17,15 @@ const NORM_RE = /\s+|sh|([kgcjTDtdpb])h|RR|lR|[zGJMm]/g;
 const NORM_MAP = { sh: 's', RR: 'R', lR: 'l', z: 's', G: 'n', J: 'n', M: 'n', m: 'n' };
 
 export function normalizeHK(str) {
-  return str.replace(NORM_RE, (match, aspirate) => {
-    if (aspirate) return aspirate;
-    return NORM_MAP[match] || '';
-  });
+  return str
+    .replace(/ee/g, 'i')
+    .replace(/oo/g, 'u')
+    .replace(/ou/g, 'au')
+    .replace(/x/g, 'ks')
+    .replace(NORM_RE, (match, aspirate) => {
+      if (aspirate) return aspirate;
+      return NORM_MAP[match] || '';
+    });
 }
 
 /**
