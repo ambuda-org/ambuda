@@ -1,17 +1,24 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
 
 {% block title %}{{ author.name }}{% endblock %}
 
+{% block header %}
+{{ m.basic_header(author.name, current_user) }}
+{% endblock %}
+
 {% block main %}
 <article class="p-4 md:p-0 max-w-3xl mx-auto md:my-24 md:mb-36">
-  <header class="deva-serif">
-    <h1 class="font-bold text-4xl text-center my-16">{{ author.name }}</h1>
-  </header>
   {% if author.description %}
   <div class="prose mx-auto mb-12">
     {{ author.description | markdown | safe }}
   </div>
   {% endif %}
+
+  <header class="prose">
+    <h2>Texts</h2>
+  </header>
+
   <ul class="divide-y divide-slate-200 deva-serif">
     {% for text in texts %}
     <li class="py-3 px-2 hover:bg-slate-50 rounded">
