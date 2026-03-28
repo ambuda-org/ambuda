@@ -96,7 +96,6 @@ export default () => ({
   // If true, show the sidebar.
   showSidebar: true,
   sidebarTab: null,
-  showSettings: false,
   // Text in the dictionary search field.
   dictQuery: '',
   // If true, show the dictionary selection widget.

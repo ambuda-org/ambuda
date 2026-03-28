@@ -64,7 +64,7 @@
 <header class="text-center my-16">
 {% if text.parent %}
   <h1 class="font-bold text-5xl x-deva">
-    {{ text.parent.title | hk_to_user_script }}
+    {{ text.parent.title | d | devanagari_to_user_script }}
   </h1>
   <p class="text-xl my-8 text-slate-500">(
     <a class="hover:underline" href="{{ url_for('texts.text', slug=text.parent.slug) }}">
@@ -76,7 +76,7 @@
   )</p>
 {% else %}
   <h1 class="font-bold text-5xl x-deva">
-    {{ text.title | hk_to_user_script | devanagari_to_user_script }}
+    {{ text.title | d | devanagari_to_user_script }}
   </h1>
   {% if text.is_p0 %}
   <aside class="bg-red-100 rounded text-red-800 p-2 mt-8">
@@ -113,7 +113,7 @@
     <div>
       {% set url = url_for('texts.text', slug=entry.text.slug) %}
       <a href="{{ url }}" class="hover:underline text-xl deva-serif">
-        {{- entry.text.title | hk_to_user_script | devanagari_to_user_script -}}
+        {{- entry.text.title | d | devanagari_to_user_script -}}
       </a>
       {% if entry.author %}
       <div class="text-sm text-slate-400">
@@ -153,14 +153,14 @@
   {% for group in grouped_entries %}
     <section data-section class="mb-8 mt-8 bg-white rounded shadow-sm border border-slate-200 border-t-2 border-t-sky-400 px-6 md:px-8 py-6 md:py-8">
       <div class="mb-6">
-        <h2 class="text-slate-900 font-bold text-2xl deva-serif">{{ group.title | hk_to_user_script }}</h2>
+        <h2 class="text-slate-900 font-bold text-2xl deva-serif">{{ group.title | d | devanagari_to_user_script }}</h2>
         {% if group.description %}
         <div class="text-sm text-slate-700 mt-2 space-y-2">{{ group.description | markdown | safe }}</div>
         {% endif %}
         <div class="text-xs text-slate-400 mt-3 space-y-0.5">
           <p>{{ group.text_count }} {{ _('text') if group.text_count == 1 else _('texts') }}</p>
           {% if group.most_recent and group.most_recent.text.published_at %}
-          <p>{{ _('Latest text:') }} <a href="{{ url_for('texts.text', slug=group.most_recent.text.slug) }}" class="hover:underline">{{ group.most_recent.text.title | hk_to_user_script | devanagari_to_user_script }}</a></p>
+          <p>{{ _('Latest text:') }} <a href="{{ url_for('texts.text', slug=group.most_recent.text.slug) }}" class="hover:underline">{{ group.most_recent.text.title | d | devanagari_to_user_script }}</a></p>
           {% endif %}
         </div>
       </div>
@@ -171,14 +171,14 @@
         <div class="flex flex-col md:flex-row md:gap-10">
           <div class="md:w-1/4 shrink-0 mb-3 md:mb-0">
             {% if sub.title %}
-            <h3 class="text-slate-600 font-semibold text-lg deva-serif">{{ sub.title | hk_to_user_script }}</h3>
+            <h3 class="text-slate-600 font-semibold text-lg deva-serif">{{ sub.title | d | devanagari_to_user_script }}</h3>
             {% if sub.description %}
             <div class="text-sm text-slate-700 mt-1 space-y-2">{{ sub.description | markdown | safe }}</div>
             {% endif %}
             <div class="text-xs text-slate-400 mt-1 space-y-0.5">
               <p>{{ sub.text_count }} {{ _('text') if sub.text_count == 1 else _('texts') }}</p>
               {% if sub.most_recent and sub.most_recent.text.published_at %}
-              <p>{{ _('Latest text:') }} <a href="{{ url_for('texts.text', slug=sub.most_recent.text.slug) }}" class="hover:underline">{{ sub.most_recent.text.title | hk_to_user_script | devanagari_to_user_script }}</a></p>
+              <p>{{ _('Latest text:') }} <a href="{{ url_for('texts.text', slug=sub.most_recent.text.slug) }}" class="hover:underline">{{ sub.most_recent.text.title | d | devanagari_to_user_script }}</a></p>
               {% endif %}
             </div>
             {% endif %}

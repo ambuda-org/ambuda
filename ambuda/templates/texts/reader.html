@@ -65,53 +65,6 @@ For the corresponding JavaScript bindings and logic, see `reader.js`.
 {% endmacro %}
 
 
-{# Reader settings modal. #}
-{% macro settings_modal() %}
-<div x-show="showSettings" x-cloak
-     class="fixed inset-0 z-[60] flex items-center justify-center"
-     @keydown.escape.window="showSettings = false">
-  <div class="absolute inset-0 bg-black/40" @click="showSettings = false"></div>
-
-  <div class="relative bg-white rounded-lg shadow-xl w-80 p-6"
-       x-show="showSettings" x-transition>
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-lg font-semibold">{{ _('Settings') }}</h2>
-      <button @click="showSettings = false" class="text-2xl leading-none text-slate-400 hover:text-slate-700">&times;</button>
-    </div>
-
-    <div class="space-y-5">
-      <div>
-        <label class="block text-sm font-medium text-slate-600 mb-1">{{ _('Text Width') }}</label>
-        <select class="f-select w-full" x-model="textWidth" @change="saveSettings">
-          <option value="md:max-w-xl">{{ _('Narrow') }}</option>
-          <option value="md:max-w-3xl">{{ _('Wide') }}</option>
-          <option value="max-w-none">{{ _('Full') }}</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-slate-600 mb-1">{{ _('Font Size') }}</label>
-        <select class="f-select w-full" x-model="fontSize" @change="saveSettings">
-          <option value="md:text-base">{{ _('Tiny') }}</option>
-          <option value="md:text-lg">{{ _('Small') }}</option>
-          <option value="md:text-xl">{{ _('Medium') }}</option>
-          <option value="md:text-2xl">{{ _('Large') }}</option>
-          <option value="md:text-3xl">{{ _('X-Large') }}</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-slate-600 mb-1">{{ _('Script') }}</label>
-        <select id="switch-sa" class="f-select w-full"
-                @change="changeScript($event.target.value)">
-          {% include 'include/script-options-vidyut.html' %}
-        </select>
-      </div>
-
-    </div>
-  </div>
-</div>
-{% endmacro %}
 
 
 {% macro navbar() %}
@@ -131,13 +84,13 @@ For the corresponding JavaScript bindings and logic, see `reader.js`.
     {% endif %}
   </div>
   <div class="flex items-center shrink-0">
-    <button @click="showSidebar = !showSidebar; saveSettings()"
+    <button @click="if (showSidebar && sidebarTab !== null) { sidebarTab = null } else { showSidebar = !showSidebar; sidebarTab = null }; saveSettings()"
             class="flex items-center gap-1.5 text-slate-400 hover:text-slate-700 px-3 h-12 border-l"
             title="{{ _('Information') }}">
       <svg width="18" height="18"><use href="#info"></use></svg>
       <span class="text-sm hidden sm:inline">{{ _('Information') }}</span>
     </button>
-    <button @click="showSettings = true"
+    <button @click="showSidebar = true; sidebarTab = 'settings'; saveSettings()"
             class="flex items-center gap-1.5 text-slate-400 hover:text-slate-700 px-3 h-12 border-l border-r"
             title="{{ _('Settings') }}">
       <svg width="18" height="18"><use href="#settings"></use></svg>
@@ -184,6 +137,7 @@ On wide screens, the sidebar is on the right side of a split view.
                   contents: '{{ _('Table of contents') }}',
                   lookup: '{{ _('Dictionary lookup') }}',
                   resources: '{{ _('Resources') }}',
+                  settings: '{{ _('Settings') }}',
                 })[sidebarTab]"></span>
         </div>
       </template>
@@ -242,6 +196,13 @@ On wide screens, the sidebar is on the right side of a split view.
                   @click="sidebarTab = 'resources'">
             <svg class="shrink-0 text-slate-400" width="18" height="18"><use href="#file"></use></svg>
             <span>{{ _('Resources') }}</span>
+          </button>
+        </li>
+        <li>
+          <button class="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-slate-200 transition-colors"
+                  @click="sidebarTab = 'settings'">
+            <svg class="shrink-0 text-slate-400" width="18" height="18"><use href="#settings"></use></svg>
+            <span>{{ _('Settings') }}</span>
           </button>
         </li>
       </ul>
@@ -716,6 +677,42 @@ On wide screens, the sidebar is on the right side of a split view.
       </div>
     </div>
 
+    {% set ss = "rounded text-sm bg-white border border-slate-300 text-slate-700 hover:text-slate-900 p-1.5 w-48 ml-auto shrink-0" %}
+    <div x-show="sidebarTab === 'settings'" x-cloak class="p-4">
+      <h2 class="text-lg font-semibold text-slate-700 mb-1">{{ _('Settings') }}</h2>
+      <hr class="mb-4 border-slate-200">
+
+      <div class="space-y-5">
+        <div class="flex items-center justify-between gap-4">
+          <label class="text-sm font-medium text-slate-600">{{ _('Script') }}</label>
+          <select id="switch-sa" class="{{ ss }}"
+                  @change="changeScript($event.target.value)">
+            {% include 'include/script-options-vidyut.html' %}
+          </select>
+        </div>
+
+        <div class="flex items-center justify-between gap-4">
+          <label class="text-sm font-medium text-slate-600">{{ _('Text Width') }}</label>
+          <select class="{{ ss }}" x-model="textWidth" @change="saveSettings">
+            <option value="md:max-w-xl">{{ _('Narrow') }}</option>
+            <option value="md:max-w-3xl">{{ _('Wide') }}</option>
+            <option value="max-w-none">{{ _('Full') }}</option>
+          </select>
+        </div>
+
+        <div class="flex items-center justify-between gap-4">
+          <label class="text-sm font-medium text-slate-600">{{ _('Font Size') }}</label>
+          <select class="{{ ss }}" x-model="fontSize" @change="saveSettings">
+            <option value="md:text-base">{{ _('Tiny') }}</option>
+            <option value="md:text-lg">{{ _('Small') }}</option>
+            <option value="md:text-xl">{{ _('Medium') }}</option>
+            <option value="md:text-2xl">{{ _('Large') }}</option>
+            <option value="md:text-3xl">{{ _('X-Large') }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 {% endmacro %}
@@ -890,7 +887,6 @@ On wide screens, the sidebar is on the right side of a split view.
 
   {{ navbar() }}
   {{ sidebar() }}
-  {{ settings_modal() }}
 </article>
 {% endblock %}
 
