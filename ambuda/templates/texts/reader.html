@@ -28,8 +28,7 @@ For the corresponding JavaScript bindings and logic, see `reader.js`.
       </a>
     {% else %}
       <h1 class="text-2xl md:text-4xl deva-serif">
-        {{ text.title | hk_to_user_script }}
-
+        <span x-text="data.text_title">{{ text.title | hk_to_user_script }}</span>
         {% if text.is_p0 %}
         <a href="{{ url_for('about.unproofed_texts') }}">
           {{ i.i_exclamation_circle() }}

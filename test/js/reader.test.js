@@ -14,6 +14,7 @@ const sampleHTML = `
 
   <script id="payload" type="application/json">
   {
+    "text_slug": "sample-text",
     "text_title": "Sample Text",
     "section_title": "Sample Section",
     "prev_url": null,
@@ -47,6 +48,7 @@ window.fetch = jest.fn(async (url) => {
   const mapping = {
     '/api/texts/sample-text/1': {
       json: async () => ({
+        "text_slug": "sample-text",
         "text_title": "Sample Text",
         "section_title": "Sample Section",
         "prev_url": null,

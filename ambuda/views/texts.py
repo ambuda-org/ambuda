@@ -133,6 +133,7 @@ def _build_section_data(text_: db.Text, section_slug: str) -> Section:
                     pb.mula = xml.transliterate_html(pb.mula, Scheme.Devanagari, scheme)
 
     return Section(
+        text_slug=text_.slug,
         text_title=transliterate(text_.title, Scheme.HarvardKyoto, scheme),
         section_title=_transliterate_slug(cur.title, scheme),
         section_slug=section_slug,

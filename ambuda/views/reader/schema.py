@@ -17,6 +17,7 @@ class Block:
 
 @dataclass
 class Section:
+    text_slug: str
     text_title: str
     section_title: str
     section_slug: str

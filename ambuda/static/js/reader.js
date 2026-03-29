@@ -156,10 +156,7 @@ export default () => ({
       blockSlug: null, words: [], error: null, loading: false,
     };
 
-    // Build the API URL from the text slug and current section slug,
-    // since window.location.pathname may omit the section for single-section texts.
-    const textSlug = window.location.pathname.replace(/^\/texts\//, '').replace(/\/.*/, '');
-    const resp = await fetch(`/api/texts/${textSlug}/${this.sectionSlug}`);
+    const resp = await fetch(`/api/texts/${this.data.text_slug}/${this.sectionSlug}`);
     if (!resp.ok) return;
     this.data = await resp.json();
     this.$nextTick(() => this.insertSoftHyphensInDOM());
