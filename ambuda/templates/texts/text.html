@@ -5,7 +5,7 @@
 {% macro section_grid(sections) %}
 <ul class="grid grid-cols-5 gap-4 my-8 text-center">
 {% for (slug, name) in sections %}
-  {% set url = url_for('texts.section', text_slug=text.slug, section_slug=slug) %}
+  {% set url = url_for('texts.block_permalink', dotted_path=text.slug + '.' + slug) %}
   <li><a class="block hover:underline"
         href="{{ url }}">{{ name | devanagari }}
   </a></li>
@@ -21,7 +21,7 @@
 {{ m.text_tabs(text=text, active='contents') }}
 
 {% if text.sections|length == 1 %}
-  {% set url = url_for("texts.section", text_slug=text.slug, section_slug='all') %}
+  {% set url = url_for("texts.block_permalink", dotted_path=text.slug + '.all') %}
   <p class="text-center mt-16">
     <a class="btn btn-submit p-4" href="{{ url }}">{{ _('Show full text') }}</a>
   </p>

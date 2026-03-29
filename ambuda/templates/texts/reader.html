@@ -46,19 +46,19 @@ For the corresponding JavaScript bindings and logic, see `reader.js`.
 {# Prev/next navigation links in the page footer. #}
 {% macro _nav_link(text, section, display_text, direction) %}
 {% set base = "rounded text-2xl h-12 w-12 leading-[3rem] text-center" %}
-{% set data_url = "data.prev_url" if direction == "prev" else "data.next_url" %}
+{% set data_slug = "data.prev_slug" if direction == "prev" else "data.next_slug" %}
 {% set go_fn = "goToPrev" if direction == "prev" else "goToNext" %}
 {% if section %}
-  {% set url = url_for('texts.section', text_slug=text.slug, section_slug=section.slug) %}
+  {% set url = url_for('texts.block_permalink', dotted_path=text.slug + '.' + section.slug) %}
   <a class="{{ base }} hover:bg-slate-100"
      href="{{ url }}"
-     :href="{{ data_url }}"
-     :class="{{ data_url }} ? 'hover:bg-slate-100' : 'text-slate-300 pointer-events-none'"
+     :href="{{ data_slug }} ? '/texts/' + data.text_slug + '.' + {{ data_slug }} : '#'"
+     :class="{{ data_slug }} ? 'hover:bg-slate-100' : 'text-slate-300 pointer-events-none'"
      @click.prevent="{{ go_fn }}()">{{ display_text | safe }}</a>
 {% else %}
   <a class="{{ base }} text-slate-300 pointer-events-none" href="#"
-     :href="{{ data_url }} || '#'"
-     :class="{{ data_url }} ? 'hover:bg-slate-100 !text-current !pointer-events-auto' : 'text-slate-300 pointer-events-none'"
+     :href="{{ data_slug }} ? '/texts/' + data.text_slug + '.' + {{ data_slug }} : '#'"
+     :class="{{ data_slug }} ? 'hover:bg-slate-100 !text-current !pointer-events-auto' : 'text-slate-300 pointer-events-none'"
      @click.prevent="{{ go_fn }}()">{{ display_text | safe }}</a>
 {% endif %}
 {% endmacro %}
@@ -474,13 +474,13 @@ On wide screens, the sidebar is on the right side of a split view.
           </summary>
           <ul class="space-y-0.5 mb-2">
           {% for (slug, name) in sections %}
-            {% set url = url_for('texts.section', text_slug=text.slug, section_slug=slug) %}
+            {% set url = url_for('texts.block_permalink', dotted_path=text.slug + '.' + slug) %}
             {% set is_current = (slug == section.slug) %}
             <li>
               <a class="block px-2 py-1 rounded text-sm {{ 'bg-blue-50 text-blue-700 font-medium' if is_current else 'hover:bg-slate-200' }}"
                  :class="sectionSlug === '{{ slug }}' ? 'bg-blue-50 text-blue-700 font-medium' : 'hover:bg-slate-200'"
                  href="{{ url }}"
-                 @click.prevent="navigateToTocEntry('{{ url }}')">
+                 @click.prevent="navigateToTocEntry('{{ slug }}')">
                 {{ name | hk_slug_to_user_script }}
               </a>
             </li>
@@ -490,13 +490,13 @@ On wide screens, the sidebar is on the right side of a split view.
         {% else %}
         <ul class="space-y-0.5 mb-4">
         {% for (slug, name) in sections %}
-          {% set url = url_for('texts.section', text_slug=text.slug, section_slug=slug) %}
+          {% set url = url_for('texts.block_permalink', dotted_path=text.slug + '.' + slug) %}
           {% set is_current = (slug == section.slug) %}
           <li>
             <a class="block px-2 py-1 rounded text-sm {{ 'bg-blue-50 text-blue-700 font-medium' if is_current else 'hover:bg-slate-200' }}"
                :class="sectionSlug === '{{ slug }}' ? 'bg-blue-50 text-blue-700 font-medium' : 'hover:bg-slate-200'"
                href="{{ url }}"
-               @click.prevent="navigateToTocEntry('{{ url }}')">
+               @click.prevent="navigateToTocEntry('{{ slug }}')">
               {{ name | hk_slug_to_user_script }}
             </a>
           </li>
@@ -730,7 +730,7 @@ On wide screens, the sidebar is on the right side of a split view.
 {# Serialize the data above so we can use it without a second network call. #}
 <script id="payload" type="application/json">{{ json_payload|safe }}</script>
 
-<article lang="sa" class="flex h-[calc(100vh-3rem)] mt-12" x-cloak x-data="reader" @click="onClick" data-script="{{ session.get('script', 'Devanagari') }}">
+<article lang="sa" class="flex h-[calc(100vh-3rem)] mt-12" x-cloak x-data="reader" @click="onClick" data-script="{{ session.get('script', 'Devanagari') }}"{% if scroll_to %} data-scroll-to="{{ scroll_to }}"{% endif %}>
   <div class="flex-1 min-h-0 overflow-y-auto">
   <div class="mx-auto px-4 pb-40 w-full"
       :class="textWidth">
@@ -769,7 +769,7 @@ On wide screens, the sidebar is on the right side of a split view.
       {% endfor %}
     {% endif %}
 
-    <s-block id="{{ block_.slug }}" data-slug="{{ block_.slug }}">
+    <s-block data-slug="{{ block_.slug }}">
       <div class="flex items-start gap-2">
         <div class="mula flex-1">{{ block_.mula|safe }}</div>
         <div class="relative flex-shrink-0 mt-1 group" x-data="{ open: false }">
@@ -790,7 +790,7 @@ On wide screens, the sidebar is on the right side of a split view.
               <span>{{ _('Edit') }}</span>
             </a>
             {% endif %}
-            <a href="#{{ block_.slug }}"
+            <a href="{{ url_for('texts.block_permalink', dotted_path=text.slug + '.' + block_.slug) }}"
                class="block px-3 py-2 text-sm hover:bg-slate-100 flex items-center gap-2"
                title="{{ _('Link to this block') }}">
               <svg width="16" height="16"><use href="#link"></use></svg>
@@ -857,7 +857,7 @@ On wide screens, the sidebar is on the right side of a split view.
                 <svg width="16" height="16"><use href="#edit"></use></svg>
                 <span>{{ _('Edit') }}</span>
               </a>
-              <a :href="'#' + b.slug"
+              <a :href="'/texts/' + data.text_slug + '.' + b.slug"
                  class="block px-3 py-2 text-sm hover:bg-slate-100 flex items-center gap-2"
                  title="{{ _('Link to this block') }}">
                 <svg width="16" height="16"><use href="#link"></use></svg>

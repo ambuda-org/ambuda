@@ -23,5 +23,5 @@ class Section:
     section_slug: str
     #: The blocks for this section.
     blocks: list[Block]
-    prev_url: str
-    next_url: str
+    prev_slug: str | None
+    next_slug: str | None
