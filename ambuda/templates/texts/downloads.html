@@ -4,15 +4,23 @@
 {% import "macros/texts.html" as m_texts %}
 
 
-{% macro download_card(url, name, description) %}
-<a href="{{ url }}"
-   class="flex items-center gap-4 bg-white rounded-lg border border-slate-200 p-6 hover:border-sky-300 hover:shadow-sm transition group">
-  <svg class="w-5 h-5 text-slate-400 group-hover:text-sky-500 shrink-0"><use href="#download"></use></svg>
-  <div>
-    <p class="text-lg font-medium text-slate-800 group-hover:text-sky-700 transition">{{ name }}</p>
-    <p class="text-sm text-slate-500 mt-1">{{ description }}</p>
+{% macro download_card(url, name, export=None) %}
+<section class="bg-white rounded-lg border border-slate-200 p-6 space-y-3">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <a href="{{ url }}" class="text-lg font-medium text-sky-600 hover:text-sky-800 transition">{{ name }}</a>
+      <a href="{{ url }}" class="text-sky-600 hover:text-sky-800 transition">
+        <svg class="w-4 h-4"><use href="#download"></use></svg>
+      </a>
+    </div>
+    {% if export %}
+    <span class="text-xs text-slate-400 tabular-nums">{{ export.size | human_readable_bytes }} · {{ export.updated_at.strftime('%Y-%m-%d') }}{% if export.sha256_checksum %} · <code>{{ export.sha256_checksum[:8] }}</code>{% endif %}</span>
+    {% endif %}
   </div>
-</a>
+  <div class="text-sm text-slate-600 prose prose-sm">
+    {{ caller() }}
+  </div>
+</section>
 {% endmacro %}
 
 
@@ -31,27 +39,64 @@
 
 <div class="max-w-3xl mx-auto px-6 md:px-8 md:py-16 md:pb-36 space-y-4">
 
-  {% if bulk_exports %}
-  {% for export in bulk_exports %}
-  {{ download_card(
-       url_for('texts.download_file', filename=export.slug),
-       export.slug,
-       (export.export_type | upper) + ' · ' + (export.size | human_readable_bytes) + ' · ' + _('Updated') + ' ' + export.updated_at.strftime('%Y-%m-%d')
-  ) }}
-  {% endfor %}
+  {% if bulk_exports.get('xml') %}
+  {% set export = bulk_exports['xml'] %}
+  {% call download_card(url_for('texts.download_file', filename=export.slug), export.slug, export=export) %}
+    {% trans %}
+    <p>All texts in the library, including translations and commentaries.</p>
+
+    <p>Texts are provided as XML files that follow the <a href="https://www.tei-c.org/">TEI guidelines</a>.
+    All of our other export types, including plain text, PDF, and EPUB, are derived from these files.</p>
+
+    <p>TEI files are highly structured and contain rich metadata, but they might also be too
+    complicated for ordinary users.</p>
+    {% endtrans %}
+  {% endcall %}
   {% endif %}
 
-  {{ download_card(
-       url_for('texts.metadata_json'),
-       'metadata.json',
-       _('Structured metadata for all texts in the library. Includes authors, collection membership, and details on source documents.')
-  ) }}
+  {% if bulk_exports.get('text') %}
+  {% set export = bulk_exports['text'] %}
+  {% call download_card(url_for('texts.download_file', filename=export.slug), export.slug, export=export) %}
+    {% trans %}
+    <p>All texts in the library, including translations and commentaries.</p>
 
-  {{ download_card(
-       url_for('texts.tei_headers_xml'),
-       'tei-headers.xml',
-       _("TEI headers for all texts in the library. The <code>xml:id</code> attribute on each <code>TEI</code> element is the text's slug.")
-  ) }}
+    <p>Texts are provided as plain text files and are derived by transforming our XML files, which are
+    available for download above. While our plain text export has less structure than our TEI
+    export, it is much easier to use.</p>
+    {% endtrans %}
+  {% endcall %}
+  {% endif %}
+
+  {% if bulk_exports.get('metadata-json') %}
+  {% set export = bulk_exports['metadata-json'] %}
+  {% call download_card(url_for('texts.download_file', filename=export.slug), export.slug, export=export) %}
+    {% trans %}
+    <p>Structured metadata for all texts in the library. Includes authors, collection membership,
+    and details on source documents.</p>
+
+    <p>The big missing field right now is license information. Generally, any text that provides a
+    non-null <code>source</code> is in the public domain. We will make this information more explicit
+    soon.</p>
+    {% endtrans %}
+  {% endcall %}
+  {% endif %}
+
+  {% if bulk_exports.get('tei-headers') %}
+  {% set export = bulk_exports['tei-headers-headers'] %}
+  {% set header_url = "https://www.tei-c.org/release/doc/tei-p5-doc/en/html/ref-teiHeader.html" %}
+  {% call download_card(url_for('texts.tei_headers_xml'), 'tei-headers.xml', export=bulk_exports.get('tei-headers')) %}
+    {% trans %}
+    <p>TEI headers for all texts in the librray.</p>
+
+    <p>This download keeps the <code><a href="{{ header_url }}">teiHeader</a></code> elements from
+    our XML documents and drops all other data. These headers contain rich structured metadata.</p>
+
+    <p>The <code>xml:id</code> attribute on each <code>TEI</code> element is the text's <i>slug</i>,
+    a short identifier that can be used to find the text both on the Ambuda website and in
+    resources like <code>metadata.json</code>.</p>
+    {% endtrans %}
+  {% endcall %}
+  {% endif %}
 
 </div>
 

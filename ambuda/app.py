@@ -30,7 +30,7 @@ from ambuda.views.proofing import user_bp as users
 from ambuda.views.reader.authors import bp as authors
 from ambuda.views.reader.collections import bp as collections
 from ambuda.views.reader.parses import bp as parses
-from ambuda.views.reader.texts import bp as texts
+from ambuda.views.texts import bp as texts
 from ambuda.views.catalog import bp as catalog
 from ambuda.views.site import bp as site
 

@@ -5,7 +5,7 @@ from collections import Counter
 from flask import Blueprint, render_template, request, jsonify
 
 import ambuda.queries as q
-from ambuda.utils import text_utils
+from ambuda.utils import metadata_catalog
 from ambuda.utils.xml import parse_tei_header
 
 bp = Blueprint("catalog", __name__)
@@ -167,7 +167,7 @@ def index():
     offset = request.args.get("offset", 0, type=int)
 
     collections = q.collections()
-    all_entries = _flatten_entries(text_utils.create_grouped_text_entries())
+    all_entries = _flatten_entries(metadata_catalog.create_grouped_text_entries())
     filtered = _apply_filters(
         all_entries, search, collection_ids, text_types, statuses, sources
     )

@@ -104,6 +104,13 @@ class BulkExportType(StrEnum):
 
     #: Bulk export of TEI XML
     XML = "xml"
+    #: Bulk export of text data
+    TEXT = "text"
+
+    #: Metadata summary, including collection details.
+    METADATA_JSON = "metadata-json"
+    #: A list of all <teiHeader> elements from all corpus documents.
+    TEI_HEADERS = "tei-headers"
 
 
 class BulkExportConfig(BaseModel):
@@ -178,7 +185,22 @@ BULK_EXPORTS = [
         label="All TEI XML files",
         type=BulkExportType.XML,
         slug_pattern="ambuda-xml.zip",
-    )
+    ),
+    BulkExportConfig(
+        label="All texts (plain text)",
+        type=BulkExportType.TEXT,
+        slug_pattern="ambuda-text.zip",
+    ),
+    BulkExportConfig(
+        label="Library metadata (JSON)",
+        type=BulkExportType.METADATA_JSON,
+        slug_pattern="metadata.json",
+    ),
+    BulkExportConfig(
+        label="TEI headers (XML)",
+        type=BulkExportType.TEI_HEADERS,
+        slug_pattern="tei-headers.xml",
+    ),
 ]
 
 

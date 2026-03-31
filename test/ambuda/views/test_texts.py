@@ -1,7 +1,7 @@
 import pytest
 from vidyut.lipi import transliterate, Scheme
 
-from ambuda.views.reader.texts import _strip_or_none, _parse_source
+from ambuda.utils.metadata_catalog import _strip_or_none, _parse_source
 
 
 def d(s) -> str:

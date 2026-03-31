@@ -1,7 +1,9 @@
 import hashlib
 import json
 import logging
+import shutil
 import tempfile
+import urllib.request
 import zipfile
 from datetime import UTC, datetime
 from pathlib import Path
@@ -20,6 +22,7 @@ from ambuda.utils.text_exports import (
     ExportConfig,
     ExportType,
     write_cached_xml,
+    cached_xml_path,
     delete_cached_xml,
     create_or_update_xml_export,
     create_xml_file,
@@ -29,7 +32,7 @@ from ambuda.utils.text_exports import (
     maybe_create_tokens,
     create_vocab_list,
 )
-from ambuda.utils.text_utils import text_metadata
+from ambuda.utils.metadata_catalog import build_library_metadata, build_tei_headers_xml
 
 
 EXPORTS = {x.slug_pattern: x for x in text_exports.EXPORTS}
@@ -279,15 +282,123 @@ def _get_bulk_export_config(bulk_type: BulkExportType):
     raise ValueError(f"No BulkExportConfig for type: {bulk_type}")
 
 
-def create_text_archive_inner(app_environment, engine=None):
-    """Create a ZIP archive of all texts and upload to S3.
+def _file_sha256(path: Path) -> str:
+    """Compute the SHA256 hex digest of a file."""
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
-    For each text, the ZIP contains:
-    - {slug}.xml — TEI XML (downloaded from S3 if available, otherwise generated)
-    - metadata.json — metadata for all included texts
+
+def _download_xml_for_text(text, session, cache_dir, cloudfront_base_url, xml_out_path):
+    """Download or generate the XML file for a single text.
+
+    Tries (in order): local cache, CloudFront, S3, on-the-fly generation.
     """
-    bulk_config = _get_bulk_export_config(BulkExportType.XML)
+    xml_export = (
+        session.query(db.TextExport)
+        .filter(
+            db.TextExport.text_id == text.id,
+            db.TextExport.export_type == ExportType.XML,
+        )
+        .first()
+    )
+
+    if not xml_export or not xml_export.s3_path:
+        create_xml_file(text, xml_out_path)
+        return
+
+    # 1. Try local filesystem cache
+    cached = cached_xml_path(cache_dir, text.slug)
+    if cached and xml_export.sha256_checksum:
+        if _file_sha256(cached) == xml_export.sha256_checksum:
+            shutil.copy2(cached, xml_out_path)
+            logging.info(f"Used cached XML for {text.slug}")
+            return
+
+    # 2. Try CloudFront CDN
+    downloaded = False
+    if cloudfront_base_url:
+        asset_url = xml_export.asset_url(cloudfront_base_url)
+        if asset_url:
+            try:
+                urllib.request.urlretrieve(asset_url, xml_out_path)
+                logging.info(f"Downloaded XML for {text.slug} from CloudFront")
+                downloaded = True
+            except Exception as e:
+                logging.warning(f"CloudFront download failed for {text.slug}: {e}")
+
+    # 3. Fall back to S3
+    if not downloaded:
+        try:
+            s3_path = S3Path.from_path(xml_export.s3_path)
+            s3_path.download_file(xml_out_path)
+            logging.info(f"Downloaded XML for {text.slug} from S3")
+            downloaded = True
+        except Exception as e:
+            logging.warning(
+                f"Failed to download XML for {text.slug} from S3: {e}. "
+                "Falling back to generation."
+            )
+            create_xml_file(text, xml_out_path)
+
+    # Update the cache after a remote download
+    if downloaded:
+        write_cached_xml(cache_dir, text.slug, xml_out_path)
+
+
+def _upload_bulk_archive(zip_path, bulk_config, session, config_obj):
+    """Compute checksum, upload ZIP to S3, and upsert the BulkExport record."""
     zip_filename = bulk_config.slug
+
+    file_size = zip_path.stat().st_size
+    sha256_hash = hashlib.sha256()
+    with open(zip_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
+    checksum = sha256_hash.hexdigest()
+
+    s3_path = bulk_config.s3_path(config_obj.S3_BUCKET)
+    s3_path.upload_file(zip_path)
+    logging.info(f"Uploaded {zip_filename} to {s3_path}")
+
+    bulk_export = (
+        session.query(db.BulkExport).filter(db.BulkExport.slug == zip_filename).first()
+    )
+    if bulk_export:
+        bulk_export.s3_path = s3_path.path
+        bulk_export.size = file_size
+        bulk_export.sha256_checksum = checksum
+        bulk_export.updated_at = datetime.now(UTC)
+    else:
+        bulk_export = db.BulkExport(
+            slug=zip_filename,
+            export_type=bulk_config.type,
+            s3_path=s3_path.path,
+            size=file_size,
+            sha256_checksum=checksum,
+        )
+        session.add(bulk_export)
+
+
+def create_text_archive_inner(app_environment, engine=None):
+    """Create ZIP archives of all texts and upload to S3.
+
+    Creates two archives:
+    - ambuda-xml.zip — TEI XML files + metadata.json
+    - ambuda-text.zip — plain text files + metadata.json
+
+    XML files are sourced using a three-tier strategy:
+    1. Local filesystem cache (if hash matches the DB checksum)
+    2. CloudFront CDN download
+    3. S3 direct download
+    Falls back to on-the-fly generation if no export exists.
+    """
+    xml_config = _get_bulk_export_config(BulkExportType.XML)
+    text_config = _get_bulk_export_config(BulkExportType.TEXT)
+    metadata_config = _get_bulk_export_config(BulkExportType.METADATA_JSON)
+    tei_headers_config = _get_bulk_export_config(BulkExportType.TEI_HEADERS)
 
     with get_db_session(app_environment, engine=engine) as (session, q, config_obj):
         texts = session.query(db.Text).all()
@@ -296,79 +407,69 @@ def create_text_archive_inner(app_environment, engine=None):
             logging.warning("No texts found for archive")
             return
 
+        cache_dir = getattr(config_obj, "SERVER_FILE_CACHE", None)
+        cloudfront_base_url = getattr(config_obj, "CLOUDFRONT_BASE_URL", None)
+
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_dir_path = Path(temp_dir)
-            metadata = []
+            xml_dir = temp_dir_path / "xml"
+            txt_dir = temp_dir_path / "txt"
+            xml_dir.mkdir()
+            txt_dir.mkdir()
 
             for text in texts:
-                xml_out_path = temp_dir_path / f"{text.slug}.xml"
-
-                xml_export = (
-                    session.query(db.TextExport)
-                    .filter(
-                        db.TextExport.text_id == text.id,
-                        db.TextExport.export_type == ExportType.XML,
-                    )
-                    .first()
+                xml_out_path = xml_dir / f"{text.slug}.xml"
+                _download_xml_for_text(
+                    text, session, cache_dir, cloudfront_base_url, xml_out_path
                 )
 
-                if xml_export and xml_export.s3_path:
-                    try:
-                        s3_path = S3Path.from_path(xml_export.s3_path)
-                        s3_path.download_file(xml_out_path)
-                        logging.info(f"Downloaded XML for {text.slug} from S3")
-                    except Exception as e:
-                        logging.warning(
-                            f"Failed to download XML for {text.slug} from S3: {e}. "
-                            "Falling back to generation."
-                        )
-                        create_xml_file(text, xml_out_path)
-                else:
-                    create_xml_file(text, xml_out_path)
+                # Convert XML → plain text
+                txt_out_path = txt_dir / f"{text.slug}.txt"
+                try:
+                    create_plain_text(text, txt_out_path, xml_out_path)
+                except Exception as e:
+                    logging.warning(f"Failed to create plain text for {text.slug}: {e}")
 
-                metadata.append(text_metadata(text))
-
+            # Build shared metadata
+            all_colls = q.all_collections()
+            library_metadata = build_library_metadata(
+                texts=texts, collections=all_colls
+            )
             metadata_path = temp_dir_path / "metadata.json"
-            metadata_path.write_text(json.dumps(metadata, indent=2, ensure_ascii=False))
+            metadata_path.write_text(
+                json.dumps(library_metadata.model_dump(), indent=2, ensure_ascii=False)
+            )
 
-            zip_path = temp_dir_path / zip_filename
-            with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-                for entry in metadata:
-                    xml_file = temp_dir_path / f"{entry['slug']}.xml"
+            # XML archive
+            xml_zip_path = temp_dir_path / xml_config.slug
+            with zipfile.ZipFile(xml_zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+                for text in texts:
+                    xml_file = xml_dir / f"{text.slug}.xml"
                     if xml_file.exists():
                         zf.write(xml_file, xml_file.name)
                 zf.write(metadata_path, "metadata.json")
+            _upload_bulk_archive(xml_zip_path, xml_config, session, config_obj)
 
-            file_size = zip_path.stat().st_size
-            sha256_hash = hashlib.sha256()
-            with open(zip_path, "rb") as f:
-                for chunk in iter(lambda: f.read(4096), b""):
-                    sha256_hash.update(chunk)
-            checksum = sha256_hash.hexdigest()
+            # Plain text archive
+            txt_zip_path = temp_dir_path / text_config.slug
+            with zipfile.ZipFile(txt_zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+                for text in texts:
+                    txt_file = txt_dir / f"{text.slug}.txt"
+                    if txt_file.exists():
+                        zf.write(txt_file, txt_file.name)
+                zf.write(metadata_path, "metadata.json")
+            _upload_bulk_archive(txt_zip_path, text_config, session, config_obj)
 
-            s3_path = bulk_config.s3_path(config_obj.S3_BUCKET)
-            s3_path.upload_file(zip_path)
-            logging.info(f"Uploaded text archive to {s3_path}")
+            # metadata.json
+            _upload_bulk_archive(metadata_path, metadata_config, session, config_obj)
 
-            bulk_export = (
-                session.query(db.BulkExport)
-                .filter(db.BulkExport.slug == zip_filename)
-                .first()
+            # tei-headers.xml
+            tei_headers_path = temp_dir_path / tei_headers_config.slug
+            tei_headers_path.write_bytes(build_tei_headers_xml(texts))
+            _upload_bulk_archive(
+                tei_headers_path, tei_headers_config, session, config_obj
             )
-            if bulk_export:
-                bulk_export.s3_path = s3_path.path
-                bulk_export.size = file_size
-                bulk_export.sha256_checksum = checksum
-                bulk_export.updated_at = datetime.now(UTC)
-            else:
-                bulk_export = db.BulkExport(
-                    slug=zip_filename,
-                    export_type=bulk_config.type,
-                    s3_path=s3_path.path,
-                    size=file_size,
-                    sha256_checksum=checksum,
-                )
-                session.add(bulk_export)
+
             session.commit()
 
 

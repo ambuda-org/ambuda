@@ -4,7 +4,7 @@ from flask import Blueprint, redirect, render_template, request, session, url_fo
 
 from ambuda import queries as q
 from ambuda.consts import LOCALES
-from ambuda.utils import text_utils
+from ambuda.utils import metadata_catalog
 from ambuda.utils.vidyut_shim import transliterate, Scheme
 
 bp = Blueprint("site", __name__)
@@ -12,9 +12,9 @@ bp = Blueprint("site", __name__)
 
 @bp.route("/")
 def index():
-    grouped_entries = text_utils.create_grouped_text_entries()
-    recent_texts = text_utils.create_recent_text_entries()
-    all_texts = text_utils.create_text_entries()
+    grouped_entries = metadata_catalog.create_grouped_text_entries()
+    recent_texts = metadata_catalog.create_recent_text_entries()
+    all_texts = metadata_catalog.create_text_entries()
     search_items = [
         {
             "title": transliterate(

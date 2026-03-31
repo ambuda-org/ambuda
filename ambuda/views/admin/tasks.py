@@ -322,7 +322,7 @@ def import_metadata(model_name, selected_ids: list | None = None):
 
 def export_metadata(model_name, selected_ids: list | None = None):
     """Export Text metadata as JSON."""
-    from ambuda.utils.text_utils import text_metadata
+    from ambuda.utils.metadata_catalog import text_metadata
 
     session = q.get_session()
 

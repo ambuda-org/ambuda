@@ -1,7 +1,7 @@
 """Views related to texts: title pages, sections, verses, etc."""
 
 import json
-from datetime import UTC, datetime
+from pathlib import Path
 
 from flask import (
     Blueprint,
@@ -10,10 +10,10 @@ from flask import (
     jsonify,
     redirect,
     render_template,
+    send_file,
     session,
     url_for,
 )
-from pydantic import BaseModel
 from sqlalchemy import exists, orm, select
 
 from ambuda.utils.vidyut_shim import transliterate, Scheme
@@ -22,59 +22,20 @@ import ambuda.database as db
 import ambuda.queries as q
 from ambuda.consts import SINGLE_SECTION_SLUG
 from ambuda.models.texts import TextConfig
-from ambuda.utils import text_utils
+from ambuda.utils import s3
+from ambuda.utils import metadata_catalog
 from ambuda.utils import xml
 from ambuda.utils.text_exports import ExportType
+from ambuda.utils.metadata_catalog import (
+    TextUrlsEntry,
+    build_library_metadata,
+    build_tei_headers_xml,
+)
 from ambuda.utils.json_serde import AmbudaJSONEncoder
 from ambuda.utils.text_validation import ReportSummary
 from ambuda.views.reader.schema import Block, Section
 
 bp = Blueprint("texts", __name__)
-
-
-class AuthorMetadataEntry(BaseModel):
-    slug: str
-    name: str
-
-
-class SourceMetadataEntry(BaseModel):
-    title: str | None = None
-    author: str | None = None
-    editor: str | None = None
-    publisher: str | None = None
-    publisher_place: str | None = None
-    publication_year: str | None = None
-
-
-class TextUrlsEntry(BaseModel):
-    xml: str | None = None
-    text: str | None = None
-
-
-class TextMetadataEntry(BaseModel):
-    slug: str
-    title: str
-    created_at: str | None = None
-    language: str | None = None
-    status: str | None = None
-    parent_slug: str | None = None
-    author: AuthorMetadataEntry | None = None
-    source: SourceMetadataEntry | None = None
-    collections: list[str] = []
-    urls: TextUrlsEntry | None = None
-
-
-class CollectionMetadataEntry(BaseModel):
-    slug: str
-    title: str
-    parent_slug: str | None = None
-
-
-class LibraryMetadata(BaseModel):
-    api_version: str = "1"
-    created_at: str
-    collections: list[CollectionMetadataEntry]
-    texts: list[TextMetadataEntry]
 
 
 def _prev_cur_next(sections: list[db.TextSection], slug: str):
@@ -203,8 +164,8 @@ def _export_key(x: db.TextExport) -> tuple:
 @bp.route("/")
 def index():
     """Show all texts."""
-    grouped_entries = text_utils.create_grouped_text_entries()
-    all_texts = text_utils.create_text_entries()
+    grouped_entries = metadata_catalog.create_grouped_text_entries()
+    all_texts = metadata_catalog.create_text_entries()
     search_items = [
         {
             "title": transliterate(
@@ -269,46 +230,9 @@ def downloads():
     """Show bulk download archives."""
     session = q.get_session()
     stmt = select(db.BulkExport).order_by(db.BulkExport.slug)
-    bulk_exports = list(session.scalars(stmt).all())
+    bulk_exports = {e.export_type: e for e in session.scalars(stmt).all()}
 
     return render_template("texts/downloads.html", bulk_exports=bulk_exports)
-
-
-def _isoformat_utc(dt) -> str | None:
-    """Format a datetime as ISO 8601 with UTC timezone."""
-    if dt is None:
-        return None
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=UTC)
-    return dt.isoformat()
-
-
-def _strip_or_none(value: str | None) -> str | None:
-    """Strip whitespace and return None if empty."""
-    if value is None:
-        return None
-    stripped = value.strip()
-    return stripped or None
-
-
-def _parse_source(header_xml: str | None) -> SourceMetadataEntry | None:
-    """Parse TEI header XML into a SourceMetadataEntry, or None."""
-    if not header_xml:
-        return None
-    try:
-        h = xml.parse_tei_header(header_xml)
-        title = _strip_or_none(h.tei_title)
-        source = SourceMetadataEntry(
-            title=title if title and title != "Unknown" else None,
-            author=_strip_or_none(h.source_author),
-            editor=_strip_or_none(h.source_editor),
-            publisher=_strip_or_none(h.source_publisher),
-            publisher_place=_strip_or_none(h.source_publisher_place),
-            publication_year=_strip_or_none(h.source_publication_year),
-        )
-        return source if source.model_dump(exclude_none=True) else None
-    except Exception:
-        return None
 
 
 def _export_urls(t: db.Text) -> TextUrlsEntry | None:
@@ -329,44 +253,14 @@ def _export_urls(t: db.Text) -> TextUrlsEntry | None:
     return None
 
 
-def _text_to_metadata(t: db.Text) -> TextMetadataEntry:
-    """Convert a Text model to a metadata entry."""
-    author = (
-        AuthorMetadataEntry(slug=t.author.slug, name=t.author.name)
-        if t.author
-        else None
-    )
-    return TextMetadataEntry(
-        slug=t.slug,
-        title=t.title,
-        created_at=_isoformat_utc(t.created_at),
-        language=t.language,
-        status=t.status,
-        parent_slug=t.parent.slug if t.parent else None,
-        author=author,
-        source=_parse_source(t.header),
-        collections=[c.slug for c in t.collections],
-        urls=_export_urls(t),
-    )
-
-
 @bp.route("/downloads/metadata.json")
 def metadata_json():
     """Return a JSON list of all texts with metadata."""
     all_colls = q.Query(q.get_session()).all_collections()
-    coll_id_to_slug = {c.id: c.slug for c in all_colls}
-
-    data = LibraryMetadata(
-        created_at=datetime.now(UTC).isoformat(),
-        collections=[
-            CollectionMetadataEntry(
-                slug=c.slug,
-                title=c.title,
-                parent_slug=coll_id_to_slug.get(c.parent_id) if c.parent_id else None,
-            )
-            for c in all_colls
-        ],
-        texts=[_text_to_metadata(t) for t in q.texts()],
+    data = build_library_metadata(
+        texts=list(q.texts()),
+        collections=all_colls,
+        urls_fn=_export_urls,
     )
     return jsonify(data.model_dump())
 
@@ -374,52 +268,7 @@ def metadata_json():
 @bp.route("/downloads/tei-headers.xml")
 def tei_headers_xml():
     """Return a TEI corpus XML file containing all text headers."""
-    from lxml import etree
-
-    TEI_NS = "http://www.tei-c.org/ns/1.0"
-    XML_NS = "http://www.w3.org/XML/1998/namespace"
-    NSMAP = {None: TEI_NS}
-
-    corpus = etree.Element("teiCorpus", nsmap=NSMAP)
-
-    # Corpus-level teiHeader
-    corpus_header = etree.SubElement(corpus, "teiHeader")
-    file_desc = etree.SubElement(corpus_header, "fileDesc")
-    title_stmt = etree.SubElement(file_desc, "titleStmt")
-    title_el = etree.SubElement(title_stmt, "title")
-    title_el.text = "Ambuda Library — TEI Headers"
-    pub_stmt = etree.SubElement(file_desc, "publicationStmt")
-    authority = etree.SubElement(pub_stmt, "authority")
-    authority.text = "Ambuda (https://ambuda.org)"
-    date_el = etree.SubElement(pub_stmt, "date")
-    date_el.text = datetime.now(UTC).strftime("%Y-%m-%d")
-    source_desc = etree.SubElement(file_desc, "sourceDesc")
-    p = etree.SubElement(source_desc, "p")
-    p.text = "Automatically generated from the Ambuda library."
-
-    # Per-text TEI elements
-    for t in q.texts():
-        if not t.header:
-            continue
-        try:
-            header_el = etree.fromstring(t.header)
-        except etree.XMLSyntaxError:
-            continue
-
-        tei = etree.SubElement(corpus, "TEI")
-        tei.set(f"{{{XML_NS}}}id", t.slug)
-
-        # Adopt the parsed teiHeader, normalizing namespace
-        if header_el.tag == "teiHeader" or header_el.tag == f"{{{TEI_NS}}}teiHeader":
-            header_el.tag = f"{{{TEI_NS}}}teiHeader"
-        tei.append(header_el)
-
-    xml_bytes = etree.tostring(
-        corpus,
-        pretty_print=True,
-        xml_declaration=True,
-        encoding="UTF-8",
-    )
+    xml_bytes = build_tei_headers_xml(list(q.texts()))
     return current_app.response_class(xml_bytes, mimetype="application/xml")
 
 
@@ -440,6 +289,21 @@ def download_file(filename):
         url = bulk.asset_url(base_url) if base_url else None
         if url:
             return redirect(url)
+
+    # Local dev fallback: serve the file directly from the local S3 mock.
+    s3_path_str = None
+    if text_export:
+        s3_path_str = text_export.s3_path
+    elif bulk:
+        s3_path_str = bulk.s3_path
+
+    if s3_path_str and s3.is_local():
+        s3_path = s3.S3Path.from_path(s3_path_str)
+        local_path = (
+            Path(s3.LocalFSBotoClient().base_path) / s3_path.bucket / s3_path.key
+        )
+        if local_path.exists():
+            return send_file(local_path, as_attachment=True, download_name=filename)
 
     abort(404)
 

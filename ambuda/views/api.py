@@ -545,7 +545,7 @@ def block_htmx(text_slug, block_slug):
 @bp.route("/texts/<text_slug>/<section_slug>")
 def reader_json(text_slug, section_slug):
     """Return section data as JSON."""
-    from ambuda.views.reader.texts import _build_section_data
+    from ambuda.views.texts import _build_section_data
 
     text_ = q.text(text_slug)
     if text_ is None:

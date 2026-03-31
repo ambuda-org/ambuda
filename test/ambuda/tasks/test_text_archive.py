@@ -6,6 +6,7 @@ never touch the filesystem or network.
 
 import json
 import zipfile
+from datetime import UTC, datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -24,6 +25,8 @@ def _make_text(
     status="published",
     genre_name=None,
     collection_slugs=None,
+    author_slug=None,
+    author_name=None,
 ):
     text = MagicMock()
     text.id = id
@@ -33,6 +36,18 @@ def _make_text(
     text.config = json.dumps(config) if config else None
     text.language = language
     text.status = status
+    text.created_at = datetime(2025, 1, 1, tzinfo=UTC)
+    text.updated_at = datetime(2025, 6, 1, tzinfo=UTC)
+    text.parent = None
+    text.parent_id = None
+    text.exports = []
+
+    if author_slug and author_name:
+        text.author = MagicMock()
+        text.author.slug = author_slug
+        text.author.name = author_name
+    else:
+        text.author = None
 
     if genre_name:
         text.genre.name = genre_name
@@ -99,20 +114,33 @@ class Mocks:
         config = MagicMock()
         config.S3_BUCKET = "test-bucket"
 
+        q_mock = MagicMock()
+        q_mock.all_collections.return_value = []
+
         self.get_db_session.return_value.__enter__ = MagicMock(
-            return_value=(session, MagicMock(), config)
+            return_value=(session, q_mock, config)
         )
         self.get_db_session.return_value.__exit__ = MagicMock(return_value=False)
         return config
 
     def capture_upload(self):
-        """Set up S3 mock to capture the uploaded ZIP contents. Returns the dict."""
+        """Set up S3 mock to capture uploaded file contents. Returns the dict.
+
+        Keyed by filename. ZIP files get 'names' and 'metadata' entries;
+        other files get 'content' (raw bytes).
+        """
         uploaded = {}
 
         def _capture(path):
-            with zipfile.ZipFile(path, "r") as zf:
-                uploaded["names"] = sorted(zf.namelist())
-                uploaded["metadata"] = json.loads(zf.read("metadata.json"))
+            name = path.name
+            if name.endswith(".zip"):
+                with zipfile.ZipFile(path, "r") as zf:
+                    uploaded[name] = {
+                        "names": sorted(zf.namelist()),
+                        "metadata": json.loads(zf.read("metadata.json")),
+                    }
+            else:
+                uploaded[name] = {"content": path.read_bytes()}
 
         mock_s3_instance = MagicMock()
         mock_s3_instance.upload_file.side_effect = _capture
@@ -151,22 +179,33 @@ def test_metadata_fields(export_mocks):
         status="published",
         genre_name="kavya",
         collection_slugs=["itihasa", "classics"],
+        author_slug="vyasa",
+        author_name="Vyasa",
     )
     export_mocks.setup_session([text])
     uploaded = export_mocks.capture_upload()
 
     create_text_archive_inner("testing")
 
-    assert len(uploaded["metadata"]) == 1
-    m = uploaded["metadata"][0]
+    # Check metadata from the standalone metadata.json upload
+    standalone = json.loads(uploaded["metadata.json"]["content"])
+    assert standalone["api_version"] == "1"
+    assert "created_at" in standalone
+
+    assert len(standalone["texts"]) == 1
+    m = standalone["texts"][0]
     assert m["slug"] == "gita"
     assert m["title"] == "Bhagavad Gita"
-    assert m["header"] == "<teiHeader/>"
-    assert m["config"] == {"headings": "chapter"}
     assert m["language"] == "sa"
     assert m["status"] == "published"
-    assert m["genre"] == "kavya"
     assert m["collections"] == ["itihasa", "classics"]
+    assert m["author"]["slug"] == "vyasa"
+    assert m["author"]["name"] == "Vyasa"
+    assert m["created_at"] is not None
+    assert m["updated_at"] is not None
+
+    # Same metadata is embedded in the XML archive
+    assert uploaded["ambuda-xml.zip"]["metadata"] == standalone
 
 
 def test_downloads_from_s3_when_export_exists(export_mocks):
@@ -235,7 +274,7 @@ def test_no_texts_skips_upload(export_mocks):
 
 
 def test_upload_destination(export_mocks):
-    """ZIP is uploaded to the correct S3 bucket and key."""
+    """ZIPs are uploaded to the correct S3 bucket and key."""
     text = _make_text(id=1, slug="gita")
     cfg = export_mocks.setup_session([text])
     cfg.S3_BUCKET = "my-bucket"
@@ -246,45 +285,53 @@ def test_upload_destination(export_mocks):
 
     create_text_archive_inner("testing")
 
-    call_args = export_mocks.utils_s3.call_args
-    assert call_args[0][0] == "my-bucket"
-    assert call_args[0][1] == "assets/text-exports/ambuda-xml.zip"
-    mock_s3_instance.upload_file.assert_called_once()
+    s3_calls = export_mocks.utils_s3.call_args_list
+    keys = {call[0][1] for call in s3_calls}
+    assert "assets/text-exports/ambuda-xml.zip" in keys
+    assert "assets/text-exports/ambuda-text.zip" in keys
+    assert "assets/text-exports/metadata.json" in keys
+    assert "assets/text-exports/tei-headers.xml" in keys
+    for call in s3_calls:
+        assert call[0][0] == "my-bucket"
 
 
 def test_zip_contains_xml_and_metadata(export_mocks):
-    """The uploaded ZIP contains XML files and metadata.json."""
+    """The uploaded ZIPs contain the expected files."""
     texts = [
         _make_text(id=1, slug="gita", title="Gita"),
         _make_text(id=2, slug="ramayana", title="Ramayana"),
     ]
     export_mocks.setup_session(texts)
     export_mocks.fake_create_xml()
+
     uploaded = export_mocks.capture_upload()
 
     create_text_archive_inner("testing")
 
-    assert uploaded["names"] == ["gita.xml", "metadata.json", "ramayana.xml"]
-    assert len(uploaded["metadata"]) == 2
-    slugs = [m["slug"] for m in uploaded["metadata"]]
+    # XML archive
+    assert uploaded["ambuda-xml.zip"]["names"] == [
+        "gita.xml",
+        "metadata.json",
+        "ramayana.xml",
+    ]
+    slugs = [m["slug"] for m in uploaded["ambuda-xml.zip"]["metadata"]["texts"]]
     assert "gita" in slugs
     assert "ramayana" in slugs
 
+    # Text archive
+    assert uploaded["ambuda-text.zip"]["names"] == [
+        "gita.txt",
+        "metadata.json",
+        "ramayana.txt",
+    ]
 
-def test_null_config_in_metadata(export_mocks):
-    """Text with config=None produces null in metadata, not a parse error."""
-    text = _make_text(id=1, slug="gita", config=None)
-    export_mocks.setup_session([text])
-    export_mocks.fake_create_xml()
-    uploaded = export_mocks.capture_upload()
-
-    create_text_archive_inner("testing")
-
-    assert uploaded["metadata"][0]["config"] is None
+    # Standalone files
+    assert "metadata.json" in uploaded
+    assert "tei-headers.xml" in uploaded
 
 
-def test_creates_bulk_export_record(export_mocks):
-    """Running the archive creates a new BulkExport record."""
+def test_creates_bulk_export_records(export_mocks):
+    """Running the archive creates BulkExport records for all export types."""
     text = _make_text(id=1, slug="gita")
     export_mocks.setup_session([text])
     export_mocks.fake_create_xml()
@@ -292,14 +339,19 @@ def test_creates_bulk_export_record(export_mocks):
 
     create_text_archive_inner("testing")
 
-    assert len(export_mocks.added) == 1
-    record = export_mocks.added[0]
-    assert isinstance(record, db.BulkExport)
-    assert record.slug == "ambuda-xml.zip"
-    assert record.export_type == "xml"
-    assert record.s3_path is not None
-    assert record.size > 0
-    assert len(record.sha256_checksum) == 64
+    assert len(export_mocks.added) == 4
+    slugs = {r.slug for r in export_mocks.added}
+    assert slugs == {
+        "ambuda-xml.zip",
+        "ambuda-text.zip",
+        "metadata.json",
+        "tei-headers.xml",
+    }
+    for record in export_mocks.added:
+        assert isinstance(record, db.BulkExport)
+        assert record.s3_path is not None
+        assert record.size > 0
+        assert len(record.sha256_checksum) == 64
     export_mocks.session.commit.assert_called_once()
 
 

@@ -1,9 +1,12 @@
 import dataclasses as dc
 import json
 from collections import OrderedDict
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
+
+from pydantic import BaseModel
 
 from ambuda.utils.vidyut_shim import transliterate, Scheme
+from ambuda.utils import xml
 
 import ambuda.database as db
 from ambuda import queries as q
@@ -21,6 +24,195 @@ def text_metadata(text: db.Text) -> dict:
         "status": text.status,
         "collections": [c.slug for c in text.collections],
     }
+
+
+# -- Structured metadata models (used by public API and bulk archive) --
+
+
+class AuthorMetadataEntry(BaseModel):
+    slug: str
+    name: str
+
+
+class SourceMetadataEntry(BaseModel):
+    title: str | None = None
+    author: str | None = None
+    editor: str | None = None
+    publisher: str | None = None
+    publisher_place: str | None = None
+    publication_year: str | None = None
+
+
+class TextUrlsEntry(BaseModel):
+    xml: str | None = None
+    text: str | None = None
+
+
+class TextMetadataEntry(BaseModel):
+    slug: str
+    title: str
+    created_at: str | None = None
+    updated_at: str | None = None
+    language: str | None = None
+    status: str | None = None
+    parent_slug: str | None = None
+    author: AuthorMetadataEntry | None = None
+    source: SourceMetadataEntry | None = None
+    collections: list[str] = []
+    urls: TextUrlsEntry | None = None
+
+
+class CollectionMetadataEntry(BaseModel):
+    slug: str
+    title: str
+    parent_slug: str | None = None
+
+
+class LibraryMetadata(BaseModel):
+    api_version: str = "1"
+    created_at: str
+    collections: list[CollectionMetadataEntry]
+    texts: list[TextMetadataEntry]
+
+
+def _isoformat_utc(dt) -> str | None:
+    """Format a datetime as ISO 8601 with UTC timezone."""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=UTC)
+    return dt.isoformat()
+
+
+def _strip_or_none(value: str | None) -> str | None:
+    """Strip whitespace and return None if empty."""
+    if value is None:
+        return None
+    stripped = value.strip()
+    return stripped or None
+
+
+def _parse_source(header_xml: str | None) -> SourceMetadataEntry | None:
+    """Parse TEI header XML into a SourceMetadataEntry, or None."""
+    if not header_xml:
+        return None
+    try:
+        h = xml.parse_tei_header(header_xml)
+        title = _strip_or_none(h.tei_title)
+        source = SourceMetadataEntry(
+            title=title if title and title != "Unknown" else None,
+            author=_strip_or_none(h.source_author),
+            editor=_strip_or_none(h.source_editor),
+            publisher=_strip_or_none(h.source_publisher),
+            publisher_place=_strip_or_none(h.source_publisher_place),
+            publication_year=_strip_or_none(h.source_publication_year),
+        )
+        return source if source.model_dump(exclude_none=True) else None
+    except Exception:
+        return None
+
+
+def text_to_metadata(
+    t: db.Text, urls: TextUrlsEntry | None = None
+) -> TextMetadataEntry:
+    """Convert a Text model to a metadata entry.
+
+    :param urls: optional download URLs (requires Flask app context to build).
+    """
+    author = (
+        AuthorMetadataEntry(slug=t.author.slug, name=t.author.name)
+        if t.author
+        else None
+    )
+    return TextMetadataEntry(
+        slug=t.slug,
+        title=t.title,
+        created_at=_isoformat_utc(t.created_at),
+        updated_at=_isoformat_utc(t.updated_at),
+        language=t.language,
+        status=t.status,
+        parent_slug=t.parent.slug if t.parent else None,
+        author=author,
+        source=_parse_source(t.header),
+        collections=[c.slug for c in t.collections],
+        urls=urls,
+    )
+
+
+def build_library_metadata(
+    texts: list[db.Text],
+    collections: list[db.TextCollection],
+    urls_fn=None,
+) -> LibraryMetadata:
+    """Build a LibraryMetadata object for the given texts and collections.
+
+    :param urls_fn: optional callable (Text -> TextUrlsEntry | None) for download URLs.
+    """
+    coll_id_to_slug = {c.id: c.slug for c in collections}
+    return LibraryMetadata(
+        created_at=datetime.now(UTC).isoformat(),
+        collections=[
+            CollectionMetadataEntry(
+                slug=c.slug,
+                title=c.title,
+                parent_slug=coll_id_to_slug.get(c.parent_id) if c.parent_id else None,
+            )
+            for c in collections
+        ],
+        texts=[
+            text_to_metadata(t, urls=urls_fn(t) if urls_fn else None) for t in texts
+        ],
+    )
+
+
+def build_tei_headers_xml(texts: list[db.Text]) -> bytes:
+    """Build a TEI corpus XML document containing all text headers.
+
+    Returns UTF-8 encoded XML bytes.
+    """
+    from lxml import etree
+
+    TEI_NS = "http://www.tei-c.org/ns/1.0"
+    XML_NS = "http://www.w3.org/XML/1998/namespace"
+    NSMAP = {None: TEI_NS}
+
+    corpus = etree.Element("teiCorpus", nsmap=NSMAP)
+
+    corpus_header = etree.SubElement(corpus, "teiHeader")
+    file_desc = etree.SubElement(corpus_header, "fileDesc")
+    title_stmt = etree.SubElement(file_desc, "titleStmt")
+    title_el = etree.SubElement(title_stmt, "title")
+    title_el.text = "Ambuda Library \u2014 TEI Headers"
+    pub_stmt = etree.SubElement(file_desc, "publicationStmt")
+    authority = etree.SubElement(pub_stmt, "authority")
+    authority.text = "Ambuda (https://ambuda.org)"
+    date_el = etree.SubElement(pub_stmt, "date")
+    date_el.text = datetime.now(UTC).strftime("%Y-%m-%d")
+    source_desc = etree.SubElement(file_desc, "sourceDesc")
+    p = etree.SubElement(source_desc, "p")
+    p.text = "Automatically generated from the Ambuda library."
+
+    for t in texts:
+        if not t.header:
+            continue
+        try:
+            header_el = etree.fromstring(t.header)
+        except etree.XMLSyntaxError:
+            continue
+
+        tei = etree.SubElement(corpus, "TEI")
+        tei.set(f"{{{XML_NS}}}id", t.slug)
+
+        if header_el.tag == "teiHeader" or header_el.tag == f"{{{TEI_NS}}}teiHeader":
+            header_el.tag = f"{{{TEI_NS}}}teiHeader"
+        tei.append(header_el)
+
+    return etree.tostring(
+        corpus,
+        pretty_print=True,
+        xml_declaration=True,
+        encoding="UTF-8",
+    )
 
 
 @dc.dataclass

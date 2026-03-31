@@ -62,29 +62,37 @@ def test_import_metadata__success(admin_client):
     stmt = select(db.Text).limit(1)
     text = session.scalars(stmt).first()
     text_id = text.id
+    original_title = text.title
+    original_header = text.header
 
     metadata = [
         {
             "slug": text.slug,
             "title": "Updated Title",
-            "header": "Updated Header",
+            "header": "<teiHeader><fileDesc><titleStmt><title>Updated Header</title></titleStmt><publicationStmt><p/></publicationStmt><sourceDesc><p/></sourceDesc></fileDesc></teiHeader>",
         }
     ]
 
     json_data = json.dumps(metadata).encode("utf-8")
 
-    resp = admin_client.post(
-        "/admin/Text/task/import-metadata",
-        data={
-            "json_file": (io.BytesIO(json_data), "metadata.json"),
-            "csrf_token": "fake_token",
-        },
-        content_type="multipart/form-data",
-        follow_redirects=True,
-    )
+    try:
+        resp = admin_client.post(
+            "/admin/Text/task/import-metadata",
+            data={
+                "json_file": (io.BytesIO(json_data), "metadata.json"),
+                "csrf_token": "fake_token",
+            },
+            content_type="multipart/form-data",
+            follow_redirects=True,
+        )
 
-    resp = admin_client.get(f"/admin/Text/{text_id}/edit")
-    assert b"Updated Header" in resp.data
+        resp = admin_client.get(f"/admin/Text/{text_id}/edit")
+        assert b"Updated Header" in resp.data
+    finally:
+        text = session.get(db.Text, text_id)
+        text.title = original_title
+        text.header = original_header
+        session.commit()
 
 
 def test_import_metadata__invalid_json(admin_client):
