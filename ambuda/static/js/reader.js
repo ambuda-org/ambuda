@@ -156,7 +156,7 @@ export default () => ({
       blockSlug: null, words: [], error: null, loading: false,
     };
 
-    const resp = await fetch(`/api${window.location.pathname}`);
+    const resp = await fetch(`/api/texts/${Routes.getTextSlug()}/${this.sectionSlug}`);
     if (!resp.ok) return;
     this.data = await resp.json();
     this.$nextTick(() => this.insertSoftHyphensInDOM());

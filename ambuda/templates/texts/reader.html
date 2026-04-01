@@ -89,7 +89,7 @@ For the corresponding JavaScript bindings and logic, see `reader.js`.
       <svg width="18" height="18"><use href="#info"></use></svg>
       <span class="text-sm hidden sm:inline">{{ _('Information') }}</span>
     </button>
-    <button @click="showSidebar = true; sidebarTab = 'settings'; saveSettings()"
+    <button @click="if (showSidebar && sidebarTab === 'settings') { showSidebar = false } else { showSidebar = true; sidebarTab = 'settings' }; saveSettings()"
             class="flex items-center gap-1.5 text-slate-400 hover:text-slate-700 px-3 h-12 border-l border-r"
             title="{{ _('Settings') }}">
       <svg width="18" height="18"><use href="#settings"></use></svg>
