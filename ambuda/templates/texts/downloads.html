@@ -7,12 +7,10 @@
 {% macro download_card(url, name, export=None) %}
 <section class="bg-white rounded-lg border border-slate-200 p-6 space-y-3">
   <div class="flex items-center justify-between">
-    <div class="flex items-center gap-2">
-      <a href="{{ url }}" class="text-lg font-medium text-sky-600 hover:text-sky-800 transition">{{ name }}</a>
-      <a href="{{ url }}" class="text-sky-600 hover:text-sky-800 transition">
-        <svg class="w-4 h-4"><use href="#download"></use></svg>
-      </a>
-    </div>
+    <a href="{{ url }}" class="text-lg font-medium serif text-sky-600 hover:text-sky-800 transition flex items-center gap-2">
+      <span>{{ name }}</span>
+      <svg class="w-4 h-4"><use href="#download"></use></svg>
+    </a>
     {% if export %}
     <span class="text-xs text-slate-400 tabular-nums">{{ export.size | human_readable_bytes }} · {{ export.updated_at.strftime('%Y-%m-%d') }}{% if export.sha256_checksum %} · <code>{{ export.sha256_checksum[:8] }}</code>{% endif %}</span>
     {% endif %}
@@ -82,9 +80,9 @@
   {% endif %}
 
   {% if bulk_exports.get('tei-headers') %}
-  {% set export = bulk_exports['tei-headers-headers'] %}
+  {% set export = bulk_exports['tei-headers'] %}
   {% set header_url = "https://www.tei-c.org/release/doc/tei-p5-doc/en/html/ref-teiHeader.html" %}
-  {% call download_card(url_for('texts.tei_headers_xml'), 'tei-headers.xml', export=bulk_exports.get('tei-headers')) %}
+  {% call download_card(url_for('texts.download_file', filename=export.slug), export.slug, export=export) %}
     {% trans %}
     <p>TEI headers for all texts in the librray.</p>
 

@@ -191,8 +191,6 @@ class Project(Base):
     publication_location: Mapped[str] = string()
     #: A link to the book's WorldCat entry, if available.
     worldcat_link: Mapped[str] = string()
-    #: The URL from which the source PDF was fetched, if any.
-    source_url: Mapped[str | None] = mapped_column(String, nullable=True)
 
     #: Markdown for this project (to entice contributors, etc.)
     description = text()

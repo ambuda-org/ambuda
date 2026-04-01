@@ -257,25 +257,6 @@ def _export_urls(t: db.Text) -> TextUrlsEntry | None:
     return None
 
 
-@bp.route("/downloads/metadata.json")
-def metadata_json():
-    """Return a JSON list of all texts with metadata."""
-    all_colls = q.Query(q.get_session()).all_collections()
-    data = build_library_metadata(
-        texts=list(q.texts()),
-        collections=all_colls,
-        urls_fn=_export_urls,
-    )
-    return jsonify(data.model_dump())
-
-
-@bp.route("/downloads/tei-headers.xml")
-def tei_headers_xml():
-    """Return a TEI corpus XML file containing all text headers."""
-    xml_bytes = build_tei_headers_xml(list(q.texts()))
-    return current_app.response_class(xml_bytes, mimetype="application/xml")
-
-
 @bp.route("/downloads/<filename>")
 def download_file(filename):
     base_url = current_app.config.get("CLOUDFRONT_BASE_URL")
@@ -287,27 +268,26 @@ def download_file(filename):
         if url:
             return redirect(url)
 
-    session = q.get_session()
-    bulk = session.scalars(select(db.BulkExport).filter_by(slug=filename)).first()
+    bulk = q.bulk_text_export(filename)
     if bulk:
         url = bulk.asset_url(base_url) if base_url else None
         if url:
             return redirect(url)
 
-    # Local dev fallback: serve the file directly from the local S3 mock.
-    s3_path_str = None
-    if text_export:
-        s3_path_str = text_export.s3_path
-    elif bulk:
-        s3_path_str = bulk.s3_path
+    if s3.is_local():
+        s3_path_str = None
+        if text_export:
+            s3_path_str = text_export.s3_path
+        elif bulk:
+            s3_path_str = bulk.s3_path
 
-    if s3_path_str and s3.is_local():
-        s3_path = s3.S3Path.from_path(s3_path_str)
-        local_path = (
-            Path(s3.LocalFSBotoClient().base_path) / s3_path.bucket / s3_path.key
-        )
-        if local_path.exists():
-            return send_file(local_path, as_attachment=True, download_name=filename)
+        if s3_path_str:
+            s3_path = s3.S3Path.from_path(s3_path_str)
+            local_path = (
+                Path(s3.LocalFSBotoClient().base_path) / s3_path.bucket / s3_path.key
+            )
+            if local_path.exists():
+                return send_file(local_path, as_attachment=True, download_name=filename)
 
     abort(404)
 

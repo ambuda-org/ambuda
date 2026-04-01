@@ -397,7 +397,6 @@ def test_import_projects_and_export_projects(admin_client):
             "publication_year": "",
             "publication_location": "",
             "worldcat_link": "",
-            "source_url": None,
             "description": "",
             "notes": "",
             "page_numbers": "",

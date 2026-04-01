@@ -125,6 +125,7 @@ def _add_project_to_database(
     :param slug: the project slug
     :param page_uuids: list of UUIDs for each page, in order
     :param creator_id: the user ID of the creator
+    :param source_url: if provided, creates a ProjectSource with this URL
     """
 
     logging.info(f"Creating project (slug = {slug}) ...")
@@ -136,11 +137,20 @@ def _add_project_to_database(
         slug=slug,
         display_title=display_title,
         creator_id=creator_id,
-        source_url=source_url,
     )
     project.board_id = board.id
     session.add(project)
     session.flush()
+
+    if source_url:
+        session.add(
+            db.ProjectSource(
+                project_id=project.id,
+                description=display_title,
+                url=source_url,
+                author_id=creator_id,
+            )
+        )
 
     logging.info(f"Fetching project and status (slug = {slug}) ...")
     stmt = select(db.PageStatus).filter_by(name="reviewed-0")
@@ -846,7 +856,6 @@ def replace_project_pdf_inner(
     pdf_path: str,
     app_environment: str,
     task_status: TaskStatus,
-    source_url: str | None = None,
     engine=None,
 ):
     """Replace the source PDF of an existing project.
@@ -998,9 +1007,6 @@ def replace_project_pdf_inner(
                         upload_total=upload_total,
                     )
 
-            if source_url is not None:
-                project.source_url = source_url
-
             session.commit()
         finally:
             shutil.rmtree(temp_dir, ignore_errors=True)
@@ -1009,9 +1015,7 @@ def replace_project_pdf_inner(
 
 
 @app.task(bind=True, time_limit=1200)
-def replace_project_pdf(
-    self, *, project_slug, pdf_path, app_environment, source_url=None
-):
+def replace_project_pdf(self, *, project_slug, pdf_path, app_environment):
     """Celery wrapper for `replace_project_pdf_inner`."""
     task_status = CeleryTaskStatus(self)
     return replace_project_pdf_inner(
@@ -1019,7 +1023,6 @@ def replace_project_pdf(
         pdf_path=pdf_path,
         app_environment=app_environment,
         task_status=task_status,
-        source_url=source_url,
     )
 
 
@@ -1040,7 +1043,6 @@ def replace_project_pdf_from_url_inner(
             pdf_path=str(temp_pdf_path),
             app_environment=app_environment,
             task_status=task_status,
-            source_url=pdf_url,
             engine=engine,
         )
     finally:

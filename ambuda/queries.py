@@ -113,6 +113,10 @@ class Query:
         stmt = select(db.TextExport).filter_by(slug=slug)
         return self.session.scalars(stmt).first()
 
+    def bulk_text_export(self, slug: str) -> db.BulkExport | None:
+        stmt = select(db.BulkExport).filter_by(slug=slug)
+        return self.session.scalars(stmt).first()
+
     def text_report(self, text_id: int) -> db.TextReport | None:
         stmt = (
             select(db.TextReport)
@@ -475,6 +479,11 @@ def text_section(text_id: int, slug: str) -> db.TextSection | None:
 def text_export(slug: str) -> db.TextExport | None:
     query = Query(get_session())
     return query.text_export(slug)
+
+
+def bulk_text_export(slug: str) -> db.BulkExport | None:
+    query = Query(get_session())
+    return query.bulk_text_export(slug)
 
 
 def text_report(text_id: int) -> db.TextReport | None:
