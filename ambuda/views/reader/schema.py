@@ -17,11 +17,10 @@ class Block:
 
 @dataclass
 class Section:
-    text_slug: str
     text_title: str
     section_title: str
     section_slug: str
     #: The blocks for this section.
     blocks: list[Block]
-    prev_slug: str | None
-    next_slug: str | None
+    prev_url: str
+    next_url: str

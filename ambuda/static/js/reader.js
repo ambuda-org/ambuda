@@ -71,8 +71,8 @@ export default () => ({
     section_title: null,
     section_slug: null,
     blocks: [],
-    prev_slug: null,
-    next_slug: null,
+    prev_url: null,
+    next_url: null,
   },
 
   // The current dictionary response.
@@ -111,81 +111,9 @@ export default () => ({
     this.data = JSON.parse(document.getElementById('payload').textContent);
     this.sectionSlug = this.data.section_slug;
 
-    const scrollTo = this.$root.dataset.scrollTo;
-    const initSlug = scrollTo || this.sectionSlug;
-    const initUrl = `/texts/${this.data.text_slug}.${initSlug}`;
-    window.history.replaceState({ sectionSlug: this.sectionSlug }, '', initUrl);
+    window.history.replaceState({ sectionSlug: this.sectionSlug }, '', window.location.href);
     window.addEventListener('popstate', (e) => this.onPopState(e));
-    this.$nextTick(() => {
-      this.insertSoftHyphensInDOM();
-      this.observeBlocks();
-      // Delay scroll until after Alpine x-for has rendered client-side blocks
-      // and layout is complete.
-      setTimeout(() => this.scrollToHash(), 100);
-    });
-  },
-
-  /** Scroll to a block on initial load, identified by data-scroll-to or URL hash. */
-  scrollToHash() {
-    const slug = this.$root.dataset.scrollTo || window.location.hash?.slice(1);
-    if (!slug) return;
-    const el = document.getElementById(slug);
-    if (el) el.scrollIntoView({ block: 'start' });
-  },
-
-  /** Track which block is at the top of the scroll container and update the URL hash. */
-  observeBlocks() {
-    const container = this.$root.querySelector('article > div') || this.$root;
-    this._visibleBlocks = new Set();
-    this._blockObserver = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        const slug = entry.target.dataset.slug;
-        if (!slug) continue;
-        if (entry.isIntersecting) {
-          this._visibleBlocks.add(entry.target);
-        } else {
-          this._visibleBlocks.delete(entry.target);
-        }
-      }
-      this.updateHashFromVisibleBlocks();
-    }, { root: container, rootMargin: '0px 0px -90% 0px', threshold: 0 });
-
-    this.$root.querySelectorAll('s-block[data-slug]:not(.parent-block)').forEach((el) => {
-      this._blockObserver.observe(el);
-    });
-  },
-
-  updateHashFromVisibleBlocks() {
-    if (this._visibleBlocks.size === 0) return;
-    // Find the topmost visible block by comparing offsetTop.
-    let topBlock = null;
-    let topOffset = Infinity;
-    for (const el of this._visibleBlocks) {
-      if (el.offsetTop < topOffset) {
-        topOffset = el.offsetTop;
-        topBlock = el;
-      }
-    }
-    if (topBlock) {
-      const slug = topBlock.dataset.slug;
-      const newUrl = `/texts/${this.data.text_slug}.${slug}`;
-      if (window.location.pathname !== newUrl) {
-        window.history.replaceState(
-          { sectionSlug: this.sectionSlug },
-          '',
-          newUrl,
-        );
-      }
-    }
-  },
-
-  /** Re-observe blocks after SPA navigation. */
-  reobserveBlocks() {
-    if (this._blockObserver) {
-      this._blockObserver.disconnect();
-      this._visibleBlocks.clear();
-    }
-    this.$nextTick(() => this.observeBlocks());
+    this.$nextTick(() => this.insertSoftHyphensInDOM());
   },
 
   /** Load user settings from local storage. */
@@ -219,7 +147,7 @@ export default () => ({
   },
 
   async changeScript(newScript) {
-    await fetch(`/script/${newScript}`, { redirect: 'manual' });
+    await fetch(`/script/${newScript}`);
     this.userScript = newScript;
 
     this.dictionaryResponse = null;
@@ -228,7 +156,7 @@ export default () => ({
       blockSlug: null, words: [], error: null, loading: false,
     };
 
-    const resp = await fetch(`/api/texts/${this.data.text_slug}/${this.sectionSlug}`);
+    const resp = await fetch(`/api${window.location.pathname}`);
     if (!resp.ok) return;
     this.data = await resp.json();
     this.$nextTick(() => this.insertSoftHyphensInDOM());
@@ -252,9 +180,9 @@ export default () => ({
     });
   },
 
-  async navigateToSection(sectionSlug, pushState) {
+  async navigateToSection(url, pushState) {
     try {
-      const resp = await fetch(`/api/texts/${this.data.text_slug}/${sectionSlug}`);
+      const resp = await fetch(`/api${url}`);
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       const newData = await resp.json();
 
@@ -262,8 +190,7 @@ export default () => ({
       this.sectionSlug = newData.section_slug;
 
       if (pushState) {
-        const displayUrl = `/texts/${newData.text_slug}.${this.sectionSlug}`;
-        window.history.pushState({ sectionSlug: this.sectionSlug }, '', displayUrl);
+        window.history.pushState({ sectionSlug: this.sectionSlug }, '', url);
       }
 
       const title = newData.section_title
@@ -274,10 +201,7 @@ export default () => ({
       const textPanel = document.querySelector('article > div');
       if (textPanel) textPanel.scrollTop = 0;
 
-      this.$nextTick(() => {
-        this.insertSoftHyphensInDOM();
-        this.reobserveBlocks();
-      });
+      this.$nextTick(() => this.insertSoftHyphensInDOM());
       this.refreshTranslations();
     } catch {
       window.location.href = url;
@@ -285,25 +209,25 @@ export default () => ({
   },
 
   goToPrev() {
-    if (this.data.prev_slug) {
-      this.navigateToSection(this.data.prev_slug, true);
+    if (this.data.prev_url) {
+      this.navigateToSection(this.data.prev_url, true);
     }
   },
 
   goToNext() {
-    if (this.data.next_slug) {
-      this.navigateToSection(this.data.next_slug, true);
+    if (this.data.next_url) {
+      this.navigateToSection(this.data.next_url, true);
     }
   },
 
-  navigateToTocEntry(sectionSlug) {
-    this.navigateToSection(sectionSlug, true);
+  navigateToTocEntry(url) {
+    this.navigateToSection(url, true);
   },
 
   onPopState(event) {
     const slug = event.state?.sectionSlug;
     if (slug && slug !== this.sectionSlug) {
-      this.navigateToSection(slug, false);
+      this.navigateToSection(window.location.pathname, false);
     }
   },
 

@@ -60,6 +60,12 @@ def _prev_cur_next(sections: list[db.TextSection], slug: str):
     return prev, cur, next
 
 
+def _make_section_url(text: db.Text, section: db.TextSection | None) -> str | None:
+    if section:
+        return url_for("texts.section", text_slug=text.slug, section_slug=section.slug)
+    return None
+
+
 def _page_url(page) -> str | None:
     if page:
         return url_for(
@@ -127,13 +133,12 @@ def _build_section_data(text_: db.Text, section_slug: str) -> Section:
                     pb.mula = xml.transliterate_html(pb.mula, Scheme.Devanagari, scheme)
 
     return Section(
-        text_slug=text_.slug,
         text_title=transliterate(text_.title, Scheme.HarvardKyoto, scheme),
         section_title=_transliterate_slug(cur.title, scheme),
         section_slug=section_slug,
         blocks=blocks,
-        prev_slug=prev.slug if prev else None,
-        next_slug=next_.slug if next_ else None,
+        prev_url=_make_section_url(text_, prev),
+        next_url=_make_section_url(text_, next_),
     )
 
 
@@ -193,7 +198,7 @@ def text(slug):
         abort(404)
 
     first_section_slug = text_.sections[0].slug
-    return _render_section(slug, first_section_slug)
+    return section(slug, first_section_slug)
 
 
 @bp.route("/<slug>/about")
@@ -289,28 +294,6 @@ def download_file(filename):
 
 @bp.route("/<text_slug>/<section_slug>")
 def section(text_slug, section_slug):
-    """Redirect old section URLs to the new dot format."""
-    text_ = q.text(text_slug)
-    if text_ is None:
-        abort(404)
-    if not any(s.slug == section_slug for s in text_.sections):
-        abort(404)
-    return redirect(
-        url_for("texts.block_permalink", dotted_path=f"{text_slug}.{section_slug}"),
-        code=301,
-    )
-
-
-@bp.route("/<text_slug>/<section_slug>/")
-def section_trailing_slash(text_slug, section_slug):
-    """Redirect trailing-slash variant."""
-    return redirect(
-        url_for("texts.section", text_slug=text_slug, section_slug=section_slug),
-        code=301,
-    )
-
-
-def _render_section(text_slug, section_slug, scroll_to=None):
     """Show a specific section of a text."""
     text_ = q.text(text_slug)
     if text_ is None:
@@ -403,41 +386,4 @@ def _render_section(text_slug, section_slug, scroll_to=None):
         translations=translations,
         commentaries=commentaries,
         report_summary=report_summary,
-        scroll_to=scroll_to,
     )
-
-
-@bp.route("/<dotted_path>")
-def block_permalink(dotted_path):
-    """Handle URLs like ``ramayanam2.1.1`` (section) or ``ramayanam2.1.1.55`` (block).
-
-    The text slug is the prefix before the first dot; the remainder is
-    interpreted first as a section slug, then as a block slug.
-    """
-    dot = dotted_path.find(".")
-    if dot == -1:
-        abort(404)
-
-    text_slug = dotted_path[:dot]
-    remainder = dotted_path[dot + 1:]
-
-    text_ = q.text(text_slug)
-    if text_ is None:
-        abort(404)
-
-    # Try as a section slug first.
-    section_slugs = {s.slug for s in text_.sections}
-    if remainder in section_slugs:
-        return _render_section(text_slug, remainder)
-
-    # Otherwise treat as a block slug.
-    block = q.block(text_.id, remainder)
-    if block is None:
-        abort(404)
-
-    db_session = q.get_session()
-    section = db_session.get(db.TextSection, block.section_id)
-    if section is None:
-        abort(404)
-
-    return _render_section(text_slug, section.slug, scroll_to=remainder)
