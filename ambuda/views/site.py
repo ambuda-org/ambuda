@@ -20,9 +20,7 @@ def index():
             "title": transliterate(
                 e.text.title, Scheme.HarvardKyoto, Scheme.Devanagari
             ),
-            "iast": transliterate(
-                e.text.title, Scheme.HarvardKyoto, Scheme.Iast
-            ),
+            "iast": transliterate(e.text.title, Scheme.HarvardKyoto, Scheme.Iast),
             "slug": e.text.slug,
             "alternate_titles": [
                 transliterate(a.title, Scheme.HarvardKyoto, Scheme.Devanagari)

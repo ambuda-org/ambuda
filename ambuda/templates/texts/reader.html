@@ -685,7 +685,7 @@ On wide screens, the sidebar is on the right side of a split view.
         <div class="flex items-center justify-between gap-4">
           <label class="text-sm font-medium text-slate-600">{{ _('Language') }}</label>
           <select class="{{ ss }}"
-                  onchange="if(this.value) fetch(this.value, {redirect:'manual'}).finally(() => location.reload())">
+                  @change="changeLanguage($event.target.value)">
             {% for L in ambuda_locales %}
             <option value="{{ url_for('site.set_language', slug=L.slug) }}"
               {{ 'selected' if L.code == session.get('locale', 'en') }}>{{ L.text }}</option>

@@ -129,6 +129,7 @@ export default () => ({
         this.dictSources = settings.dictSources || this.dictSources;
         this.sidebarWidth = settings.sidebarWidth || this.sidebarWidth;
         if (settings.showSidebar !== undefined) this.showSidebar = settings.showSidebar;
+        if (settings.sidebarTab !== undefined) this.sidebarTab = settings.sidebarTab;
       } catch (error) {
         // Old settings are invalid -- rewrite with valid values.
         this.saveSettings();
@@ -144,8 +145,15 @@ export default () => ({
       dictSources: this.dictSources,
       sidebarWidth: this.sidebarWidth,
       showSidebar: this.showSidebar,
+      sidebarTab: this.sidebarTab,
     };
     localStorage.setItem(READER_CONFIG_KEY, JSON.stringify(settings));
+  },
+
+  changeLanguage(url) {
+    if (!url) return;
+    this.saveSettings();
+    fetch(url, { redirect: 'manual' }).finally(() => location.reload());
   },
 
   async changeScript(newScript) {
