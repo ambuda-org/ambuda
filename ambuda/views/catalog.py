@@ -51,7 +51,9 @@ def _apply_filters(entries, search, collection_ids, text_types, statuses, source
         entries = [
             e
             for e in entries
-            if q_lower in e.text.title.lower() or q_lower in e.text.slug.lower()
+            if q_lower in e.text.title.lower()
+            or q_lower in e.text.slug.lower()
+            or any(q_lower in a.title.lower() for a in e.text.alternate_titles)
         ]
 
     if collection_ids:

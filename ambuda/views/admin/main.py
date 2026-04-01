@@ -325,6 +325,12 @@ MODEL_CONFIG = [
         search_key="slug",
     ),
     ModelConfig(
+        model=db.TextAlternateTitle,
+        list_columns=["id", "text_id", "title"],
+        category=Category.TEXTS,
+        search_key="title",
+    ),
+    ModelConfig(
         model=db.TextCollection,
         list_columns=["id", "slug", "title", "parent_id", "order"],
         category=Category.TEXTS,

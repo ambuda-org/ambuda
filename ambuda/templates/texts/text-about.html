@@ -25,6 +25,14 @@
         </td>
       </tr>
       {{ row('Title', header.tei_title) }}
+      {% if text.alternate_titles %}
+      <tr>
+        <td class="pr-6 py-1.5 text-slate-500 align-top whitespace-nowrap">{{ _('Also known as') }}</td>
+        <td class="py-1.5">
+          {% for alt_title in text.alternate_titles %}{{ alt_title.title | hk_to_user_script | devanagari_to_user_script }}{% if not loop.last %}, {% endif %}{% endfor %}
+        </td>
+      </tr>
+      {% endif %}
       {{ row('Author', header.tei_author) }}
       {% if header.source_publisher %}{{ row('Publisher', header.source_publisher) }}{% endif %}
       {% if header.source_publisher_place %}{{ row('Location', header.source_publisher_place) }}{% endif %}

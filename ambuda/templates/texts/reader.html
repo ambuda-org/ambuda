@@ -333,6 +333,17 @@ On wide screens, the sidebar is on the right side of a split view.
         </tbody>
       </table>
 
+      {% if text.alternate_titles %}
+      <div class="mb-4">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">{{ _('Also known as') }}</h3>
+        <ul class="text-sm text-slate-700">
+          {% for alt_title in text.alternate_titles %}
+          <li class="py-0.5">{{ alt_title.title | hk_to_user_script | devanagari_to_user_script }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
       {% if text.tags %}
       <div class="mb-4">
         <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">{{ _('Tags') }}</h3>

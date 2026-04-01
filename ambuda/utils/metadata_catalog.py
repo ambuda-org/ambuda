@@ -17,6 +17,9 @@ def text_metadata(text: db.Text) -> dict:
     return {
         "slug": text.slug,
         "title": text.title,
+        "alternate_titles": [a.title for a in text.alternate_titles]
+        if text.alternate_titles
+        else [],
         "header": text.header,
         "config": json.loads(text.config) if text.config else None,
         "genre": text.genre.name if text.genre else None,
@@ -51,6 +54,7 @@ class TextUrlsEntry(BaseModel):
 class TextMetadataEntry(BaseModel):
     slug: str
     title: str
+    alternate_titles: list[str] = []
     created_at: str | None = None
     updated_at: str | None = None
     language: str | None = None
@@ -127,6 +131,9 @@ def text_to_metadata(
     return TextMetadataEntry(
         slug=t.slug,
         title=t.title,
+        alternate_titles=[a.title for a in t.alternate_titles]
+        if t.alternate_titles
+        else [],
         created_at=_isoformat_utc(t.created_at),
         updated_at=_isoformat_utc(t.updated_at),
         language=t.language,

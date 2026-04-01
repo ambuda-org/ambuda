@@ -174,6 +174,11 @@ class Text(Base):
         back_populates="texts",
     )
 
+    #: Alternative titles for this text (used for search).
+    alternate_titles = relationship(
+        "TextAlternateTitle", backref="text", cascade="all, delete-orphan"
+    )
+
     # DEPRECATED parse data
     block_parses = relationship("BlockParse", backref="text")
 
@@ -432,6 +437,22 @@ class TextReport(Base):
     @staticmethod
     def rerun_lock_key(text_id: int) -> str:
         return f"report_rerun:{text_id}"
+
+
+class TextAlternateTitle(Base):
+    """An alternative title for a text, used for search."""
+
+    __tablename__ = "text_alternate_titles"
+
+    #: Primary key.
+    id = pk()
+    #: The text this alternate title belongs to.
+    text_id = foreign_key("texts.id")
+    #: The alternative title.
+    title: Mapped[str] = mapped_column(String, nullable=False, index=True)
+
+    def __str__(self):
+        return self.title
 
 
 class TextBlockBookmark(Base):

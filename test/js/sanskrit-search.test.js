@@ -40,6 +40,11 @@ describe('normalizeHK', () => {
     expect(normalizeHK('ram')).toBe('ran');
   });
 
+  test('whitespace is stripped', () => {
+    expect(normalizeHK('bhagavad gItA')).toBe(normalizeHK('bhagavadgItA'));
+    expect(normalizeHK('rAma  carita')).toBe(normalizeHK('rAmacarita'));
+  });
+
   test('mahAbhAratam matches normalized variants after lowercasing', () => {
     const norm = (s) => normalizeHK(s).toLowerCase();
     const canonical = norm('mahAbhAratam');

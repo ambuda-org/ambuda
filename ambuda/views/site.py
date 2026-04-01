@@ -21,6 +21,10 @@ def index():
                 e.text.title, Scheme.HarvardKyoto, Scheme.Devanagari
             ),
             "slug": e.text.slug,
+            "alternate_titles": [
+                transliterate(a.title, Scheme.HarvardKyoto, Scheme.Devanagari)
+                for a in e.text.alternate_titles
+            ],
         }
         for e in all_texts
     ]

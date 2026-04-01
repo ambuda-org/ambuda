@@ -11,10 +11,16 @@ export function toHK(str) {
 
 /**
  * Normalize an HK string for fuzzy matching by collapsing similar sounds.
- * Applied before lowercasing: z→s, RR→R, lR→l, G→n, J→n, M→n.
+ * Strips whitespace, then: sh→s, z→s, aspirate→plain, RR→R, lR→l, G/J/M/m→n.
  */
+const NORM_RE = /\s+|sh|([kgcjTDtdpb])h|RR|lR|[zGJMm]/g;
+const NORM_MAP = { sh: 's', RR: 'R', lR: 'l', z: 's', G: 'n', J: 'n', M: 'n', m: 'n' };
+
 export function normalizeHK(str) {
-  return str.replace(/z/g, 's').replace(/sh/g, 's').replace(/([kgcjTDtdpb])h/g, '$1').replace(/RR/g, 'R').replace(/lR/g, 'l').replace(/G/g, 'n').replace(/J/g, 'n').replace(/M/g, 'n').replace(/m/g, 'n');
+  return str.replace(NORM_RE, (match, aspirate) => {
+    if (aspirate) return aspirate;
+    return NORM_MAP[match] || '';
+  });
 }
 
 /**

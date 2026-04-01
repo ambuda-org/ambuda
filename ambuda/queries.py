@@ -67,7 +67,10 @@ class Query:
         self.session = session or get_session()
 
     def texts(self) -> list[db.Text]:
-        stmt = select(db.Text).options(selectinload(db.Text.collections))
+        stmt = select(db.Text).options(
+            selectinload(db.Text.collections),
+            selectinload(db.Text.alternate_titles),
+        )
         return list(self.session.scalars(stmt).all())
 
     def page_statuses(self) -> list[db.PageStatus]:
@@ -81,7 +84,8 @@ class Query:
                 selectinload(db.Text.sections).load_only(
                     db.TextSection.slug,
                     db.TextSection.title,
-                )
+                ),
+                selectinload(db.Text.alternate_titles),
             )
         )
         return self.session.scalars(stmt).first()
