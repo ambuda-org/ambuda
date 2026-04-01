@@ -683,6 +683,17 @@ On wide screens, the sidebar is on the right side of a split view.
 
       <div class="space-y-5">
         <div class="flex items-center justify-between gap-4">
+          <label class="text-sm font-medium text-slate-600">{{ _('Language') }}</label>
+          <select class="{{ ss }}"
+                  onchange="if(this.value) fetch(this.value, {redirect:'manual'}).finally(() => location.reload())">
+            {% for L in ambuda_locales %}
+            <option value="{{ url_for('site.set_language', slug=L.slug) }}"
+              {{ 'selected' if L.code == session.get('locale', 'en') }}>{{ L.text }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="flex items-center justify-between gap-4">
           <label class="text-sm font-medium text-slate-600">{{ _('Script') }}</label>
           <select id="switch-sa" class="{{ ss }}"
                   @change="changeScript($event.target.value)">
@@ -746,6 +757,18 @@ On wide screens, the sidebar is on the right side of a split view.
   {{ i.i_analyze() }}
   {{ i.i_search() }}
   {{ i.i_file() }}
+  {{ i.i_language() }}
+
+  <div x-show="showHelpBanner && sidebarTab !== 'settings'"
+       x-transition:leave="transition ease-in duration-200"
+       x-transition:leave-start="opacity-100"
+       x-transition:leave-end="opacity-0"
+       class="relative flex items-center gap-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg px-4 py-3 mb-6 text-sm">
+    <svg class="shrink-0 text-yellow-600" width="20" height="20"><use href="#language"></use></svg>
+    <span>{{ _('Click <a href="#" class="inline-flex items-center gap-1 font-semibold bg-yellow-200/60 hover:bg-yellow-200 rounded px-1.5 py-0.5" @click.prevent="openSettingsFromBanner()"><svg class="text-yellow-600" width="14" height="14"><use href="#settings"></use></svg> Settings</a> to choose another script or language.') }}</span>
+    <button @click="dismissHelpBanner()"
+            class="absolute top-1.5 right-2 text-yellow-400 hover:text-yellow-700 text-lg leading-none">&times;</button>
+  </div>
 
   {# Server-side logic. This will be hidden once the application loads. #}
   <div x-show="!data.blocks.length">

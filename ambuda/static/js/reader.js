@@ -96,6 +96,8 @@ export default () => ({
   // If true, show the sidebar.
   showSidebar: true,
   sidebarTab: null,
+  // Help banner for new users.
+  showHelpBanner: !localStorage.getItem('reader-help-dismissed'),
   // Text in the dictionary search field.
   dictQuery: '',
   // If true, show the dictionary selection widget.
@@ -455,6 +457,21 @@ export default () => ({
     return Object.entries(this.enabledTranslations)
       .filter(([, data]) => data && typeof data === 'object' && data[blockSlug])
       .map(([slug, data]) => ({ slug, html: data[blockSlug] }));
+  },
+
+  // Help banner handlers
+  // ====================
+
+  dismissHelpBanner() {
+    this.showHelpBanner = false;
+    localStorage.setItem('reader-help-dismissed', '1');
+  },
+
+  openSettingsFromBanner() {
+    this.dismissHelpBanner();
+    this.showSidebar = true;
+    this.sidebarTab = 'settings';
+    this.saveSettings();
   },
 
   // Bookmark handlers
