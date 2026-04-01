@@ -53,7 +53,7 @@
           <li @click="go(r.slug)" @mouseenter="selectedIndex = i"
               :class="i === selectedIndex ? 'bg-sky-50 text-sky-900' : 'text-slate-700'"
               class="px-5 py-2.5 cursor-pointer hover:bg-sky-50 deva-serif">
-            <span x-text="r.title"></span>
+            <span x-text="useRoman ? r.iast : r.title"></span>
           <span x-show="r.matchedAlt" class="text-slate-400" x-text="'(' + r.matchedAlt + ')'"></span>
           </li>
         </template>

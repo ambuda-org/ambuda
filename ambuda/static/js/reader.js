@@ -96,7 +96,8 @@ export default () => ({
   // If true, show the sidebar.
   showSidebar: true,
   sidebarTab: null,
-  showSettings: false,
+  // Help banner for new users.
+  showHelpBanner: !localStorage.getItem('reader-help-dismissed'),
   // Text in the dictionary search field.
   dictQuery: '',
   // If true, show the dictionary selection widget.
@@ -128,6 +129,7 @@ export default () => ({
         this.dictSources = settings.dictSources || this.dictSources;
         this.sidebarWidth = settings.sidebarWidth || this.sidebarWidth;
         if (settings.showSidebar !== undefined) this.showSidebar = settings.showSidebar;
+        if (settings.sidebarTab !== undefined) this.sidebarTab = settings.sidebarTab;
       } catch (error) {
         // Old settings are invalid -- rewrite with valid values.
         this.saveSettings();
@@ -143,8 +145,15 @@ export default () => ({
       dictSources: this.dictSources,
       sidebarWidth: this.sidebarWidth,
       showSidebar: this.showSidebar,
+      sidebarTab: this.sidebarTab,
     };
     localStorage.setItem(READER_CONFIG_KEY, JSON.stringify(settings));
+  },
+
+  changeLanguage(url) {
+    if (!url) return;
+    this.saveSettings();
+    fetch(url, { redirect: 'manual' }).finally(() => location.reload());
   },
 
   async changeScript(newScript) {
@@ -157,7 +166,7 @@ export default () => ({
       blockSlug: null, words: [], error: null, loading: false,
     };
 
-    const resp = await fetch(`/api${window.location.pathname}`);
+    const resp = await fetch(`/api/texts/${Routes.getTextSlug()}/${this.sectionSlug}`);
     if (!resp.ok) return;
     this.data = await resp.json();
     this.$nextTick(() => this.insertSoftHyphensInDOM());
@@ -456,6 +465,21 @@ export default () => ({
     return Object.entries(this.enabledTranslations)
       .filter(([, data]) => data && typeof data === 'object' && data[blockSlug])
       .map(([slug, data]) => ({ slug, html: data[blockSlug] }));
+  },
+
+  // Help banner handlers
+  // ====================
+
+  dismissHelpBanner() {
+    this.showHelpBanner = false;
+    localStorage.setItem('reader-help-dismissed', '1');
+  },
+
+  openSettingsFromBanner() {
+    this.dismissHelpBanner();
+    this.showSidebar = true;
+    this.sidebarTab = 'settings';
+    this.saveSettings();
   },
 
   // Bookmark handlers

@@ -1,12 +1,14 @@
 {% extends 'base-text.html' %}
+{% import "macros/components.html" as m %}
 
 {% block title %}Authors{% endblock %}
 
+{% block header %}
+{{ m.basic_header(_('Authors'), current_user) }}
+{% endblock %}
+
 {% block main %}
 <article class="p-4 md:p-0 max-w-3xl mx-auto md:my-24 md:mb-36">
-  <header class="deva-serif">
-    <h1 class="font-bold text-4xl text-center my-16">Authors</h1>
-  </header>
   {% for author, texts in authors_with_texts %}
   <section class="mb-12">
     <h2 class="deva-serif font-bold text-2xl mb-2">

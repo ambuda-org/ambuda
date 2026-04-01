@@ -24,7 +24,7 @@
     <div class="flex justify-between items-start">
       <div class="flex-1">
         <h3 class="text-lg font-semibold">
-          <a href="{{ url_for('texts.section', text_slug=bookmark.block.text.slug, section_slug=bookmark.block.section.slug) }}#{{ bookmark.block.slug }}"
+          <a href="{{ url_for('texts.block_permalink', dotted_path=bookmark.block.text.slug + '.' + bookmark.block.slug) }}"
              class="hover:text-green-600">
             {{ bookmark.block.text.title | devanagari }}
           </a>
