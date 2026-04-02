@@ -40,8 +40,7 @@
       <h1 class="text-4xl md:text-7xl font-bold text-white" style="text-shadow: 0 2px 4px rgba(0,0,0,0.1);">{{ 'ambudaH' | hk_to_user_script }}</h1>
     </header>
 
-    <script>window.__searchItems = {{ search_items | tojson }};</script>
-    <div class="mt-8 w-full max-w-2xl relative" x-data="homeSearch(window.__searchItems)" @click.outside="open = false">
+    <div class="mt-8 w-full max-w-2xl relative" x-data="homeSearch()" @click.outside="open = false">
       <div class="relative">
         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">{{ icons.i_search_sm() }}</span>
         <input type="text" x-model="query" @input="search()" @keydown="onKeydown($event)"

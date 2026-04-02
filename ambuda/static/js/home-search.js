@@ -12,6 +12,24 @@ export default (items) => ({
   entries: [],
 
   init() {
+    if (items && items.length) {
+      this._buildEntries(items);
+    } else {
+      fetch('/api/search-items')
+        .then((r) => {
+          if (!r.ok) throw new Error(r.status);
+          return r.json();
+        })
+        .then((data) => this._buildEntries(data))
+        .catch(() => {
+          this.fallback = true;
+        });
+    }
+  },
+
+  fallback: false,
+
+  _buildEntries(items) {
     this.entries = items.map((item) => {
       const text = item.title.toLowerCase();
       const norm = normalizeHK(toHK(item.title)).toLowerCase();
@@ -61,6 +79,17 @@ export default (items) => ({
   },
 
   onKeydown(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      if (this.open && this.selectedIndex >= 0) {
+        this.go(this.results[this.selectedIndex].slug);
+      } else if (this.open && this.results.length > 0) {
+        this.go(this.results[0].slug);
+      } else if (this.query) {
+        window.location.href = '/search?q=' + encodeURIComponent(this.query);
+      }
+      return;
+    }
     if (!this.open) return;
     if (event.key === 'ArrowDown') {
       event.preventDefault();
@@ -68,13 +97,6 @@ export default (items) => ({
     } else if (event.key === 'ArrowUp') {
       event.preventDefault();
       this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
-    } else if (event.key === 'Enter') {
-      event.preventDefault();
-      if (this.selectedIndex >= 0) {
-        this.go(this.results[this.selectedIndex].slug);
-      } else if (this.results.length > 0) {
-        this.go(this.results[0].slug);
-      }
     } else if (event.key === 'Escape') {
       this.open = false;
     }

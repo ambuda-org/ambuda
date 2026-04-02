@@ -1,0 +1,26 @@
+{% extends 'header-main-footer.html' %}
+
+{% block title %}{{ _('Search') }} — {{ query }}{% endblock %}
+
+{% block main %}
+<article class="px-6 md:px-8 mx-auto max-w-3xl py-12">
+  <h1 class="text-2xl font-bold mb-6">{{ _('Search results for') }} "{{ query }}"</h1>
+
+  {% if results %}
+  <ul class="space-y-3">
+    {% for entry in results %}
+    <li>
+      <a href="{{ url_for('texts.text', slug=entry.text.slug) }}" class="text-xl deva-serif hover:underline">
+        {{- entry.text.title | hk_to_user_script | devanagari_to_user_script -}}
+      </a>
+      {% if entry.author %}
+      <span class="text-slate-500 text-sm ml-2">— {{ entry.author.name }}</span>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="text-slate-500">{{ _('No results found.') }}</p>
+  {% endif %}
+</article>
+{% endblock %}

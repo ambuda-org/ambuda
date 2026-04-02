@@ -275,8 +275,11 @@ def create_text_entries() -> list[TextEntry]:
     return text_entries
 
 
-def create_recent_text_entries() -> list[TextEntry]:
-    all_entries = create_text_entries()
+def create_recent_text_entries(
+    all_entries: list[TextEntry] | None = None,
+) -> list[TextEntry]:
+    if all_entries is None:
+        all_entries = create_text_entries()
     recent = [e for e in all_entries if e.text.published_at is not None]
     recent.sort(key=lambda e: e.text.published_at, reverse=True)
     return recent[:5]
@@ -327,7 +330,9 @@ class CollectionGroup:
         return latest
 
 
-def create_grouped_text_entries() -> list[CollectionGroup]:
+def create_grouped_text_entries(
+    all_entries: list[TextEntry] | None = None,
+) -> list[CollectionGroup]:
     """Group text entries by collections two levels deep.
 
     Top-level collections become major headings.  Their direct children
@@ -374,7 +379,9 @@ def create_grouped_text_entries() -> list[CollectionGroup]:
     top_info.append((fallback_heading, fallback_description, [(None, None)]))
     bucket[(fallback_heading, None)] = []
 
-    for entry in create_text_entries():
+    if all_entries is None:
+        all_entries = create_text_entries()
+    for entry in all_entries:
         key = None
         # Pick the most specific (deepest) matching collection.
         for coll in entry.text.collections:
