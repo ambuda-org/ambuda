@@ -43,9 +43,9 @@ class TokenBlock(Base):
     #: Primary key.
     id = pk()
     #: The text this token block corresponds to.
-    text_id = foreign_key("texts.id")
+    text_id = foreign_key("texts.id", ondelete="CASCADE")
     #: The block this data corresponds to.
-    block_id = foreign_key("text_blocks.id")
+    block_id = foreign_key("text_blocks.id", ondelete="CASCADE")
     #: (internal-only) used only so that we can implement optimistic locking
     #: for edit conflicts. See the `add_revision` function for details.
     version: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
@@ -100,9 +100,9 @@ class BlockParse(Base):
     #: Primary key.
     id = pk()
     #: The text this data corresponds to.
-    text_id = foreign_key("texts.id")
+    text_id = foreign_key("texts.id", ondelete="CASCADE")
     #: The block this data corresponds to.
-    block_id = foreign_key("text_blocks.id")
+    block_id = foreign_key("text_blocks.id", ondelete="CASCADE")
     #: The parse data as a semi-structured text blob.
     #: As Ambuda matures, we can make this field more structured and
     #: searchable. For now, it is just a 3-column TSV string.

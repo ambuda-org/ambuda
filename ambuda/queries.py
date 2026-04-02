@@ -8,7 +8,7 @@ import dataclasses as dc
 import functools
 
 from flask import current_app
-from sqlalchemy import case, create_engine, func, select
+from sqlalchemy import case, create_engine, event, func, select
 from sqlalchemy.orm import (
     load_only,
     scoped_session,
@@ -31,12 +31,25 @@ except ImportError:
     from threading import get_ident as _ident_func
 
 
+def _enable_sqlite_foreign_keys(engine):
+    """Enable foreign key enforcement for SQLite connections."""
+    if "sqlite" in engine.url.drivername:
+
+        @event.listens_for(engine, "connect")
+        def set_sqlite_pragma(dbapi_connection, connection_record):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
+
+
 # functools.cache makes this return value a singleton.
 @functools.cache
 def get_engine():
     database_uri = current_app.config["SQLALCHEMY_DATABASE_URI"]
     # For debugging, add echo=True to the constructor.
-    return create_engine(database_uri)
+    engine = create_engine(database_uri)
+    _enable_sqlite_foreign_keys(engine)
+    return engine
 
 
 # functools.cache makes this return value a singleton.

@@ -149,7 +149,7 @@ class Text(Base):
     author_id = foreign_key("authors.id", nullable=True)
     # The parent text that this text corresponds to.
     # (Non-null for translations, commentaries, etc.)
-    parent_id = foreign_key("texts.id", nullable=True)
+    parent_id = foreign_key("texts.id", nullable=True, ondelete="SET NULL")
 
     #: An ordered list of the sections contained within this text.
     sections = relationship(
@@ -251,7 +251,7 @@ class TextSection(Base):
     #: Primary key.
     id = pk()
     #: The text that contains this section.
-    text_id = foreign_key("texts.id")
+    text_id = foreign_key("texts.id", ondelete="CASCADE")
     #: Human-readable ID, which we display in the URL.
     #:
     #: Slugs are hierarchical, with different levels of the hierarchy separated
@@ -292,9 +292,9 @@ class TextBlock(Base):
     #: Primary key.
     id = pk()
     #: The text this block belongs to.
-    text_id = foreign_key("texts.id")
+    text_id = foreign_key("texts.id", ondelete="CASCADE")
     #: The section this block belongs to.
-    section_id = foreign_key("text_sections.id")
+    section_id = foreign_key("text_sections.id", ondelete="CASCADE")
     #: The proofing page this block came from.
     page_id = foreign_key("proof_pages.id", nullable=True)
     #: Human-readable ID, which we display in the URL.
@@ -356,7 +356,7 @@ class TextExport(Base):
 
     id = pk()
     #: The text this export belongs to.
-    text_id = foreign_key("texts.id")
+    text_id = foreign_key("texts.id", ondelete="CASCADE")
     #: A unique identifier for this export.
     slug: Mapped[str] = mapped_column(String, unique=True)
     #: The type of export (plain_text, xml, pdf, tokens).
@@ -419,7 +419,7 @@ class TextReport(Base):
 
     id = pk()
     #: The text this report belongs to.
-    text_id = foreign_key("texts.id")
+    text_id = foreign_key("texts.id", ondelete="CASCADE")
     #: When this report was created.
     created_at = Column(DateTime, default=lambda: datetime.now(UTC), nullable=False)
     #: When this report was last updated.
@@ -447,7 +447,7 @@ class TextAlternateTitle(Base):
     #: Primary key.
     id = pk()
     #: The text this alternate title belongs to.
-    text_id = foreign_key("texts.id")
+    text_id = foreign_key("texts.id", ondelete="CASCADE")
     #: The alternative title.
     title: Mapped[str] = mapped_column(String, nullable=False, index=True)
 

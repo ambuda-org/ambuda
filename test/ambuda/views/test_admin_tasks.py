@@ -65,13 +65,17 @@ def test_import_metadata__success(admin_client):
     original_title = text.title
     original_header = text.header
 
-    metadata = [
-        {
-            "slug": text.slug,
-            "title": "Updated Title",
-            "header": "<teiHeader><fileDesc><titleStmt><title>Updated Header</title></titleStmt><publicationStmt><p/></publicationStmt><sourceDesc><p/></sourceDesc></fileDesc></teiHeader>",
-        }
-    ]
+    metadata = {
+        "api_version": "1",
+        "created_at": "2026-01-01T00:00:00Z",
+        "collections": [],
+        "texts": [
+            {
+                "slug": text.slug,
+                "title": "Updated Title",
+            }
+        ],
+    }
 
     json_data = json.dumps(metadata).encode("utf-8")
 
@@ -87,7 +91,7 @@ def test_import_metadata__success(admin_client):
         )
 
         resp = admin_client.get(f"/admin/Text/{text_id}/edit")
-        assert b"Updated Header" in resp.data
+        assert b"Updated Title" in resp.data
     finally:
         text = session.get(db.Text, text_id)
         text.title = original_title

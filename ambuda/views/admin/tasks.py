@@ -287,11 +287,14 @@ def import_metadata(model_name, selected_ids: list | None = None):
 
         session = q.get_session()
         try:
+            from ambuda.utils.metadata_catalog import LibraryMetadata
+
             _check_file_size(json_file)
-            metadata_list = json.load(json_file.stream)
+            raw = json_file.stream.read()
+            metadata = LibraryMetadata.model_validate_json(raw)
 
             updated_count, not_found_slugs = data_utils.import_text_metadata(
-                session, metadata_list
+                session, metadata
             )
 
             if not_found_slugs:

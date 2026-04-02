@@ -40,6 +40,30 @@ def _get_test_ids(session):
     return project.id, page.id, revision.id
 
 
+def _make_stale_revision_id(session):
+    """Create a second revision on the test page so the first becomes stale.
+
+    Returns the old (stale) revision_id.
+    """
+    project = session.scalars(select(db.Project).filter_by(slug="test-project")).one()
+    page = session.scalars(
+        select(db.Page).filter(
+            (db.Page.project_id == project.id) & (db.Page.slug == "1")
+        )
+    ).one()
+    old_revision_id = page.revisions[-1].id
+    new_rev = db.Revision(
+        project_id=project.id,
+        page_id=page.id,
+        author_id=page.revisions[-1].author_id,
+        status_id=page.revisions[-1].status_id,
+        content="Updated content",
+    )
+    session.add(new_rev)
+    session.flush()
+    return old_revision_id
+
+
 def test_suggestions_index__unauth(client):
     r = client.get("/proofing/suggestions/")
     assert r.status_code == 302
@@ -170,7 +194,8 @@ def test_accept__stale_revision(rama_client, flask_app):
     with flask_app.app_context():
         session = get_session()
         project_id, page_id, revision_id = _get_test_ids(session)
-        suggestion = _create_suggestion(session, project_id, page_id, revision_id=99999)
+        stale_id = _make_stale_revision_id(session)
+        suggestion = _create_suggestion(session, project_id, page_id, revision_id=stale_id)
         suggestion_id = suggestion.id
 
     r = rama_client.post(f"/proofing/suggestions/{suggestion_id}/accept")
@@ -378,7 +403,8 @@ def test_submit_review__stale(rama_client, flask_app):
     with flask_app.app_context():
         session = get_session()
         project_id, page_id, revision_id = _get_test_ids(session)
-        suggestion = _create_suggestion(session, project_id, page_id, revision_id=99999)
+        stale_id = _make_stale_revision_id(session)
+        suggestion = _create_suggestion(session, project_id, page_id, revision_id=stale_id)
         suggestion_id = suggestion.id
 
     r = rama_client.post(

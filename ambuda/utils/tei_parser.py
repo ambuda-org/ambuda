@@ -15,9 +15,8 @@ should change this logic.
 
 from dataclasses import dataclass
 from pathlib import Path
-from xml.etree import ElementTree as ET
 
-import defusedxml.ElementTree as DET
+from lxml import etree
 
 from ambuda.utils.vidyut_shim import transliterate, Scheme
 
@@ -27,12 +26,16 @@ from ambuda.utils.vidyut_shim import transliterate, Scheme
 SINGLE_SECTION_SLUG = "all"
 #: Tags that we support on our display. If a section contains a tag that's not
 #: in this list, the code below will raise an error.
-SUPPORTED_TAGS = {"lg", "head", "p", "trailer", "milestone", "pb"}
-#: Minimal namespace mapping for TEI documents.
-NS = {
-    "xml": "{http://www.w3.org/XML/1998/namespace}",
-    "tei": "{http://www.tei-c.org/ns/1.0}",
-}
+SUPPORTED_TAGS = {"lg", "head", "p", "sp", "title", "trailer", "milestone", "pb"}
+#: TEI namespace URI.
+TEI_NS = "http://www.tei-c.org/ns/1.0"
+#: Safe parser: no entity resolution (prevents XXE), tolerant of minor errors.
+_PARSER = etree.XMLParser(resolve_entities=False, no_network=True, recover=True)
+
+
+def _tostring(el: etree._Element) -> str:
+    """Serialize an element to a unicode string."""
+    return etree.tostring(el, encoding="unicode")
 
 
 @dataclass
@@ -76,43 +79,34 @@ class Document:
     sections: list[Section]
 
 
-def _remove_namespace(xml: ET.Element, prefix: str):
-    """Remove the given namespace prefix from all elements.
+_TEI_XMLNS_DECL = b' xmlns="' + TEI_NS.encode() + b'"'
 
-    ElementTree expands tidy namespaced names like "xml:id" into names like
-    "{http://www.w3.org/XML/1998/namespace}id", which are less usable. This
-    function removes these namespaces so that downstream code can be more
-    readable.
+
+def _strip_namespace_bytes(raw: bytes) -> bytes:
+    """Strip the TEI namespace declaration from raw XML bytes before parsing.
+
+    This is much faster than iterating every element post-parse.
     """
-    for el in xml.iter("*"):
-        if el.tag.startswith(prefix):
-            el.tag = el.tag[len(prefix) :]
+    return raw.replace(_TEI_XMLNS_DECL, b"")
 
 
-def _delete_unused_elements(xml: ET.Element):
-    """Remove unused elements in-place."""
+def _delete_unused_elements(xml: etree._Element):
+    """Simplify <l> elements to plain text."""
     for L in xml.iter("l"):
-        for el in L:
-            # Delete tag but keep text.
-            # - `<seg>`: a arbitrary segment, usually representing a pāda.
-            # - `<hi>`: highlighted text, e.g. bold text.
-            if el.tag in {"seg", "hi"}:
-                el.tag = None
-            # Delete tag and text.
-            # - `<note>`: comments by the document editors.
-            if el.tag in {"note"}:
-                el.tag = None
-                el.clear()
-
-        text = "".join(L.itertext())
-        text = text.replace("-", "")
+        for note in L.findall("note"):
+            L.remove(note)
+        tail = L.tail
+        text = "".join(L.itertext()).replace("-", "")
         L.clear()
         L.text = text
+        L.tail = tail
 
 
-def _to_devanagari(xml: ET.Element):
+def _to_devanagari(xml: etree._Element):
     """Transliterate inline elements to Devanagari."""
-    for el in xml.iter("*"):
+    for el in xml.iter():
+        if not isinstance(el.tag, str):
+            continue
         if el.text:
             el.text = transliterate(el.text, Scheme.Iast, Scheme.Devanagari)
         if el.tail:
@@ -127,7 +121,7 @@ def _validate_section(section: Section):
         raise ValueError(f"Block slugs are not unique: {slug_list}")
 
 
-def _create_section(xml: ET.Element, section_slug: str) -> Section:
+def _create_section(xml: etree._Element, section_slug: str) -> Section:
     """Create a section with the given slug.
 
     :param xml: the `Element` corresponding to this section.
@@ -139,14 +133,20 @@ def _create_section(xml: ET.Element, section_slug: str) -> Section:
         if child.tag in {"note", "del"}:
             continue
 
-        assert child.tag in SUPPORTED_TAGS, child.tag
-        if child.tag == "head":
-            block_slug = "head"
-        else:
-            block_slug = str(block_number)
-            block_number += 1
+        # Rewrite <subtitle> to <title type="sub">
+        if child.tag == "subtitle":
+            child.tag = "title"
+            child.set("type", "sub")
 
-        blob = ET.tostring(child, encoding="utf-8").decode("utf-8")
+        if child.tag not in SUPPORTED_TAGS:
+            raise ValueError(
+                f"Unsupported tag <{child.tag}> in section '{section_slug}'. "
+                f"Supported tags: {', '.join(sorted(SUPPORTED_TAGS))}"
+            )
+        block_slug = str(block_number)
+        block_number += 1
+
+        blob = _tostring(child)
         if section_slug == SINGLE_SECTION_SLUG:
             full_slug = block_slug
         else:
@@ -159,16 +159,20 @@ def _create_section(xml: ET.Element, section_slug: str) -> Section:
     return section
 
 
-def _parse_sections(xml: ET.Element) -> list[Section]:
+def _parse_sections(xml: etree._Element) -> list[Section]:
     body = xml.find("./text/body")
     _delete_unused_elements(xml)
     _to_devanagari(body)
 
     sections = []
     divs = body.findall("./div")
-    if divs:
+    if len(divs) == 1 and divs[0].get("n") == "all":
+        # Single wrapper div with n="all" — unwrap its children.
+        section = _create_section(divs[0], SINGLE_SECTION_SLUG)
+        sections = [section]
+    elif divs:
         # Text has one or more sections.
-        for i, div in enumerate(body.findall("./div")):
+        for i, div in enumerate(divs):
             section_slug = str(i + 1)
             section = _create_section(div, section_slug)
             sections.append(section)
@@ -180,14 +184,24 @@ def _parse_sections(xml: ET.Element) -> list[Section]:
 
 
 def parse_document(path: Path) -> Document:
-    xml = DET.parse(path).getroot()
-    _remove_namespace(xml, NS["tei"])
+    raw = path.read_bytes()
+    raw = _strip_namespace_bytes(raw)
+    xml = etree.fromstring(raw, _PARSER)
 
     header = xml.find("./teiHeader")
-    assert header
-    header_blob = ET.tostring(header, encoding="utf-8").decode("utf-8")
+    if header is None:
+        raise ValueError(
+            f"No <teiHeader> element found in {path.name}. "
+            f"Is this a valid TEI XML file?"
+        )
+    header_blob = _tostring(header)
 
     sections = _parse_sections(xml)
-    assert sections
+    if not sections:
+        raise ValueError(
+            f"No sections found in {path.name}. "
+            f"Expected <div> elements inside <text><body>, "
+            f"or content directly inside <body>."
+        )
 
     return Document(header=header_blob, sections=sections)

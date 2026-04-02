@@ -2,7 +2,14 @@ import json
 from unittest.mock import patch
 
 import ambuda.queries as q
-from ambuda.database import Page, Project
+from ambuda.database import Board, Page, Project
+
+
+def _get_board_id():
+    """Get the board_id from the existing test project."""
+    session = q.get_session()
+    project = session.query(Project).filter_by(slug="test-project").one()
+    return project.board_id
 
 
 def test_summary(client):
@@ -113,7 +120,7 @@ def test_stats(moderator_client, rama_client):
 def test_admin(moderator_client):
     session = q.get_session()
 
-    project = Project(slug="project-123", display_title="Dummy project", board_id=0)
+    project = Project(slug="project-123", display_title="Dummy project", board_id=_get_board_id())
     session.add(project)
     session.commit()
 
@@ -132,7 +139,7 @@ def test_admin(moderator_client):
 def test_admin__slug_mismatch(moderator_client):
     session = q.get_session()
 
-    project = Project(slug="project-1234", display_title="Dummy project", board_id=0)
+    project = Project(slug="project-1234", display_title="Dummy project", board_id=_get_board_id())
     session.add(project)
     session.commit()
 
@@ -192,7 +199,7 @@ def _make_reorder_project():
     _reorder_counter += 1
     session = q.get_session()
     slug = f"reorder-proj-{_reorder_counter}"
-    project = Project(slug=slug, display_title="Reorder", board_id=0)
+    project = Project(slug=slug, display_title="Reorder", board_id=_get_board_id())
     session.add(project)
     session.flush()
     status_id = q.project("test-project").pages[0].status_id

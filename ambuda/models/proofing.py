@@ -121,7 +121,9 @@ class PublishConfig(Base):
 
     id = pk()
     project_id = foreign_key("proof_projects.id")
-    text_id = Column(Integer, ForeignKey("texts.id"), nullable=True, index=True)
+    text_id = Column(
+        Integer, ForeignKey("texts.id", ondelete="SET NULL"), nullable=True, index=True
+    )
     order = Column(Integer, nullable=False)
 
     slug: Mapped[str] = mapped_column(String, nullable=False)

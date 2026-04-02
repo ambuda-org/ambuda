@@ -1,5 +1,7 @@
 import xml.etree.ElementTree as ET
 
+from lxml import etree
+
 import ambuda.utils.tei_parser as tei
 
 
@@ -15,10 +17,10 @@ def test_delete_unused_elements():
 
 
 def test_to_devanagari():
-    xml = ET.fromstring("<div><span>a</span>ka</div>")
+    xml = etree.fromstring("<div><span>a</span>ka</div>")
     tei._to_devanagari(xml)
 
-    actual = ET.tostring(xml, encoding="utf-8").decode("utf-8")
+    actual = etree.tostring(xml, encoding="unicode")
     assert actual == "<div><span>अ</span>क</div>"
 
 
@@ -26,14 +28,13 @@ def test_create_section():
     blob = "".join(
         [
             "<div>",
-            "<lg xml:id='Test.1'>a</lg>",
-            "<lg xml:id='Test.2'>b</lg>",
-            "<lg xml:id='Test.3'>c</lg>",
+            '<lg xml:id="Test.1">a</lg>',
+            '<lg xml:id="Test.2">b</lg>',
+            '<lg xml:id="Test.3">c</lg>',
             "</div>",
         ]
     )
-    xml = ET.fromstring(blob)
-    tei._remove_namespace(xml, "{" + tei.NS["tei"] + "}")
+    xml = etree.fromstring(blob)
     section = tei._create_section(xml, "s1")
 
     assert section.slug == "s1"

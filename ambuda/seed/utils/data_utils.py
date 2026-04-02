@@ -77,9 +77,12 @@ def unzip_and_read(zip_bytes: bytes, filepath: str) -> str:
 
 def create_db():
     """Create a SQLAlchemy database engine."""
+    from ambuda.queries import _enable_sqlite_foreign_keys
+
     flask_env = os.environ["FLASK_ENV"]
     conf = config.load_config_object(flask_env)
     engine = create_engine(conf.SQLALCHEMY_DATABASE_URI)
+    _enable_sqlite_foreign_keys(engine)
 
     db.Base.metadata.create_all(engine)
     return engine

@@ -1,7 +1,6 @@
 """Utilities for ingesting data assets into Ambuda."""
 
 import itertools
-import json
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Iterator
@@ -183,51 +182,77 @@ def import_dictionary_from_xml(slug: str, title: str, path: Path) -> int:
 
 
 def import_text_metadata(
-    session: Session, metadata_list: list
+    session: Session, metadata: "LibraryMetadata"
 ) -> tuple[int, list[str]]:
-    if not isinstance(metadata_list, list):
-        raise ValueError("JSON file must contain a list of objects")
+    # Build author map so texts can reference them.
+    author_map: dict[str, db.Author] = {}
+    for a in session.scalars(select(db.Author)).all():
+        author_map[a.slug] = a
 
-    collection_map = {}
+    # Build/update collections first so texts can reference them.
+    collection_map: dict[str, db.TextCollection] = {}
     stmt = select(db.TextCollection)
     for coll in session.scalars(stmt).all():
         collection_map[coll.slug] = coll
 
+    for coll_entry in metadata.collections:
+        if coll_entry.slug not in collection_map:
+            new_coll = db.TextCollection(slug=coll_entry.slug, title=coll_entry.title)
+            session.add(new_coll)
+            session.flush()
+            collection_map[coll_entry.slug] = new_coll
+        else:
+            collection_map[coll_entry.slug].title = coll_entry.title
+
+    # Set parent references for collections.
+    for coll_entry in metadata.collections:
+        coll = collection_map[coll_entry.slug]
+        if coll_entry.parent_slug and coll_entry.parent_slug in collection_map:
+            coll.parent_id = collection_map[coll_entry.parent_slug].id
+        else:
+            coll.parent_id = None
+
+    # Update texts.
     updated_count = 0
     unmatched_slugs = []
 
-    for item in metadata_list:
-        if not isinstance(item, dict):
-            raise ValueError("Each item in the JSON must be an object")
-
-        slug = item.get("slug")
-        if not slug:
-            raise ValueError("Each item must have a 'slug' field")
-
-        stmt = select(db.Text).filter_by(slug=slug)
+    for entry in metadata.texts:
+        stmt = select(db.Text).filter_by(slug=entry.slug)
         text = session.scalars(stmt).first()
 
         if not text:
-            unmatched_slugs.append(slug)
+            unmatched_slugs.append(entry.slug)
             continue
 
-        if "title" in item:
-            text.title = item["title"]
-        if "header" in item:
-            text.header = item["header"]
-        if "config" in item:
-            text.config = json.dumps(item["config"]) if item["config"] else ""
-        if "collections" in item:
-            collection_slugs = item["collections"] or []
-            collections = []
-            for s in collection_slugs:
-                if s not in collection_map:
-                    new_coll = db.TextCollection(slug=s, title=s)
-                    session.add(new_coll)
-                    session.flush()
-                    collection_map[s] = new_coll
-                collections.append(collection_map[s])
-            text.collections = collections
+        text.title = entry.title
+        if entry.language is not None:
+            text.language = entry.language
+        if entry.status is not None:
+            text.status = entry.status
+
+        # Sync alternate titles.
+        existing = {a.title for a in text.alternate_titles}
+        for alt in entry.alternate_titles:
+            if alt not in existing:
+                text.alternate_titles.append(db.TextAlternateTitle(title=alt))
+
+        # Sync author: create if missing, then assign.
+        if entry.author:
+            if entry.author.slug not in author_map:
+                new_author = db.Author(slug=entry.author.slug, name=entry.author.name)
+                session.add(new_author)
+                session.flush()
+                author_map[entry.author.slug] = new_author
+            else:
+                author_map[entry.author.slug].name = entry.author.name
+            text.author = author_map[entry.author.slug]
+
+        # Sync collection associations.
+        collections = []
+        for slug in entry.collections:
+            if slug in collection_map:
+                collections.append(collection_map[slug])
+        text.collections = collections
 
         updated_count += 1
 
