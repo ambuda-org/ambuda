@@ -120,7 +120,9 @@ def test_stats(moderator_client, rama_client):
 def test_admin(moderator_client):
     session = q.get_session()
 
-    project = Project(slug="project-123", display_title="Dummy project", board_id=_get_board_id())
+    project = Project(
+        slug="project-123", display_title="Dummy project", board_id=_get_board_id()
+    )
     session.add(project)
     session.commit()
 
@@ -139,7 +141,9 @@ def test_admin(moderator_client):
 def test_admin__slug_mismatch(moderator_client):
     session = q.get_session()
 
-    project = Project(slug="project-1234", display_title="Dummy project", board_id=_get_board_id())
+    project = Project(
+        slug="project-1234", display_title="Dummy project", board_id=_get_board_id()
+    )
     session.add(project)
     session.commit()
 

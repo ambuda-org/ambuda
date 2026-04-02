@@ -11,6 +11,7 @@ gen/
 htmlcov/
 js-coverage-report/
 __pycache__
+MagicMock/
 
 # Python and Node dependencies
 env/

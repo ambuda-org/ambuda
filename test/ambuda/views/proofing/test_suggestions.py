@@ -195,7 +195,9 @@ def test_accept__stale_revision(rama_client, flask_app):
         session = get_session()
         project_id, page_id, revision_id = _get_test_ids(session)
         stale_id = _make_stale_revision_id(session)
-        suggestion = _create_suggestion(session, project_id, page_id, revision_id=stale_id)
+        suggestion = _create_suggestion(
+            session, project_id, page_id, revision_id=stale_id
+        )
         suggestion_id = suggestion.id
 
     r = rama_client.post(f"/proofing/suggestions/{suggestion_id}/accept")
@@ -404,7 +406,9 @@ def test_submit_review__stale(rama_client, flask_app):
         session = get_session()
         project_id, page_id, revision_id = _get_test_ids(session)
         stale_id = _make_stale_revision_id(session)
-        suggestion = _create_suggestion(session, project_id, page_id, revision_id=stale_id)
+        suggestion = _create_suggestion(
+            session, project_id, page_id, revision_id=stale_id
+        )
         suggestion_id = suggestion.id
 
     r = rama_client.post(

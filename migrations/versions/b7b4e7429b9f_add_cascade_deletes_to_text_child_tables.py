@@ -25,12 +25,15 @@ branch_labels = None
 depends_on = None
 
 
-def _update_fk_ondelete(conn, table_name, column_name, ondelete):
+def _update_fk_ondelete(conn, table_name, column_name, ondelete, ref_table):
     """Alter a FK's ON DELETE action on SQLite by recreating the table.
 
     Uses the safe order: create-new → copy → drop-old → rename-new so
     that other tables' FK references (which point at table_name) are
     not rewritten by SQLite's implicit rename propagation.
+
+    If no existing FK is found on the column, a new out-of-line
+    FOREIGN KEY constraint is added referencing *ref_table*(id).
     """
     create_sql = conn.execute(
         sa.text("SELECT sql FROM sqlite_master WHERE type='table' AND name=:t"),
@@ -61,7 +64,13 @@ def _update_fk_ondelete(conn, table_name, column_name, ondelete):
             constraint_pat, rf"\1{suffix}", create_sql, flags=re.IGNORECASE
         )
     if count == 0:
-        raise ValueError(f"Could not find FK on {table_name}.{column_name}")
+        # Column exists but has no FK — add an out-of-line constraint.
+        fk_clause = (
+            f', FOREIGN KEY("{column_name}") '
+            f'REFERENCES "{ref_table}" ("id"){suffix}'
+        )
+        # Insert before the final closing paren of CREATE TABLE.
+        new_sql = re.sub(r"\s*\)\s*$", fk_clause + "\n)", create_sql)
 
     tmp = f"_mig_new_{table_name}"
     # Create the new table under a temp name
@@ -79,34 +88,34 @@ def _update_fk_ondelete(conn, table_name, column_name, ondelete):
 
 
 # Process parent tables first so their renames don't affect children.
-# (table, column, ondelete_upgrade, ondelete_downgrade)
+# (table, column, ref_table, ondelete_upgrade, ondelete_downgrade)
 _FK_CHANGES = [
-    ("texts", "parent_id", "SET NULL", None),
-    ("text_sections", "text_id", "CASCADE", None),
-    ("text_blocks", "text_id", "CASCADE", None),
-    ("text_blocks", "section_id", "CASCADE", None),
-    ("text_exports", "text_id", "CASCADE", None),
-    ("text_reports", "text_id", "CASCADE", None),
-    ("text_alternate_titles", "text_id", "CASCADE", None),
-    ("publish_configs", "text_id", "SET NULL", None),
-    ("block_parses", "text_id", "CASCADE", None),
-    ("block_parses", "block_id", "CASCADE", None),
-    ("token_blocks", "text_id", "CASCADE", None),
-    ("token_blocks", "block_id", "CASCADE", None),
+    ("texts", "parent_id", "texts", "SET NULL", None),
+    ("text_sections", "text_id", "texts", "CASCADE", None),
+    ("text_blocks", "text_id", "texts", "CASCADE", None),
+    ("text_blocks", "section_id", "text_sections", "CASCADE", None),
+    ("text_exports", "text_id", "texts", "CASCADE", None),
+    ("text_reports", "text_id", "texts", "CASCADE", None),
+    ("text_alternate_titles", "text_id", "texts", "CASCADE", None),
+    ("publish_configs", "text_id", "texts", "SET NULL", None),
+    ("block_parses", "text_id", "texts", "CASCADE", None),
+    ("block_parses", "block_id", "text_blocks", "CASCADE", None),
+    ("token_blocks", "text_id", "texts", "CASCADE", None),
+    ("token_blocks", "block_id", "text_blocks", "CASCADE", None),
 ]
 
 
 def upgrade() -> None:
     conn = op.get_bind()
     conn.execute(sa.text("PRAGMA foreign_keys=OFF"))
-    for table, column, ondelete_up, _ in _FK_CHANGES:
-        _update_fk_ondelete(conn, table, column, ondelete_up)
+    for table, column, ref_table, ondelete_up, _ in _FK_CHANGES:
+        _update_fk_ondelete(conn, table, column, ondelete_up, ref_table)
     conn.execute(sa.text("PRAGMA foreign_keys=ON"))
 
 
 def downgrade() -> None:
     conn = op.get_bind()
     conn.execute(sa.text("PRAGMA foreign_keys=OFF"))
-    for table, column, _, ondelete_down in reversed(_FK_CHANGES):
-        _update_fk_ondelete(conn, table, column, ondelete_down)
+    for table, column, ref_table, _, ondelete_down in reversed(_FK_CHANGES):
+        _update_fk_ondelete(conn, table, column, ondelete_down, ref_table)
     conn.execute(sa.text("PRAGMA foreign_keys=ON"))
