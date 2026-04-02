@@ -243,7 +243,10 @@ def create_toy_data():
     import tempfile
     import fitz
 
-    display_title = "Bhagavad Gita Sample"
+    from datetime import datetime
+
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    display_title = f"Bhagavad Gita Sample {timestamp}"
 
     current_app = ambuda.create_app("development")
     with current_app.app_context():
@@ -258,9 +261,6 @@ def create_toy_data():
             )
 
         slug = slugify(display_title)
-        existing = session.scalars(select(db.Project).filter_by(slug=slug)).first()
-        if existing:
-            raise click.ClickException(f'Project "{display_title}" already exists.')
 
         pdf_file = tempfile.NamedTemporaryFile(suffix=".pdf", delete=False)
         doc = fitz.open()

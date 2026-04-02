@@ -1,6 +1,5 @@
 """Background tasks for proofing projects."""
 
-import gc
 import logging
 import uuid
 import os
@@ -35,25 +34,22 @@ def _save_page_image(
 ):
     """Render a single PDF page to a JPG file.
 
-    Opens and closes the PDF document for each page to prevent PyMuPDF from
-    accumulating internal caches that cause memory to spike on large PDFs.
-
     :param pdf_path: filesystem path to the source PDF.
     :param page_index: zero-based page number to render.
     :param output_path: where to write the image.
     :param dpi: resolution for rendering.
     """
-    import fitz
+    import pypdfium2 as pdfium
 
-    doc = fitz.open(pdf_path)
-    page = doc.load_page(page_index)
-    pix = page.get_pixmap(dpi=dpi)
-    pix.pil_save(str(output_path), optimize=True)
-    pix = None
-    page = None
-    doc.close()
-    del doc
-    gc.collect()
+    pdf = pdfium.PdfDocument(pdf_path)
+    page = pdf[page_index]
+    bitmap = page.render(scale=dpi / 72)
+    img = bitmap.to_pil()
+    img.save(str(output_path), optimize=True)
+    img.close()
+    bitmap.close()
+    page.close()
+    pdf.close()
 
 
 def _split_pdf_into_pages(
@@ -65,11 +61,11 @@ def _split_pdf_into_pages(
     :param output_dir: the directory to which we'll write these images.
     :return: a list of UUIDs for each page, in order.
     """
-    import fitz
+    import pypdfium2 as pdfium
 
-    doc = fitz.open(pdf_path)
-    num_pages = doc.page_count
-    doc.close()
+    pdf = pdfium.PdfDocument(pdf_path)
+    num_pages = len(pdf)
+    pdf.close()
 
     task_status.progress(0, num_pages)
     page_uuids = []
@@ -771,11 +767,11 @@ def regenerate_project_pages_inner(
                 )
             s3_pdf_path.download_file(str(pdf_path))
 
-            import fitz
+            import pypdfium2 as pdfium
 
-            doc = fitz.open(pdf_path)
-            num_pages = doc.page_count
-            doc.close()
+            pdf = pdfium.PdfDocument(pdf_path)
+            num_pages = len(pdf)
+            pdf.close()
 
             if num_pages != len(pages):
                 logging.warning(
@@ -877,11 +873,11 @@ def replace_project_pdf_inner(
         )
         existing_pages = list(session.scalars(pages_stmt).all())
 
-        import fitz
+        import pypdfium2 as pdfium
 
-        doc = fitz.open(pdf_path)
-        new_count = doc.page_count
-        doc.close()
+        pdf = pdfium.PdfDocument(pdf_path)
+        new_count = len(pdf)
+        pdf.close()
 
         existing_count = len(existing_pages)
         # +1 for the final PDF upload to S3
