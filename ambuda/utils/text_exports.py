@@ -7,6 +7,7 @@ import io
 import logging
 import shutil
 import tempfile
+import textwrap
 from datetime import UTC, datetime
 from enum import StrEnum
 from functools import cached_property
@@ -26,13 +27,15 @@ from ambuda.utils.s3 import S3Path
 
 
 EXPORT_DIR = Path(__file__).parent
+S3_PREFIX = "assets/text-exports"
 logger = logging.getLogger(__name__)
 
 
 class ExportType(StrEnum):
     #: TEI-conformant XML. This is our root export. That is, we use this export
-    #: to create downstream exports like PLAIN_TEX and PDF
+    #: to create downstream exports like PLAIN_TEXT and PDF
     XML = "xml"
+    #: Plain text. Comments are prefixed with '#'.
     PLAIN_TEXT = "plain-text"
     PDF = "pdf"
     EPUB = "epub"
@@ -79,13 +82,11 @@ class ExportConfig(BaseModel):
     #: The output scheme for this export. If not set, use Devanagari.
     scheme: ExportScheme | None = None
 
-    _S3_PREFIX = "assets/text-exports"
-
     def slug(self, text_slug: str) -> str:
         return self.slug_pattern.format(text_slug)
 
     def s3_path(self, bucket: str, text_slug: str) -> S3Path:
-        return S3Path(bucket, f"{self._S3_PREFIX}/{self.slug(text_slug)}")
+        return S3Path(bucket, f"{S3_PREFIX}/{self.slug(text_slug)}")
 
     @cached_property
     def suffix(self) -> str:
@@ -122,14 +123,12 @@ class BulkExportConfig(BaseModel):
     #: export configs.
     slug_pattern: str
 
-    _S3_PREFIX = "assets/text-exports"
-
     @property
     def slug(self) -> str:
         return self.slug_pattern
 
     def s3_path(self, bucket: str) -> S3Path:
-        return S3Path(bucket, f"{self._S3_PREFIX}/{self.slug}")
+        return S3Path(bucket, f"{S3_PREFIX}/{self.slug}")
 
     @property
     def mime_type(self) -> str:
@@ -270,6 +269,144 @@ def create_xml_file(text: db.Text, out_path: Path) -> None:
                         session.expire(section)
 
 
+def _parse_plain_text_header(xml_path: Path) -> dict[str, str]:
+    """Extract metadata fields from the TEI header of an XML file.
+
+    Returns a dict of field name -> value for non-empty fields.
+    """
+    ns = "{http://www.tei-c.org/ns/1.0}"
+    parser = etree.XMLParser(recover=True)
+    tree = etree.parse(str(xml_path), parser)
+    root = tree.getroot()
+
+    header = root.find(f"{ns}teiHeader")
+    if header is None:
+        return {}
+
+    def _text(el, path):
+        found = el.find(path)
+        if found is not None and found.text:
+            return found.text.strip()
+        return ""
+
+    result = {}
+
+    file_desc = header.find(f"{ns}fileDesc")
+    if file_desc is None:
+        return result
+
+    # titleStmt
+    title_stmt = file_desc.find(f"{ns}titleStmt")
+    if title_stmt is not None:
+        result["author"] = _text(title_stmt, f"{ns}author")
+
+        # credits from respStmt
+        credits_parts = []
+        for resp_stmt in title_stmt.findall(f"{ns}respStmt"):
+            resp_el = resp_stmt.find(f"{ns}resp")
+            resp_text = (resp_el.text or "").strip() if resp_el is not None else ""
+            names = []
+            for n in resp_stmt.findall(f"{ns}name"):
+                if n.text and n.text.strip():
+                    names.append(n.text.strip())
+            for n in resp_stmt.findall(f"{ns}persName"):
+                if n.text and n.text.strip():
+                    names.append(n.text.strip())
+            for name in names:
+                if resp_text:
+                    credits_parts.append(f"{name} ({resp_text})")
+                else:
+                    credits_parts.append(name)
+        if credits_parts:
+            result["credits"] = ", ".join(credits_parts)
+
+    # publicationStmt — license
+    avail = file_desc.find(f".//{ns}availability")
+    if avail is not None:
+        licence_el = avail.find(f"{ns}licence")
+        if licence_el is not None and licence_el.text:
+            result["license"] = licence_el.text.strip()
+        elif avail.find(f"{ns}p") is not None:
+            p_el = avail.find(f"{ns}p")
+            if p_el.text:
+                result["license"] = p_el.text.strip()
+
+    # notesStmt
+    notes_stmt = file_desc.find(f"{ns}notesStmt")
+    if notes_stmt is not None:
+        for note_el in notes_stmt.findall(f"{ns}note"):
+            if note_el.get("type") == "legacyheader":
+                continue
+            note_text = "".join(note_el.itertext()).strip()
+            if note_text:
+                result["notes"] = note_text
+                break
+
+    # sourceDesc/bibl
+    bibl = file_desc.find(f".//{ns}bibl")
+    if bibl is not None:
+        source_fields = [
+            ("source_title", f"{ns}title"),
+            ("source_author", f"{ns}author"),
+            ("source_editor", f"{ns}editor"),
+            ("source_publisher", f"{ns}publisher"),
+            ("source_publisher_place", f"{ns}pubPlace"),
+            ("source_year", f"{ns}date"),
+        ]
+        for key, tag in source_fields:
+            val = _text(bibl, tag)
+            if val:
+                result[key] = val
+
+    return result
+
+
+def _write_plain_text_header(f, text: db.Text, xml_path: Path, timestamp: str) -> None:
+    """Write the '# key: value' metadata header to a plain-text export."""
+
+    def _line(key, value):
+        f.write(f"# {key}: {value}\n")
+
+    tei = _parse_plain_text_header(xml_path)
+
+    # Text metadata
+    _line("title", text.title)
+    slug = getattr(text, "slug", None)
+    if slug:
+        _line("slug", slug)
+    if tei.get("author"):
+        _line("author", tei["author"])
+    lang = getattr(text, "language", None)
+    if lang:
+        _line("language", lang)
+    if tei.get("license"):
+        _line("license", tei["license"])
+    _line("exported_from", "ambuda.org")
+    _line("exported_on", timestamp.split()[0])
+
+    # Source metadata
+    source_keys = [
+        "source_title",
+        "source_author",
+        "source_editor",
+        "source_publisher",
+        "source_publisher_place",
+        "source_year",
+    ]
+    source_lines = [(k, tei[k]) for k in source_keys if tei.get(k)]
+    if source_lines:
+        f.write("#\n")
+        for key, val in source_lines:
+            _line(key, val)
+
+    # Credits and notes
+    extras = [(k, tei[k]) for k in ("credits", "notes") if tei.get(k)]
+    if extras:
+        f.write("#\n")
+        for key, val in extras:
+            _line(key, val)
+
+
 def create_plain_text(text: db.Text, file_path: Path, xml_path: Path) -> None:
     timestamp = utc_datetime_timestamp()
 
@@ -280,35 +417,105 @@ def create_plain_text(text: db.Text, file_path: Path, xml_path: Path) -> None:
         )
 
     with open(file_path, "w") as f:
-        f.write(f"# {text.title}\n")
-        f.write(f"# Exported from ambuda.org on {timestamp}\n\n")
+        _write_plain_text_header(f, text, xml_path, timestamp)
+        f.write("\n")
 
         is_first = True
+        seen_sp_ids = set()
         ns = "{http://www.tei-c.org/ns/1.0}"
         for event, elem in etree.iterparse(
             str(xml_path), events=("end",), recover=True
         ):
             parent = elem.getparent()
-            if parent is not None and parent.tag in (f"{ns}body", f"{ns}div"):
-                slug = elem.get("n")
-                if not slug:
+            if parent is None:
+                continue
+
+            container_tags = (f"{ns}body", f"{ns}div", f"{ns}sp")
+            skip_tags = (f"{ns}div", "div", f"{ns}sp", "sp")
+
+            if parent.tag not in container_tags:
+                continue
+            if elem.tag in skip_tags:
+                continue
+
+            slug = elem.get("n")
+            if not slug:
+                continue
+
+            # Extract speaker name from parent <sp> if present.
+            in_sp = parent.tag == f"{ns}sp"
+            speaker = None
+            if in_sp:
+                sp_speaker = parent.find(f"{ns}speaker")
+                if sp_speaker is not None and sp_speaker.text:
+                    # Only show speaker for the first content block in this <sp>.
+                    sp_id = id(parent)
+                    if sp_id not in seen_sp_ids:
+                        seen_sp_ids.add(sp_id)
+                        speaker = sp_speaker.text.strip()
+
+            if not is_first:
+                f.write("\n\n")
+            is_first = False
+
+            indent = "    " if in_sp else ""
+            if speaker:
+                f.write(f"{speaker} \u2014\n")
+            f.write(f"{indent}# {slug}\n")
+
+            elem_str = etree.tostring(elem, encoding="unicode")
+            xml = ET.fromstring(elem_str)
+            ns2 = "{http://www.tei-c.org/ns/1.0}"
+
+            # In <choice><sic>...</sic><corr>...</corr></choice>,
+            # keep only <corr> and drop <sic>.
+            for choice in xml.iter():
+                if choice.tag not in ("choice", f"{ns2}choice"):
                     continue
+                for sic in list(choice):
+                    if sic.tag in ("sic", f"{ns2}sic"):
+                        choice.remove(sic)
+                # Collapse whitespace: clear choice.text and corr.tail
+                # so the corr text is spliced inline.
+                choice.text = None
+                for child in choice:
+                    child.tail = None
 
-                if not is_first:
-                    f.write("\n\n")
-                is_first = False
+            # Drop <speaker> elements so they don't appear inline.
+            for sp_el in list(xml.iter()):
+                if sp_el.tag in ("speaker", f"{ns2}speaker"):
+                    sp_el.text = None
+                    sp_el.tail = None
 
-                elem_str = etree.tostring(elem, encoding="unicode")
-                xml = ET.fromstring(elem_str)
-                for el in xml.iter():
-                    if el.tag == "l":
-                        el.tail = "\n"
-                    el.tag = None
-                f.write(ET.tostring(xml, encoding="unicode").strip())
+            # Wrap <stage> text in parentheses.
+            is_stage = False
+            for stage_el in list(xml.iter()):
+                if stage_el.tag in ("stage", f"{ns2}stage"):
+                    is_stage = True
+                    if stage_el.text:
+                        stage_el.text = "(" + stage_el.text
+                    else:
+                        stage_el.text = "("
+                    # Append closing paren: after last child's tail, or after text
+                    if len(stage_el):
+                        last = stage_el[-1]
+                        last.tail = (last.tail or "") + ")"
+                    else:
+                        stage_el.text += ")"
 
-                elem.clear()
-                while elem.getprevious() is not None:
-                    del elem.getparent()[0]
+            for el in xml.iter():
+                if el.tag in ("l", f"{ns2}l"):
+                    el.tail = "\n"
+                el.tag = None
+            content = ET.tostring(xml, encoding="unicode").strip()
+
+            if in_sp or is_stage:
+                content = textwrap.indent(content, "    ")
+            f.write(content)
+
+            elem.clear()
+            while elem.getprevious() is not None:
+                del elem.getparent()[0]
 
 
 def create_pdf(

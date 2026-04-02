@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 from typing import Iterator
 
-from sqlalchemy import select
+from sqlalchemy import delete, insert, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, load_only
 
@@ -36,25 +36,124 @@ def create_text_from_document(session: Session, slug: str, title: str, document)
     )
     session.add(text)
     session.flush()
+    text_id = text.id
 
-    n = 1
-    for section in document.sections:
-        db_section = db.TextSection(
-            text_id=text.id, slug=section.slug, title=section.slug
+    # Bulk-insert sections and collect their IDs.
+    section_rows = [
+        {"text_id": text_id, "slug": s.slug, "title": s.slug, "order": i}
+        for i, s in enumerate(document.sections)
+    ]
+    if section_rows:
+        result = session.execute(
+            insert(db.TextSection).returning(db.TextSection.id), section_rows
         )
-        session.add(db_section)
-        session.flush()
+        section_ids = [row[0] for row in result]
+    else:
+        section_ids = []
 
+    # Bulk-insert all blocks across all sections.
+    block_rows = []
+    n = 1
+    for section, section_id in zip(document.sections, section_ids):
         for block in section.blocks:
-            db_block = db.TextBlock(
-                text_id=text.id,
-                section_id=db_section.id,
-                slug=block.slug,
-                xml=block.blob,
-                n=n,
+            block_rows.append(
+                {
+                    "text_id": text_id,
+                    "section_id": section_id,
+                    "slug": block.slug,
+                    "xml": block.blob,
+                    "n": n,
+                }
             )
-            session.add(db_block)
             n += 1
+
+    if block_rows:
+        session.execute(insert(db.TextBlock), block_rows)
+
+    session.commit()
+    return text
+
+
+def update_text_from_document(session: Session, text: db.Text, title: str, document):
+    """Update an existing text in-place from a parsed TEI document.
+
+    Preserves the Text row (and its ID). Sections and blocks are synced:
+    existing rows are updated, new rows are inserted, removed rows are deleted.
+    """
+    text.title = title
+    text.header = document.header
+
+    # -- Sync sections --
+    existing_sections = {s.slug: s for s in text.sections}
+    doc_section_slugs = {s.slug for s in document.sections}
+
+    # Delete removed sections (cascade deletes their blocks).
+    for slug in set(existing_sections) - doc_section_slugs:
+        session.delete(existing_sections[slug])
+
+    # Create new sections, update order on existing ones.
+    section_map: dict[str, db.TextSection] = {}
+    for i, doc_section in enumerate(document.sections):
+        if doc_section.slug in existing_sections:
+            sec = existing_sections[doc_section.slug]
+            sec.order = i
+            section_map[doc_section.slug] = sec
+        else:
+            sec = db.TextSection(
+                text_id=text.id,
+                slug=doc_section.slug,
+                title=doc_section.slug,
+                order=i,
+            )
+            session.add(sec)
+            section_map[doc_section.slug] = sec
+    session.flush()
+
+    # -- Sync blocks --
+    # Match existing blocks by slug so that block IDs (and associated
+    # parse data / tokens) are preserved when content changes.
+    existing_blocks = (
+        session.execute(
+            select(db.TextBlock)
+            .where(db.TextBlock.text_id == text.id)
+            .order_by(db.TextBlock.n)
+        )
+        .scalars()
+        .all()
+    )
+    existing_by_slug: dict[str, db.TextBlock] = {b.slug: b for b in existing_blocks}
+
+    new_block_slugs: set[str] = set()
+    insert_rows = []
+    n = 1
+    for doc_section in document.sections:
+        section_id = section_map[doc_section.slug].id
+        for block in doc_section.blocks:
+            new_block_slugs.add(block.slug)
+            existing = existing_by_slug.get(block.slug)
+            if existing:
+                existing.xml = block.blob
+                existing.n = n
+                existing.section_id = section_id
+            else:
+                insert_rows.append(
+                    {
+                        "text_id": text.id,
+                        "section_id": section_id,
+                        "slug": block.slug,
+                        "xml": block.blob,
+                        "n": n,
+                    }
+                )
+            n += 1
+
+    # Delete blocks that no longer exist.
+    removed_ids = [b.id for b in existing_blocks if b.slug not in new_block_slugs]
+    if removed_ids:
+        session.execute(delete(db.TextBlock).where(db.TextBlock.id.in_(removed_ids)))
+
+    if insert_rows:
+        session.execute(insert(db.TextBlock), insert_rows)
 
     session.commit()
     return text

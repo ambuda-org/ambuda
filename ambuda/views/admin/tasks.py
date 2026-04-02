@@ -28,7 +28,7 @@ import ambuda.database as db
 import ambuda.queries as q
 import ambuda.data_utils as data_utils
 from ambuda.models.proofing import _create_uuid
-from ambuda.utils.text_exports import ExportType
+from ambuda.utils.text_exports import ExportType, write_cached_xml
 from ambuda.tasks.text_exports import (
     delete_text_export,
     create_all_exports_for_text,
@@ -70,6 +70,7 @@ def import_text(model_name, selected_ids: list | None = None):
 
     if form.validate_on_submit():
         xml_files = form.xml_files.data
+        overwrite = request.form.get("overwrite") == "1"
         session = q.get_session()
 
         success_count = 0
@@ -96,9 +97,14 @@ def import_text(model_name, selected_ids: list | None = None):
                 error_count += 1
                 continue
 
-            stmt = select(db.Text).filter_by(slug=slug)
-            if session.scalars(stmt).first():
-                errors.append(f"{filename}: A text with slug '{slug}' already exists")
+            # Check for duplicates
+            existing_text = session.scalar(
+                select(db.Text)
+                .filter_by(slug=slug)
+                .options(selectinload(db.Text.sections))
+            )
+            if existing_text and not overwrite:
+                errors.append(f"{filename}: slug '{slug}' already exists")
                 error_count += 1
                 continue
 
@@ -113,7 +119,16 @@ def import_text(model_name, selected_ids: list | None = None):
                     tmp_path = Path(tmp_file.name)
 
                 document = parse_document(tmp_path)
-                data_utils.create_text_from_document(session, slug, title, document)
+                if existing_text:
+                    data_utils.update_text_from_document(
+                        session, existing_text, title, document
+                    )
+                else:
+                    data_utils.create_text_from_document(session, slug, title, document)
+
+                cache_dir = current_app.config.get("SERVER_FILE_CACHE")
+                write_cached_xml(cache_dir, slug, tmp_path)
+
                 success_count += 1
 
             except Exception as e:

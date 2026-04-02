@@ -32,7 +32,11 @@ from ambuda.utils.text_exports import (
     maybe_create_tokens,
     create_vocab_list,
 )
-from ambuda.utils.metadata_catalog import build_library_metadata, build_tei_headers_xml
+from ambuda.utils.metadata_catalog import (
+    TextUrlsEntry,
+    build_library_metadata,
+    build_tei_headers_xml,
+)
 
 
 EXPORTS = {x.slug_pattern: x for x in text_exports.EXPORTS}
@@ -434,8 +438,31 @@ def create_text_archive_inner(app_environment, engine=None):
 
             # Build shared metadata
             all_colls = q.all_collections()
+
+            def urls_fn(t: db.Text) -> TextUrlsEntry | None:
+                xml_url = None
+                text_url = None
+                for export in t.exports:
+                    if not export.s3_path:
+                        continue
+                    if export.export_type == ExportType.XML:
+                        xml_url = (
+                            export.asset_url(cloudfront_base_url)
+                            if cloudfront_base_url
+                            else None
+                        )
+                    elif export.export_type == ExportType.PLAIN_TEXT:
+                        text_url = (
+                            export.asset_url(cloudfront_base_url)
+                            if cloudfront_base_url
+                            else None
+                        )
+                if xml_url or text_url:
+                    return TextUrlsEntry(xml=xml_url, text=text_url)
+                return None
+
             library_metadata = build_library_metadata(
-                texts=texts, collections=all_colls
+                texts=texts, collections=all_colls, urls_fn=urls_fn
             )
             metadata_path = temp_dir_path / "metadata.json"
             metadata_path.write_text(

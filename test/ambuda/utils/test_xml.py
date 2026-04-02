@@ -176,6 +176,31 @@ def test_parse_tei_header__credits():
     ]
 
 
+def test_parse_tei_header__credits_persname():
+    header = """
+    <teiHeader>
+      <fileDesc>
+        <titleStmt>
+          <title>TITLE</title>
+          <respStmt>
+            <persName>Alice</persName>
+            <resp>Creation of machine-readable version.</resp>
+          </respStmt>
+          <respStmt>
+            <name>Bob</name>
+            <resp>Proofreading</resp>
+          </respStmt>
+        </titleStmt>
+      </fileDesc>
+    </teiHeader>
+    """
+    parsed = x.parse_tei_header(header)
+    assert parsed.credits == [
+        ("Creation of machine-readable version.", ["Alice"]),
+        ("Proofreading", ["Bob"]),
+    ]
+
+
 def test_parse_tei_header__notes():
     header = """
     <teiHeader xml:lang="en">

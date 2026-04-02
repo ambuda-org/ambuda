@@ -376,3 +376,77 @@ def test_updates_existing_bulk_export_record(export_mocks):
     assert len(existing.sha256_checksum) == 64
     assert existing.updated_at is not None
     export_mocks.session.commit.assert_called_once()
+
+
+def test_metadata_urls_populated_with_cloudfront(export_mocks):
+    """When CLOUDFRONT_BASE_URL is set and exports exist, urls are populated."""
+    text = _make_text(id=1, slug="gita", title="Bhagavad Gita")
+
+    xml_export = MagicMock()
+    xml_export.export_type = "xml"
+    xml_export.s3_path = "s3://bucket/assets/text-exports/gita.xml"
+    xml_export.asset_url.return_value = "https://cdn.example.com/text-exports/gita.xml"
+
+    txt_export = MagicMock()
+    txt_export.export_type = "plain-text"
+    txt_export.s3_path = "s3://bucket/assets/text-exports/gita.txt"
+    txt_export.asset_url.return_value = "https://cdn.example.com/text-exports/gita.txt"
+
+    text.exports = [xml_export, txt_export]
+
+    cfg = export_mocks.setup_session([text])
+    cfg.CLOUDFRONT_BASE_URL = "https://cdn.example.com"
+    export_mocks.fake_create_xml()
+    uploaded = export_mocks.capture_upload()
+
+    create_text_archive_inner("testing")
+
+    standalone = json.loads(uploaded["metadata.json"]["content"])
+    m = standalone["texts"][0]
+    assert m["urls"] == {
+        "xml": "https://cdn.example.com/text-exports/gita.xml",
+        "text": "https://cdn.example.com/text-exports/gita.txt",
+    }
+
+
+def test_metadata_urls_null_without_exports(export_mocks):
+    """When a text has no exports, urls is null."""
+    text = _make_text(id=1, slug="gita", title="Bhagavad Gita")
+    text.exports = []
+
+    cfg = export_mocks.setup_session([text])
+    cfg.CLOUDFRONT_BASE_URL = "https://cdn.example.com"
+    export_mocks.fake_create_xml()
+    uploaded = export_mocks.capture_upload()
+
+    create_text_archive_inner("testing")
+
+    standalone = json.loads(uploaded["metadata.json"]["content"])
+    m = standalone["texts"][0]
+    assert m["urls"] is None
+
+
+def test_metadata_urls_partial(export_mocks):
+    """When only XML export exists, text url is null."""
+    text = _make_text(id=1, slug="gita", title="Bhagavad Gita")
+
+    xml_export = MagicMock()
+    xml_export.export_type = "xml"
+    xml_export.s3_path = "s3://bucket/assets/text-exports/gita.xml"
+    xml_export.asset_url.return_value = "https://cdn.example.com/text-exports/gita.xml"
+
+    text.exports = [xml_export]
+
+    cfg = export_mocks.setup_session([text])
+    cfg.CLOUDFRONT_BASE_URL = "https://cdn.example.com"
+    export_mocks.fake_create_xml()
+    uploaded = export_mocks.capture_upload()
+
+    create_text_archive_inner("testing")
+
+    standalone = json.loads(uploaded["metadata.json"]["content"])
+    m = standalone["texts"][0]
+    assert m["urls"] == {
+        "xml": "https://cdn.example.com/text-exports/gita.xml",
+        "text": None,
+    }

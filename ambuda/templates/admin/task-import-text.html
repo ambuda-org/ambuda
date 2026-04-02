@@ -1,25 +1,32 @@
 {% extends "admin/base.html" %}
-{% from "admin/macros.html" import flash_messages, file_metadata_script %}
+{% from "admin/macros.html" import flash_messages %}
 
 {% block title %}Import Texts{% endblock %}
 
 {% block content %}
-<div class="max-w-2xl">
-  <div class="mb-6">
-    <h1 class="text-3xl font-bold text-slate-800">Import Texts</h1>
-    <p class="text-slate-600 mt-2">Import one or more TEI XML documents to create new texts. Each file will create one text.</p>
-  </div>
+<div class="max-w-4xl">
+  <h1 class="text-2xl font-bold text-slate-800 mb-4">Import Texts</h1>
 
   {{ flash_messages() }}
 
-  <form method="POST" enctype="multipart/form-data" class="bg-white rounded-lg border border-slate-200 p-6">
+  <form method="POST" enctype="multipart/form-data">
     {{ form.csrf_token }}
-    <div class="mb-4">
-      <label for="{{ form.xml_files.id }}" class="block text-sm font-semibold text-slate-700 mb-1">
-        {{ form.xml_files.label.text }}
-      </label>
-      {{ form.xml_files(class="w-full px-3 py-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500", multiple=true) }}
-      <p class="mt-1 text-xs text-slate-500">Select one or more TEI XML files. You can customize the slug and title for each file below.</p>
+
+    <div class="bg-white rounded-lg border border-slate-200 p-4 mb-4">
+      <div class="flex items-center gap-4">
+        <div class="flex-1">
+          <label for="{{ form.xml_files.id }}" class="block text-sm font-semibold text-slate-700 mb-1">
+            XML Files
+          </label>
+          {{ form.xml_files(class="w-full text-sm border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-sky-500", multiple=true) }}
+        </div>
+        <div class="pt-5">
+          <label class="flex items-center gap-2 text-sm text-slate-700 whitespace-nowrap">
+            <input type="checkbox" name="overwrite" value="1" class="rounded border-slate-300">
+            Overwrite duplicates
+          </label>
+        </div>
+      </div>
       {% if form.xml_files.errors %}
         {% for error in form.xml_files.errors %}
           <p class="mt-1 text-sm text-red-600">{{ error }}</p>
@@ -27,28 +34,85 @@
       {% endif %}
     </div>
 
-    <!-- Dynamic fields for each selected file -->
-    <div id="file-metadata-container" class="hidden mb-4 space-y-4"></div>
-
-    <div class="flex gap-3 pt-4 border-t border-slate-200">
-      <button type="submit" class="px-4 py-2 bg-sky-600 text-white rounded hover:bg-sky-700 transition">
-        Import
-      </button>
-      <a href="{{ url_for('admin.list_model', model_name=model_name) }}"
-         class="px-4 py-2 bg-slate-200 text-slate-700 rounded hover:bg-slate-300 transition">
-        Cancel
-      </a>
+    <!-- Compact table of files -->
+    <div id="file-metadata-container" class="hidden mb-4">
+      <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-slate-50 border-b border-slate-200">
+              <th class="text-left px-3 py-2 text-xs font-semibold text-slate-600 w-8">#</th>
+              <th class="text-left px-3 py-2 text-xs font-semibold text-slate-600">File</th>
+              <th class="text-left px-3 py-2 text-xs font-semibold text-slate-600">Slug</th>
+              <th class="text-left px-3 py-2 text-xs font-semibold text-slate-600">Title</th>
+            </tr>
+          </thead>
+          <tbody id="file-rows"></tbody>
+        </table>
+      </div>
+      <p id="file-count" class="text-xs text-slate-500 mt-1"></p>
     </div>
-  </form>
 
-  <div class="mt-6 bg-slate-50 rounded-lg border border-slate-200 p-6">
-    <h2 class="text-lg font-semibold text-slate-800 mb-2">Important Notes</h2>
-    <ul class="list-disc list-inside space-y-1 text-sm text-slate-600">
-      <li>Each XML file should contain one complete TEI document.</li>
-      <li>Files will be skipped if a text with the same slug already exists.</li>
-    </ul>
-  </div>
+    <button type="submit" class="px-4 py-2 bg-sky-600 text-white text-sm rounded hover:bg-sky-700 transition">
+      Import
+    </button>
+    <a href="{{ url_for('admin.list_model', model_name=model_name) }}"
+       class="ml-2 px-4 py-2 bg-slate-200 text-slate-700 text-sm rounded hover:bg-slate-300 transition">
+      Cancel
+    </a>
+  </form>
 </div>
 
-{{ file_metadata_script(form.xml_files.id) }}
+<script>
+(function() {
+  const fileInput = document.getElementById('{{ form.xml_files.id }}');
+  const container = document.getElementById('file-metadata-container');
+  const tbody = document.getElementById('file-rows');
+  const countEl = document.getElementById('file-count');
+
+  function deriveSlug(filename) {
+    return filename.replace(/\.xml$/i, '');
+  }
+
+  function deriveTitle(slug) {
+    return slug.replace(/[-_]/g, ' ')
+      .split(' ')
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
+  }
+
+  fileInput.addEventListener('change', function() {
+    const files = fileInput.files;
+    if (files.length === 0) {
+      container.classList.add('hidden');
+      tbody.innerHTML = '';
+      return;
+    }
+
+    container.classList.remove('hidden');
+    tbody.innerHTML = '';
+
+    Array.from(files).forEach((file, i) => {
+      const slug = deriveSlug(file.name);
+      const title = deriveTitle(slug);
+      const tr = document.createElement('tr');
+      tr.className = 'border-b border-slate-100 hover:bg-slate-50';
+      tr.innerHTML = `
+        <td class="px-3 py-1.5 text-slate-400 tabular-nums">${i + 1}</td>
+        <td class="px-3 py-1.5 text-slate-600 font-mono text-xs truncate max-w-[200px]" title="${file.name}">${file.name}</td>
+        <td class="px-3 py-1.5">
+          <input type="text" name="slug_${i}" value="${slug}" required
+            class="w-full px-2 py-1 text-xs border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-sky-500 font-mono" />
+        </td>
+        <td class="px-3 py-1.5">
+          <input type="text" name="title_${i}" value="${title}" required
+            class="w-full px-2 py-1 text-xs border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-sky-500" />
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    countEl.textContent = `${files.length} file(s) selected`;
+  });
+})();
+</script>
 {% endblock %}

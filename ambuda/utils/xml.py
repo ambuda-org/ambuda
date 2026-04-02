@@ -475,7 +475,8 @@ def parse_tei_header(blob: str | None) -> ParsedTEIHeader:
         resp_text = (resp_el.text or "").strip() if resp_el is not None else ""
         names = [
             n.text.strip()
-            for n in resp_stmt.findall("name")
+            for tag in ("name", "persName")
+            for n in resp_stmt.findall(tag)
             if n.text and n.text.strip()
         ]
         if resp_text or names:

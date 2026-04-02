@@ -20,7 +20,7 @@ from ambuda.tasks.projects import (
 )
 from ambuda.tasks.text_exports import create_text_export_inner
 from ambuda.utils import text_exports
-from ambuda.utils.text_exports import ExportType
+from ambuda.utils.text_exports import ExportType, write_cached_xml
 from ambuda.tasks.utils import LocalTaskStatus
 from ambuda.utils.s3 import S3Path
 
@@ -151,6 +151,81 @@ def export_text(text_slug):
         )
 
     click.echo("All exports completed successfully.")
+
+
+@cli.command()
+@click.argument("xml_dir", type=click.Path(exists=True, file_okay=False))
+def import_texts(xml_dir):
+    """Import all XML files from a directory, overwriting existing texts."""
+    import time
+
+    import ambuda.data_utils as data_utils
+    from ambuda.utils.tei_parser import parse_document
+
+    xml_dir = Path(xml_dir)
+    xml_files = sorted(xml_dir.glob("*.xml"))
+    if not xml_files:
+        raise click.ClickException(f"No XML files found in {xml_dir}")
+
+    click.echo(f"Found {len(xml_files)} XML file(s) in {xml_dir}")
+
+    current_app = ambuda.create_app("development")
+    with current_app.app_context():
+        cache_dir = current_app.config.get("SERVER_FILE_CACHE")
+
+        success = 0
+        errors = []
+        for xml_path in xml_files:
+            slug = xml_path.stem
+            t0 = time.perf_counter()
+
+            try:
+                with Session(engine) as session:
+                    from sqlalchemy.orm import selectinload
+
+                    document = parse_document(xml_path)
+
+                    # Extract title from TEI header, fall back to slug
+                    title = slug
+                    if document.header:
+                        from xml.etree import ElementTree as _ET
+
+                        try:
+                            h = _ET.fromstring(document.header)
+                            title_el = h.find(
+                                ".//{http://www.tei-c.org/ns/1.0}title"
+                            ) or h.find(".//title")
+                            if title_el is not None and title_el.text:
+                                title = title_el.text.strip()
+                        except _ET.ParseError:
+                            pass
+
+                    existing = session.scalar(
+                        select(db.Text)
+                        .filter_by(slug=slug)
+                        .options(selectinload(db.Text.sections))
+                    )
+                    if existing:
+                        data_utils.update_text_from_document(
+                            session, existing, title, document
+                        )
+                    else:
+                        data_utils.create_text_from_document(
+                            session, slug, title, document
+                        )
+
+                write_cached_xml(cache_dir, slug, xml_path)
+                success += 1
+
+                elapsed = time.perf_counter() - t0
+                click.echo(f"  {slug}: {elapsed:.2f}s")
+            except Exception as e:
+                errors.append((slug, str(e)))
+                click.echo(f"  {slug}: ERROR - {e}")
+
+    click.echo(f"\nDone: {success} imported, {len(errors)} failed.")
+    for slug, err in errors:
+        click.echo(f"  FAILED {slug}: {err}")
 
 
 BHAGAVAD_GITA_VERSES = [
