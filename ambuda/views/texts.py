@@ -1,12 +1,10 @@
 """Views related to texts: title pages, sections, verses, etc."""
 
 import json
-import tempfile
 from pathlib import Path
 
 from flask import (
     Blueprint,
-    Response,
     abort,
     current_app,
     jsonify,
@@ -292,38 +290,6 @@ def download_file(filename):
                 return send_file(local_path, as_attachment=True, download_name=filename)
 
     abort(404)
-
-
-@bp.route("/<slug>/debug-text")
-def debug_text(slug):
-    """Show the plain-text export for a text, generated on the fly."""
-    from ambuda.utils.text_exports import (
-        cached_xml_path,
-        create_xml_file,
-        create_plain_text,
-    )
-
-    text_ = q.text(slug)
-    if text_ is None:
-        abort(404)
-
-    cache_dir = current_app.config.get("SERVER_FILE_CACHE")
-    cached = cached_xml_path(cache_dir, slug)
-
-    with tempfile.TemporaryDirectory() as tmp:
-        tmp_path = Path(tmp)
-        txt_path = tmp_path / f"{slug}.txt"
-
-        if cached:
-            xml_path = cached
-        else:
-            xml_path = tmp_path / f"{slug}.xml"
-            create_xml_file(text_, xml_path)
-
-        create_plain_text(text_, txt_path, xml_path)
-        content = txt_path.read_text(encoding="utf-8")
-
-    return Response(content, mimetype="text/plain")
 
 
 @bp.route("/<text_slug>/<section_slug>")
