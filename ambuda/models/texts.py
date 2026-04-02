@@ -52,6 +52,11 @@ class TextStatus(StrEnum):
     P2 = "p2"
 
 
+class TextStage(StrEnum):
+    STUB = "stub"
+    PUBLIC = "public"
+
+
 text_collection_association = Table(
     "text_collection_association",
     Base.metadata,
@@ -133,6 +138,10 @@ class Text(Base):
     config = Column(JSON, nullable=True)
     language: Mapped[str] = mapped_column(String, nullable=False, default="sa")
     status: Mapped[str | None] = mapped_column(String, nullable=True)
+    #: License for this text (e.g. "CC0 1.0").
+    license: Mapped[str | None] = mapped_column(String, nullable=True)
+    #: Publishing stage: "stub" (draft/unpublished) or "public" (published).
+    stage: Mapped[str] = mapped_column(String, nullable=False)
 
     #: Timestamp at which this text was created.
     #: Nullable for legacy reasons.

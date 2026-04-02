@@ -706,6 +706,7 @@ def texts():
     sort_field = request.args.get("sort", "title", type=str)
     sort_dir = request.args.get("sort_dir", "asc", type=str)
     unproofed_only = request.args.get("unproofed", "", type=str) == "1"
+    stage = request.args.get("stage", "", type=str).strip()
     project_id = request.args.get("project_id", 0, type=int)
     collection_id = request.args.get("collection_id", 0, type=int)
 
@@ -748,6 +749,8 @@ def texts():
         ]
         stmt = stmt.where(db.Text.id.in_(search_ids))
 
+    if stage in ("public", "stub"):
+        stmt = stmt.where(db.Text.stage == stage)
     if unproofed_only:
         stmt = stmt.where(db.Text.status == db.TextStatus.P0)
     if project_id:
@@ -771,6 +774,8 @@ def texts():
     count_stmt = select(func.count()).select_from(db.Text)
     if search_ids is not None:
         count_stmt = count_stmt.where(db.Text.id.in_(search_ids))
+    if stage in ("public", "stub"):
+        count_stmt = count_stmt.where(db.Text.stage == stage)
     if unproofed_only:
         count_stmt = count_stmt.where(db.Text.status == db.TextStatus.P0)
     if project_id:
@@ -820,6 +825,7 @@ def texts():
         sort_field=sort_field,
         sort_dir=sort_dir,
         unproofed_only=unproofed_only,
+        stage=stage,
         project_id=project_id,
         collection_id=collection_id,
     )
@@ -1016,16 +1022,6 @@ def batch_edit_collections():
             for coll in remove_collections:
                 if coll in text.collections:
                     text.collections.remove(coll)
-
-        # Sync text.collections → publish config.collections
-        for text in selected_texts:
-            configs = (
-                session.query(db.PublishConfig)
-                .filter(db.PublishConfig.text_id == text.id)
-                .all()
-            )
-            for pc in configs:
-                pc.collections = list(text.collections)
 
         session.commit()
         flash(f"Updated collections for {len(selected_texts)} text(s).", "success")

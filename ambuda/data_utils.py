@@ -29,7 +29,11 @@ def _batches(generator, n):
 
 
 def create_text_from_document(session: Session, slug: str, title: str, document):
-    text = db.Text(slug=slug, title=title, header=document.header)
+    from ambuda.models.texts import TextStage
+
+    text = db.Text(
+        slug=slug, title=title, header=document.header, stage=TextStage.PUBLIC
+    )
     session.add(text)
     session.flush()
 
@@ -246,6 +250,9 @@ def import_text_metadata(
             else:
                 author_map[entry.author.slug].name = entry.author.name
             text.author = author_map[entry.author.slug]
+
+        if entry.license is not None:
+            text.license = entry.license
 
         # Sync collection associations.
         collections = []

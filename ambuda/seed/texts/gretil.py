@@ -64,7 +64,11 @@ def fetch_latest_data():
 
 
 def _create_new_text(session, spec: Spec, document: Document):
-    text = db.Text(slug=spec.slug, title=spec.title, header=document.header)
+    from ambuda.models.texts import TextStage
+
+    text = db.Text(
+        slug=spec.slug, title=spec.title, header=document.header, stage=TextStage.PUBLIC
+    )
     session.add(text)
     session.flush()
 

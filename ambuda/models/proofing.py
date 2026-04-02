@@ -93,28 +93,12 @@ _LANGUAGE_LABELS: dict[str, str] = {
 }
 
 
-publish_config_collection_association = Table(
-    "publish_config_collection_association",
-    Base.metadata,
-    Column(
-        "publish_config_id",
-        Integer,
-        ForeignKey("publish_configs.id", ondelete="CASCADE"),
-        primary_key=True,
-    ),
-    Column(
-        "collection_id",
-        Integer,
-        ForeignKey("text_collections.id", ondelete="CASCADE"),
-        primary_key=True,
-    ),
-)
-
-
 class PublishConfig(Base):
     """A publish configuration for a proofing project.
 
     Each config describes how to publish one text from a project's pages.
+    Metadata (slug, title, author, language, collections) lives on the
+    linked Text, which is created as a stub when the config is first saved.
     """
 
     __tablename__ = "publish_configs"
@@ -122,23 +106,13 @@ class PublishConfig(Base):
     id = pk()
     project_id = foreign_key("proof_projects.id")
     text_id = Column(
-        Integer, ForeignKey("texts.id", ondelete="SET NULL"), nullable=True, index=True
+        Integer, ForeignKey("texts.id", ondelete="CASCADE"), nullable=False, index=True
     )
     order = Column(Integer, nullable=False)
-
-    slug: Mapped[str] = mapped_column(String, nullable=False)
-    title: Mapped[str] = mapped_column(String, nullable=False)
     target: Mapped[str | None] = mapped_column(String, nullable=True)
-    author: Mapped[str | None] = mapped_column(String, nullable=True)
-    language: Mapped[str] = mapped_column(String, nullable=False, default="sa")
-    parent_slug: Mapped[str | None] = mapped_column(String, nullable=True)
 
     project = relationship("Project", backref="publish_configs")
     text = relationship("Text")
-    collections = relationship(
-        "TextCollection",
-        secondary=publish_config_collection_association,
-    )
 
 
 class ProjectStatus(StrEnum):

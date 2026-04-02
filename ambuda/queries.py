@@ -80,9 +80,15 @@ class Query:
         self.session = session or get_session()
 
     def texts(self) -> list[db.Text]:
-        stmt = select(db.Text).options(
-            selectinload(db.Text.collections),
-            selectinload(db.Text.alternate_titles),
+        from ambuda.models.texts import TextStage
+
+        stmt = (
+            select(db.Text)
+            .where(db.Text.stage == TextStage.PUBLIC)
+            .options(
+                selectinload(db.Text.collections),
+                selectinload(db.Text.alternate_titles),
+            )
         )
         return list(self.session.scalars(stmt).all())
 
@@ -90,9 +96,11 @@ class Query:
         return list(self.session.scalars(select(db.PageStatus)).all())
 
     def text(self, slug: str) -> db.Text | None:
+        from ambuda.models.texts import TextStage
+
         stmt = (
             select(db.Text)
-            .filter_by(slug=slug)
+            .where(db.Text.slug == slug, db.Text.stage == TextStage.PUBLIC)
             .options(
                 selectinload(db.Text.sections).load_only(
                     db.TextSection.slug,
@@ -104,11 +112,11 @@ class Query:
         return self.session.scalars(stmt).first()
 
     def text_meta(self, slug: str) -> db.Text | None:
-        # TODO: is this method even useful? Is there a performance penalty for
-        # using just `text`?
+        from ambuda.models.texts import TextStage
+
         stmt = (
             select(db.Text)
-            .filter_by(slug=slug)
+            .where(db.Text.slug == slug, db.Text.stage == TextStage.PUBLIC)
             .options(
                 load_only(
                     db.Text.id,
@@ -425,11 +433,16 @@ class Query:
         return self.session.scalars(stmt).first()
 
     def collection_texts(self, collection: db.TextCollection) -> list[db.Text]:
+        from ambuda.models.texts import TextStage
+
         descendant_ids = all_descendant_ids(collection.id, self.all_collections())
         stmt = (
             select(db.Text)
             .join(db.text_collection_association)
-            .filter(db.text_collection_association.c.collection_id.in_(descendant_ids))
+            .where(
+                db.text_collection_association.c.collection_id.in_(descendant_ids),
+                db.Text.stage == TextStage.PUBLIC,
+            )
             .order_by(db.Text.title)
         )
         return list(self.session.scalars(stmt).all())

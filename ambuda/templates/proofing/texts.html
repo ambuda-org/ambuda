@@ -94,6 +94,20 @@
 
       <div>
         <div class="flex items-center justify-between mb-1.5">
+          <label class="block text-xs font-medium text-slate-500 uppercase tracking-wide">{{ _('Stage') }}</label>
+          <button type="button" data-clear-select="stage"
+                  class="text-xs text-slate-400 hover:text-slate-600 transition {% if not stage %}hidden{% endif %}">{{ _('Clear') }}</button>
+        </div>
+        <select name="stage"
+                class="w-full bg-slate-50 border border-slate-200 px-2 py-1.5 rounded-md text-sm focus:border-sky-400 focus:ring-1 focus:ring-sky-400 outline-none transition">
+          <option value="">{{ _('All') }}</option>
+          <option value="public" {% if stage == 'public' %}selected{% endif %}>{{ _('Public') }}</option>
+          <option value="stub" {% if stage == 'stub' %}selected{% endif %}>{{ _('Stub') }}</option>
+        </select>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
           <label class="block text-xs font-medium text-slate-500 uppercase tracking-wide">{{ _('Status') }}</label>
           <button type="button" data-clear="unproofed"
                   class="text-xs text-slate-400 hover:text-slate-600 transition {% if not unproofed_only %}hidden{% endif %}">{{ _('Clear') }}</button>
@@ -290,6 +304,11 @@
       var any = form.querySelector('input[name="' + btn.dataset.clear + '"]:checked');
       btn.classList.toggle('hidden', !any);
     });
+    // Select clear buttons.
+    form.querySelectorAll('button[data-clear-select]').forEach(function(btn) {
+      var sel = form.querySelector('select[name="' + btn.dataset.clearSelect + '"]');
+      btn.classList.toggle('hidden', !sel || !sel.value);
+    });
   }
 
   // Selects and checkboxes: immediate fetch (event delegation).
@@ -351,6 +370,16 @@
     btn.addEventListener('click', function() {
       var name = btn.dataset.clear;
       form.querySelectorAll('input[name="' + name + '"]').forEach(function(cb) { cb.checked = false; });
+      btn.classList.add('hidden');
+      doFetch();
+    });
+  });
+
+  // Clear select buttons.
+  form.querySelectorAll('button[data-clear-select]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var sel = form.querySelector('select[name="' + btn.dataset.clearSelect + '"]');
+      if (sel) sel.value = '';
       btn.classList.add('hidden');
       doFetch();
     });

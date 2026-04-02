@@ -956,16 +956,17 @@ def _rewrite_project_to_tei_xml(
 
 
 def _write_tei_header(xf, project: db.Project, config: db.PublishConfig):
+    text = config.text
     with xf.element("teiHeader"):
         with xf.element("fileDesc"):
             with xf.element("titleStmt"):
                 with xf.element("title", {"type": "main"}):
-                    xf.write(config.title)
+                    xf.write(text.title)
                 with xf.element("title", {"type": "sub"}):
                     xf.write("A machine-readable edition")
-                if config.author:
+                if text.author:
                     with xf.element("author"):
-                        xf.write(config.author)
+                        xf.write(text.author.name)
                 with xf.element("principal"):
                     xf.write("Arun Prasad")
                 with xf.element("respStmt"):
@@ -1080,7 +1081,7 @@ def create_tei_document(
             _write_tei_header(xf, project, config)
 
             with xf.element(
-                "text", {"xml:id": config.slug, "xml:lang": config.language}
+                "text", {"xml:id": config.text.slug, "xml:lang": config.text.language}
             ):
                 with xf.element("body"):
                     items = conversion.items

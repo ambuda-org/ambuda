@@ -1,0 +1,133 @@
+{# Reusable field renderer for publish config entries.
+   Expects `field` and `entry` to be in scope (from x-for / Alpine). #}
+
+{# Field label with optional action buttons #}
+<label class="flex items-center text-sm font-medium text-slate-700 mb-1">
+  <span x-text="field.label"></span>
+  <span x-show="field.required" class="text-red-500">*</span>
+
+  <template x-if="field.name === 'author'">
+    <button type="button"
+            @click.stop="newAuthorOpen = !newAuthorOpen; newAuthorName = ''"
+            class="ml-1 inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded text-green-600 hover:bg-green-100"
+            title="{{ _('Add new author') }}">+</button>
+  </template>
+
+  <template x-if="field.name === 'target'">
+    <span class="relative inline-block ml-1" @click.stop>
+      <button type="button" @click="filterHelpOpen = !filterHelpOpen"
+              class="inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold border border-slate-400 rounded-full text-slate-500 hover:bg-slate-200"
+              title="{{ _('Filter syntax help') }}">i</button>
+      <div x-show="filterHelpOpen" @click.away="filterHelpOpen = false"
+           class="absolute left-0 mt-1 bg-white border border-slate-300 rounded shadow-lg z-20 w-80 p-3 text-xs">
+        <h4 class="font-semibold mb-2">{{ _('Filter syntax') }}</h4>
+        <p class="text-slate-600 mb-2">Selects which blocks to include using S-expression syntax.</p>
+        <div class="space-y-1 mb-3 text-slate-700">
+          <div><code class="bg-slate-200 px-1 rounded">(image 1 10)</code> - pages 1 through 10</div>
+          <div><code class="bg-slate-200 px-1 rounded">(image 5)</code> - page 5 only</div>
+          <div><code class="bg-slate-200 px-1 rounded">(page 1 10)</code> - alias for image</div>
+          <div><code class="bg-slate-200 px-1 rounded">(label foo)</code> - blocks with label "foo"</div>
+          <div><code class="bg-slate-200 px-1 rounded">(tag verse)</code> - blocks of type verse</div>
+          <div><code class="bg-slate-200 px-1 rounded">(tag p)</code> - blocks of type p</div>
+        </div>
+        <h4 class="font-semibold mb-2">{{ _('Combining conditions') }}</h4>
+        <div class="space-y-1 text-slate-700">
+          <div><code class="bg-slate-200 px-1 rounded">(and (page 5 10) (tag verse))</code> - AND</div>
+          <div><code class="bg-slate-200 px-1 rounded">(or (tag p) (tag verse))</code> - OR</div>
+          <div><code class="bg-slate-200 px-1 rounded">(not (tag ignore))</code> - NOT</div>
+        </div>
+        <p class="text-slate-500 mt-2">Leave empty to include all blocks.</p>
+      </div>
+    </span>
+  </template>
+</label>
+
+{# --- Field inputs --- #}
+
+<template x-if="field.name === 'author'">
+  <div>
+    <div class="relative" @click.away="pickers.author.close(entry)">
+      <input type="text"
+             :value="pickers.author.displayValue(entry)"
+             @focus="pickers.author.open(entry)"
+             @input="pickers.author.search(entry, $event.target.value)"
+             @keydown="pickers.author.keydown(entry, $event)"
+             :placeholder="field.placeholder"
+             class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+      <div x-show="entry._author_open" class="absolute z-20 mt-1 w-full bg-white border border-slate-300 rounded shadow-lg max-h-48 overflow-y-auto">
+        <template x-for="(name, i) in pickers.author.filtered(entry)" :key="name">
+          <button type="button" @click="pickers.author.select(entry, name)"
+                  :class="i === (entry._author_sel || 0) ? 'bg-blue-100' : 'hover:bg-slate-50'"
+                  class="block w-full text-left px-3 py-1.5 text-sm" x-text="name"></button>
+        </template>
+        <div x-show="pickers.author.filtered(entry).length === 0" class="px-3 py-2 text-sm text-slate-400">No matches</div>
+      </div>
+    </div>
+    <div x-show="newAuthorOpen" class="mt-2 flex items-center gap-2">
+      <input type="text" x-model="newAuthorName"
+             @keydown.enter.prevent="addAuthor()" @keydown.escape.prevent="newAuthorOpen = false"
+             placeholder="New author name"
+             class="flex-1 border border-slate-300 rounded px-3 py-1.5 text-sm">
+      <button type="button" @click="addAuthor()" class="btn btn-basic text-xs">Add</button>
+      <button type="button" @click="newAuthorOpen = false" class="text-slate-400 hover:text-slate-600 text-xs">Cancel</button>
+    </div>
+  </div>
+</template>
+
+<template x-if="field.name === 'language'">
+  <div class="relative" @click.away="pickers.lang.close(entry)">
+    <input type="text"
+           :value="pickers.lang.displayValue(entry)"
+           @focus="pickers.lang.open(entry)"
+           @input="pickers.lang.search(entry, $event.target.value)"
+           @keydown="pickers.lang.keydown(entry, $event)"
+           :placeholder="field.placeholder"
+           class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+    <div x-show="entry._lang_open" class="absolute z-20 mt-1 w-full bg-white border border-slate-300 rounded shadow-lg max-h-48 overflow-y-auto">
+      <template x-for="(opt, i) in pickers.lang.filtered(entry)" :key="opt.code">
+        <button type="button" @click="pickers.lang.select(entry, opt)"
+                :class="i === (entry._lang_sel || 0) ? 'bg-blue-100' : 'hover:bg-slate-50'"
+                class="block w-full text-left px-3 py-1.5 text-sm">
+          <span x-text="opt.label"></span>
+          <span class="text-slate-400 ml-1" x-text="'(' + opt.code + ')'"></span>
+        </button>
+      </template>
+      <div x-show="pickers.lang.filtered(entry).length === 0" class="px-3 py-2 text-sm text-slate-400">No matches</div>
+    </div>
+  </div>
+</template>
+
+<template x-if="field.type === 'string' && !field.enum && field.name !== 'author' && field.name !== 'language'">
+  <div>
+    <input type="text" x-model="entry[field.name]"
+           :required="field.required" :placeholder="field.placeholder"
+           @input="field.name === 'title' ? onTitleInput(entry) : (field.name === 'slug' ? onSlugInput(entry) : null)"
+           class="w-full border border-slate-300 rounded px-3 py-2 text-sm"
+           :class="field.name === 'slug' && isDuplicateSlug(entry) ? 'border-red-400' : ''">
+    <p x-show="field.name === 'slug' && isDuplicateSlug(entry)"
+       class="text-xs text-red-600 mt-1">This slug is already used by another config in this project.</p>
+  </div>
+</template>
+
+<template x-if="field.type === 'string' && field.enum && field.name !== 'language'">
+  <select x-model="entry[field.name]" :required="field.required"
+          class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+    <option value="">-- Select --</option>
+    <template x-for="option in field.enum" :key="option">
+      <option :value="option" x-text="option"></option>
+    </template>
+  </select>
+</template>
+
+<template x-if="field.type === 'number' || field.type === 'integer'">
+  <input type="number" x-model="entry[field.name]"
+         :required="field.required" :placeholder="field.placeholder"
+         class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+</template>
+
+<template x-if="field.type === 'boolean'">
+  <input type="checkbox" x-model="entry[field.name]"
+         class="w-4 h-4 border border-slate-300 rounded">
+</template>
+
+<p x-show="field.description" x-text="field.description" class="text-xs text-slate-500 mt-1"></p>

@@ -66,8 +66,7 @@ def _update_fk_ondelete(conn, table_name, column_name, ondelete, ref_table):
     if count == 0:
         # Column exists but has no FK — add an out-of-line constraint.
         fk_clause = (
-            f', FOREIGN KEY("{column_name}") '
-            f'REFERENCES "{ref_table}" ("id"){suffix}'
+            f', FOREIGN KEY("{column_name}") REFERENCES "{ref_table}" ("id"){suffix}'
         )
         # Insert before the final closing paren of CREATE TABLE.
         new_sql = re.sub(r"\s*\)\s*$", fk_clause + "\n)", create_sql)

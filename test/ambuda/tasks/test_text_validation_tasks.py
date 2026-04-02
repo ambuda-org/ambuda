@@ -53,7 +53,7 @@ def test_run_report_inner_clears_lock(flask_app):
     """run_report_inner clears the Redis lock after committing."""
     with flask_app.app_context():
         session = get_session()
-        text = db.Text(slug="test-lock-clear", title="Test Lock Clear")
+        text = db.Text(slug="test-lock-clear", title="Test Lock Clear", stage="public")
         session.add(text)
         session.flush()
 

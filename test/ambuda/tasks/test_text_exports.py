@@ -21,7 +21,7 @@ def _create_sample_text(session) -> db.Text:
     _counter += 1
     slug = f"test-text-{_counter}"
     title = f"Test Text {_counter}"
-    text = db.Text(slug=slug, title=title)
+    text = db.Text(slug=slug, title=title, stage="public")
     session.add(text)
     session.flush()
 

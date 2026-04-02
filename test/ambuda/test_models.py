@@ -12,19 +12,19 @@ def _cleanup(session, *objects):
 
 
 def test_text__str(client):
-    t = db.Text(slug="test-slug", title="Test title")
+    t = db.Text(slug="test-slug", title="Test title", stage="public")
     assert str(t) == "test-slug"
 
 
 @pytest.mark.parametrize("slug", ["catalog", "downloads", "foo.bar"])
 def test_text__invalid_slug(client, slug):
     with pytest.raises(ValueError):
-        db.Text(slug=slug, title="Test")
+        db.Text(slug=slug, title="Test", stage="public")
 
 
 @pytest.mark.parametrize("slug", ["ramayana", "gita", "test-text"])
 def test_text__valid_slug(client, slug):
-    t = db.Text(slug=slug, title="Test")
+    t = db.Text(slug=slug, title="Test", stage="public")
     assert t.slug == slug
 
 

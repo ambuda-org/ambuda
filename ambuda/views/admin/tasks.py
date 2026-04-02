@@ -507,10 +507,16 @@ def export_projects(model_name, selected_ids: list | None = None):
 
             project_dict["pages"].append(page_dict)
 
-        project_dict["publish_configs"] = [
-            serialize(pc, exclude={"id", "project_id", "text_id"})
-            for pc in project.publish_configs
-        ]
+        project_dict["publish_configs"] = []
+        for pc in project.publish_configs:
+            pc_dict = serialize(pc, exclude={"id", "project_id", "text_id"})
+            if pc.text:
+                pc_dict["slug"] = pc.text.slug
+                pc_dict["title"] = pc.text.title
+                pc_dict["author"] = pc.text.author.name if pc.text.author else None
+                pc_dict["language"] = pc.text.language
+                pc_dict["parent_slug"] = pc.text.parent.slug if pc.text.parent else None
+            project_dict["publish_configs"].append(pc_dict)
 
         export_data["projects"].append(project_dict)
 
@@ -603,7 +609,50 @@ def import_projects(model_name, selected_ids: list | None = None):
                     session.add(revision)
 
             for pc_data in publish_configs_data:
+                from ambuda.models.texts import TextStage
+
+                pc_slug = pc_data.pop("slug", None)
+                pc_title = pc_data.pop("title", pc_slug or "Untitled")
+                pc_author_name = pc_data.pop("author", None)
+                pc_language = pc_data.pop("language", "sa")
+                pc_parent_slug = pc_data.pop("parent_slug", None)
+
+                # Find or create a stub text for this config.
+                effective_slug = pc_slug or f"{project.slug}-{pc_data.get('order', 0)}"
+                stub = session.execute(
+                    select(db.Text).where(db.Text.slug == effective_slug)
+                ).scalar_one_or_none()
+                if not stub:
+                    stub = db.Text(
+                        slug=effective_slug,
+                        title=pc_title,
+                        language=pc_language or "sa",
+                        stage=TextStage.STUB,
+                        project_id=project.id,
+                    )
+                    session.add(stub)
+                    session.flush()
+                else:
+                    stub.title = pc_title
+                    stub.language = pc_language or "sa"
+                    stub.project_id = project.id
+
+                if pc_author_name:
+                    from ambuda.utils.slug import title_to_slug
+
+                    author = session.execute(
+                        select(db.Author).where(db.Author.name == pc_author_name)
+                    ).scalar_one_or_none()
+                    if not author:
+                        author = db.Author(
+                            name=pc_author_name, slug=title_to_slug(pc_author_name)
+                        )
+                        session.add(author)
+                        session.flush()
+                    stub.author_id = author.id
+
                 pc_data["project_id"] = project.id
+                pc_data["text_id"] = stub.id
                 pc = deserialize(pc_data, db.PublishConfig)
                 session.add(pc)
 

@@ -73,6 +73,7 @@ def test_import_metadata__success(admin_client):
             {
                 "slug": text.slug,
                 "title": "Updated Title",
+                "license": "CC0 1.0",
             }
         ],
     }
@@ -90,12 +91,15 @@ def test_import_metadata__success(admin_client):
             follow_redirects=True,
         )
 
-        resp = admin_client.get(f"/admin/Text/{text_id}/edit")
-        assert b"Updated Title" in resp.data
+        session = get_session()
+        text = session.get(db.Text, text_id)
+        assert text.title == "Updated Title"
+        assert text.license == "CC0 1.0"
     finally:
         text = session.get(db.Text, text_id)
         text.title = original_title
         text.header = original_header
+        text.license = None
         session.commit()
 
 
@@ -329,13 +333,24 @@ def test_import_projects_and_export_projects(admin_client):
     session.add(export_page)
     session.flush()
 
-    publish_config = db.PublishConfig(
-        project_id=export_project.id,
-        order=0,
+    pc_text = db.Text(
         slug="test-roundtrip-project",
         title="Test Roundtrip Title",
-        author="Test PC Author",
         language="sa",
+        stage="stub",
+    )
+    session.add(pc_text)
+    session.flush()
+
+    pc_author = db.Author(slug="test-pc-author", name="Test PC Author")
+    session.add(pc_author)
+    session.flush()
+    pc_text.author_id = pc_author.id
+
+    publish_config = db.PublishConfig(
+        project_id=export_project.id,
+        text_id=pc_text.id,
+        order=0,
     )
     session.add(publish_config)
 
@@ -434,14 +449,9 @@ def test_import_projects_and_export_projects(admin_client):
         {
             "id": Any,
             "project_id": imported_project.id,
-            "text_id": None,
+            "text_id": Any,
             "order": 0,
-            "slug": "test-roundtrip-project",
-            "title": "Test Roundtrip Title",
             "target": None,
-            "author": "Test PC Author",
-            "language": "sa",
-            "parent_slug": None,
         },
     )
 

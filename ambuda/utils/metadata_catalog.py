@@ -62,6 +62,7 @@ class TextMetadataEntry(BaseModel):
     parent_slug: str | None = None
     author: AuthorMetadataEntry | None = None
     source: SourceMetadataEntry | None = None
+    license: str | None = None
     collections: list[str] = []
     urls: TextUrlsEntry | None = None
 
@@ -141,6 +142,7 @@ def text_to_metadata(
         parent_slug=t.parent.slug if t.parent else None,
         author=author,
         source=_parse_source(t.header),
+        license=t.license,
         collections=[c.slug for c in t.collections],
         urls=urls,
     )

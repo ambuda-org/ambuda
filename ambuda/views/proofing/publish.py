@@ -36,7 +36,7 @@ from ambuda.models.proofing import (
     ProjectStatus,
     PublishConfig,
 )
-from ambuda.models.texts import TextStatus
+from ambuda.models.texts import TextStage, TextStatus
 from ambuda.tasks.text_exports import upload_xml_export
 from ambuda.utils import project_utils
 from ambuda.utils.text_exports import read_cached_xml
@@ -62,9 +62,11 @@ def _resolve_publish_config(
 
     session = q.get_session()
     pc = session.execute(
-        sqla.select(PublishConfig).where(
+        sqla.select(PublishConfig)
+        .join(db.Text, PublishConfig.text_id == db.Text.id)
+        .where(
             PublishConfig.project_id == project_.id,
-            PublishConfig.slug == text_slug,
+            db.Text.slug == text_slug,
         )
     ).scalar_one_or_none()
 
@@ -367,8 +369,9 @@ def config(slug):
                 )
                 return redirect(url_for("proofing.publish.config", slug=slug))
 
-        old_slugs = {
-            c.slug
+        # Collect slugs owned by this project's existing configs.
+        old_text_ids = {
+            c.text_id
             for c in session.execute(
                 sqla.select(PublishConfig).where(
                     PublishConfig.project_id == project_.id
@@ -377,10 +380,23 @@ def config(slug):
             .scalars()
             .all()
         }
+        old_texts = {}
+        if old_text_ids:
+            for t in (
+                session.execute(
+                    sqla.select(db.Text).where(db.Text.id.in_(old_text_ids))
+                )
+                .scalars()
+                .all()
+            ):
+                old_texts[t.slug] = t
 
+        new_slugs = {pc.get("slug", "") for pc in new_configs}
+
+        # Validate: new slugs must not conflict with texts outside this project.
         for pc in new_configs:
             pc_slug = pc.get("slug", "")
-            if pc_slug not in old_slugs:
+            if pc_slug not in old_texts:
                 existing_text = session.execute(
                     sqla.select(db.Text).where(db.Text.slug == pc_slug)
                 ).scalar_one_or_none()
@@ -392,30 +408,72 @@ def config(slug):
                     )
                     return default()
 
-        # Delete old configs and insert new ones
+        # Validate parent_slug references.
+        for pc in new_configs:
+            parent_slug = pc.get("parent_slug") or ""
+            if parent_slug:
+                # Parent must exist as a text (stub or public) or be in this batch.
+                if parent_slug not in new_slugs:
+                    parent_text = session.execute(
+                        sqla.select(db.Text).where(db.Text.slug == parent_slug)
+                    ).scalar_one_or_none()
+                    if not parent_text:
+                        flash(
+                            f"Parent slug '{parent_slug}' does not exist.",
+                            "error",
+                        )
+                        return default()
+
+        # Delete old configs (texts are kept).
         session.execute(
             sqla.delete(PublishConfig).where(PublishConfig.project_id == project_.id)
         )
-        for order, pc in enumerate(new_configs):
-            # Look up text_id if a text with this slug exists
-            text_row = session.execute(
-                sqla.select(db.Text).where(db.Text.slug == pc.get("slug", ""))
-            ).scalar_one_or_none()
-            new_pc = PublishConfig(
-                project_id=project_.id,
-                text_id=text_row.id if text_row else None,
-                order=order,
-                slug=pc.get("slug", ""),
-                title=pc.get("title", ""),
-                target=pc.get("target") or None,
-                author=pc.get("author") or None,
-                language=pc.get("language", "sa") or "sa",
-                parent_slug=pc.get("parent_slug") or None,
-            )
-            session.add(new_pc)
-            session.flush()
 
-            # Set collections on the new config
+        # Create/update stub texts and new configs.
+        for order, pc in enumerate(new_configs):
+            pc_slug = pc.get("slug", "")
+            pc_title = pc.get("title", "")
+            pc_language = pc.get("language", "sa") or "sa"
+            pc_author_name = pc.get("author") or None
+
+            # Get or create the Text.
+            text = old_texts.get(pc_slug)
+            if not text:
+                text = session.execute(
+                    sqla.select(db.Text).where(db.Text.slug == pc_slug)
+                ).scalar_one_or_none()
+            if not text:
+                text = db.Text(
+                    slug=pc_slug,
+                    title=pc_title,
+                    language=pc_language,
+                    stage=TextStage.STUB,
+                    project_id=project_.id,
+                )
+                session.add(text)
+                session.flush()
+
+            # Update text metadata.
+            text.title = pc_title
+            text.language = pc_language
+            text.project_id = project_.id
+
+            # Sync author.
+            if pc_author_name:
+                author = session.execute(
+                    sqla.select(db.Author).where(db.Author.name == pc_author_name)
+                ).scalar_one_or_none()
+                if not author:
+                    author = db.Author(
+                        name=pc_author_name, slug=title_to_slug(pc_author_name)
+                    )
+                    session.add(author)
+                    session.flush()
+                text.author_id = author.id
+            else:
+                text.author_id = None
+
+            # Sync collections on the text.
             collection_ids = pc.get("collection_ids") or []
             if collection_ids:
                 colls = (
@@ -427,7 +485,43 @@ def config(slug):
                     .scalars()
                     .all()
                 )
-                new_pc.collections = list(colls)
+                text.collections = list(colls)
+            else:
+                text.collections = []
+
+            new_pc = PublishConfig(
+                project_id=project_.id,
+                text_id=text.id,
+                order=order,
+                target=pc.get("target") or None,
+            )
+            session.add(new_pc)
+            session.flush()
+
+        # Resolve parent_slug → parent_id.
+        for pc in new_configs:
+            parent_slug = pc.get("parent_slug") or ""
+            if parent_slug:
+                text = session.execute(
+                    sqla.select(db.Text).where(db.Text.slug == pc.get("slug", ""))
+                ).scalar_one()
+                parent_text = session.execute(
+                    sqla.select(db.Text).where(db.Text.slug == parent_slug)
+                ).scalar_one_or_none()
+                if parent_text:
+                    text.parent_id = parent_text.id
+            else:
+                text = session.execute(
+                    sqla.select(db.Text).where(db.Text.slug == pc.get("slug", ""))
+                ).scalar_one()
+                text.parent_id = None
+
+        # Delete orphaned stub texts that were removed from the config.
+        orphan_slugs = set(old_texts.keys()) - new_slugs
+        for orphan_slug in orphan_slugs:
+            orphan = old_texts[orphan_slug]
+            if orphan.stage == TextStage.STUB:
+                session.delete(orphan)
 
         session.commit()
         flash("Configuration saved successfully.", "success")
@@ -439,7 +533,10 @@ def config(slug):
             sqla.select(PublishConfig)
             .where(PublishConfig.project_id == project_.id)
             .order_by(PublishConfig.order)
-            .options(selectinload(PublishConfig.collections))
+            .options(
+                selectinload(PublishConfig.text).selectinload(db.Text.collections),
+                selectinload(PublishConfig.text).selectinload(db.Text.author),
+            )
         )
         .scalars()
         .all()
@@ -447,14 +544,14 @@ def config(slug):
 
     publish_config = [
         {
-            "slug": c.slug,
-            "title": c.title,
+            "slug": c.text.slug,
+            "title": c.text.title,
             "target": c.target or "",
-            "author": c.author or "",
-            "language": c.language or "sa",
-            "parent_slug": c.parent_slug or "",
-            "collection_ids": [coll.id for coll in c.collections],
-            "_published": c.text_id is not None,
+            "author": c.text.author.name if c.text.author else "",
+            "language": c.text.language or "sa",
+            "parent_slug": c.text.parent.slug if c.text.parent else "",
+            "collection_ids": [coll.id for coll in c.text.collections],
+            "_published": c.text.stage == TextStage.PUBLIC,
         }
         for c in configs
     ]
@@ -505,10 +602,7 @@ def preview(project_slug, text_slug):
     if not project_.page_numbers:
         warnings.append("No page numbers defined for this project.")
 
-    session = q.get_session()
-    existing_text = session.execute(
-        sqla.select(db.Text).where(db.Text.slug == text_slug)
-    ).scalar_one_or_none()
+    text = config.text
 
     # Generate new TEI and extract header + sections
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -527,9 +621,9 @@ def preview(project_slug, text_slug):
 
     # Read old TEI from local file cache for diffing
     old_xml = ""
-    if existing_text:
+    if text.stage == TextStage.PUBLIC:
         cache_dir = current_app.config.get("SERVER_FILE_CACHE")
-        raw_xml = read_cached_xml(cache_dir, config.slug)
+        raw_xml = read_cached_xml(cache_dir, text.slug)
         if raw_xml:
             try:
                 old_root = etree.fromstring(raw_xml.encode())
@@ -548,10 +642,10 @@ def preview(project_slug, text_slug):
     diff_lines = _build_diff_lines(old_xml, new_xml)
 
     preview_data = {
-        "slug": config.slug,
-        "title": config.title,
+        "slug": text.slug,
+        "title": text.title,
         "target": config.target,
-        "is_new": existing_text is None,
+        "is_new": text.stage == TextStage.STUB,
         "diff_lines": diff_lines,
     }
 
@@ -597,41 +691,17 @@ def create(project_slug, text_slug):
 
     task_dispatched = False
     try:
-        # Create/update `text`
-        text = q.text(config.slug)
-        is_new_text = False
-        if not text:
-            text = db.Text(
-                slug=config.slug,
-                title=config.title,
-                published_at=datetime.now(UTC),
-                project_id=project_.id,
-            )
-            session.add(text)
-            session.flush()
-            is_new_text = True
+        # The text already exists (as a stub or previously published).
+        text = config.text
+        is_new_text = text.stage == TextStage.STUB
+
         text.header = header
         text.project_id = project_.id
-        text.language = config.language
-        text.title = config.title
 
-        # Link the publish config back to the text
-        config.text_id = text.id
-
-        # Set author, and create it as needed.
-        if config.author:
-            author = session.execute(
-                sqla.select(db.Author).where(db.Author.name == config.author)
-            ).scalar_one_or_none()
-            if not author:
-                author = db.Author(
-                    name=config.author, slug=title_to_slug(config.author)
-                )
-                session.add(author)
-                session.flush()
-            text.author_id = author.id
-        else:
-            text.author_id = None
+        # Promote stub → public on first publish.
+        if text.stage == TextStage.STUB:
+            text.stage = TextStage.PUBLIC
+            text.published_at = datetime.now(UTC)
 
         # Set an overall quality score for the text based on the quality of its source pages.
         #
@@ -738,7 +808,7 @@ def create(project_slug, text_slug):
                 )
                 session.add(new_block)
 
-        texts_map[config.slug] = text
+        texts_map[text.slug] = text
         if is_new_text:
             created_count += 1
         else:
@@ -746,20 +816,10 @@ def create(project_slug, text_slug):
 
         session.flush()
 
-        # Special logic for translations and commentaries
-        if config.parent_slug:
-            text = texts_map[config.slug]
-            parent_text = texts_map.get(config.parent_slug) or q.text(
-                config.parent_slug
-            )
-            if parent_text:
-                text.parent_id = parent_text.id
-        session.flush()
-        if config.parent_slug:
-            text = texts_map[config.slug]
-            parent_text = texts_map.get(config.parent_slug) or q.text(
-                config.parent_slug
-            )
+        # Special logic for translations and commentaries: align child blocks
+        # to parent blocks. Parent_id is already set at config save time.
+        if text.parent_id:
+            parent_text = session.get(db.Text, text.parent_id)
             if parent_text:
                 parent_blocks = (
                     session.execute(
@@ -800,16 +860,13 @@ def create(project_slug, text_slug):
                             )
                         )
 
-        # Sync collections from publish config to text
-        text.collections = list(config.collections)
-
         session.commit()
 
         # Upload the XML of this file to S3.
         upload_xml_export.apply_async(
             args=(
                 text.id,
-                config.slug,
+                text.slug,
                 str(tei_path),
                 current_app.config["AMBUDA_ENVIRONMENT"],
             ),

@@ -23,6 +23,7 @@ def _make_text(
     config=None,
     language="sa",
     status="published",
+    license=None,
     genre_name=None,
     collection_slugs=None,
     author_slug=None,
@@ -36,6 +37,7 @@ def _make_text(
     text.config = json.dumps(config) if config else None
     text.language = language
     text.status = status
+    text.license = license
     text.created_at = datetime(2025, 1, 1, tzinfo=UTC)
     text.updated_at = datetime(2025, 6, 1, tzinfo=UTC)
     text.parent = None
@@ -93,6 +95,8 @@ class Mocks:
 
             if model is db.Text:
                 q.all.return_value = texts
+                # Support .filter_by(stage=...).all()
+                q.filter_by.return_value = q
 
             def fake_filter(*args, **kwargs):
                 fq = MagicMock()

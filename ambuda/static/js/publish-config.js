@@ -175,6 +175,7 @@ export default () => ({
 
     const fieldOrder = ['title', 'slug', 'target', 'author', 'language', 'parent_slug'];
     const labels = { target: 'Filter' };
+    const configFields = new Set(['target']);
 
     this.fields = fieldOrder
       .filter((name) => properties[name])
@@ -202,6 +203,7 @@ export default () => ({
           enum: enumValues,
           placeholder: meta.placeholder || '',
           description: prop.description || meta.description || '',
+          group: configFields.has(name) ? 'config' : 'text',
         };
       });
   },

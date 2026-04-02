@@ -401,7 +401,9 @@ def create_text_archive_inner(app_environment, engine=None):
     tei_headers_config = _get_bulk_export_config(BulkExportType.TEI_HEADERS)
 
     with get_db_session(app_environment, engine=engine) as (session, q, config_obj):
-        texts = session.query(db.Text).all()
+        from ambuda.models.texts import TextStage
+
+        texts = session.query(db.Text).filter_by(stage=TextStage.PUBLIC).all()
 
         if not texts:
             logging.warning("No texts found for archive")

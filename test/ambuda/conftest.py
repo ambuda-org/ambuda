@@ -42,7 +42,9 @@ def initialize_test_db():
     session = get_session()
 
     # Text and parse data
-    text = db.Text(slug="pariksha", title="parIkSA")
+    from ambuda.models.texts import TextStage
+
+    text = db.Text(slug="pariksha", title="parIkSA", stage=TextStage.PUBLIC)
     session.add(text)
     session.flush()
 

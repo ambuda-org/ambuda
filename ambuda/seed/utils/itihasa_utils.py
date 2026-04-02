@@ -105,7 +105,11 @@ def write_kandas(
     xml_id_prefix: str,
 ):
     with Session(engine) as session:
-        text = db.Text(slug=text_slug, title=text_title, header=tei_header)
+        from ambuda.models.texts import TextStage
+
+        text = db.Text(
+            slug=text_slug, title=text_title, header=tei_header, stage=TextStage.PUBLIC
+        )
         session.add(text)
         session.flush()
 
