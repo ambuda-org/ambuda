@@ -36,6 +36,7 @@ class InlineType(StrEnum):
     NOTE = "note"
     ADD = "add"
     ELLIPSIS = "ellipsis"
+    DELETE = "delete"
     QUOTE = "quote"
     SYNC = "sync"
     BREAK = "break"

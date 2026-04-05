@@ -97,15 +97,22 @@ export const INLINE_MARKS: InlineMarkConfig[] = [
   {
     name: 'add',
     emoji: '+',
-    label: 'Added by editor',
+    label: 'Added in source',
     className: 'pm-add',
     group: 'advanced',
   },
   {
     name: 'ellipsis',
     emoji: '\u2026',
-    label: 'Omitted by editor',
+    label: 'Omitted in source',
     className: 'pm-ellipsis',
+    group: 'advanced',
+  },
+  {
+    name: 'delete',
+    emoji: '🗑',
+    label: 'Deleted in source',
+    className: 'pm-delete',
     group: 'advanced',
   },
   {

@@ -3,8 +3,108 @@
 import textwrap
 from pathlib import Path
 from unittest.mock import MagicMock
+from xml.etree import ElementTree as ET
 
-from ambuda.utils.text_exports import create_plain_text
+import pytest
+
+from ambuda.utils.text_exports import _simplify_tei_for_export, create_plain_text
+
+
+def _simplify(xml_str: str) -> str:
+    """Apply _simplify_tei_for_export and return the resulting XML string."""
+    xml = ET.fromstring(xml_str)
+    _simplify_tei_for_export(xml)
+    return ET.tostring(xml, encoding="unicode")
+
+
+# -- _simplify_tei_for_export tests --
+
+
+def test_simplify__choice_keeps_corr_drops_sic():
+    assert _simplify("<p>aaa<choice><sic>x</sic><corr>y</corr></choice>bbb</p>") == (
+        "<p>aaa<choice><corr>y</corr></choice>bbb</p>"
+    )
+
+
+def test_simplify__choice_sic_only():
+    assert _simplify("<p>aaa<choice><sic>x</sic></choice>bbb</p>") == ("<p>aaabbb</p>")
+
+
+def test_simplify__choice_corr_only():
+    assert _simplify("<p>aaa<choice><corr>y</corr></choice>bbb</p>") == (
+        "<p>aaa<choice><corr>y</corr></choice>bbb</p>"
+    )
+
+
+def test_simplify__subst_keeps_add_drops_del():
+    assert _simplify("<p>aaa<subst><del>x</del><add>y</add></subst>bbb</p>") == (
+        "<p>aaa<subst><add>y</add></subst>bbb</p>"
+    )
+
+
+def test_simplify__subst_del_only():
+    assert _simplify("<p>aaa<subst><del>x</del></subst>bbb</p>") == ("<p>aaabbb</p>")
+
+
+def test_simplify__subst_add_only():
+    assert _simplify("<p>aaa<subst><add>y</add></subst>bbb</p>") == (
+        "<p>aaa<subst><add>y</add></subst>bbb</p>"
+    )
+
+
+def test_simplify__lone_del_removed():
+    assert _simplify("<p>aaa<del>x</del>bbb</p>") == "<p>aaabbb</p>"
+
+
+def test_simplify__lone_del_preserves_tail():
+    assert _simplify("<p><del>x</del> tail</p>") == "<p> tail</p>"
+
+
+def test_simplify__lone_del_after_sibling():
+    """Tail text is appended to preceding sibling's tail."""
+    assert _simplify("<p><b>aaa</b><del>x</del>bbb</p>") == "<p><b>aaa</b>bbb</p>"
+
+
+def test_simplify__multiple_del_elements():
+    assert _simplify("<p>a<del>1</del>b<del>2</del>c</p>") == "<p>abc</p>"
+
+
+def test_simplify__no_special_elements():
+    """Unrelated elements pass through unchanged."""
+    assert _simplify("<p>aaa<b>bbb</b>ccc</p>") == "<p>aaa<b>bbb</b>ccc</p>"
+
+
+def test_simplify__namespaced_choice():
+    ns = "http://www.tei-c.org/ns/1.0"
+    xml_str = f'<p xmlns="{ns}">aaa<choice><sic>x</sic><corr>y</corr></choice>bbb</p>'
+    xml = ET.fromstring(xml_str)
+    _simplify_tei_for_export(xml)
+    result = ET.tostring(xml, encoding="unicode")
+    assert "sic" not in result
+    assert "y" in result
+
+
+def test_simplify__namespaced_del():
+    ns = "http://www.tei-c.org/ns/1.0"
+    xml_str = f'<p xmlns="{ns}">aaa<del>x</del>bbb</p>'
+    xml = ET.fromstring(xml_str)
+    _simplify_tei_for_export(xml)
+    result = ET.tostring(xml, encoding="unicode")
+    assert "del" not in result
+    assert "aaabbb" in result
+
+
+def test_simplify__namespaced_subst():
+    ns = "http://www.tei-c.org/ns/1.0"
+    xml_str = f'<p xmlns="{ns}">aaa<subst><del>x</del><add>y</add></subst>bbb</p>'
+    xml = ET.fromstring(xml_str)
+    _simplify_tei_for_export(xml)
+    result = ET.tostring(xml, encoding="unicode")
+    assert "del" not in result
+    assert "y" in result
+
+
+# -- create_plain_text integration tests --
 
 
 def _make_text(title="Test", slug="test", language="sa"):
@@ -319,6 +419,22 @@ def test_sp_multi_block_indent(tmp_path):
         "    # v1",
         "    aaa",
         "    bbb",
+    ]
+
+
+def test_del_elements_excluded(tmp_path):
+    """<del> elements should be stripped from plain-text output."""
+    xml_path = _write_xml(
+        tmp_path,
+        '<p n="1">aaa<del>removed</del>bbb</p>',
+    )
+    out_path = tmp_path / "out.txt"
+    create_plain_text(_make_text(), out_path, xml_path)
+
+    assert _content_lines(out_path) == [
+        "",
+        "# 1",
+        "aaabbb",
     ]
 
 

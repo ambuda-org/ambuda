@@ -545,6 +545,40 @@ def test_rewrite_block_to_tei_xml__flag(input, expected):
 
 
 @pytest.mark.parametrize(
+    "input,expected",
+    [
+        # <delete> and <add> consecutively --> <subst><del>...<add>...</subst>
+        (
+            "<p>foo<delete>bar</delete> <add>biz</add> tail</p>",
+            "<p>foo<subst><del>bar</del><add>biz</add></subst> tail</p>",
+        ),
+        # Invariant to order.
+        (
+            "<p>foo<add>biz</add> <delete>bar</delete></p>",
+            "<p>foo<subst><del>bar</del><add>biz</add></subst></p>",
+        ),
+        # Delete alone --> <del>
+        (
+            "<p>foo<delete>bar</delete> tail</p>",
+            "<p>foo<del>bar</del> tail</p>",
+        ),
+        # Add alone --> <add> (unchanged)
+        (
+            "<p>foo<add>bar</add> tail</p>",
+            "<p>foo<add>bar</add> tail</p>",
+        ),
+        # Separate add and delete -- don't group into a single subst
+        (
+            "<p>foo<delete>bar</delete> biz <add>baf</add> tail</p>",
+            "<p>foo<del>bar</del> biz <add>baf</add> tail</p>",
+        ),
+    ],
+)
+def test_rewrite_block_to_tei_xml__delete_and_add(input, expected):
+    _assert_rewrite_block(input, expected)
+
+
+@pytest.mark.parametrize(
     "first,second,expected",
     [
         # Simple <p>

@@ -455,6 +455,8 @@ def _rewrite_block_to_tei_xml(xml: etree._Element, image_number: int):
             el.tag = "unclear"
         elif el.tag in (InlineType.ADD, InlineType.ELLIPSIS):
             pass
+        elif el.tag == InlineType.DELETE:
+            el.tag = "del"
 
     # <speaker>
     try:
@@ -527,6 +529,44 @@ def _rewrite_block_to_tei_xml(xml: etree._Element, image_number: int):
         elif el.tag == "fix":
             # Edge case: <fix> without <error> is renamed to <supplied>.
             el.tag = "supplied"
+
+        i += 1
+
+    # <del> and <add> --> <subst>
+    i = 0
+    while i < len(xml):
+        el = xml[i]
+        el_tail = (el.tail or "").strip()
+        if el.tag not in ("del", "add"):
+            i += 1
+            continue
+
+        # Standardize order: <del> then <add>
+        if i + 1 < len(xml):
+            el_next = xml[i + 1]
+            if (el.tag, el_next.tag) == ("add", "del") and not el_tail:
+                el.tail = ""
+                xml.remove(el)
+                xml.remove(el_next)
+                xml.insert(i, el_next)
+                xml.insert(i + 1, el)
+
+        el = xml[i]
+        if el.tag == "del":
+            has_counterpart = i + 1 < len(xml) and not el_tail
+            maybe_add = xml[i + 1] if has_counterpart else None
+
+            if maybe_add is not None and maybe_add.tag == "add":
+                subst = etree.Element("subst")
+                del_el = etree.SubElement(subst, "del")
+                del_el.text = el.text or ""
+                add_el = etree.SubElement(subst, "add")
+                add_el.text = maybe_add.text or ""
+                subst.tail = maybe_add.tail
+                del xml[i + 1]
+                del xml[i]
+                xml.insert(i, subst)
+            # Lone <del> stays as-is.
 
         i += 1
 

@@ -211,7 +211,7 @@
   }
 
   /* Prosemirror mark CSS */
-  .pm-error, .pm-fix, .pm-flag, .pm-stage, .pm-speaker, .pm-chaya, .pm-prakrit, .pm-note, .pm-add, .pm-ellipsis, .pm-quote {
+  .pm-error, .pm-fix, .pm-flag, .pm-stage, .pm-speaker, .pm-chaya, .pm-prakrit, .pm-note, .pm-add, .pm-ellipsis, .pm-delete, .pm-quote {
     @apply border-b-2 pr-1;
   }
 
@@ -319,6 +319,15 @@
 
   .pm-ellipsis:before {
     content: "… ";
+    @apply text-xs pl-1;
+  }
+
+  .pm-delete {
+    @apply bg-red-100 text-red-800 border-red-500 line-through;
+  }
+
+  .pm-delete:before {
+    content: "🗑 ";
     @apply text-xs pl-1;
   }
 
