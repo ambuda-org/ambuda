@@ -199,9 +199,18 @@ def run_strategy(strategy_name: str, pdf_path: str, num_pages: int, dpi: int):
         script_path.write_text(WORKER_SCRIPT)
 
         result = subprocess.run(
-            [sys.executable, str(script_path), strategy_name,
-             pdf_path, tmpdir, str(num_pages), str(dpi)],
-            capture_output=True, text=True, timeout=600,
+            [
+                sys.executable,
+                str(script_path),
+                strategy_name,
+                pdf_path,
+                tmpdir,
+                str(num_pages),
+                str(dpi),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=600,
         )
 
         if result.returncode != 0:
@@ -216,15 +225,26 @@ def main():
     parser.add_argument("pdf", type=Path)
     parser.add_argument("--pages", type=int, default=None)
     parser.add_argument("--dpi", type=int, default=200)
-    parser.add_argument("--strategies", nargs="+",
-                        default=["naive", "reopen_no_gc", "reopen_gc", "subprocess_pool",
-                                 "pdfium_naive", "pdfium_reopen", "pdfium_subprocess"])
+    parser.add_argument(
+        "--strategies",
+        nargs="+",
+        default=[
+            "naive",
+            "reopen_no_gc",
+            "reopen_gc",
+            "subprocess_pool",
+            "pdfium_naive",
+            "pdfium_reopen",
+            "pdfium_subprocess",
+        ],
+    )
     args = parser.parse_args()
 
     if not args.pdf.exists():
         sys.exit(f"File not found: {args.pdf}")
 
     import fitz
+
     doc = fitz.open(str(args.pdf))
     total_pages = doc.page_count
     doc.close()
@@ -241,9 +261,11 @@ def main():
         if stats:
             stats["strategy"] = name
             results.append(stats)
-            print(f"peak={stats['peak_rss_mb']} MB  "
-                  f"(self={stats['self_rss_mb']}, children={stats['child_rss_mb']})  "
-                  f"time={stats['wall_time_s']}s")
+            print(
+                f"peak={stats['peak_rss_mb']} MB  "
+                f"(self={stats['self_rss_mb']}, children={stats['child_rss_mb']})  "
+                f"time={stats['wall_time_s']}s"
+            )
         else:
             print("FAILED")
 

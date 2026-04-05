@@ -30,6 +30,74 @@ EXPORT_DIR = Path(__file__).parent
 S3_PREFIX = "assets/text-exports"
 logger = logging.getLogger(__name__)
 
+_TEI_NS = "{http://www.tei-c.org/ns/1.0}"
+
+
+def _simplify_tei_for_export(xml) -> None:
+    """Simplify TEI inline markup for plain-text-like exports.
+
+    Works with both stdlib xml.etree.ElementTree and lxml elements.
+
+    - <choice>: drop <sic>, keep <corr> text
+    - <subst>: drop <del>, keep <add> text
+    - <del>: remove entirely (preserve tail)
+    """
+    # <choice><sic>...</sic><corr>...</corr></choice> --> keep corr only
+    for choice in xml.iter():
+        if choice.tag not in ("choice", f"{_TEI_NS}choice"):
+            continue
+        for sic in list(choice):
+            if sic.tag in ("sic", f"{_TEI_NS}sic"):
+                choice.remove(sic)
+        choice.text = None
+        for child in choice:
+            child.tail = None
+
+    # <subst><del>...</del><add>...</add></subst> --> keep add only
+    for subst in xml.iter():
+        if subst.tag not in ("subst", f"{_TEI_NS}subst"):
+            continue
+        for del_el in list(subst):
+            if del_el.tag in ("del", f"{_TEI_NS}del"):
+                subst.remove(del_el)
+        subst.text = None
+        for child in subst:
+            child.tail = None
+
+    # Remove empty <choice>/<subst> wrappers, preserving tail text.
+    _remove_empty = (
+        "choice",
+        f"{_TEI_NS}choice",
+        "subst",
+        f"{_TEI_NS}subst",
+    )
+    for parent_el in list(xml.iter()):
+        children = list(parent_el)
+        for i in range(len(children) - 1, -1, -1):
+            child = children[i]
+            if child.tag not in _remove_empty or len(child) > 0:
+                continue
+            tail = child.tail or ""
+            if i > 0:
+                children[i - 1].tail = (children[i - 1].tail or "") + tail
+            else:
+                parent_el.text = (parent_el.text or "") + tail
+            parent_el.remove(child)
+
+    # Lone <del> elements: remove entirely, preserving tail text.
+    for parent_el in list(xml.iter()):
+        children = list(parent_el)
+        for i in range(len(children) - 1, -1, -1):
+            child = children[i]
+            if child.tag not in ("del", f"{_TEI_NS}del"):
+                continue
+            tail = child.tail or ""
+            if i > 0:
+                children[i - 1].tail = (children[i - 1].tail or "") + tail
+            else:
+                parent_el.text = (parent_el.text or "") + tail
+            parent_el.remove(child)
+
 
 class ExportType(StrEnum):
     #: TEI-conformant XML. This is our root export. That is, we use this export
@@ -465,32 +533,19 @@ def create_plain_text(text: db.Text, file_path: Path, xml_path: Path) -> None:
 
             elem_str = etree.tostring(elem, encoding="unicode")
             xml = ET.fromstring(elem_str)
-            ns2 = "{http://www.tei-c.org/ns/1.0}"
 
-            # In <choice><sic>...</sic><corr>...</corr></choice>,
-            # keep only <corr> and drop <sic>.
-            for choice in xml.iter():
-                if choice.tag not in ("choice", f"{ns2}choice"):
-                    continue
-                for sic in list(choice):
-                    if sic.tag in ("sic", f"{ns2}sic"):
-                        choice.remove(sic)
-                # Collapse whitespace: clear choice.text and corr.tail
-                # so the corr text is spliced inline.
-                choice.text = None
-                for child in choice:
-                    child.tail = None
+            _simplify_tei_for_export(xml)
 
             # Drop <speaker> elements so they don't appear inline.
             for sp_el in list(xml.iter()):
-                if sp_el.tag in ("speaker", f"{ns2}speaker"):
+                if sp_el.tag in ("speaker", f"{_TEI_NS}speaker"):
                     sp_el.text = None
                     sp_el.tail = None
 
             # Wrap <stage> text in parentheses.
             is_stage = False
             for stage_el in list(xml.iter()):
-                if stage_el.tag in ("stage", f"{ns2}stage"):
+                if stage_el.tag in ("stage", f"{_TEI_NS}stage"):
                     is_stage = True
                     if stage_el.text:
                         stage_el.text = "(" + stage_el.text
@@ -504,7 +559,7 @@ def create_plain_text(text: db.Text, file_path: Path, xml_path: Path) -> None:
                         stage_el.text += ")"
 
             for el in xml.iter():
-                if el.tag in ("l", f"{ns2}l"):
+                if el.tag in ("l", f"{_TEI_NS}l"):
                     el.tail = "\n"
                 el.tag = None
             content = ET.tostring(xml, encoding="unicode").strip()
@@ -570,6 +625,7 @@ def create_pdf(
 
                 elem_str = etree.tostring(elem, encoding="unicode")
                 xml = ET.fromstring(elem_str)
+                _simplify_tei_for_export(xml)
                 for el in xml.iter():
                     if el.tag == f"{ns}l":
                         # In typst, create a new line with `\`.
@@ -661,6 +717,8 @@ def create_epub(text: db.Text, out_path: Path) -> None:
                 el = etree.fromstring(block.xml, safe_parser)
             except Exception:
                 continue
+
+            _simplify_tei_for_export(el)
 
             tag = el.tag.replace(ns, "")
             if tag == "lg":
