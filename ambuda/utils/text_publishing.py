@@ -453,7 +453,13 @@ def _rewrite_block_to_tei_xml(xml: etree._Element, image_number: int):
             el.attrib["target"] = f"{image_number}.{el.text or ''}"
         elif el.tag == "flag":
             el.tag = "unclear"
-        elif el.tag in (InlineType.ADD, InlineType.ELLIPSIS):
+        elif el.tag == InlineType.ADD:
+            text = (el.text or "").strip()
+            normed_text = re.sub(r"^\[\s*(.*?)\s*\]$", r"\1", text)
+            if text != normed_text:
+                el.attrib["rend"] = "brackets"
+            el.text = normed_text
+        elif el.tag == InlineType.ELLIPSIS:
             pass
         elif el.tag == InlineType.DELETE:
             el.tag = "del"

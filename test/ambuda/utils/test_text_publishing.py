@@ -579,6 +579,30 @@ def test_rewrite_block_to_tei_xml__delete_and_add(input, expected):
 
 
 @pytest.mark.parametrize(
+    "input,expected",
+    [
+        # Bracketed <add> text --> rend="brackets"
+        (
+            "<p>foo<add>[bar]</add>baz</p>",
+            '<p>foo<add rend="brackets">bar</add>baz</p>',
+        ),
+        # Non-bracketed <add> text --> no rend
+        (
+            "<p>foo<add>bar</add>baz</p>",
+            "<p>foo<add>bar</add>baz</p>",
+        ),
+        # Bracketed with whitespace
+        (
+            "<p>foo<add>[ bar ]</add>baz</p>",
+            '<p>foo<add rend="brackets">bar</add>baz</p>',
+        ),
+    ],
+)
+def test_rewrite_block_to_tei_xml__add_brackets(input, expected):
+    _assert_rewrite_block(input, expected)
+
+
+@pytest.mark.parametrize(
     "first,second,expected",
     [
         # Simple <p>

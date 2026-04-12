@@ -133,6 +133,14 @@ def _delete(xml: ET.Element):
     xml.tag = None
 
 
+def _strip(xml: ET.Element):
+    """Remove the element and its contents, but keep its tail text."""
+    tail = xml.tail
+    xml.clear()
+    xml.tail = tail
+    xml.tag = None
+
+
 def elem(tag, attrib=None, text_before="", text_after="") -> Rule:
     """Helper to rename an element and change its attributes."""
     return Rule(tag, _overwrite(attrib or {}), text_before, text_after)
@@ -372,6 +380,11 @@ tei_xml = {
     # Inline elements
     "choice": _handle_tei_choice,
     "sic": None,
+    # For <subst>, unwrap the element: its <del> children are stripped and
+    # its <add> children are unwrapped, leaving only the inserted text.
+    "subst": text(),
+    "add": text(),
+    "del": _strip,
     # A segment of text (e.g. a pāda).
     "seg": _handle_tei_seg,
     "hi": text(),

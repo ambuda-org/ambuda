@@ -48,6 +48,30 @@ def test_transform_text_block():
     assert block == "<s-lg>verse</s-lg>"
 
 
+def test_transform_text_block__subst_keeps_add_drops_del():
+    blob = '<p xml:id="T">aaa<subst><del>old</del><add>new</add></subst>bbb</p>'
+    result = x.transform_text_block(blob)
+    assert result == '<s-p xml:id="T">aaanewbbb</s-p>'
+
+
+def test_transform_text_block__subst_add_before_del():
+    blob = '<p xml:id="T">aaa<subst><add>new</add><del>old</del></subst>bbb</p>'
+    result = x.transform_text_block(blob)
+    assert result == '<s-p xml:id="T">aaanewbbb</s-p>'
+
+
+def test_transform_text_block__lone_del_removed():
+    blob = '<p xml:id="T">aaa<del>removed</del>bbb</p>'
+    result = x.transform_text_block(blob)
+    assert result == '<s-p xml:id="T">aaabbb</s-p>'
+
+
+def test_transform_text_block__lone_add_kept():
+    blob = '<p xml:id="T">aaa<add>inserted</add>bbb</p>'
+    result = x.transform_text_block(blob)
+    assert result == '<s-p xml:id="T">aaainsertedbbb</s-p>'
+
+
 def test_transform():
     blob = "<div>This is a <span>test</span> of our xml code.</div>"
     transforms = {
