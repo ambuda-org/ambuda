@@ -294,6 +294,9 @@ class SubGroup:
     title: str | None
     description: str | None
     entries: list[TextEntry]
+    #: 1 = direct members of the top-level collection (title is None).
+    #: 2 = depth-2 child.  3 = depth-3 grandchild (renders smaller).
+    depth: int = 2
 
     @property
     def text_count(self) -> int:
@@ -313,6 +316,7 @@ class SubGroup:
 class CollectionGroup:
     """A top-level collection with its description and subgroups."""
 
+    slug: str
     title: str
     description: str | None
     subgroups: list[SubGroup]
@@ -335,78 +339,125 @@ class CollectionGroup:
 def create_grouped_text_entries(
     all_entries: list[TextEntry] | None = None,
 ) -> list[CollectionGroup]:
-    """Group text entries by collections two levels deep.
+    """Group text entries by collections three levels deep.
 
-    Top-level collections become major headings.  Their direct children
-    become subheadings.  Deeper descendants are folded into the nearest
-    depth-2 ancestor.  Texts that don't belong to any collection land in
-    a fallback group.
+    Top-level collections become major headings.  Depth-2 and depth-3
+    descendants each get their own subheading row.  Depth-4+ descendants
+    are folded into their nearest depth-3 ancestor.  Texts that don't
+    belong to any collection land in a fallback group.
     """
     all_colls = q.Query(q.get_session()).all_collections()
     by_parent = q.group_collections_by_parent(all_colls)
     top_collections = by_parent.get(None, [])
 
-    # Map every collection id → (top_title, sub_title_or_None).
-    # depth-1 = top-level collection (sub_title=None, texts go under heading directly)
-    # depth-2 = direct child (sub_title=child.title)
-    # depth-3+ = folded into its depth-2 ancestor
-    coll_id_to_key: dict[int, tuple[str, str | None]] = {}
+    # Map every collection id → its "row" inside a top-level group.
+    # Row identity: (top_id, sub_id_or_None, subsub_id_or_None).
+    # depth-1 (top): (top_id, None, None) — no subheading.
+    # depth-2 (child): (top_id, child_id, None) — subheading is child.title.
+    # depth-3 (grandchild): (top_id, child_id, grandchild_id) — smaller subheading.
+    # depth-4+: folded into their depth-3 ancestor's row.
+    coll_id_to_row: dict[int, tuple[int, int | None, int | None]] = {}
+
+    def assign(coll_id: int, top_id: int, sub_id: int | None, subsub_id: int | None):
+        coll_id_to_row[coll_id] = (top_id, sub_id, subsub_id)
+        for child in by_parent.get(coll_id, []):
+            if sub_id is None:
+                assign(child.id, top_id, child.id, None)
+            elif subsub_id is None:
+                assign(child.id, top_id, sub_id, child.id)
+            else:
+                # depth-4+: keep using this depth-3 row.
+                assign(child.id, top_id, sub_id, subsub_id)
 
     for top in top_collections:
-        coll_id_to_key[top.id] = (top.title, None)
-        for child in by_parent.get(top.id, []):
-            coll_id_to_key[child.id] = (top.title, child.title)
-            # All deeper descendants map to this child's subheading.
-            for desc_id in q.all_descendant_ids(child.id, all_colls):
-                if desc_id != child.id:
-                    coll_id_to_key[desc_id] = (top.title, child.title)
+        assign(top.id, top.id, None, None)
 
     fallback_heading = "\u0905\u0928\u094d\u092f\u0947 \u0917\u094d\u0930\u0928\u094d\u0925\u093e\u0903"  # अन्ये ग्रन्थाः
+    fallback_description = "The texts in this collection do not have a clear category or have not yet been categorized."
+    FALLBACK_ROW = (-1, None, None)
 
-    # Build ordered structure: heading → {sub → entries}
-    # Use (heading, sub) insertion order to preserve collection ordering.
-    # Track top-level info: (title, description, [(sub_title, sub_description)])
-    top_info: list[tuple[str, str | None, list[tuple[str | None, str | None]]]] = []
-    bucket: dict[tuple[str, str | None], list[TextEntry]] = {}
+    # Ordered list of top-level blocks, each carrying its rows in insertion order.
+    # Each row: (row_key, title_or_None, description_or_None, depth).
+    RowMeta = tuple[tuple[int, int | None, int | None], str | None, str | None, int]
+    top_blocks: list[tuple[str, str, str | None, list[RowMeta]]] = []
+    coll_by_id = {c.id: c for c in all_colls}
+
+    def collect_rows(
+        coll_id: int,
+        sub_id: int | None,
+        subsub_id: int | None,
+        top_id: int,
+        rows: list[RowMeta],
+        seen: set,
+    ):
+        row_key = (top_id, sub_id, subsub_id)
+        if row_key not in seen:
+            seen.add(row_key)
+            if sub_id is None:
+                rows.append((row_key, None, None, 1))
+            elif subsub_id is None:
+                c = coll_by_id[sub_id]
+                rows.append((row_key, c.title, c.description, 2))
+            else:
+                c = coll_by_id[subsub_id]
+                rows.append((row_key, c.title, c.description, 3))
+        for child in by_parent.get(coll_id, []):
+            if sub_id is None:
+                collect_rows(child.id, child.id, None, top_id, rows, seen)
+            elif subsub_id is None:
+                collect_rows(child.id, sub_id, child.id, top_id, rows, seen)
+            # depth-4+: stop — no new rows.
 
     for top in top_collections:
-        subs: list[tuple[str | None, str | None]] = [(None, None)]
-        bucket[(top.title, None)] = []
-        for child in by_parent.get(top.id, []):
-            subs.append((child.title, child.description))
-            bucket[(top.title, child.title)] = []
-        top_info.append((top.title, top.description, subs))
+        rows: list[RowMeta] = []
+        seen: set = set()
+        collect_rows(top.id, None, None, top.id, rows, seen)
+        top_blocks.append((top.slug, top.title, top.description, rows))
 
-    fallback_description = "The texts in this collection do not have a clear category or have not yet been categorized."
-    top_info.append((fallback_heading, fallback_description, [(None, None)]))
-    bucket[(fallback_heading, None)] = []
+    fallback_rows: list[RowMeta] = [(FALLBACK_ROW, None, None, 1)]
+    top_blocks.append(("other", fallback_heading, fallback_description, fallback_rows))
+
+    bucket: dict[tuple[int, int | None, int | None], list[TextEntry]] = {}
+    for _, _, _, rows in top_blocks:
+        for row_key, *_ in rows:
+            bucket[row_key] = []
 
     if all_entries is None:
         all_entries = create_text_entries()
     for entry in all_entries:
-        key = None
-        # Pick the most specific (deepest) matching collection.
+        # Pick the deepest matching row across the entry's collections.
+        best: tuple[int, int | None, int | None] | None = None
+        best_depth = -1
         for coll in entry.text.collections:
-            k = coll_id_to_key.get(coll.id)
-            if k:
-                if key is None or (k[1] is not None and key[1] is None):
-                    key = k
-        if key is None:
-            key = (fallback_heading, None)
-        bucket[key].append(entry)
+            row = coll_id_to_row.get(coll.id)
+            if row is None:
+                continue
+            depth = 1 + (row[1] is not None) + (row[2] is not None)
+            if depth > best_depth:
+                best = row
+                best_depth = depth
+        if best is None:
+            best = FALLBACK_ROW
+        bucket[best].append(entry)
 
     result: list[CollectionGroup] = []
-    for heading, description, subs in top_info:
+    for slug, heading, description, rows in top_blocks:
         groups = []
-        for sub_title, sub_desc in subs:
-            entries = bucket.get((heading, sub_title), [])
+        for row_key, sub_title, sub_desc, depth in rows:
+            entries = bucket.get(row_key, [])
             if entries:
                 groups.append(
-                    SubGroup(title=sub_title, description=sub_desc, entries=entries)
+                    SubGroup(
+                        title=sub_title,
+                        description=sub_desc,
+                        entries=entries,
+                        depth=depth,
+                    )
                 )
         if groups:
             result.append(
                 CollectionGroup(
+                    slug=slug,
                     title=heading,
                     description=description,
                     subgroups=groups,

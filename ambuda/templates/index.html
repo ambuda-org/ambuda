@@ -146,7 +146,26 @@
   </div>
   {% endif %}
 
-  {{ m.grouped_texts(grouped_entries) }}
+  <ul class="mt-8 flex flex-col gap-4">
+    {% for group in grouped_entries %}
+    <li class="bg-white rounded shadow-sm border border-slate-200 border-t-2 border-t-sky-400 px-6 md:px-8 py-6 md:py-8">
+      <h3 class="text-slate-900 font-bold text-2xl deva-serif">
+        {{- group.title | d | devanagari_to_user_script -}}
+      </h3>
+      {% if group.description %}
+      <div class="text-sm text-slate-600 mt-2 space-y-2">
+        {{ group.description | markdown | safe }}
+      </div>
+      {% endif %}
+      <div class="mt-4">
+        <a href="{{ url_for('texts.index') }}#{{ group.slug }}"
+           class="inline-flex items-center gap-1 text-sm font-medium text-sky-700 hover:text-sky-900 hover:underline">
+          {% trans count=group.text_count %}View all {{ count }} text{% pluralize %}View all {{ count }} texts{% endtrans %} &rarr;
+        </a>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
 </article>
 </div>
 
