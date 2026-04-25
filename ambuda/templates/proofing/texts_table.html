@@ -11,11 +11,19 @@
     </label>
     <p class="text-sm text-slate-500">{{ _('Showing %(start)d–%(end)d of %(total)d texts', start=((page - 1) * 100 + 1), end=[page * 100, total]|min, total=total) }}</p>
   </div>
-  <button type="submit" form="batch-form"
-      class="hidden text-sm bg-sky-900 text-white px-3 py-1 rounded hover:bg-sky-800"
-      id="batch-collections-btn">
-    {{ _('Edit collections') }}
-  </button>
+  <div class="flex items-center gap-2">
+    <button type="submit" form="batch-form"
+        class="hidden text-sm bg-sky-900 text-white px-3 py-1 rounded hover:bg-sky-800"
+        id="batch-collections-btn">
+      {{ _('Edit collections') }}
+    </button>
+    {% if current_user.is_authenticated and current_user.is_p2 %}
+    <a href="{{ url_for('proofing.create_text') }}"
+       class="text-sm bg-sky-900 text-white px-3 py-1 rounded hover:bg-sky-800">
+      + {{ _('Create text') }}
+    </a>
+    {% endif %}
+  </div>
 </div>
 
 <form id="batch-form" method="get" action="{{ url_for('proofing.batch_edit_collections') }}"></form>

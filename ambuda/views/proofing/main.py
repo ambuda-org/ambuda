@@ -25,8 +25,8 @@ from flask_login import current_user
 from flask_wtf import FlaskForm
 from slugify import slugify
 from sqlalchemy import asc, desc, func, orm, select
-from wtforms import FileField, RadioField, StringField
-from wtforms.validators import DataRequired, ValidationError
+from wtforms import FileField, RadioField, SelectField, StringField
+from wtforms.validators import DataRequired, Optional, ValidationError
 from wtforms.widgets import TextArea
 
 from ambuda import consts
@@ -80,6 +80,16 @@ def _required_if_local(message: str):
             raise ValidationError(message)
 
     return fn
+
+
+class CreateTextForm(FlaskForm):
+    project_id = SelectField("Project", coerce=int, validators=[DataRequired()])
+    title = StringField("Title", validators=[DataRequired()])
+    slug = StringField("Slug", validators=[DataRequired()])
+    author = StringField("Author", validators=[Optional()])
+    language = SelectField("Language", default="sa")
+    parent_slug = StringField("Parent slug", validators=[Optional()])
+    target = StringField("Filter", validators=[DataRequired()])
 
 
 class CreateProjectForm(FlaskForm):
@@ -852,6 +862,138 @@ def texts():
     template_vars["filter_collections"] = filter_collections
 
     return render_template("proofing/texts.html", **template_vars)
+
+
+@bp.route("/texts/new", methods=["GET", "POST"])
+@p2_required
+def create_text():
+    """Create a new stub Text + PublishConfig from a single form."""
+    from ambuda.models.proofing import LanguageCode, PublishConfig
+    from ambuda.models.texts import TextStage
+    from ambuda.utils.text_publishing import Filter
+    from ambuda.utils.slug import title_to_slug
+    from ambuda.views.proofing.publish import _validate_slug
+
+    session = q.get_session()
+
+    projects = (
+        session.query(db.Project).order_by(db.Project.display_title).all()
+    )
+    all_collections = (
+        session.query(db.TextCollection).order_by(db.TextCollection.title).all()
+    )
+
+    form = CreateTextForm()
+    form.project_id.choices = [(p.id, p.display_title) for p in projects]
+    form.language.choices = [(c.value, c.label) for c in LanguageCode]
+
+    def _render():
+        return render_template(
+            "proofing/texts_new.html",
+            form=form,
+            projects=projects,
+            all_collections=all_collections,
+            collection_ids=collection_ids,
+        )
+
+    collection_ids: list[int] = []
+    if request.method == "POST":
+        collection_ids = [
+            int(c) for c in request.form.getlist("collection_ids") if c.isdigit()
+        ]
+
+        if not form.validate_on_submit():
+            return _render()
+
+        slug = form.slug.data.strip()
+        slug_error = _validate_slug(slug)
+        if slug_error:
+            flash(slug_error, "error")
+            return _render()
+
+        existing_text = session.execute(
+            select(db.Text).where(db.Text.slug == slug)
+        ).scalar_one_or_none()
+        if existing_text:
+            flash(
+                f"A text with slug '{slug}' already exists. "
+                "Please choose a different slug.",
+                "error",
+            )
+            return _render()
+
+        target = (form.target.data or "").strip()
+        try:
+            if target.startswith("("):
+                Filter(target)
+            else:
+                Filter(f"(label {target})")
+        except ValueError as e:
+            flash(f"Invalid filter: {e}", "error")
+            return _render()
+
+        project = session.get(db.Project, form.project_id.data)
+        if project is None:
+            flash("Selected project does not exist.", "error")
+            return _render()
+
+        parent_id = None
+        parent_slug = (form.parent_slug.data or "").strip()
+        if parent_slug:
+            parent_text = session.execute(
+                select(db.Text).where(db.Text.slug == parent_slug)
+            ).scalar_one_or_none()
+            if parent_text is None:
+                flash(f"Parent slug '{parent_slug}' does not exist.", "error")
+                return _render()
+            parent_id = parent_text.id
+
+        author_id = None
+        author_name = (form.author.data or "").strip()
+        if author_name:
+            author = session.execute(
+                select(db.Author).where(db.Author.name == author_name)
+            ).scalar_one_or_none()
+            if not author:
+                author = db.Author(
+                    name=author_name, slug=title_to_slug(author_name)
+                )
+                session.add(author)
+                session.flush()
+            author_id = author.id
+
+        text = db.Text(
+            slug=slug,
+            title=form.title.data.strip(),
+            language=form.language.data or "sa",
+            stage=TextStage.STUB,
+            project_id=project.id,
+            author_id=author_id,
+            parent_id=parent_id,
+        )
+        if collection_ids:
+            colls = (
+                session.query(db.TextCollection)
+                .filter(db.TextCollection.id.in_(collection_ids))
+                .all()
+            )
+            text.collections = list(colls)
+        session.add(text)
+        session.flush()
+
+        session.add(
+            PublishConfig(
+                project_id=project.id,
+                text_id=text.id,
+                target=target,
+            )
+        )
+        session.commit()
+
+        flash(f"Created text '{text.title}'.", "success")
+        return redirect(url_for("proofing.publish.config", slug=project.slug))
+
+    return _render()
 
 
 @bp.route("/texts/<slug>/report")

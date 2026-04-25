@@ -79,3 +79,253 @@ def test_create_project__oversized_pdf(rama_client):
 def test_talk(client):
     resp = client.get("/proofing/talk")
     assert "Talk" in resp.text
+
+
+def test_create_text__unauth(client):
+    resp = client.get("/proofing/texts/new")
+    assert resp.status_code == 302
+
+
+def test_create_text__auth_renders_form(rama_client):
+    resp = rama_client.get("/proofing/texts/new")
+    assert resp.status_code == 200
+    assert b"Create text" in resp.data
+
+
+def _cleanup_created_text(slug):
+    from sqlalchemy import select
+    from ambuda import database as db
+    from ambuda.models.proofing import PublishConfig
+    from ambuda.queries import get_session
+
+    session = get_session()
+    text = session.execute(select(db.Text).filter_by(slug=slug)).scalar_one_or_none()
+    if text:
+        session.execute(
+            PublishConfig.__table__.delete().where(PublishConfig.text_id == text.id)
+        )
+        session.delete(text)
+    session.commit()
+
+
+def test_create_text__creates_text_and_publish_config(rama_client):
+    from sqlalchemy import select
+    from ambuda import database as db
+    from ambuda.models.proofing import PublishConfig
+    from ambuda.models.texts import TextStage
+    from ambuda.queries import get_session
+
+    session = get_session()
+    project = session.execute(
+        select(db.Project).filter_by(slug="test-project")
+    ).scalar_one()
+
+    try:
+        resp = rama_client.post(
+            "/proofing/texts/new",
+            data={
+                "project_id": project.id,
+                "slug": "wizard-text",
+                "title": "Wizard Text",
+                "target": "(image 1 5)",
+                "language": "sa",
+                "author": "",
+            },
+            follow_redirects=False,
+        )
+        assert resp.status_code == 302
+
+        session = get_session()
+        text = session.execute(
+            select(db.Text).filter_by(slug="wizard-text")
+        ).scalar_one_or_none()
+        assert text is not None
+        assert text.title == "Wizard Text"
+        assert text.stage == TextStage.STUB
+        assert text.project_id == project.id
+
+        pc = session.execute(
+            select(PublishConfig).where(PublishConfig.text_id == text.id)
+        ).scalar_one()
+        assert pc.target == "(image 1 5)"
+        assert pc.project_id == project.id
+    finally:
+        _cleanup_created_text("wizard-text")
+
+
+def test_create_text__rejects_invalid_filter(rama_client):
+    from sqlalchemy import select
+    from ambuda import database as db
+    from ambuda.queries import get_session
+
+    session = get_session()
+    project = session.execute(
+        select(db.Project).filter_by(slug="test-project")
+    ).scalar_one()
+
+    resp = rama_client.post(
+        "/proofing/texts/new",
+        data={
+            "project_id": project.id,
+            "slug": "bad-filter-text",
+            "title": "Bad Filter",
+            "target": "(image 1",
+            "language": "sa",
+        },
+    )
+    assert resp.status_code == 200
+
+    session = get_session()
+    text = session.execute(
+        select(db.Text).filter_by(slug="bad-filter-text")
+    ).scalar_one_or_none()
+    assert text is None
+
+
+def test_create_text__rejects_slug_conflict(rama_client, flask_app):
+    from sqlalchemy import select
+    from ambuda import database as db
+    from ambuda.queries import get_session
+
+    session = get_session()
+    project = session.execute(
+        select(db.Project).filter_by(slug="test-project")
+    ).scalar_one()
+
+    flask_app.config["TESTING"] = False
+    try:
+        rama_client.post(
+            "/proofing/texts/new",
+            data={
+                "project_id": project.id,
+                "slug": "pariksha",
+                "title": "Conflict",
+                "target": "(image 1)",
+                "language": "sa",
+            },
+        )
+    finally:
+        flask_app.config["TESTING"] = True
+
+    session = get_session()
+    pariksha = session.execute(
+        select(db.Text).filter_by(slug="pariksha")
+    ).scalar_one()
+    # Existing text was not overwritten — title should not match the form.
+    assert pariksha.title != "Conflict"
+
+
+def test_create_text__requires_target(rama_client):
+    from sqlalchemy import select
+    from ambuda import database as db
+    from ambuda.queries import get_session
+
+    session = get_session()
+    project = session.execute(
+        select(db.Project).filter_by(slug="test-project")
+    ).scalar_one()
+
+    resp = rama_client.post(
+        "/proofing/texts/new",
+        data={
+            "project_id": project.id,
+            "slug": "no-target-text",
+            "title": "No Target",
+            "target": "",
+            "language": "sa",
+        },
+    )
+    assert resp.status_code == 200
+
+    session = get_session()
+    text = session.execute(
+        select(db.Text).filter_by(slug="no-target-text")
+    ).scalar_one_or_none()
+    assert text is None
+
+
+def test_create_text__attaches_collections_and_parent(rama_client):
+    from sqlalchemy import select
+    from ambuda import database as db
+    from ambuda.models.texts import TextStage
+    from ambuda.queries import get_session
+
+    session = get_session()
+    project = session.execute(
+        select(db.Project).filter_by(slug="test-project")
+    ).scalar_one()
+
+    coll = db.TextCollection(slug="wizard-coll", title="Wizard Coll")
+    parent = db.Text(
+        slug="wizard-parent", title="Wizard Parent", language="sa", stage=TextStage.STUB
+    )
+    session.add_all([coll, parent])
+    session.commit()
+    coll_id = coll.id
+
+    try:
+        resp = rama_client.post(
+            "/proofing/texts/new",
+            data={
+                "project_id": project.id,
+                "slug": "wizard-child",
+                "title": "Wizard Child",
+                "target": "(image 1)",
+                "language": "sa",
+                "parent_slug": "wizard-parent",
+                "collection_ids": [str(coll_id)],
+            },
+            follow_redirects=False,
+        )
+        assert resp.status_code == 302
+
+        session = get_session()
+        text = session.execute(
+            select(db.Text).filter_by(slug="wizard-child")
+        ).scalar_one()
+        assert text.parent.slug == "wizard-parent"
+        assert [c.id for c in text.collections] == [coll_id]
+    finally:
+        _cleanup_created_text("wizard-child")
+        session = get_session()
+        session.execute(
+            db.Text.__table__.delete().where(db.Text.slug == "wizard-parent")
+        )
+        session.execute(
+            db.TextCollection.__table__.delete().where(
+                db.TextCollection.slug == "wizard-coll"
+            )
+        )
+        session.commit()
+
+
+def test_create_text__rejects_unknown_parent_slug(rama_client):
+    from sqlalchemy import select
+    from ambuda import database as db
+    from ambuda.queries import get_session
+
+    session = get_session()
+    project = session.execute(
+        select(db.Project).filter_by(slug="test-project")
+    ).scalar_one()
+
+    resp = rama_client.post(
+        "/proofing/texts/new",
+        data={
+            "project_id": project.id,
+            "slug": "orphan-child",
+            "title": "Orphan",
+            "target": "(image 1)",
+            "language": "sa",
+            "parent_slug": "this-slug-does-not-exist",
+        },
+    )
+    assert resp.status_code == 200
+
+    session = get_session()
+    assert (
+        session.execute(
+            select(db.Text).filter_by(slug="orphan-child")
+        ).scalar_one_or_none()
+        is None
+    )

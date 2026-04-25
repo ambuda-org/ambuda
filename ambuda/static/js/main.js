@@ -10,6 +10,8 @@ import SortableList from './sortable-list';
 import { TagEditor, ProjectList } from './tag-editor';
 import HomeSearch from './home-search';
 import TextSearch from './library-search';
+import SearchablePicker from './searchable-picker';
+import CollectionMultiPicker from './collection-multi-picker';
 
 window.addEventListener('alpine:init', () => {
   Alpine.data('dictionary', Dictionary);
@@ -21,6 +23,8 @@ window.addEventListener('alpine:init', () => {
   Alpine.data('projectList', ProjectList);
   Alpine.data('homeSearch', HomeSearch);
   Alpine.data('textSearch', TextSearch);
+  Alpine.data('searchablePicker', SearchablePicker);
+  Alpine.data('collectionMultiPicker', CollectionMultiPicker);
 });
 
 (() => {
