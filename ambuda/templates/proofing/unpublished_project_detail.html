@@ -1,0 +1,72 @@
+{% extends 'proofing/base.html' %}
+{% import "macros/components.html" as mc %}
+{% import "macros/proofing.html" as m %}
+
+
+{% block title %}{{ mc.title(_('Unpublished blocks: %(title)s', title=project.display_title)) }}{% endblock %}
+
+
+{% block content %}
+{{ m.title_and_subtitle(
+    _('Unpublished blocks: %(title)s', title=project.display_title),
+    _('Blocks not matched by any publish config filter on this project.')) }}
+
+<div class="not-prose flex items-center justify-between gap-4 my-4 p-3 bg-slate-50 border border-slate-200 rounded">
+  <div class="text-sm text-slate-600">
+    {% if report %}
+      {{ _('Last computed:') }}
+      <span class="font-mono">{{ report.generated_at.strftime('%Y-%m-%d %H:%M UTC') }}</span>
+      &middot;
+      <span>{{ blocks|length }} {{ _('uncovered blocks') }}</span>
+    {% else %}
+      {{ _('No report yet for this project. Click Refresh to compute one.') }}
+    {% endif %}
+  </div>
+  <form method="POST" action="{{ url_for('proofing.refresh_unpublished_project_report', slug=project.slug) }}">
+    {{ form.csrf_token }}
+    <button type="submit" class="text-sm bg-sky-900 text-white px-3 py-1.5 rounded hover:bg-sky-800">
+      {{ _('Refresh') }}
+    </button>
+  </form>
+</div>
+
+{% if blocks %}
+<div class="not-prose">
+  <table class="w-full text-sm border border-slate-200 rounded">
+    <thead class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wide">
+      <tr>
+        <th class="text-left px-3 py-2">{{ _('Page') }}</th>
+        <th class="text-right px-3 py-2">{{ _('Image') }}</th>
+        <th class="text-right px-3 py-2">{{ _('Block') }}</th>
+        <th class="text-left px-3 py-2">{{ _('Tag') }}</th>
+        <th class="text-left px-3 py-2">{{ _('Text') }}</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-200">
+      {% for b in blocks %}
+      <tr>
+        <td class="px-3 py-2">
+          <a class="text-sky-800 hover:underline"
+             href="{{ url_for('proofing.page.edit', project_slug=project.slug, page_slug=b.page_slug) }}">
+            {{ b.page_slug }}
+          </a>
+        </td>
+        <td class="text-right px-3 py-2 text-slate-500">{{ b.image_number }}</td>
+        <td class="text-right px-3 py-2 text-slate-500">{{ b.block_index }}</td>
+        <td class="px-3 py-2 text-slate-600 font-mono text-xs">{{ b.block_tag }}</td>
+        <td class="px-3 py-2 text-slate-700 truncate max-w-md">{{ b.block_text }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif report %}
+<p class="text-slate-500 mt-4">{{ _('No uncovered blocks. All blocks are matched by a publish config.') }}</p>
+{% endif %}
+
+<p class="mt-4 text-sm">
+  <a href="{{ url_for('proofing.unpublished_projects') }}" class="text-sky-800 hover:underline">
+    &larr; {{ _('Back to unpublished projects') }}
+  </a>
+</p>
+{% endblock %}

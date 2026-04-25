@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime, UTC
 from enum import StrEnum
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, event
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, JSON, String, Table, event
 from sqlalchemy import Text as Text_
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
@@ -112,6 +112,32 @@ class PublishConfig(Base):
 
     project = relationship("Project", backref="publish_configs")
     text = relationship("Text")
+
+
+class ProjectUncoveredReport(Base):
+    """Cached output of `find_uncovered_blocks` for a project.
+
+    Populated by an admin-triggered Celery task; rendered on the admin
+    "unpublished projects" drill-down page.
+    """
+
+    __tablename__ = "proof_project_uncovered_reports"
+
+    id = pk()
+    project_id = Column(
+        Integer,
+        ForeignKey("proof_projects.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+    )
+    generated_at = Column(DateTime, nullable=False)
+    payload = Column(JSON, nullable=False)
+
+    project = relationship("Project", backref="uncovered_report")
+
+    @staticmethod
+    def rerun_lock_key(project_id: int) -> str:
+        return f"uncovered_report_rerun:{project_id}"
 
 
 class ProjectStatus(StrEnum):

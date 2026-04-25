@@ -208,9 +208,7 @@ def test_create_text__rejects_slug_conflict(rama_client, flask_app):
         flask_app.config["TESTING"] = True
 
     session = get_session()
-    pariksha = session.execute(
-        select(db.Text).filter_by(slug="pariksha")
-    ).scalar_one()
+    pariksha = session.execute(select(db.Text).filter_by(slug="pariksha")).scalar_one()
     # Existing text was not overwritten — title should not match the form.
     assert pariksha.title != "Conflict"
 
@@ -297,6 +295,132 @@ def test_create_text__attaches_collections_and_parent(rama_client):
             )
         )
         session.commit()
+
+
+def test_unpublished_projects__unauth_redirects(client):
+    resp = client.get("/proofing/admin/unpublished-projects")
+    assert resp.status_code == 302
+
+
+def test_unpublished_projects__p2_renders(rama_client):
+    resp = rama_client.get("/proofing/admin/unpublished-projects")
+    assert resp.status_code == 200
+    assert b"Unpublished projects" in resp.data
+
+
+def test_unpublished_projects__admin_renders(admin_client):
+    resp = admin_client.get("/proofing/admin/unpublished-projects")
+    assert resp.status_code == 200
+    assert b"Unpublished projects" in resp.data
+
+
+def test_unpublished_project_detail__renders_when_no_report(admin_client):
+    resp = admin_client.get("/proofing/admin/unpublished-projects/test-project")
+    assert resp.status_code == 200
+    assert b"No report yet" in resp.data
+
+
+def test_unpublished_project_detail__renders_blocks_when_report_exists(
+    admin_client, flask_app
+):
+    from datetime import UTC, datetime
+    from sqlalchemy import select
+    from ambuda import database as db
+    from ambuda.queries import get_session
+
+    session = get_session()
+    project = session.execute(
+        select(db.Project).filter_by(slug="test-project")
+    ).scalar_one()
+
+    # Insert a fake report.
+    session.execute(
+        db.ProjectUncoveredReport.__table__.delete().where(
+            db.ProjectUncoveredReport.project_id == project.id
+        )
+    )
+    session.add(
+        db.ProjectUncoveredReport(
+            project_id=project.id,
+            generated_at=datetime.now(UTC),
+            payload={
+                "blocks": [
+                    {
+                        "page_slug": "1",
+                        "image_number": 1,
+                        "block_index": 0,
+                        "block_tag": "p",
+                        "block_text": "lonely block",
+                    }
+                ]
+            },
+        )
+    )
+    session.commit()
+
+    try:
+        resp = admin_client.get("/proofing/admin/unpublished-projects/test-project")
+        assert resp.status_code == 200
+        assert b"lonely block" in resp.data
+    finally:
+        session = get_session()
+        session.execute(
+            db.ProjectUncoveredReport.__table__.delete().where(
+                db.ProjectUncoveredReport.project_id == project.id
+            )
+        )
+        session.commit()
+
+
+def test_unpublished_project_detail__refresh_dispatches_task(admin_client):
+    from unittest.mock import patch
+
+    with patch(
+        "ambuda.tasks.uncovered_reports.maybe_rerun_report", return_value=True
+    ) as mock:
+        resp = admin_client.post(
+            "/proofing/admin/unpublished-projects/test-project/refresh",
+            data={"csrf_token": ""},
+        )
+    assert resp.status_code == 302
+    mock.assert_called_once()
+
+
+def test_unpublished_projects__refresh_all_dispatches_per_project(admin_client):
+    from unittest.mock import patch
+    from sqlalchemy import select
+    from ambuda import database as db
+    from ambuda.queries import get_session
+
+    session = get_session()
+    num_projects = session.execute(select(db.Project)).scalars().all()
+
+    with patch(
+        "ambuda.tasks.uncovered_reports.maybe_rerun_report", return_value=True
+    ) as mock:
+        resp = admin_client.post(
+            "/proofing/admin/unpublished-projects/refresh-all",
+            data={"csrf_token": ""},
+        )
+    assert resp.status_code == 302
+    assert mock.call_count == len(num_projects)
+
+
+def test_unpublished_projects__shows_all_projects_table(admin_client, flask_app):
+    """The bottom 'All projects' table lists every project, even covered ones."""
+    from sqlalchemy import select
+    from ambuda import database as db
+    from ambuda.queries import get_session
+
+    session = get_session()
+    projects = session.execute(select(db.Project)).scalars().all()
+
+    resp = admin_client.get("/proofing/admin/unpublished-projects")
+    assert resp.status_code == 200
+    body = resp.data.decode("utf-8")
+    assert "All projects" in body
+    for p in projects:
+        assert p.display_title in body
 
 
 def test_create_text__rejects_unknown_parent_slug(rama_client):

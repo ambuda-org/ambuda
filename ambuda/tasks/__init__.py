@@ -36,6 +36,7 @@ app = Celery(
         "ambuda.tasks.text_exports",
         "ambuda.tasks.batch_llm",
         "ambuda.tasks.text_validation",
+        "ambuda.tasks.uncovered_reports",
     ],
 )
 app.conf.update(

@@ -876,9 +876,7 @@ def create_text():
 
     session = q.get_session()
 
-    projects = (
-        session.query(db.Project).order_by(db.Project.display_title).all()
-    )
+    projects = session.query(db.Project).order_by(db.Project.display_title).all()
     all_collections = (
         session.query(db.TextCollection).order_by(db.TextCollection.title).all()
     )
@@ -955,9 +953,7 @@ def create_text():
                 select(db.Author).where(db.Author.name == author_name)
             ).scalar_one_or_none()
             if not author:
-                author = db.Author(
-                    name=author_name, slug=title_to_slug(author_name)
-                )
+                author = db.Author(name=author_name, slug=title_to_slug(author_name))
                 session.add(author)
                 session.flush()
             author_id = author.id
@@ -1035,6 +1031,184 @@ def rerun_text_report(slug):
     else:
         flash("A report re-run is already in progress.")
     return redirect(url_for("proofing.text_report", slug=slug))
+
+
+def _project_coverage_summary(project) -> dict:
+    """Cheap, image-range-only coverage check for one project.
+
+    Returns the count of pages with status R1/R2 whose image number falls
+    outside the union of image ranges of all *public* PublishConfig filters
+    on this project. Filters that don't have a clean image range (label-only,
+    OR/NOT, etc.) bump ``has_unbounded_filter`` so admins can drill down for
+    a precise count.
+    """
+    from ambuda.enums import SitePageStatus
+    from ambuda.models.proofing import PublishConfig
+    from ambuda.models.texts import TextStage
+    from ambuda.utils.text_publishing import Filter
+
+    public_configs = [
+        pc
+        for pc in project.publish_configs
+        if pc.text is not None and pc.text.stage == TextStage.PUBLIC
+    ]
+
+    covered: set[int] = set()
+    has_unbounded_filter = False
+    for pc in public_configs:
+        target = (pc.target or "").strip()
+        if not target:
+            # Empty target ≈ "matches everything" — treat as unbounded.
+            has_unbounded_filter = True
+            continue
+        try:
+            f = Filter(target if target.startswith("(") else f"(label {target})")
+        except ValueError:
+            continue
+        rng = f.image_range()
+        if rng is None:
+            has_unbounded_filter = True
+            continue
+        for img in range(rng[0], rng[1] + 1):
+            covered.add(img)
+
+    proofed_status_names = {SitePageStatus.R1, SitePageStatus.R2}
+    proofed_count = 0
+    uncovered_count = 0
+    for i, page in enumerate(project.pages):
+        image_number = i + 1
+        if page.status.name in proofed_status_names:
+            proofed_count += 1
+            if image_number not in covered:
+                uncovered_count += 1
+
+    return {
+        "proofed_count": proofed_count,
+        "uncovered_count": uncovered_count,
+        "has_unbounded_filter": has_unbounded_filter,
+        "num_public_configs": len(public_configs),
+    }
+
+
+@bp.route("/admin/unpublished-projects")
+@p2_required
+def unpublished_projects():
+    """List projects with proofed pages outside any public filter's image range.
+
+    Cheap inline pass: image-range-only, computed on each request. For exact
+    block-level details, drill into a project (which uses the cached Celery
+    report instead).
+    """
+    session = q.get_session()
+    projects = (
+        session.query(db.Project)
+        .options(
+            orm.selectinload(db.Project.publish_configs).selectinload(
+                db.PublishConfig.text
+            ),
+            orm.selectinload(db.Project.pages).selectinload(db.Page.status),
+        )
+        .order_by(db.Project.display_title)
+        .all()
+    )
+
+    reports_by_project = {
+        r.project_id: r for r in session.query(db.ProjectUncoveredReport).all()
+    }
+
+    rows = []
+    all_rows = []
+    for project in projects:
+        summary = _project_coverage_summary(project)
+        report = reports_by_project.get(project.id)
+        row = {
+            "project": project,
+            "report": report,
+            "report_block_count": (
+                len(report.payload.get("blocks", [])) if report else None
+            ),
+            **summary,
+        }
+        all_rows.append(row)
+        if summary["uncovered_count"] > 0 or summary["has_unbounded_filter"]:
+            rows.append(row)
+
+    return render_template(
+        "proofing/unpublished_projects.html",
+        rows=rows,
+        all_rows=all_rows,
+        form=FlaskForm(),
+    )
+
+
+@bp.route("/admin/unpublished-projects/refresh-all", methods=["POST"])
+@p2_required
+def refresh_all_unpublished_reports():
+    """Dispatch a Celery task to recompute the report for every project."""
+    from ambuda.tasks.uncovered_reports import maybe_rerun_report
+
+    session = q.get_session()
+    project_ids = [pid for (pid,) in session.query(db.Project.id).all()]
+
+    app_env = current_app.config["AMBUDA_ENVIRONMENT"]
+    dispatched = 0
+    skipped = 0
+    for pid in project_ids:
+        if maybe_rerun_report(pid, app_env):
+            dispatched += 1
+        else:
+            skipped += 1
+
+    flash(
+        f"Dispatched {dispatched} report task(s); {skipped} already in progress.",
+        "info",
+    )
+    return redirect(url_for("proofing.unpublished_projects"))
+
+
+@bp.route("/admin/unpublished-projects/<slug>")
+@p2_required
+def unpublished_project_detail(slug):
+    """Per-project drill-down: shows the cached uncovered-blocks report."""
+    project = q.project(slug)
+    if project is None:
+        abort(404)
+
+    session = q.get_session()
+    report = (
+        session.query(db.ProjectUncoveredReport)
+        .filter_by(project_id=project.id)
+        .one_or_none()
+    )
+    blocks = report.payload.get("blocks", []) if report else []
+
+    return render_template(
+        "proofing/unpublished_project_detail.html",
+        project=project,
+        report=report,
+        blocks=blocks,
+        form=FlaskForm(),
+    )
+
+
+@bp.route("/admin/unpublished-projects/<slug>/refresh", methods=["POST"])
+@p2_required
+def refresh_unpublished_project_report(slug):
+    """Trigger a Celery task to recompute the uncovered-blocks report."""
+    from ambuda.tasks.uncovered_reports import maybe_rerun_report
+
+    project = q.project(slug)
+    if project is None:
+        abort(404)
+
+    if maybe_rerun_report(project.id, current_app.config["AMBUDA_ENVIRONMENT"]):
+        flash(
+            "Report refresh started. Reload in a moment to see updated results.",
+            "info",
+        )
+    else:
+        flash("A report refresh is already in progress for this project.", "info")
+    return redirect(url_for("proofing.unpublished_project_detail", slug=slug))
 
 
 @bp.route("/admin/dashboard/")

@@ -49,6 +49,9 @@
   <h2>{{ _('Quick Links') }}</h2>
   <ul>
     <li><a href="{{ url_for('proofing.recent_changes') }}" class="text-sky-900 hover:underline">{{ _('Activity') }}</a></li>
+    {% if current_user.is_authenticated and current_user.is_p2 %}
+    <li><a href="{{ url_for('proofing.unpublished_projects') }}" class="text-sky-900 hover:underline">{{ _('Unpublished projects') }}</a></li>
+    {% endif %}
   </ul>
 </div>
 
