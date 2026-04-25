@@ -27,7 +27,7 @@ from werkzeug.utils import redirect
 
 import ambuda.utils.text_publishing as publishing_utils
 from ambuda.consts import SINGLE_SECTION_SLUG
-from ambuda.utils.text_publishing import Filter, TEIBlock, TEISection
+from ambuda.utils.text_publishing import Filter, TEIBlock, TEISection, filter_sort_key
 from ambuda import database as db
 from ambuda import queries as q
 from ambuda.enums import SitePageStatus
@@ -430,7 +430,7 @@ def config(slug):
         )
 
         # Create/update stub texts and new configs.
-        for order, pc in enumerate(new_configs):
+        for pc in new_configs:
             pc_slug = pc.get("slug", "")
             pc_title = pc.get("title", "")
             pc_language = pc.get("language", "sa") or "sa"
@@ -492,7 +492,6 @@ def config(slug):
             new_pc = PublishConfig(
                 project_id=project_.id,
                 text_id=text.id,
-                order=order,
                 target=pc.get("target") or None,
             )
             session.add(new_pc)
@@ -527,12 +526,14 @@ def config(slug):
         flash("Configuration saved successfully.", "success")
         return redirect(url_for("proofing.publish.config", slug=slug))
 
-    # GET: load existing configs from DB
+    # GET: load existing configs from DB and sort by filter image range so
+    # configs appear in manuscript order. Filters without an image selector
+    # fall to the end and tiebreak by id (insertion order).
     configs = (
         session.execute(
             sqla.select(PublishConfig)
             .where(PublishConfig.project_id == project_.id)
-            .order_by(PublishConfig.order)
+            .order_by(PublishConfig.id)
             .options(
                 selectinload(PublishConfig.text).selectinload(db.Text.collections),
                 selectinload(PublishConfig.text).selectinload(db.Text.author),
@@ -541,6 +542,7 @@ def config(slug):
         .scalars()
         .all()
     )
+    configs = sorted(configs, key=lambda c: filter_sort_key(c.target))
 
     publish_config = [
         {

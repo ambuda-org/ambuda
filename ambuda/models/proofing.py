@@ -108,7 +108,6 @@ class PublishConfig(Base):
     text_id = Column(
         Integer, ForeignKey("texts.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    order = Column(Integer, nullable=False)
     target: Mapped[str | None] = mapped_column(String, nullable=True)
 
     project = relationship("Project", backref="publish_configs")

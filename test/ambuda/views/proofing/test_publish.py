@@ -189,7 +189,6 @@ def test_publish_config_get__loads_saved_configs(rama_client):
     pc = PublishConfig(
         project_id=project.id,
         text_id=text.id,
-        order=0,
     )
     session.add(pc)
     session.commit()

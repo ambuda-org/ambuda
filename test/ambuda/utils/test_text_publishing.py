@@ -182,6 +182,111 @@ def test_filter_matches__image_label_picks_first():
     assert not f.matches(_make_block(3, 2, page))
 
 
+# Filter sort key
+# -------------------------------------------------------------------
+
+
+def test_filter_sort_key__simple_image_orders_ascending():
+    targets = ["(image 5)", "(image 1)", "(image 3)"]
+    assert sorted(targets, key=s.filter_sort_key) == [
+        "(image 1)",
+        "(image 3)",
+        "(image 5)",
+    ]
+
+
+def test_filter_sort_key__image_range_orders_by_start():
+    targets = ["(image 5 10)", "(image 1 4)", "(image 11 20)"]
+    assert sorted(targets, key=s.filter_sort_key) == [
+        "(image 1 4)",
+        "(image 5 10)",
+        "(image 11 20)",
+    ]
+
+
+def test_filter_sort_key__page_alias_treated_as_unsortable():
+    # Only `image` counts — `page` (and anything else) sorts last.
+    targets = ["(page 1)", "(image 5)"]
+    assert sorted(targets, key=s.filter_sort_key) == ["(image 5)", "(page 1)"]
+
+
+def test_filter_sort_key__image_with_label_spec():
+    targets = ["(image 5:foo)", "(image 1:bar 3:baz)"]
+    assert sorted(targets, key=s.filter_sort_key) == [
+        "(image 1:bar 3:baz)",
+        "(image 5:foo)",
+    ]
+
+
+def test_filter_sort_key__nested_image_in_and():
+    targets = ["(and (image 5) (tag p))", "(image 1)"]
+    assert sorted(targets, key=s.filter_sort_key) == [
+        "(image 1)",
+        "(and (image 5) (tag p))",
+    ]
+
+
+def test_filter_sort_key__nested_image_in_or():
+    targets = ["(or (image 5) (image 7))", "(image 1)"]
+    assert sorted(targets, key=s.filter_sort_key) == [
+        "(image 1)",
+        "(or (image 5) (image 7))",
+    ]
+
+
+def test_filter_sort_key__nested_image_in_not():
+    targets = ["(not (image 5))", "(image 1)"]
+    assert sorted(targets, key=s.filter_sort_key) == [
+        "(image 1)",
+        "(not (image 5))",
+    ]
+
+
+def test_filter_sort_key__no_image_sorts_last():
+    targets = ["(label foo)", "(image 1)", "(tag p)"]
+    assert sorted(targets, key=s.filter_sort_key) == [
+        "(image 1)",
+        "(label foo)",
+        "(tag p)",
+    ]
+
+
+def test_filter_sort_key__bare_label_sorts_last():
+    targets = ["foo", "(image 1)"]
+    assert sorted(targets, key=s.filter_sort_key) == ["(image 1)", "foo"]
+
+
+def test_filter_sort_key__empty_target_sorts_last():
+    targets = ["", "(image 1)", None]
+    assert sorted(targets, key=s.filter_sort_key) == ["(image 1)", "", None]
+
+
+def test_filter_sort_key__invalid_filter_sorts_last():
+    targets = ["(image 1", "(image 1)"]
+    assert sorted(targets, key=s.filter_sort_key) == ["(image 1)", "(image 1"]
+
+
+def test_filter_sort_key__stable_for_equal_image_ranges():
+    items = [
+        ("a", "(image 1)"),
+        ("b", "(image 1)"),
+        ("c", "(image 1)"),
+    ]
+    sorted_items = sorted(items, key=lambda x: s.filter_sort_key(x[1]))
+    assert [x[0] for x in sorted_items] == ["a", "b", "c"]
+
+
+def test_filter_sort_key__stable_for_no_image_ranges():
+    items = [
+        ("a", "(label x)"),
+        ("b", "(image 1)"),
+        ("c", "(label y)"),
+        ("d", "(image 2)"),
+    ]
+    sorted_items = sorted(items, key=lambda x: s.filter_sort_key(x[1]))
+    assert [x[0] for x in sorted_items] == ["b", "d", "a", "c"]
+
+
 def test_n_counter():
     ns = s.NCounter()
 
@@ -768,7 +873,7 @@ def _test_create_tei_document(input, expected):
         slug="test", display_title="Test", page_numbers="", pages=pages
     )
     text = db.Text(slug="test", title="Test", language="sa", stage="public")
-    config = db.PublishConfig(target="(and)", order=0, text=text)
+    config = db.PublishConfig(target="(and)", text=text)
 
     conversion = s.create_tei_document(project, config, revisions=revisions)
     assert conversion.items == expected
@@ -926,7 +1031,7 @@ def test_create_tei_document__page_order_differs_from_page_id():
     )
     # Select image 1 = visual position 1 = page_id=20 (order=0) = "b"
     text = db.Text(slug="test", title="Test", language="sa", stage="public")
-    config = db.PublishConfig(target="(image 1)", order=0, text=text)
+    config = db.PublishConfig(target="(image 1)", text=text)
 
     conversion = s.create_tei_document(
         project,
@@ -965,7 +1070,7 @@ def test_create_tei_document__pages_without_revisions_do_not_shift_image_numbers
     )
     # Select only image 3 — should match page_id=2 ("c"), not be shifted to image 2.
     text = db.Text(slug="test", title="Test", language="sa", stage="public")
-    config = db.PublishConfig(target="(image 3)", order=0, text=text)
+    config = db.PublishConfig(target="(image 3)", text=text)
 
     conversion = s.create_tei_document(project, config, revisions=[r0, r2])
     assert conversion.items == [

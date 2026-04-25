@@ -265,6 +265,59 @@ class Filter:
         return _matches(self.predicate)
 
 
+_FILTER_SORT_KEY_LAST = (1, 0, 0)
+
+
+def filter_sort_key(target: str | None) -> tuple[int, int, int]:
+    """Sort key for a publish-config target, ordered by image range.
+
+    Returns a tuple usable with ``sorted(..., key=filter_sort_key)``. Filters
+    with an ``image`` selector — including ones nested inside ``and``, ``or``,
+    or ``not`` — sort first by ascending start image, then end image. Anything
+    else (no ``image``, bare label, empty/None, unparseable) is treated as
+    unsortable and goes to the end while preserving input order via Python's
+    stable sort.
+    """
+    if not target or not target.strip().startswith("("):
+        return _FILTER_SORT_KEY_LAST
+
+    try:
+        f = Filter(target)
+    except ValueError:
+        return _FILTER_SORT_KEY_LAST
+
+    def _find(sexp) -> tuple[int, int] | None:
+        try:
+            key = sexp[0]
+        except (IndexError, TypeError):
+            return None
+
+        if key == "image":
+            try:
+                start, _ = Filter._parse_image_spec(sexp[1])
+            except (IndexError, ValueError):
+                return None
+            try:
+                end, _ = Filter._parse_image_spec(sexp[2])
+            except (IndexError, ValueError):
+                end = start
+            return (start, end)
+
+        best: tuple[int, int] | None = None
+        for child in sexp[1:]:
+            r = _find(child)
+            if r is None:
+                continue
+            if best is None or r < best:
+                best = r
+        return best
+
+    r = _find(f.predicate)
+    if r is None:
+        return _FILTER_SORT_KEY_LAST
+    return (0, r[0], r[1])
+
+
 @dc.dataclass
 class UncoveredBlock:
     """A block not matched by any publish config filter."""
@@ -282,7 +335,7 @@ def find_uncovered_blocks(project: db.Project) -> list[UncoveredBlock]:
     (Skips 'ignore' and 'metadata' blocks.)
     """
 
-    publish_configs = sorted(project.publish_configs, key=lambda c: c.order)
+    publish_configs = list(project.publish_configs)
 
     if not publish_configs:
         return []

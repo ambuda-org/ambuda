@@ -123,8 +123,6 @@ export default () => ({
   allCollections: window.ALL_COLLECTIONS || [],
   allLanguages: null,
   pickers: {},
-  dragIndex: null,
-  dropTarget: null,
 
   init() {
     this.pickers = {
@@ -248,48 +246,6 @@ export default () => ({
   removeCollection(entry, id) {
     if (!entry.collection_ids) return;
     entry.collection_ids = entry.collection_ids.filter((cid) => cid !== id);
-  },
-
-  // -- Drag-and-drop reordering --
-
-  onDragStart(index, event) {
-    this.dragIndex = index;
-    event.dataTransfer.effectAllowed = 'move';
-    event.dataTransfer.setData('text/plain', index);
-  },
-
-  onDragOver(event) {
-    const row = event.target.closest('[data-index]');
-    if (!row || this.dragIndex === null) return;
-    const index = parseInt(row.dataset.index, 10);
-    if (this.dragIndex === index) {
-      this.dropTarget = null;
-      return;
-    }
-    this.dropTarget = index;
-    event.dataTransfer.dropEffect = 'move';
-  },
-
-  onDragLeave(event) {
-    const list = this.$refs.configList;
-    if (list && !list.contains(event.relatedTarget)) this.dropTarget = null;
-  },
-
-  onDrop(event) {
-    const row = event.target.closest('[data-index]');
-    if (!row || this.dragIndex === null) return;
-    const index = parseInt(row.dataset.index, 10);
-    if (this.dragIndex === index) return;
-    const [moved] = this.config.publish.splice(this.dragIndex, 1);
-    const insertAt = index > this.dragIndex ? index - 1 : index;
-    this.config.publish.splice(insertAt, 0, moved);
-    this.dragIndex = null;
-    this.dropTarget = null;
-  },
-
-  onDragEnd() {
-    this.dragIndex = null;
-    this.dropTarget = null;
   },
 
   // -- Auto-slug --

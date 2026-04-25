@@ -350,7 +350,6 @@ def test_import_projects_and_export_projects(admin_client):
     publish_config = db.PublishConfig(
         project_id=export_project.id,
         text_id=pc_text.id,
-        order=0,
     )
     session.add(publish_config)
 
@@ -450,7 +449,6 @@ def test_import_projects_and_export_projects(admin_client):
             "id": Any,
             "project_id": imported_project.id,
             "text_id": Any,
-            "order": 0,
             "target": None,
         },
     )

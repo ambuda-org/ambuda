@@ -40,29 +40,13 @@
           <button type="button" @click="addPublishEntry()" class="btn btn-basic text-sm">+ Add config</button>
         </div>
 
-        <div x-ref="configList"
-             @dragover.prevent="onDragOver($event)"
-             @dragleave="onDragLeave($event)"
-             @drop.prevent="onDrop($event)"
-             @dragend="onDragEnd()">
+        <div>
         <template x-for="(entry, index) in config.publish" :key="index">
-          <div class="border rounded mb-2 bg-white"
-               :class="dropTarget === index ? 'border-blue-400 bg-blue-50' : 'border-slate-300'"
-               :data-index="index">
+          <div class="border border-slate-300 rounded mb-2 bg-white">
             {# Collapsed header #}
             <div class="flex justify-between items-center px-3 py-2 cursor-pointer select-none"
                  @click="entry._expanded = !entry._expanded">
               <div class="flex items-center gap-2">
-                <span draggable="true"
-                      class="flex items-center cursor-grab active:cursor-grabbing"
-                      @dragstart.stop="onDragStart(index, $event)"
-                      @click.stop>
-                  <svg class="w-4 h-4 shrink-0 text-slate-400 pointer-events-none" fill="currentColor" viewBox="0 0 24 24">
-                    <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/>
-                    <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-                    <circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
-                  </svg>
-                </span>
                 <svg :class="entry._expanded ? 'rotate-90' : ''" class="w-3.5 h-3.5 shrink-0 text-slate-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
                 </svg>

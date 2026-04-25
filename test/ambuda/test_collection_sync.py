@@ -36,7 +36,6 @@ def sync_env(flask_app):
         pc = db.PublishConfig(
             project_id=project.id,
             text_id=text.id,
-            order=0,
         )
         session.add(pc)
         session.commit()
