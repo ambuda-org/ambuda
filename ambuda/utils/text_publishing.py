@@ -329,6 +329,102 @@ class UncoveredBlock:
     block_text: str
 
 
+def find_unpublished_blocks(project: db.Project) -> list[UncoveredBlock]:
+    """Return blocks on R1+ pages not matched by any *public* publish config.
+
+    Used by the admin "unpublished projects" report. Differs from
+    ``find_uncovered_blocks`` in three ways:
+
+    - Only configs whose linked Text has ``stage='public'`` count as
+      "covered". Stub-text configs are ignored.
+    - Only pages with status R1 or R2 are considered.
+    - When a project has no public configs at all, every R1+ block is
+      reported (rather than returning the empty list).
+    """
+    from ambuda.models.texts import TextStage
+
+    public_configs = [
+        pc
+        for pc in project.publish_configs
+        if pc.text is not None and pc.text.stage == TextStage.PUBLIC
+    ]
+
+    filters: list[Filter] = []
+    matches_everything = False
+    for pc in public_configs:
+        target = pc.target or ""
+        try:
+            if target.startswith("("):
+                filters.append(Filter(target))
+            elif target:
+                filters.append(Filter(f"(label {target})"))
+            else:
+                # Empty target ≈ matches everything.
+                matches_everything = True
+                break
+        except ValueError:
+            continue
+
+    if matches_everything:
+        return []
+
+    session = q.get_session()
+    subq = (
+        select(db.Revision.page_id, func.max(db.Revision.id).label("max_id"))
+        .where(db.Revision.project_id == project.id)
+        .group_by(db.Revision.page_id)
+        .subquery()
+    )
+    revisions = (
+        session.execute(
+            select(db.Revision)
+            .join(subq, db.Revision.id == subq.c.max_id)
+            .join(db.Page, db.Revision.page_id == db.Page.id)
+            .order_by(db.Page.order)
+        )
+        .scalars()
+        .all()
+    )
+
+    proofed_status_names = {SitePageStatus.R1, SitePageStatus.R2}
+    proofed_page_ids = {
+        page.id for page in project.pages if page.status.name in proofed_status_names
+    }
+    page_id_to_slug = {page.id: page.slug for page in project.pages}
+    page_id_to_image_number = {page.id: i + 1 for i, page in enumerate(project.pages)}
+
+    uncovered: list[UncoveredBlock] = []
+    for revision in revisions:
+        if revision.page_id not in proofed_page_ids:
+            continue
+        image_number = page_id_to_image_number.get(revision.page_id)
+        if image_number is None:
+            continue
+
+        try:
+            page_xml = _safe_fromstring(revision.content)
+        except etree.XMLSyntaxError:
+            continue
+
+        page_slug = page_id_to_slug.get(revision.page_id, "?")
+
+        for block_index, block_el in enumerate(page_xml):
+            tag = block_el.tag
+            if tag in (BlockType.IGNORE, BlockType.METADATA):
+                continue
+
+            ib = IndexedBlock(revision, image_number, block_index, page_xml)
+            if not filters or not any(f.matches(ib) for f in filters):
+                text = (block_el.text or "").strip()
+                if text:
+                    text = text[:80] + ("..." if len(text) > 80 else "")
+                uncovered.append(
+                    UncoveredBlock(page_slug, image_number, block_index, tag, text)
+                )
+
+    return uncovered
+
+
 def find_uncovered_blocks(project: db.Project) -> list[UncoveredBlock]:
     """Find all blocks not matched by any publish config's target filter.
 

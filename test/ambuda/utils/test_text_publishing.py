@@ -1261,3 +1261,190 @@ def test_create_tei_document__autoincrement_with_mixed_types():
             s.TEIBlock(xml='<p n="p3">c</p>', slug="p3", page_id=1),
         ],
     )
+
+
+# find_unpublished_blocks
+# -------------------------------------------------------------------
+
+
+def _setup_unpub_project(session, slug, page_specs, configs=()):
+    """Create a project with given pages + revisions + configs.
+
+    page_specs: list of (status_name, page_xml) tuples; pages get image
+    numbers 1..N in input order.
+    configs: list of (target, text_stage) — creates a stub Text per config
+    and links a PublishConfig.
+    """
+    from sqlalchemy import select
+    from ambuda.models.proofing import PublishConfig
+    from ambuda.models.texts import TextStage
+
+    # Project.board has cascade="delete", so each test gets a fresh board to
+    # avoid trampling the shared test-project's board on cleanup.
+    board = db.Board(title=f"board-{slug}")
+    session.add(board)
+    session.flush()
+
+    project = db.Project(
+        slug=slug,
+        display_title=f"Unpub {slug}",
+        creator_id=1,
+        board_id=board.id,
+        genre_id=None,
+    )
+    session.add(project)
+    session.flush()
+
+    for i, (status_name, page_xml) in enumerate(page_specs):
+        status = session.execute(
+            select(db.PageStatus).filter_by(name=status_name)
+        ).scalar_one()
+        page = db.Page(
+            project_id=project.id,
+            slug=str(i + 1),
+            order=i,
+            status_id=status.id,
+        )
+        session.add(page)
+        session.flush()
+        rev = db.Revision(
+            project_id=project.id,
+            page_id=page.id,
+            author_id=1,
+            status_id=status.id,
+            content=page_xml,
+        )
+        session.add(rev)
+
+    for j, (target, stage) in enumerate(configs):
+        text = db.Text(
+            slug=f"{slug}-text-{j}",
+            title=f"{slug} text {j}",
+            language="sa",
+            stage=stage,
+            project_id=project.id,
+        )
+        session.add(text)
+        session.flush()
+        session.add(
+            PublishConfig(project_id=project.id, text_id=text.id, target=target)
+        )
+
+    session.commit()
+    return project
+
+
+def _cleanup_unpub_project(session, slug):
+    from sqlalchemy import select
+
+    project = session.execute(
+        select(db.Project).filter_by(slug=slug)
+    ).scalar_one_or_none()
+    if not project:
+        return
+    # Delete configs + their stub texts.
+    from ambuda.models.proofing import PublishConfig
+
+    for pc in (
+        session.execute(
+            select(PublishConfig).where(PublishConfig.project_id == project.id)
+        )
+        .scalars()
+        .all()
+    ):
+        text = session.get(db.Text, pc.text_id)
+        session.delete(pc)
+        if text:
+            session.delete(text)
+    session.delete(project)
+    session.commit()
+
+
+def test_find_unpublished_blocks__no_public_configs_lists_all_r1_blocks(flask_app):
+    with flask_app.app_context():
+        from ambuda.queries import get_session
+
+        session = get_session()
+        try:
+            project = _setup_unpub_project(
+                session,
+                "unpub-no-configs",
+                page_specs=[
+                    ("reviewed-1", "<page><p>r1 block</p></page>"),
+                    ("reviewed-0", "<page><p>r0 block</p></page>"),
+                ],
+            )
+            blocks = s.find_unpublished_blocks(project)
+            assert len(blocks) == 1
+            assert blocks[0].image_number == 1
+            assert "r1 block" in blocks[0].block_text
+        finally:
+            _cleanup_unpub_project(session, "unpub-no-configs")
+
+
+def test_find_unpublished_blocks__stub_config_does_not_cover(flask_app):
+    from ambuda.models.texts import TextStage
+
+    with flask_app.app_context():
+        from ambuda.queries import get_session
+
+        session = get_session()
+        try:
+            project = _setup_unpub_project(
+                session,
+                "unpub-stub-only",
+                page_specs=[("reviewed-1", "<page><p>still uncovered</p></page>")],
+                configs=[("(image 1)", TextStage.STUB)],
+            )
+            blocks = s.find_unpublished_blocks(project)
+            assert len(blocks) == 1
+        finally:
+            _cleanup_unpub_project(session, "unpub-stub-only")
+
+
+def test_find_unpublished_blocks__public_config_covers_image_range(flask_app):
+    from ambuda.models.texts import TextStage
+
+    with flask_app.app_context():
+        from ambuda.queries import get_session
+
+        session = get_session()
+        try:
+            project = _setup_unpub_project(
+                session,
+                "unpub-partial",
+                page_specs=[
+                    ("reviewed-1", "<page><p>covered</p></page>"),
+                    ("reviewed-1", "<page><p>covered</p></page>"),
+                    ("reviewed-1", "<page><p>uncovered</p></page>"),
+                ],
+                configs=[("(image 1 2)", TextStage.PUBLIC)],
+            )
+            blocks = s.find_unpublished_blocks(project)
+            assert len(blocks) == 1
+            assert blocks[0].image_number == 3
+        finally:
+            _cleanup_unpub_project(session, "unpub-partial")
+
+
+def test_find_unpublished_blocks__skips_non_proofed_pages(flask_app):
+    with flask_app.app_context():
+        from ambuda.queries import get_session
+
+        session = get_session()
+        try:
+            project = _setup_unpub_project(
+                session,
+                "unpub-statuses",
+                page_specs=[
+                    ("reviewed-0", "<page><p>R0</p></page>"),
+                    ("reviewed-1", "<page><p>R1</p></page>"),
+                    ("reviewed-2", "<page><p>R2</p></page>"),
+                    ("skip", "<page><p>SKIP</p></page>"),
+                ],
+            )
+            blocks = s.find_unpublished_blocks(project)
+            image_numbers = sorted(b.image_number for b in blocks)
+            assert image_numbers == [2, 3]
+        finally:
+            _cleanup_unpub_project(session, "unpub-statuses")

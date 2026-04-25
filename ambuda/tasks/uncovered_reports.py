@@ -11,7 +11,7 @@ from datetime import UTC, datetime
 from ambuda import database as db
 from ambuda.tasks import app
 from ambuda.tasks.utils import get_db_session, get_redis
-from ambuda.utils.text_publishing import find_uncovered_blocks
+from ambuda.utils.text_publishing import find_unpublished_blocks
 
 
 REPORT_LOCK_TTL = 300  # seconds
@@ -42,8 +42,8 @@ def run_report_inner(
         if not project:
             raise ValueError(f"Project with id {project_id} not found")
 
-        logging.info(f"Computing uncovered-blocks report for {project.slug}")
-        blocks = find_uncovered_blocks(project)
+        logging.info(f"Computing unpublished-blocks report for {project.slug}")
+        blocks = find_unpublished_blocks(project)
         payload = {"blocks": [dc.asdict(b) for b in blocks]}
 
         existing = (
