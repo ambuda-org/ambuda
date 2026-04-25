@@ -329,32 +329,40 @@ class UncoveredBlock:
     block_text: str
 
 
-def find_unpublished_blocks(project: db.Project, session=None) -> list[UncoveredBlock]:
-    """Return blocks on R1+ pages not matched by any *public* publish config.
+@dc.dataclass
+class UnpublishedReport:
+    """Aggregate output of the admin "unpublished blocks" analysis."""
 
-    Used by the admin "unpublished projects" report. Differs from
-    ``find_uncovered_blocks`` in three ways:
+    blocks: list[UncoveredBlock]
+    #: Total non-ignore/metadata blocks across all R1/R2 pages — the
+    #: denominator for the "uncovered" count.
+    total_proofed_blocks: int
 
-    - Only configs whose linked Text has ``stage='public'`` count as
-      "covered". Stub-text configs are ignored.
-    - Only pages with status R1 or R2 are considered.
-    - When a project has no public configs at all, every R1+ block is
-      reported (rather than returning the empty list).
+
+def find_unpublished_blocks(
+    project: db.Project, session=None
+) -> UnpublishedReport:
+    """Return an UnpublishedReport for blocks on R1+ pages not matched by any
+    publish config's filter.
+
+    Implements the admin "unpublished projects" policy:
+
+    1. Consider only pages with status R1 or R2.
+    2. Split each page into blocks.
+    3. A block is "unpublished" if no publish config (regardless of the
+       linked Text's stage — stub or public, both count) matches it.
+
+    When a project has no publish configs at all, every R1+ block is
+    reported.
 
     `session` is exposed for callers running outside a Flask app context
     (e.g. Celery tasks), where ``q.get_session()`` would fail.
     """
-    from ambuda.models.texts import TextStage
-
-    public_configs = [
-        pc
-        for pc in project.publish_configs
-        if pc.text is not None and pc.text.stage == TextStage.PUBLIC
-    ]
+    all_configs = list(project.publish_configs)
 
     filters: list[Filter] = []
     matches_everything = False
-    for pc in public_configs:
+    for pc in all_configs:
         target = pc.target or ""
         try:
             if target.startswith("("):
@@ -369,7 +377,12 @@ def find_unpublished_blocks(project: db.Project, session=None) -> list[Uncovered
             continue
 
     if matches_everything:
-        return []
+        # Still compute the total so the report shows the denominator even
+        # when nothing is "uncovered".
+        return UnpublishedReport(
+            blocks=[],
+            total_proofed_blocks=_count_proofed_blocks(project, session),
+        )
 
     if session is None:
         session = q.get_session()
@@ -398,6 +411,7 @@ def find_unpublished_blocks(project: db.Project, session=None) -> list[Uncovered
     page_id_to_image_number = {page.id: i + 1 for i, page in enumerate(project.pages)}
 
     uncovered: list[UncoveredBlock] = []
+    total_proofed_blocks = 0
     for revision in revisions:
         if revision.page_id not in proofed_page_ids:
             continue
@@ -417,6 +431,7 @@ def find_unpublished_blocks(project: db.Project, session=None) -> list[Uncovered
             if tag in (BlockType.IGNORE, BlockType.METADATA):
                 continue
 
+            total_proofed_blocks += 1
             ib = IndexedBlock(revision, image_number, block_index, page_xml)
             if not filters or not any(f.matches(ib) for f in filters):
                 text = (block_el.text or "").strip()
@@ -426,7 +441,45 @@ def find_unpublished_blocks(project: db.Project, session=None) -> list[Uncovered
                     UncoveredBlock(page_slug, image_number, block_index, tag, text)
                 )
 
-    return uncovered
+    return UnpublishedReport(
+        blocks=uncovered, total_proofed_blocks=total_proofed_blocks
+    )
+
+
+def _count_proofed_blocks(project: db.Project, session) -> int:
+    """Count non-ignore/metadata blocks across all R1/R2 pages."""
+    subq = (
+        select(db.Revision.page_id, func.max(db.Revision.id).label("max_id"))
+        .where(db.Revision.project_id == project.id)
+        .group_by(db.Revision.page_id)
+        .subquery()
+    )
+    revisions = (
+        session.execute(
+            select(db.Revision)
+            .join(subq, db.Revision.id == subq.c.max_id)
+            .join(db.Page, db.Revision.page_id == db.Page.id)
+        )
+        .scalars()
+        .all()
+    )
+    proofed_status_names = {SitePageStatus.R1, SitePageStatus.R2}
+    proofed_page_ids = {
+        page.id for page in project.pages if page.status.name in proofed_status_names
+    }
+    total = 0
+    for revision in revisions:
+        if revision.page_id not in proofed_page_ids:
+            continue
+        try:
+            page_xml = _safe_fromstring(revision.content)
+        except etree.XMLSyntaxError:
+            continue
+        for block_el in page_xml:
+            if block_el.tag in (BlockType.IGNORE, BlockType.METADATA):
+                continue
+            total += 1
+    return total
 
 
 def find_uncovered_blocks(project: db.Project) -> list[UncoveredBlock]:

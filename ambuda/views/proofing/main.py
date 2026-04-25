@@ -1060,6 +1060,9 @@ def unpublished_projects():
             "report_block_count": (
                 len(report.payload.get("blocks", [])) if report else None
             ),
+            "total_proofed_blocks": (
+                report.payload.get("total_proofed_blocks") if report else None
+            ),
         }
         for project, report in rows_data
     ]

@@ -43,8 +43,11 @@ def run_report_inner(
             raise ValueError(f"Project with id {project_id} not found")
 
         logging.info(f"Computing unpublished-blocks report for {project.slug}")
-        blocks = find_unpublished_blocks(project, session=session)
-        payload = {"blocks": [dc.asdict(b) for b in blocks]}
+        report = find_unpublished_blocks(project, session=session)
+        payload = {
+            "blocks": [dc.asdict(b) for b in report.blocks],
+            "total_proofed_blocks": report.total_proofed_blocks,
+        }
 
         existing = (
             session.query(db.ProjectUncoveredReport)

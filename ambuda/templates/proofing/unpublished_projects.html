@@ -25,7 +25,7 @@
     <thead class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wide">
       <tr>
         <th class="text-left px-3 py-2">{{ _('Project') }}</th>
-        <th class="text-right px-3 py-2">{{ _('Uncovered blocks') }}</th>
+        <th class="text-right px-3 py-2">{{ _('Uncovered / total blocks') }}</th>
         <th class="text-left px-3 py-2">{{ _('Last computed') }}</th>
         <th class="text-right px-3 py-2"></th>
       </tr>
@@ -41,7 +41,7 @@
           {% if r.report_block_count is none %}
             <span class="text-slate-400">—</span>
           {% else %}
-            {{ r.report_block_count }}
+            {{ r.report_block_count }}<span class="text-slate-400"> / {% if r.total_proofed_blocks is none %}?{% else %}{{ r.total_proofed_blocks }}{% endif %}</span>
           {% endif %}
         </td>
         <td class="px-3 py-2 text-xs text-slate-500">

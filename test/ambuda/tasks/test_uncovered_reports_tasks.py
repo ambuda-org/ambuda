@@ -70,6 +70,7 @@ def test_run_report_inner_writes_report_and_clears_lock(flask_app):
         ).scalar_one()
         assert report.generated_at is not None
         assert "blocks" in report.payload
+        assert "total_proofed_blocks" in report.payload
 
         mock_redis.delete.assert_called_once_with(
             db.ProjectUncoveredReport.rerun_lock_key(project.id)

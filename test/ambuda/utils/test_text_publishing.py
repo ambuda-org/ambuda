@@ -1360,7 +1360,9 @@ def _cleanup_unpub_project(session, slug):
     session.commit()
 
 
-def test_find_unpublished_blocks__no_public_configs_lists_all_r1_blocks(flask_app):
+def test_find_unpublished_blocks__zero_configs_reports_all_r1_blocks(flask_app):
+    """A project with no publish configs is a "severe" case — every R1+
+    block is unpublished and should surface in the report."""
     with flask_app.app_context():
         from ambuda.queries import get_session
 
@@ -1374,15 +1376,17 @@ def test_find_unpublished_blocks__no_public_configs_lists_all_r1_blocks(flask_ap
                     ("reviewed-0", "<page><p>r0 block</p></page>"),
                 ],
             )
-            blocks = s.find_unpublished_blocks(project)
-            assert len(blocks) == 1
-            assert blocks[0].image_number == 1
-            assert "r1 block" in blocks[0].block_text
+            report = s.find_unpublished_blocks(project)
+            assert len(report.blocks) == 1
+            assert report.blocks[0].image_number == 1
+            assert "r1 block" in report.blocks[0].block_text
+            assert report.total_proofed_blocks == 1
         finally:
             _cleanup_unpub_project(session, "unpub-no-configs")
 
 
-def test_find_unpublished_blocks__stub_config_does_not_cover(flask_app):
+def test_find_unpublished_blocks__stub_config_counts_as_covering(flask_app):
+    """Per the policy, *any* publish config covers — stage doesn't matter."""
     from ambuda.models.texts import TextStage
 
     with flask_app.app_context():
@@ -1393,11 +1397,12 @@ def test_find_unpublished_blocks__stub_config_does_not_cover(flask_app):
             project = _setup_unpub_project(
                 session,
                 "unpub-stub-only",
-                page_specs=[("reviewed-1", "<page><p>still uncovered</p></page>")],
+                page_specs=[("reviewed-1", "<page><p>covered by stub</p></page>")],
                 configs=[("(image 1)", TextStage.STUB)],
             )
-            blocks = s.find_unpublished_blocks(project)
-            assert len(blocks) == 1
+            report = s.find_unpublished_blocks(project)
+            assert report.blocks == []
+            assert report.total_proofed_blocks == 1
         finally:
             _cleanup_unpub_project(session, "unpub-stub-only")
 
@@ -1420,9 +1425,10 @@ def test_find_unpublished_blocks__public_config_covers_image_range(flask_app):
                 ],
                 configs=[("(image 1 2)", TextStage.PUBLIC)],
             )
-            blocks = s.find_unpublished_blocks(project)
-            assert len(blocks) == 1
-            assert blocks[0].image_number == 3
+            report = s.find_unpublished_blocks(project)
+            assert len(report.blocks) == 1
+            assert report.blocks[0].image_number == 3
+            assert report.total_proofed_blocks == 3
         finally:
             _cleanup_unpub_project(session, "unpub-partial")
 
@@ -1476,11 +1482,11 @@ def test_find_unpublished_blocks__with_session_skips_q_get_session(flask_app):
                     "q.get_session() must not be called when session is supplied"
                 ),
             ) as mock_get_session:
-                blocks = s.find_unpublished_blocks(project, session=session)
+                report = s.find_unpublished_blocks(project, session=session)
             assert mock_get_session.call_count == 0
-            assert len(blocks) == 1
-            assert blocks[0].image_number == 1
-            assert "uncovered" in blocks[0].block_text
+            assert len(report.blocks) == 1
+            assert report.blocks[0].image_number == 1
+            assert "uncovered" in report.blocks[0].block_text
         finally:
             _cleanup_unpub_project(session, "unpub-noctx-ok")
 
@@ -1501,8 +1507,9 @@ def test_find_unpublished_blocks__skips_non_proofed_pages(flask_app):
                     ("skip", "<page><p>SKIP</p></page>"),
                 ],
             )
-            blocks = s.find_unpublished_blocks(project)
-            image_numbers = sorted(b.image_number for b in blocks)
+            report = s.find_unpublished_blocks(project)
+            image_numbers = sorted(b.image_number for b in report.blocks)
             assert image_numbers == [2, 3]
+            assert report.total_proofed_blocks == 2
         finally:
             _cleanup_unpub_project(session, "unpub-statuses")
