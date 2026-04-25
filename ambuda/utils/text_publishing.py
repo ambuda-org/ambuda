@@ -329,7 +329,7 @@ class UncoveredBlock:
     block_text: str
 
 
-def find_unpublished_blocks(project: db.Project) -> list[UncoveredBlock]:
+def find_unpublished_blocks(project: db.Project, session=None) -> list[UncoveredBlock]:
     """Return blocks on R1+ pages not matched by any *public* publish config.
 
     Used by the admin "unpublished projects" report. Differs from
@@ -340,6 +340,9 @@ def find_unpublished_blocks(project: db.Project) -> list[UncoveredBlock]:
     - Only pages with status R1 or R2 are considered.
     - When a project has no public configs at all, every R1+ block is
       reported (rather than returning the empty list).
+
+    `session` is exposed for callers running outside a Flask app context
+    (e.g. Celery tasks), where ``q.get_session()`` would fail.
     """
     from ambuda.models.texts import TextStage
 
@@ -368,7 +371,8 @@ def find_unpublished_blocks(project: db.Project) -> list[UncoveredBlock]:
     if matches_everything:
         return []
 
-    session = q.get_session()
+    if session is None:
+        session = q.get_session()
     subq = (
         select(db.Revision.page_id, func.max(db.Revision.id).label("max_id"))
         .where(db.Revision.project_id == project.id)

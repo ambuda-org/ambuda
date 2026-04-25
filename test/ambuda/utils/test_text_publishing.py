@@ -1427,6 +1427,64 @@ def test_find_unpublished_blocks__public_config_covers_image_range(flask_app):
             _cleanup_unpub_project(session, "unpub-partial")
 
 
+def test_find_unpublished_blocks__without_session_uses_q_get_session(flask_app):
+    """Regression: when ``session`` isn't passed, the function falls back to
+    ``q.get_session()`` — which raises ``RuntimeError`` outside a Flask app
+    context (i.e. in a Celery worker)."""
+    from unittest.mock import patch
+
+    with flask_app.app_context():
+        from ambuda.queries import get_session
+
+        session = get_session()
+        try:
+            project = _setup_unpub_project(
+                session,
+                "unpub-noctx-fail",
+                page_specs=[("reviewed-1", "<page><p>x</p></page>")],
+            )
+            # Simulate "no app context" by making the fallback raise the same
+            # error the prod traceback showed.
+            with patch(
+                "ambuda.utils.text_publishing.q.get_session",
+                side_effect=RuntimeError("Working outside of application context"),
+            ):
+                with pytest.raises(RuntimeError, match="application context"):
+                    s.find_unpublished_blocks(project)
+        finally:
+            _cleanup_unpub_project(session, "unpub-noctx-fail")
+
+
+def test_find_unpublished_blocks__with_session_skips_q_get_session(flask_app):
+    """Fix: when ``session`` is passed, ``q.get_session()`` is never called,
+    so the function works outside a Flask app context."""
+    from unittest.mock import patch
+
+    with flask_app.app_context():
+        from ambuda.queries import get_session
+
+        session = get_session()
+        try:
+            project = _setup_unpub_project(
+                session,
+                "unpub-noctx-ok",
+                page_specs=[("reviewed-1", "<page><p>uncovered</p></page>")],
+            )
+            with patch(
+                "ambuda.utils.text_publishing.q.get_session",
+                side_effect=AssertionError(
+                    "q.get_session() must not be called when session is supplied"
+                ),
+            ) as mock_get_session:
+                blocks = s.find_unpublished_blocks(project, session=session)
+            assert mock_get_session.call_count == 0
+            assert len(blocks) == 1
+            assert blocks[0].image_number == 1
+            assert "uncovered" in blocks[0].block_text
+        finally:
+            _cleanup_unpub_project(session, "unpub-noctx-ok")
+
+
 def test_find_unpublished_blocks__skips_non_proofed_pages(flask_app):
     with flask_app.app_context():
         from ambuda.queries import get_session
