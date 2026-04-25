@@ -406,8 +406,8 @@ def test_unpublished_projects__refresh_all_dispatches_per_project(admin_client):
     assert mock.call_count == len(num_projects)
 
 
-def test_unpublished_projects__shows_all_projects_table(admin_client, flask_app):
-    """The bottom 'All projects' table lists every project, even covered ones."""
+def test_unpublished_projects__lists_every_project(admin_client, flask_app):
+    """The page lists every project, even those without a cached report."""
     from sqlalchemy import select
     from ambuda import database as db
     from ambuda.queries import get_session
@@ -418,7 +418,6 @@ def test_unpublished_projects__shows_all_projects_table(admin_client, flask_app)
     resp = admin_client.get("/proofing/admin/unpublished-projects")
     assert resp.status_code == 200
     body = resp.data.decode("utf-8")
-    assert "All projects" in body
     for p in projects:
         assert p.display_title in body
 

@@ -9,7 +9,7 @@
 {% block content %}
 {{ m.title_and_subtitle(
     _('Unpublished projects'),
-    _('Projects with proofed pages (R1+) outside the image range of any public publish config. This is a fast, approximate sweep — drill into a project for exact block-level details.')) }}
+    _('Each row shows the latest cached block-level report for a project — i.e. blocks that no public publish config matches. Reports are computed asynchronously; click Refresh to recompute.')) }}
 
 <div class="not-prose flex justify-end mt-2 mb-4">
   <form method="POST" action="{{ url_for('proofing.refresh_all_unpublished_reports') }}">
@@ -20,68 +20,22 @@
   </form>
 </div>
 
-<h3 class="text-lg font-semibold mt-6 mb-2">{{ _('Likely uncovered (cheap pass)') }}</h3>
-{% if rows %}
 <div class="not-prose">
   <table class="w-full text-sm border border-slate-200 rounded">
     <thead class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wide">
       <tr>
         <th class="text-left px-3 py-2">{{ _('Project') }}</th>
-        <th class="text-right px-3 py-2">{{ _('Proofed pages') }}</th>
-        <th class="text-right px-3 py-2">{{ _('Uncovered (approx)') }}</th>
-        <th class="text-right px-3 py-2">{{ _('Public configs') }}</th>
-        <th class="text-left px-3 py-2"></th>
+        <th class="text-right px-3 py-2">{{ _('Uncovered blocks') }}</th>
+        <th class="text-left px-3 py-2">{{ _('Last computed') }}</th>
+        <th class="text-right px-3 py-2"></th>
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-200">
       {% for r in rows %}
       <tr>
         <td class="px-3 py-2">
-          <a href="{{ url_for('proofing.unpublished_project_detail', slug=r.project.slug) }}"
+          <a href="{{ url_for('proofing.project.summary', slug=r.project.slug) }}"
              class="text-sky-800 hover:underline">{{ r.project.display_title }}</a>
-        </td>
-        <td class="text-right px-3 py-2">{{ r.proofed_count }}</td>
-        <td class="text-right px-3 py-2 font-medium {% if r.uncovered_count > 0 %}text-amber-700{% endif %}">
-          {{ r.uncovered_count }}
-        </td>
-        <td class="text-right px-3 py-2 text-slate-500">{{ r.num_public_configs }}</td>
-        <td class="px-3 py-2 text-xs text-slate-500">
-          {% if r.has_unbounded_filter %}
-            <span title="{{ _('At least one filter is not (image x y) — count is approximate.') }}">{{ _('approximate') }}</span>
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-{% else %}
-<p class="text-slate-500">{{ _('No projects with uncovered proofed pages.') }}</p>
-{% endif %}
-
-<h3 class="text-lg font-semibold mt-10 mb-2">{{ _('All projects') }}</h3>
-<p class="text-xs text-slate-500 mb-2">{{ _('End-to-end status of every project, including the latest cached block-level report.') }}</p>
-<div class="not-prose">
-  <table class="w-full text-sm border border-slate-200 rounded">
-    <thead class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wide">
-      <tr>
-        <th class="text-left px-3 py-2">{{ _('Project') }}</th>
-        <th class="text-right px-3 py-2">{{ _('Proofed') }}</th>
-        <th class="text-right px-3 py-2">{{ _('Uncovered (approx)') }}</th>
-        <th class="text-right px-3 py-2">{{ _('Report blocks') }}</th>
-        <th class="text-left px-3 py-2">{{ _('Last computed') }}</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-slate-200">
-      {% for r in all_rows %}
-      <tr>
-        <td class="px-3 py-2">
-          <a href="{{ url_for('proofing.unpublished_project_detail', slug=r.project.slug) }}"
-             class="text-sky-800 hover:underline">{{ r.project.display_title }}</a>
-        </td>
-        <td class="text-right px-3 py-2">{{ r.proofed_count }}</td>
-        <td class="text-right px-3 py-2 {% if r.uncovered_count > 0 %}text-amber-700{% endif %}">
-          {{ r.uncovered_count }}
         </td>
         <td class="text-right px-3 py-2 {% if r.report_block_count and r.report_block_count > 0 %}text-amber-700{% endif %}">
           {% if r.report_block_count is none %}
@@ -96,6 +50,10 @@
           {% else %}
             <span class="text-slate-400">{{ _('never') }}</span>
           {% endif %}
+        </td>
+        <td class="text-right px-3 py-2 text-xs">
+          <a href="{{ url_for('proofing.unpublished_project_detail', slug=r.project.slug) }}"
+             class="text-sky-800 hover:underline">{{ _('Details') }} &rarr;</a>
         </td>
       </tr>
       {% endfor %}

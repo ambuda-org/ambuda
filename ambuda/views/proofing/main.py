@@ -1033,110 +1033,40 @@ def rerun_text_report(slug):
     return redirect(url_for("proofing.text_report", slug=slug))
 
 
-def _project_coverage_summary(project) -> dict:
-    """Cheap, image-range-only coverage check for one project.
-
-    Returns the count of pages with status R1/R2 whose image number falls
-    outside the union of image ranges of all *public* PublishConfig filters
-    on this project. Filters that don't have a clean image range (label-only,
-    OR/NOT, etc.) bump ``has_unbounded_filter`` so admins can drill down for
-    a precise count.
-    """
-    from ambuda.enums import SitePageStatus
-    from ambuda.models.proofing import PublishConfig
-    from ambuda.models.texts import TextStage
-    from ambuda.utils.text_publishing import Filter
-
-    public_configs = [
-        pc
-        for pc in project.publish_configs
-        if pc.text is not None and pc.text.stage == TextStage.PUBLIC
-    ]
-
-    covered: set[int] = set()
-    has_unbounded_filter = False
-    for pc in public_configs:
-        target = (pc.target or "").strip()
-        if not target:
-            # Empty target ≈ "matches everything" — treat as unbounded.
-            has_unbounded_filter = True
-            continue
-        try:
-            f = Filter(target if target.startswith("(") else f"(label {target})")
-        except ValueError:
-            continue
-        rng = f.image_range()
-        if rng is None:
-            has_unbounded_filter = True
-            continue
-        for img in range(rng[0], rng[1] + 1):
-            covered.add(img)
-
-    proofed_status_names = {SitePageStatus.R1, SitePageStatus.R2}
-    proofed_count = 0
-    uncovered_count = 0
-    for i, page in enumerate(project.pages):
-        image_number = i + 1
-        if page.status.name in proofed_status_names:
-            proofed_count += 1
-            if image_number not in covered:
-                uncovered_count += 1
-
-    return {
-        "proofed_count": proofed_count,
-        "uncovered_count": uncovered_count,
-        "has_unbounded_filter": has_unbounded_filter,
-        "num_public_configs": len(public_configs),
-    }
-
-
 @bp.route("/admin/unpublished-projects")
 @p2_required
 def unpublished_projects():
-    """List projects with proofed pages outside any public filter's image range.
+    """List every project with the latest cached uncovered-blocks report.
 
-    Cheap inline pass: image-range-only, computed on each request. For exact
-    block-level details, drill into a project (which uses the cached Celery
-    report instead).
+    Reads only from the cached ``ProjectUncoveredReport`` table — no
+    per-project iteration. Use the Refresh buttons to enqueue Celery tasks
+    that recompute reports.
     """
     session = q.get_session()
-    projects = (
-        session.query(db.Project)
-        .options(
-            orm.selectinload(db.Project.publish_configs).selectinload(
-                db.PublishConfig.text
-            ),
-            orm.selectinload(db.Project.pages).selectinload(db.Page.status),
+    rows_data = (
+        session.query(db.Project, db.ProjectUncoveredReport)
+        .outerjoin(
+            db.ProjectUncoveredReport,
+            db.Project.id == db.ProjectUncoveredReport.project_id,
         )
         .order_by(db.Project.display_title)
         .all()
     )
 
-    reports_by_project = {
-        r.project_id: r for r in session.query(db.ProjectUncoveredReport).all()
-    }
-
-    rows = []
-    all_rows = []
-    for project in projects:
-        summary = _project_coverage_summary(project)
-        report = reports_by_project.get(project.id)
-        row = {
+    rows = [
+        {
             "project": project,
             "report": report,
             "report_block_count": (
                 len(report.payload.get("blocks", [])) if report else None
             ),
-            **summary,
         }
-        all_rows.append(row)
-        if summary["uncovered_count"] > 0 or summary["has_unbounded_filter"]:
-            rows.append(row)
+        for project, report in rows_data
+    ]
 
     return render_template(
         "proofing/unpublished_projects.html",
         rows=rows,
-        all_rows=all_rows,
         form=FlaskForm(),
     )
 
