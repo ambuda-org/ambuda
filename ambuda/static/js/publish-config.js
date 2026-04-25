@@ -1,13 +1,5 @@
-/* global Sanscript */
-
 import routes from './routes';
-
-function toHK(str) {
-  // for unit tests
-  if (!str || typeof Sanscript === 'undefined') return str;
-
-  return Sanscript.t(str, 'devanagari', 'hk');
-}
+import { toHK, normalizeHK } from './sanskrit-search';
 
 const DIACRITICS = {
   ś: 'sh',
@@ -154,6 +146,12 @@ export default () => ({
       });
       entry.expanded = false;
     });
+    this.allCollections.forEach((c) => {
+      c._titleLower = c.title.toLowerCase();
+      c._titleNorm = normalizeHK(toHK(c.title)).toLowerCase();
+      c._parentLower = c.parent ? c.parent.toLowerCase() : '';
+      c._parentNorm = c.parent ? normalizeHK(toHK(c.parent)).toLowerCase() : '';
+    });
   },
 
   generateFieldsFromSchema() {
@@ -228,11 +226,18 @@ export default () => ({
   filteredCollections(entry) {
     const query = (entry._coll_query || '').toLowerCase();
     const selected = entry.collection_ids || [];
+    if (!query) {
+      return this.allCollections.filter((c) => !selected.includes(c.id));
+    }
+    const qNorm = normalizeHK(toHK(query)).toLowerCase();
     return this.allCollections.filter((c) => {
       if (selected.includes(c.id)) return false;
-      if (!query) return true;
-      return c.title.toLowerCase().includes(query)
-        || (c.parent && c.parent.toLowerCase().includes(query));
+      if (c._titleLower.includes(query) || c._titleNorm.includes(qNorm)) return true;
+      if (c._parentLower
+          && (c._parentLower.includes(query) || c._parentNorm.includes(qNorm))) {
+        return true;
+      }
+      return false;
     });
   },
 
