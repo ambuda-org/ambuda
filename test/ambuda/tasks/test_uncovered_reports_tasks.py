@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 import ambuda.database as db
 from ambuda.tasks.uncovered_reports import (
     REPORT_LOCK_TTL,
+    dispatch_all_reports_inner,
     maybe_rerun_report,
     run_report_inner,
 )
@@ -79,3 +80,29 @@ def test_run_report_inner_writes_report_and_clears_lock(flask_app):
         # Cleanup
         session.delete(report)
         session.commit()
+
+
+def test_dispatch_all_reports_inner_calls_per_project(flask_app):
+    """The fan-out task calls maybe_rerun_report once per project in the DB."""
+    with flask_app.app_context():
+        session = get_session()
+        from sqlalchemy import select
+
+        num_projects = len(session.execute(select(db.Project.id)).scalars().all())
+        assert num_projects > 0
+
+        engine = get_engine()
+        mock_redis = MagicMock()
+
+        with patch(
+            "ambuda.tasks.uncovered_reports.maybe_rerun_report", return_value=True
+        ) as mock:
+            dispatched, skipped = dispatch_all_reports_inner(
+                flask_app.config["AMBUDA_ENVIRONMENT"],
+                engine=engine,
+                redis_client=mock_redis,
+            )
+
+        assert mock.call_count == num_projects
+        assert dispatched == num_projects
+        assert skipped == 0

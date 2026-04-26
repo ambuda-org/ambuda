@@ -329,6 +329,7 @@ export default () => ({
   generateJSON() {
     const cleaned = this.config.publish.map((entry) => {
       const clean = {};
+      if (entry.id != null) clean.id = entry.id;
       this.fields.forEach((f) => {
         const v = entry[f.name];
         if (f.required || (v !== '' && v !== null && v !== undefined)) clean[f.name] = v;

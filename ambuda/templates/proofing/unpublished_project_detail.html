@@ -30,6 +30,45 @@
   </form>
 </div>
 
+{% if publish_configs %}
+<div class="not-prose my-6">
+  <h2 class="text-base font-semibold text-slate-700 mb-2">
+    {{ _('Publish configs') }} <span class="text-slate-400 font-normal">({{ publish_configs|length }})</span>
+  </h2>
+  <table class="w-full text-sm border border-slate-200 rounded">
+    <thead class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wide">
+      <tr>
+        <th class="text-right px-3 py-2">{{ _('ID') }}</th>
+        <th class="text-left px-3 py-2">{{ _('Text') }}</th>
+        <th class="text-left px-3 py-2">{{ _('Filter (target)') }}</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-200">
+      {% for pc in publish_configs %}
+      <tr>
+        <td class="text-right px-3 py-2 text-slate-500 font-mono text-xs">{{ pc.id }}</td>
+        <td class="px-3 py-2">
+          {% if pc.text %}
+            <span class="text-slate-700">{{ pc.text.title }}</span>
+            <span class="text-slate-400 font-mono text-xs ml-2">{{ pc.text.slug }}</span>
+          {% else %}
+            <span class="text-slate-400 italic">{{ _('(no text)') }}</span>
+          {% endif %}
+        </td>
+        <td class="px-3 py-2 font-mono text-xs">
+          {% if pc.target %}
+            <span class="text-slate-700">{{ pc.target }}</span>
+          {% else %}
+            <span class="text-slate-400 italic">{{ _('(empty — covers all)') }}</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
 {% if blocks %}
 <div class="not-prose">
   <table class="w-full text-sm border border-slate-200 rounded">

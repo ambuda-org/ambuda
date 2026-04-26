@@ -77,3 +77,36 @@ def run_report_inner(
 @app.task(bind=True)
 def run_report(self, project_id: int, app_environment: str):
     run_report_inner(project_id, app_environment)
+
+
+def dispatch_all_reports_inner(
+    app_environment: str, engine=None, redis_client=None
+) -> tuple[int, int]:
+    """Fan out: enqueue an uncovered-blocks report for every project.
+
+    The admin "Refresh all reports" button enqueues this single task instead
+    of looping over every project in the request handler — that loop blocked
+    the HTTP response on N×(redis SET + broker publish) round-trips.
+
+    ``engine`` and ``redis_client`` are exposed for testing.
+    """
+    with get_db_session(app_environment, engine=engine) as (session, _q, _cfg):
+        project_ids = [pid for (pid,) in session.query(db.Project.id).all()]
+
+    dispatched = 0
+    skipped = 0
+    for pid in project_ids:
+        if maybe_rerun_report(pid, app_environment, redis_client=redis_client):
+            dispatched += 1
+        else:
+            skipped += 1
+    logging.info(
+        f"dispatch_all_reports: dispatched={dispatched} skipped={skipped} "
+        f"(of {len(project_ids)} projects)"
+    )
+    return dispatched, skipped
+
+
+@app.task(bind=True)
+def dispatch_all_reports(self, app_environment: str):
+    dispatch_all_reports_inner(app_environment)

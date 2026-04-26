@@ -1077,25 +1077,11 @@ def unpublished_projects():
 @bp.route("/admin/unpublished-projects/refresh-all", methods=["POST"])
 @p2_required
 def refresh_all_unpublished_reports():
-    """Dispatch a Celery task to recompute the report for every project."""
-    from ambuda.tasks.uncovered_reports import maybe_rerun_report
+    """Enqueue a single Celery task that fans out per-project report refreshes."""
+    from ambuda.tasks.uncovered_reports import dispatch_all_reports
 
-    session = q.get_session()
-    project_ids = [pid for (pid,) in session.query(db.Project.id).all()]
-
-    app_env = current_app.config["AMBUDA_ENVIRONMENT"]
-    dispatched = 0
-    skipped = 0
-    for pid in project_ids:
-        if maybe_rerun_report(pid, app_env):
-            dispatched += 1
-        else:
-            skipped += 1
-
-    flash(
-        f"Dispatched {dispatched} report task(s); {skipped} already in progress.",
-        "info",
-    )
+    dispatch_all_reports.apply_async(args=(current_app.config["AMBUDA_ENVIRONMENT"],))
+    flash("Report refresh started for all projects.", "info")
     return redirect(url_for("proofing.unpublished_projects"))
 
 
@@ -1115,11 +1101,19 @@ def unpublished_project_detail(slug):
     )
     blocks = report.payload.get("blocks", []) if report else []
 
+    publish_configs = (
+        session.query(db.PublishConfig)
+        .filter_by(project_id=project.id)
+        .order_by(db.PublishConfig.id)
+        .all()
+    )
+
     return render_template(
         "proofing/unpublished_project_detail.html",
         project=project,
         report=report,
         blocks=blocks,
+        publish_configs=publish_configs,
         form=FlaskForm(),
     )
 

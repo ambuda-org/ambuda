@@ -369,91 +369,115 @@ def config(slug):
                 )
                 return redirect(url_for("proofing.publish.config", slug=slug))
 
-        # Collect slugs owned by this project's existing configs.
-        old_text_ids = {
-            c.text_id
+        # Load this project's existing configs once. We match new entries to
+        # old ones by PublishConfig.id and update them in place; entries with
+        # no matching id become new configs.
+        old_pcs_by_id = {
+            c.id: c
             for c in session.execute(
-                sqla.select(PublishConfig).where(
-                    PublishConfig.project_id == project_.id
-                )
+                sqla.select(PublishConfig)
+                .where(PublishConfig.project_id == project_.id)
+                .options(selectinload(PublishConfig.text))
             )
             .scalars()
             .all()
         }
-        old_texts = {}
-        if old_text_ids:
-            for t in (
-                session.execute(
-                    sqla.select(db.Text).where(db.Text.id.in_(old_text_ids))
-                )
-                .scalars()
-                .all()
-            ):
-                old_texts[t.slug] = t
+        old_slugs_in_project = {c.text.slug for c in old_pcs_by_id.values() if c.text}
+        referenced_ids = {
+            pc.get("id") for pc in new_configs if pc.get("id") in old_pcs_by_id
+        }
+        # Stub texts whose slugs we'll free below. Public texts are left in place
+        # but disconnected from the project (matches prior behavior).
+        freed_text_ids = {
+            c.text_id
+            for cid, c in old_pcs_by_id.items()
+            if cid not in referenced_ids and c.text and c.text.stage == TextStage.STUB
+        }
 
         new_slugs = {pc.get("slug", "") for pc in new_configs}
 
-        # Validate: new slugs must not conflict with texts outside this project.
+        # Validate: new slugs must not collide with texts we don't already own
+        # or aren't about to free.
         for pc in new_configs:
             pc_slug = pc.get("slug", "")
-            if pc_slug not in old_texts:
-                existing_text = session.execute(
-                    sqla.select(db.Text).where(db.Text.slug == pc_slug)
-                ).scalar_one_or_none()
-                if existing_text:
-                    flash(
-                        f"A text with slug '{pc_slug}' already exists. "
-                        "Please choose a different slug.",
-                        "error",
-                    )
-                    return default()
+            if pc_slug in old_slugs_in_project:
+                continue
+            existing_text = session.execute(
+                sqla.select(db.Text).where(db.Text.slug == pc_slug)
+            ).scalar_one_or_none()
+            if existing_text and existing_text.id not in freed_text_ids:
+                flash(
+                    f"A text with slug '{pc_slug}' already exists. "
+                    "Please choose a different slug.",
+                    "error",
+                )
+                return default()
 
         # Validate parent_slug references.
         for pc in new_configs:
             parent_slug = pc.get("parent_slug") or ""
-            if parent_slug:
-                # Parent must exist as a text (stub or public) or be in this batch.
-                if parent_slug not in new_slugs:
-                    parent_text = session.execute(
-                        sqla.select(db.Text).where(db.Text.slug == parent_slug)
-                    ).scalar_one_or_none()
-                    if not parent_text:
-                        flash(
-                            f"Parent slug '{parent_slug}' does not exist.",
-                            "error",
-                        )
-                        return default()
+            if parent_slug and parent_slug not in new_slugs:
+                parent_text = session.execute(
+                    sqla.select(db.Text).where(db.Text.slug == parent_slug)
+                ).scalar_one_or_none()
+                if not parent_text:
+                    flash(
+                        f"Parent slug '{parent_slug}' does not exist.",
+                        "error",
+                    )
+                    return default()
 
-        # Delete old configs (texts are kept).
-        session.execute(
-            sqla.delete(PublishConfig).where(PublishConfig.project_id == project_.id)
-        )
+        # Drop configs that weren't referenced. Stub texts are removed; public
+        # texts are left in place.
+        for cid, old_pc in old_pcs_by_id.items():
+            if cid in referenced_ids:
+                continue
+            text = old_pc.text
+            session.delete(old_pc)
+            if text and text.stage == TextStage.STUB:
+                session.delete(text)
+        # Flush so freed slugs become available before we apply renames below.
+        session.flush()
 
-        # Create/update stub texts and new configs.
+        # Upsert each config and its underlying Text.
         for pc in new_configs:
+            pc_id = pc.get("id")
             pc_slug = pc.get("slug", "")
             pc_title = pc.get("title", "")
             pc_language = pc.get("language", "sa") or "sa"
             pc_author_name = pc.get("author") or None
+            pc_target = pc.get("target") or None
 
-            # Get or create the Text.
-            text = old_texts.get(pc_slug)
-            if not text:
+            old_pc = old_pcs_by_id.get(pc_id) if pc_id else None
+            if old_pc:
+                config_obj = old_pc
+                text = old_pc.text
+                if text.slug != pc_slug:
+                    text.slug = pc_slug
+            else:
+                # No matching id. Adopt an existing text with this slug if
+                # there is one (e.g. a previously-published text being re-
+                # attached); otherwise create a fresh stub.
                 text = session.execute(
                     sqla.select(db.Text).where(db.Text.slug == pc_slug)
                 ).scalar_one_or_none()
-            if not text:
-                text = db.Text(
-                    slug=pc_slug,
-                    title=pc_title,
-                    language=pc_language,
-                    stage=TextStage.STUB,
+                if not text:
+                    text = db.Text(
+                        slug=pc_slug,
+                        title=pc_title,
+                        language=pc_language,
+                        stage=TextStage.STUB,
+                        project_id=project_.id,
+                    )
+                    session.add(text)
+                    session.flush()
+                config_obj = PublishConfig(
                     project_id=project_.id,
+                    text_id=text.id,
                 )
-                session.add(text)
-                session.flush()
+                session.add(config_obj)
 
-            # Update text metadata.
+            config_obj.target = pc_target
             text.title = pc_title
             text.language = pc_language
             text.project_id = project_.id
@@ -473,7 +497,7 @@ def config(slug):
             else:
                 text.author_id = None
 
-            # Sync collections on the text.
+            # Sync collections.
             collection_ids = pc.get("collection_ids") or []
             if collection_ids:
                 colls = (
@@ -489,38 +513,21 @@ def config(slug):
             else:
                 text.collections = []
 
-            new_pc = PublishConfig(
-                project_id=project_.id,
-                text_id=text.id,
-                target=pc.get("target") or None,
-            )
-            session.add(new_pc)
-            session.flush()
+        session.flush()
 
-        # Resolve parent_slug → parent_id.
+        # Resolve parent_slug → parent_id now that all texts have their final slugs.
         for pc in new_configs:
+            text = session.execute(
+                sqla.select(db.Text).where(db.Text.slug == pc.get("slug", ""))
+            ).scalar_one()
             parent_slug = pc.get("parent_slug") or ""
             if parent_slug:
-                text = session.execute(
-                    sqla.select(db.Text).where(db.Text.slug == pc.get("slug", ""))
-                ).scalar_one()
                 parent_text = session.execute(
                     sqla.select(db.Text).where(db.Text.slug == parent_slug)
                 ).scalar_one_or_none()
-                if parent_text:
-                    text.parent_id = parent_text.id
+                text.parent_id = parent_text.id if parent_text else None
             else:
-                text = session.execute(
-                    sqla.select(db.Text).where(db.Text.slug == pc.get("slug", ""))
-                ).scalar_one()
                 text.parent_id = None
-
-        # Delete orphaned stub texts that were removed from the config.
-        orphan_slugs = set(old_texts.keys()) - new_slugs
-        for orphan_slug in orphan_slugs:
-            orphan = old_texts[orphan_slug]
-            if orphan.stage == TextStage.STUB:
-                session.delete(orphan)
 
         session.commit()
         flash("Configuration saved successfully.", "success")
@@ -546,6 +553,7 @@ def config(slug):
 
     publish_config = [
         {
+            "id": c.id,
             "slug": c.text.slug,
             "title": c.text.title,
             "target": c.target or "",

@@ -206,6 +206,11 @@ MODEL_CONFIG = [
         permission="moderator",
     ),
     ModelConfig(
+        model=db.PublishConfig,
+        list_columns=["id", "project_id", "text_id", "target"],
+        category=Category.PROOFING,
+    ),
+    ModelConfig(
         model=db.SiteConfig,
         list_columns=["id", "data"],
         category=Category.SITE,

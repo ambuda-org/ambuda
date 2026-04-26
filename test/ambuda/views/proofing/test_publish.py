@@ -201,6 +201,225 @@ def test_publish_config_get__loads_saved_configs(rama_client):
         _cleanup_config_and_text("get-test-text")
 
 
+def test_publish_config_save__rename_updates_text_slug(rama_client):
+    """Editing a config's slug renames the linked Text in place."""
+    session = get_session()
+    project_id = session.execute(
+        select(db.Project.id).filter_by(slug="test-project")
+    ).scalar_one()
+
+    text = db.Text(
+        slug="rename-old", title="Old Title", language="sa", stage=TextStage.STUB
+    )
+    session.add(text)
+    session.flush()
+    pc = PublishConfig(project_id=project_id, text_id=text.id)
+    session.add(pc)
+    session.commit()
+    pc_id = pc.id
+    text_id = text.id
+
+    config_list = [
+        {
+            "id": pc_id,
+            "slug": "rename-new",
+            "title": "New Title",
+            "language": "sa",
+        },
+    ]
+
+    try:
+        resp = rama_client.post(
+            "/proofing/test-project/publish",
+            data={"config": json.dumps(config_list)},
+            follow_redirects=True,
+        )
+        assert resp.status_code == 200
+
+        session = get_session()
+        # The original Text row should still exist, with the new slug.
+        renamed = session.get(db.Text, text_id)
+        assert renamed is not None
+        assert renamed.slug == "rename-new"
+        assert renamed.title == "New Title"
+
+        # No leftover Text with the old slug.
+        old = session.execute(
+            select(db.Text).filter_by(slug="rename-old")
+        ).scalar_one_or_none()
+        assert old is None
+
+        # The PublishConfig still points to the same Text.
+        pcs = (
+            session.execute(
+                select(PublishConfig).where(PublishConfig.project_id == project_id)
+            )
+            .scalars()
+            .all()
+        )
+        assert any(p.text_id == text_id for p in pcs)
+    finally:
+        _cleanup_config_and_text("rename-new")
+        _cleanup_config_and_text("rename-old")
+
+
+def test_publish_config_save__rename_conflict_aborts(rama_client, flask_app):
+    """Renaming to a slug owned by another text fails without orphaning."""
+    session = get_session()
+    project_id = session.execute(
+        select(db.Project.id).filter_by(slug="test-project")
+    ).scalar_one()
+
+    other = db.Text(
+        slug="rename-blocker", title="Other", language="sa", stage=TextStage.STUB
+    )
+    session.add(other)
+    text = db.Text(
+        slug="rename-source", title="Src", language="sa", stage=TextStage.STUB
+    )
+    session.add(text)
+    session.flush()
+    pc = PublishConfig(project_id=project_id, text_id=text.id)
+    session.add(pc)
+    session.commit()
+    pc_id = pc.id
+
+    config_list = [
+        {
+            "id": pc_id,
+            "slug": "rename-blocker",
+            "title": "Src",
+            "language": "sa",
+        },
+    ]
+
+    flask_app.config["TESTING"] = False
+    try:
+        rama_client.post(
+            "/proofing/test-project/publish",
+            data={"config": json.dumps(config_list)},
+        )
+    finally:
+        flask_app.config["TESTING"] = True
+
+    session = get_session()
+    # The source text keeps its old slug, the blocker is untouched.
+    assert (
+        session.execute(select(db.Text).filter_by(slug="rename-source")).scalar_one()
+        is not None
+    )
+    assert (
+        session.execute(select(db.Text).filter_by(slug="rename-blocker")).scalar_one()
+        is not None
+    )
+
+    _cleanup_config_and_text("rename-source")
+    _cleanup_config_and_text("rename-blocker")
+
+
+def test_publish_config_save__preserves_pc_id_on_update(rama_client):
+    """Saving without changes keeps the existing PublishConfig row (no id churn)."""
+    session = get_session()
+    project_id = session.execute(
+        select(db.Project.id).filter_by(slug="test-project")
+    ).scalar_one()
+
+    text = db.Text(
+        slug="stable-id-text", title="Stable", language="sa", stage=TextStage.STUB
+    )
+    session.add(text)
+    session.flush()
+    pc = PublishConfig(project_id=project_id, text_id=text.id, target="(page 1 1)")
+    session.add(pc)
+    session.commit()
+    pc_id = pc.id
+
+    config_list = [
+        {
+            "id": pc_id,
+            "slug": "stable-id-text",
+            "title": "Stable",
+            "target": "(page 1 1)",
+            "language": "sa",
+        },
+    ]
+
+    try:
+        resp = rama_client.post(
+            "/proofing/test-project/publish",
+            data={"config": json.dumps(config_list)},
+            follow_redirects=True,
+        )
+        assert resp.status_code == 200
+
+        session = get_session()
+        # The PublishConfig row should still have the same id.
+        same_pc = session.get(PublishConfig, pc_id)
+        assert same_pc is not None
+        assert same_pc.target == "(page 1 1)"
+    finally:
+        _cleanup_config_and_text("stable-id-text")
+
+
+def test_publish_config_save__remove_entry_deletes_stub_and_config(rama_client):
+    """Dropping an entry removes its PublishConfig and its stub text."""
+    session = get_session()
+    project_id = session.execute(
+        select(db.Project.id).filter_by(slug="test-project")
+    ).scalar_one()
+
+    keep_text = db.Text(
+        slug="keep-text", title="Keep", language="sa", stage=TextStage.STUB
+    )
+    drop_text = db.Text(
+        slug="drop-text", title="Drop", language="sa", stage=TextStage.STUB
+    )
+    session.add_all([keep_text, drop_text])
+    session.flush()
+    keep_pc = PublishConfig(project_id=project_id, text_id=keep_text.id)
+    drop_pc = PublishConfig(project_id=project_id, text_id=drop_text.id)
+    session.add_all([keep_pc, drop_pc])
+    session.commit()
+    keep_pc_id = keep_pc.id
+
+    config_list = [
+        {
+            "id": keep_pc_id,
+            "slug": "keep-text",
+            "title": "Keep",
+            "language": "sa",
+        },
+    ]
+
+    try:
+        resp = rama_client.post(
+            "/proofing/test-project/publish",
+            data={"config": json.dumps(config_list)},
+            follow_redirects=True,
+        )
+        assert resp.status_code == 200
+
+        session = get_session()
+        # Kept text and config still exist.
+        assert session.get(PublishConfig, keep_pc_id) is not None
+        assert (
+            session.execute(
+                select(db.Text).filter_by(slug="keep-text")
+            ).scalar_one_or_none()
+            is not None
+        )
+        # Dropped text is gone (it was a stub).
+        assert (
+            session.execute(
+                select(db.Text).filter_by(slug="drop-text")
+            ).scalar_one_or_none()
+            is None
+        )
+    finally:
+        _cleanup_config_and_text("keep-text")
+        _cleanup_config_and_text("drop-text")
+
+
 def test_q_texts__returns_only_public_texts(flask_app):
     """q.texts() returns only public texts, not stubs."""
     with flask_app.app_context():

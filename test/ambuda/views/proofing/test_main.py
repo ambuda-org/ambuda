@@ -386,24 +386,18 @@ def test_unpublished_project_detail__refresh_dispatches_task(admin_client):
     mock.assert_called_once()
 
 
-def test_unpublished_projects__refresh_all_dispatches_per_project(admin_client):
+def test_unpublished_projects__refresh_all_enqueues_fanout_task(admin_client):
     from unittest.mock import patch
-    from sqlalchemy import select
-    from ambuda import database as db
-    from ambuda.queries import get_session
-
-    session = get_session()
-    num_projects = session.execute(select(db.Project)).scalars().all()
 
     with patch(
-        "ambuda.tasks.uncovered_reports.maybe_rerun_report", return_value=True
+        "ambuda.tasks.uncovered_reports.dispatch_all_reports.apply_async"
     ) as mock:
         resp = admin_client.post(
             "/proofing/admin/unpublished-projects/refresh-all",
             data={"csrf_token": ""},
         )
     assert resp.status_code == 302
-    assert mock.call_count == len(num_projects)
+    mock.assert_called_once_with(args=("testing",))
 
 
 def test_unpublished_projects__lists_every_project(admin_client, flask_app):

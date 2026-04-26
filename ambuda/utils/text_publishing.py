@@ -355,9 +355,7 @@ def _parse_revision_xml(content: str, page_id: int) -> etree._Element | None:
         return None
 
 
-def find_unpublished_blocks(
-    project: db.Project, session=None
-) -> UnpublishedReport:
+def find_unpublished_blocks(project: db.Project, session=None) -> UnpublishedReport:
     """Return an UnpublishedReport for blocks on R1+ pages not matched by any
     publish config's filter.
 
