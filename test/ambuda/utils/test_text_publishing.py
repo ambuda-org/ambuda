@@ -1407,6 +1407,56 @@ def test_find_unpublished_blocks__stub_config_counts_as_covering(flask_app):
             _cleanup_unpub_project(session, "unpub-stub-only")
 
 
+def test_find_unpublished_blocks__legacy_plain_text_content(flask_app):
+    """Legacy projects store revision.content as plain text, not XML. The
+    function must heuristically recover via ProofPage rather than skip them
+    silently (else 0/0 on prod for legacy content)."""
+    with flask_app.app_context():
+        from ambuda.queries import get_session
+
+        session = get_session()
+        try:
+            project = _setup_unpub_project(
+                session,
+                "unpub-legacy",
+                page_specs=[
+                    # Plain-text revision content — not valid XML.
+                    ("reviewed-1", "First paragraph.\n\nSecond paragraph."),
+                ],
+            )
+            report = s.find_unpublished_blocks(project, session=session)
+            # ProofPage's heuristic split should produce at least one block.
+            assert report.total_proofed_blocks > 0
+            assert len(report.blocks) > 0
+        finally:
+            _cleanup_unpub_project(session, "unpub-legacy")
+
+
+def test_find_unpublished_blocks__empty_target_still_counts_total(flask_app):
+    """When a config has empty/null target, the function short-circuits to
+    "matches everything" — but it must still report the proofed-block total
+    (the denominator), not 0."""
+    from ambuda.models.texts import TextStage
+
+    with flask_app.app_context():
+        from ambuda.queries import get_session
+
+        session = get_session()
+        try:
+            project = _setup_unpub_project(
+                session,
+                "unpub-empty-target",
+                page_specs=[("reviewed-1", "<page><p>x</p><p>y</p></page>")],
+                configs=[("", TextStage.STUB)],
+            )
+            report = s.find_unpublished_blocks(project, session=session)
+            assert report.blocks == []
+            # Two <p> blocks on the R1 page — denominator must reflect that.
+            assert report.total_proofed_blocks == 2
+        finally:
+            _cleanup_unpub_project(session, "unpub-empty-target")
+
+
 def test_find_unpublished_blocks__public_config_covers_image_range(flask_app):
     from ambuda.models.texts import TextStage
 

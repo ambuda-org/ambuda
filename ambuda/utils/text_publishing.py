@@ -339,6 +339,22 @@ class UnpublishedReport:
     total_proofed_blocks: int
 
 
+def _parse_revision_xml(content: str, page_id: int) -> etree._Element | None:
+    """Parse a revision's content as XML, falling back to the legacy heuristic
+    (``ProofPage.from_content_and_page_id``) for plain-text content from older
+    projects. Returns ``None`` if both paths fail.
+    """
+    try:
+        return _safe_fromstring(content)
+    except etree.XMLSyntaxError:
+        pass
+    try:
+        page_struct = ProofPage.from_content_and_page_id(content, page_id)
+        return _safe_fromstring(page_struct.to_xml_string())
+    except Exception:
+        return None
+
+
 def find_unpublished_blocks(
     project: db.Project, session=None
 ) -> UnpublishedReport:
@@ -419,9 +435,8 @@ def find_unpublished_blocks(
         if image_number is None:
             continue
 
-        try:
-            page_xml = _safe_fromstring(revision.content)
-        except etree.XMLSyntaxError:
+        page_xml = _parse_revision_xml(revision.content, revision.page_id)
+        if page_xml is None:
             continue
 
         page_slug = page_id_to_slug.get(revision.page_id, "?")
@@ -471,9 +486,8 @@ def _count_proofed_blocks(project: db.Project, session) -> int:
     for revision in revisions:
         if revision.page_id not in proofed_page_ids:
             continue
-        try:
-            page_xml = _safe_fromstring(revision.content)
-        except etree.XMLSyntaxError:
+        page_xml = _parse_revision_xml(revision.content, revision.page_id)
+        if page_xml is None:
             continue
         for block_el in page_xml:
             if block_el.tag in (BlockType.IGNORE, BlockType.METADATA):
