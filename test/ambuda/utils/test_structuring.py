@@ -144,6 +144,22 @@ def test_from_content_and_page_id():
     )
 
 
+def test_from_content_and_page_id__bare_text_in_page():
+    """<page>...</page> with bare text (no block elements) should still parse.
+
+    Pre-XML projects sometimes store unstructured text directly inside the
+    page tag. A naive XML parse yields zero blocks; we should fall back to
+    plain-text splitting so the content survives the round-trip.
+    """
+    text = "<page>हरिः ओम् ।\n\nश्लोकः अ ।\nश्लोकः क ॥</page>"
+    parsed = s.ProofPage.from_content_and_page_id(text, 0)
+    assert parsed.blocks, "Expected non-empty blocks for bare-text-in-page input"
+    # Round-tripping should preserve the original text content.
+    rendered = parsed.to_xml_string()
+    for fragment in ("हरिः ओम् ।", "श्लोकः अ ।", "श्लोकः क ॥"):
+        assert fragment in rendered
+
+
 @pytest.mark.parametrize(
     "input,expected",
     [

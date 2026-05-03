@@ -115,14 +115,29 @@ class ProofPage:
     def from_content_and_page_id(text: str, page_id: int) -> "ProofPage":
         """Exposed for `def structuring_api`"""
         try:
-            return ProofPage._from_xml_string(text, page_id)
+            parsed = ProofPage._from_xml_string(text, page_id)
+        except Exception:
+            parsed = None
+
+        # If parsing succeeded and produced blocks, we're done.
+        if parsed is not None and parsed.blocks:
+            return parsed
+
+        if not text or not text.strip():
+            return ProofPage(blocks=[], id=page_id)
+
+        # Either the XML didn't parse, or it parsed but had no element children
+        # (e.g., bare text inside <page>...</page>, common in pre-XML content).
+        # Strip a top-level <page> wrapper if present, then split as plain text.
+        inner = text
+        try:
+            root = DET.fromstring(text)
+            if root.tag == "page":
+                inner = _inner_xml(root)
         except Exception:
             pass
 
-        if not text:
-            return ProofPage(blocks=[], id=page_id)
-
-        blocks = split_plain_text_to_blocks(text)
+        blocks = split_plain_text_to_blocks(inner)
         return ProofPage(id=page_id, blocks=blocks)
 
     def to_xml_string(self) -> str:
