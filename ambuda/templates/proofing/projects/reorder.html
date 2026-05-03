@@ -1,5 +1,4 @@
 {% extends 'proofing/base-project.html' %}
-{% import "macros/components.html" as components %}
 {% import "macros/proofing.html" as m %}
 
 
@@ -9,8 +8,6 @@
 
 
 {% block content %}
-
-{{ components.flash_messages() }}
 
 <div x-data="reorderPages()" class="max-w-full">
 

@@ -1,5 +1,4 @@
 {% extends 'proofing/base-project.html' %}
-{% import "macros/components.html" as components %}
 {% import "macros/forms.html" as mf %}
 {% import "macros/proofing.html" as m %}
 
@@ -13,7 +12,6 @@
 
 <div class="prose">
 
-{{ components.flash_messages() }}
 {{ mf.show_errors_if_any(form.errors) }}
 
 <form method="POST">

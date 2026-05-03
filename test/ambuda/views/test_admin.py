@@ -10,6 +10,23 @@ ALL_MODELS = [x.model.__name__ for x in MODEL_CONFIG]
 READ_ONLY_MODELS = [x.model.__name__ for x in MODEL_CONFIG if x.read_only]
 READ_WRITE_MODELS = [x.model.__name__ for x in MODEL_CONFIG if not x.read_only]
 
+# Models intentionally omitted from the admin UI:
+# - UserRoles, TextBlockBookmark: composite primary keys, no `id` column;
+#   the generic admin's <int:item_id> routes can't address them.
+# - CeleryTaskLog: has its own dedicated UI at /admin/celery-tasks.
+ADMIN_EXCLUDED_MODELS = {"UserRoles", "TextBlockBookmark", "CeleryTaskLog"}
+
+
+def test_all_models_have_admin_config():
+    registered = set(ALL_MODELS)
+    all_db_models = {m.class_.__name__ for m in db.Base.registry.mappers}
+    missing = all_db_models - registered - ADMIN_EXCLUDED_MODELS
+    assert not missing, (
+        f"Models missing from MODEL_CONFIG: {sorted(missing)}. "
+        f"Either add a ModelConfig in ambuda/views/admin/main.py or add to "
+        f"ADMIN_EXCLUDED_MODELS with a comment explaining why."
+    )
+
 
 @pytest.mark.parametrize(
     "username,status_code",

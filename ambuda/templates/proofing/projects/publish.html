@@ -51,7 +51,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
                 </svg>
                 <span class="font-medium text-sm text-slate-700" x-text="getConfigLabel(entry)"></span>
-                <span x-show="entry._published" class="text-xs font-medium text-green-700 bg-green-100 px-1.5 py-0.5 rounded">published</span>
+                <span x-show="!entry._published" class="text-xs font-medium text-red-700 bg-red-100 px-1.5 py-0.5 rounded">unpublished</span>
               </div>
               <div class="flex items-center gap-2" @click.stop>
                 <a :href="getPreviewUrl(entry.slug)"

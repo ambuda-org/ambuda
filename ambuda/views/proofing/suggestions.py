@@ -16,6 +16,7 @@ from sqlalchemy import select
 
 from ambuda import database as db
 from ambuda import queries as q
+from ambuda.enums import SitePageStatus
 from ambuda.models.proofing import SuggestionStatus
 from ambuda.utils.diff import revision_diff, revision_diff_ops
 from ambuda.utils.revisions import add_revision
@@ -26,6 +27,24 @@ bp = Blueprint("suggestions", __name__)
 
 
 PAGE_SIZE = 100
+VALID_STATUSES = {s.value for s in SitePageStatus}
+
+
+def _next_pending_review_url(session, current_id):
+    """Return the URL for the next pending suggestion to review, or None."""
+    stmt = (
+        select(db.Suggestion)
+        .filter(
+            db.Suggestion.status == SuggestionStatus.PENDING,
+            db.Suggestion.id != current_id,
+        )
+        .order_by(db.Suggestion.id.desc())
+        .limit(1)
+    )
+    nxt = session.scalars(stmt).first()
+    if nxt is None:
+        return None
+    return url_for("proofing.suggestions.review", id=nxt.id)
 
 
 @bp.route("/suggestions/")
@@ -101,6 +120,12 @@ def review(id):
 
     image_url = _get_image_url(project, page)
 
+    current_status = (
+        latest_revision.status.name
+        if latest_revision and latest_revision.status
+        else SitePageStatus.R0.value
+    )
+
     return render_template(
         "proofing/suggestion-review.html",
         suggestion=suggestion,
@@ -110,6 +135,7 @@ def review(id):
         diff_ops_json=diff_ops_json,
         is_stale=is_stale,
         image_url=image_url,
+        current_status=current_status,
     )
 
 
@@ -185,15 +211,25 @@ def submit_review(id):
 
     content = data["content"]
 
+    status = data.get("status") or latest_revision.status.name
+    if status not in VALID_STATUSES:
+        return jsonify({"error": "Invalid status."}), 400
+
+    summary = (data.get("summary") or "").strip()
+    if not summary:
+        summary = (
+            f"Accepted suggestion: {suggestion.explanation}"
+            if suggestion.explanation
+            else "Accepted suggestion"
+        )
+
     from flask_login import current_user
 
     add_revision(
         page,
-        summary=f"Accepted suggestion: {suggestion.explanation}"
-        if suggestion.explanation
-        else "Accepted suggestion",
+        summary=summary,
         content=content,
-        status=latest_revision.status.name,
+        status=status,
         version=page.version,
         author_id=current_user.id,
     )
@@ -202,7 +238,13 @@ def submit_review(id):
     session.add(suggestion)
     session.commit()
 
-    return jsonify({"ok": True, "redirect": url_for("proofing.suggestions.index")})
+    return jsonify(
+        {
+            "ok": True,
+            "redirect": url_for("proofing.suggestions.index"),
+            "next_review_url": _next_pending_review_url(session, suggestion.id),
+        }
+    )
 
 
 @bp.route("/suggestions/<int:id>/reject", methods=["POST"])

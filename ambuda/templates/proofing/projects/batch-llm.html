@@ -1,5 +1,4 @@
 {% extends 'proofing/base-project.html' %}
-{% import "macros/components.html" as components %}
 {% import "macros/proofing.html" as m %}
 
 
@@ -9,8 +8,6 @@
 
 
 {% block content %}
-{{ components.flash_messages() }}
-
 <div class="prose">
   <p>Run an LLM prompt over a range of pages. Results are stored as suggestions for review.</p>
 </div>

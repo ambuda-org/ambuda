@@ -1,5 +1,4 @@
 {% extends 'proofing/base-project.html' %}
-{% import "macros/components.html" as components %}
 {% import "macros/proofing.html" as m %}
 
 
@@ -9,8 +8,6 @@
 
 
 {% block content %}
-{{ components.flash_messages() }}
-
 <div class="max-w-4xl">
   <form method="get" action="{{ url_for('proofing.project.batch_status', slug=project.slug) }}"
         class="space-y-4 mb-8">

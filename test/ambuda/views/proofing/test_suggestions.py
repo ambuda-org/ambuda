@@ -480,6 +480,97 @@ def test_submit_review__unauth(client, flask_app):
     assert r.status_code == 302
 
 
+def test_submit_review__custom_summary_and_status(rama_client, flask_app):
+    with flask_app.app_context():
+        session = get_session()
+        project_id, page_id, revision_id = _get_test_ids(session)
+        suggestion = _create_suggestion(session, project_id, page_id, revision_id)
+        suggestion_id = suggestion.id
+        page_versions_before = session.get(db.Page, page_id).version
+
+    r = rama_client.post(
+        f"/proofing/suggestions/{suggestion_id}/submit-review",
+        data=json.dumps(
+            {
+                "content": "reviewed content",
+                "summary": "tidied up the OCR",
+                "status": "reviewed-2",
+            }
+        ),
+        content_type="application/json",
+    )
+    assert r.status_code == 200
+    assert r.get_json()["ok"] is True
+
+    with flask_app.app_context():
+        session = get_session()
+        page = session.get(db.Page, page_id)
+        latest = page.revisions[-1]
+        assert latest.author.username == "u-basic"
+        assert latest.status.name == "reviewed-2"
+        assert latest.summary == "tidied up the OCR"
+        assert page.version == page_versions_before + 1
+
+
+def test_submit_review__invalid_status(rama_client, flask_app):
+    with flask_app.app_context():
+        session = get_session()
+        project_id, page_id, revision_id = _get_test_ids(session)
+        suggestion = _create_suggestion(session, project_id, page_id, revision_id)
+        suggestion_id = suggestion.id
+
+    r = rama_client.post(
+        f"/proofing/suggestions/{suggestion_id}/submit-review",
+        data=json.dumps({"content": "x", "status": "bogus"}),
+        content_type="application/json",
+    )
+    assert r.status_code == 400
+
+
+def test_submit_review__returns_next_review_url(rama_client, flask_app):
+    """When other pending suggestions exist, the next-review URL is returned."""
+    with flask_app.app_context():
+        session = get_session()
+        project_id, page_id, revision_id = _get_test_ids(session)
+        s1 = _create_suggestion(session, project_id, page_id, revision_id)
+        s2 = _create_suggestion(session, project_id, page_id, revision_id)
+        s1_id, s2_id = s1.id, s2.id
+
+    # Submitting s2 should point us at s1 (the next pending, older id).
+    r = rama_client.post(
+        f"/proofing/suggestions/{s2_id}/submit-review",
+        data=json.dumps({"content": "x"}),
+        content_type="application/json",
+    )
+    assert r.status_code == 200
+    data = r.get_json()
+    assert data["next_review_url"] == f"/proofing/suggestions/{s1_id}/review"
+
+
+def test_submit_review__no_next_review_url_when_alone(rama_client, flask_app):
+    with flask_app.app_context():
+        session = get_session()
+        # Reject any leftover pending suggestions from other tests.
+        for s in session.scalars(
+            select(db.Suggestion).filter(
+                db.Suggestion.status == SuggestionStatus.PENDING
+            )
+        ).all():
+            s.status = SuggestionStatus.REJECTED
+        session.commit()
+        project_id, page_id, revision_id = _get_test_ids(session)
+        suggestion = _create_suggestion(session, project_id, page_id, revision_id)
+        suggestion_id = suggestion.id
+
+    r = rama_client.post(
+        f"/proofing/suggestions/{suggestion_id}/submit-review",
+        data=json.dumps({"content": "x"}),
+        content_type="application/json",
+    )
+    assert r.status_code == 200
+    assert r.get_json()["next_review_url"] is None
+
+
 def test_review__accepted_shows_readonly_diff(rama_client, flask_app):
     with flask_app.app_context():
         session = get_session()

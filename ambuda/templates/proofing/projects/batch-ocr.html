@@ -1,5 +1,4 @@
 {% extends 'proofing/base-project.html' %}
-{% import "macros/components.html" as components %}
 {% from "macros/forms.html" import field %}
 {% import "macros/proofing.html" as m %}
 
@@ -10,8 +9,6 @@
 
 
 {% block content %}
-{{ components.flash_messages() }}
-
 <div class="prose">
   <p>Click the button below to run OCR on every unedited page.</p>
 

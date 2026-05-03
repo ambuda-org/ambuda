@@ -33,7 +33,7 @@ from wtforms.validators import Optional
 
 import ambuda.database as db
 import ambuda.queries as q
-from ambuda.models.proofing import ProjectStatus
+from ambuda.models.proofing import ProjectStatus, SuggestionStatus
 from ambuda.models.texts import TextStatus
 from ambuda.views.admin import tasks
 
@@ -115,6 +115,12 @@ MODEL_CONFIG = [
         list_columns=["id", "slug", "title"],
         category=Category.DISCUSSION,
         read_only=True,
+    ),
+    ModelConfig(
+        model=db.BulkExport,
+        list_columns=["id", "slug", "export_type", "size", "updated_at"],
+        category=Category.TEXTS,
+        search_key="slug",
     ),
     ModelConfig(
         model=db.ContributorInfo,
@@ -200,10 +206,28 @@ MODEL_CONFIG = [
         search_key="slug",
     ),
     ModelConfig(
+        model=db.ProjectSource,
+        list_columns=["id", "project_id", "description", "author_id", "created_at"],
+        category=Category.PROOFING,
+    ),
+    ModelConfig(
         model=db.ProjectSponsorship,
         list_columns=["id", "sa_title", "en_title", "cost_inr"],
         category=Category.SITE,
         permission="moderator",
+    ),
+    ModelConfig(
+        model=db.ProjectTag,
+        list_columns=["id", "name"],
+        category=Category.PROOFING,
+        permission="moderator",
+        display_field="name",
+    ),
+    ModelConfig(
+        model=db.ProjectUncoveredReport,
+        list_columns=["id", "project_id", "generated_at"],
+        category=Category.PROOFING,
+        read_only=True,
     ),
     ModelConfig(
         model=db.PublishConfig,
@@ -233,6 +257,20 @@ MODEL_CONFIG = [
         list_columns=["id", "name"],
         category=Category.AUTH,
         read_only=True,
+    ),
+    ModelConfig(
+        model=db.Suggestion,
+        list_columns=[
+            "id",
+            "project_id",
+            "page_id",
+            "user_id",
+            "status",
+            "created_at",
+        ],
+        category=Category.PROOFING,
+        permission="moderator",
+        enum_fields={"status": SuggestionStatus},
     ),
     ModelConfig(
         model=db.Text,

@@ -49,12 +49,11 @@
       <div class="flex items-center gap-2">
         {% if suggestion.status == 'pending' %}
         <button type="button"
-                @click="submitReview()"
+                @click="openSubmitModal()"
                 :disabled="isStale || submitting"
                 class="px-3 py-1.5 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 {% if is_stale %}title="{{ _('This suggestion is based on an outdated revision') }}"{% endif %}>
-          <span x-show="!submitting">{{ _('Submit') }}</span>
-          <span x-show="submitting" x-cloak>{{ _('Submitting...') }}</span>
+          {{ _('Submit') }}
         </button>
         <form method="POST" action="{{ url_for('proofing.suggestions.reject', id=suggestion.id) }}">
           <button type="submit" class="px-3 py-1.5 bg-red-600 text-white text-sm rounded hover:bg-red-700">
@@ -92,12 +91,12 @@
               x-show="op.op === 'insert' || op.op === 'replace'"><ins class="bg-green-100 text-green-800 no-underline" x-text="trimEnd(op.new)[0]"></ins></span><button
               type="button"
               @click="dismiss(i)"
-              class="absolute -top-1 -right-2 hidden group-hover:inline-flex items-center justify-center w-4 h-4 bg-slate-600 text-white rounded-full text-xs leading-none cursor-pointer"
+              class="absolute -top-1 -right-2 inline-flex items-center justify-center w-4 h-4 bg-slate-600 text-white rounded-full text-xs leading-none cursor-pointer opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity"
               title="{{ _('Dismiss this change') }}">&times;</button></span><span x-text="op.op === 'insert' ? trimEnd(op.new)[1] : trimEnd(op.old)[1]"></span></span><span
             x-show="op.op !== 'equal' && dismissed[i]"><span class="relative inline group"><span class="bg-slate-100 text-slate-400" x-text="trimEnd(op.old)[0]"></span><button
               type="button"
               @click="restore(i)"
-              class="absolute -top-1 -right-2 hidden group-hover:inline-flex items-center justify-center w-4 h-4 bg-blue-600 text-white rounded-full text-xs leading-none cursor-pointer"
+              class="absolute -top-1 -right-2 inline-flex items-center justify-center w-4 h-4 bg-blue-600 text-white rounded-full text-xs leading-none cursor-pointer opacity-0 group-hover:opacity-100 hover:opacity-100 transition-opacity"
               title="{{ _('Restore this change') }}">&#x21a9;</button></span><span x-text="trimEnd(op.old)[1]"></span></span></span></template></pre>
         {% else %}
         {# Read-only diff #}
@@ -119,6 +118,71 @@
       <div id="osd-image" class="flex-1 min-h-0 bg-slate-100"></div>
     </div>
   </div>
+
+  {% if suggestion.status == 'pending' %}
+  <div x-show="showModal"
+       x-cloak
+       @click.self="closeModal"
+       @keydown.window.escape="closeModal"
+       class="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center pt-20 z-50">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl overflow-hidden">
+      <div class="bg-slate-100 p-4 border-b flex justify-between items-center">
+        <h2 class="text-lg font-bold">{{ _('Accept suggestion') }}</h2>
+        <button type="button"
+                class="text-slate-700 hover:text-slate-900 font-bold text-xl"
+                @click="closeModal">&times;</button>
+      </div>
+      <div class="p-4 max-h-[60vh] overflow-y-scroll">
+        <div class="flex gap-4 items-end">
+          <div class="flex-1">
+            <label class="text-slate-600 mb-1 block text-sm">{{ _('Edit summary (optional)') }}</label>
+            <input type="text"
+                   x-model="modalSummary"
+                   class="block rounded bg-white w-full p-2 border border-slate-300"
+                   placeholder="{{ _('Fixed various OCR errors') }}">
+          </div>
+
+          <div class="flex-1">
+            <label class="block text-slate-600 mb-1 text-sm">{{ _('Status') }}</label>
+            <select x-model="modalStatus"
+                    :class="{
+                      'bg-red-200 text-red-800 border-red-300': modalStatus === 'reviewed-0',
+                      'bg-yellow-200 text-yellow-800 border-yellow-300': modalStatus === 'reviewed-1',
+                      'bg-green-200 text-green-800 border-green-300': modalStatus === 'reviewed-2',
+                      'bg-slate-100 text-gray-800 border-gray-300': modalStatus === 'skip'
+                    }"
+                    class="block w-full p-2 rounded border-2 transition-colors">
+              <option value="reviewed-0">{{ _('Needs work') }}</option>
+              <option value="reviewed-1">{{ _('Proofed once') }}</option>
+              <option value="reviewed-2">{{ _('Proofed twice') }}</option>
+              <option value="skip">{{ _('Not relevant') }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-slate-100 p-4 border-t flex items-center justify-between">
+        <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600">
+          <input type="checkbox" class="w-4 h-4" x-model="advanceAfterSubmit">
+          {{ _('After submit, take me to the next submission') }}
+        </label>
+        <div class="flex gap-3">
+          <button type="button"
+                  class="px-4 py-2 border border-slate-300 rounded hover:bg-slate-200"
+                  @click="closeModal">
+            {{ _('Cancel') }}
+          </button>
+          <button type="button"
+                  class="btn btn-submit"
+                  :disabled="submitting"
+                  @click="submitReview"
+                  x-text="submitting ? '{{ _("Submitting...") }}' : '{{ _("Submit") }}'">
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/openseadragon@3.1/build/openseadragon/openseadragon.min.js"></script>
@@ -130,6 +194,10 @@ function suggestionReview() {
     dismissed: {},
     isStale: {{ 'true' if is_stale else 'false' }},
     submitting: false,
+    showModal: false,
+    modalSummary: '',
+    modalStatus: '{{ current_status }}',
+    advanceAfterSubmit: localStorage.getItem('suggestionAdvanceAfterSubmit') === 'true',
 
     trimEnd(s) {
       const m = s.match(/^([\s\S]*?)(\s*)$/);
@@ -148,18 +216,37 @@ function suggestionReview() {
       return this.ops.map((op, i) => this.dismissed[i] ? op.old : op.new).join('');
     },
 
+    openSubmitModal() {
+      if (this.isStale || this.submitting) return;
+      this.showModal = true;
+    },
+
+    closeModal() {
+      if (this.submitting) return;
+      this.showModal = false;
+    },
+
     async submitReview() {
       if (this.isStale || this.submitting) return;
       this.submitting = true;
+      localStorage.setItem('suggestionAdvanceAfterSubmit', this.advanceAfterSubmit);
       try {
         const resp = await fetch("{{ url_for('proofing.suggestions.submit_review', id=suggestion.id) }}", {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({content: this.reconstructContent()}),
+          body: JSON.stringify({
+            content: this.reconstructContent(),
+            summary: this.modalSummary,
+            status: this.modalStatus,
+          }),
         });
         const data = await resp.json();
         if (data.ok) {
-          window.location.href = data.redirect;
+          if (this.advanceAfterSubmit && data.next_review_url) {
+            window.location.href = data.next_review_url;
+          } else {
+            window.location.href = data.redirect;
+          }
         } else {
           alert(data.error || 'An error occurred.');
           this.submitting = false;
