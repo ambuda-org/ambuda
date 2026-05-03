@@ -225,6 +225,13 @@ export default () => ({
   isSaving: false,
   showUnsavedWarning: false,
   pendingNavigation: null,
+  lastSaveResponse: null,
+
+  // Suggestion-review diff pane
+  diffHtml: '',
+  diffUpdating: false,
+  _diffTimer: null,
+  _diffSeq: 0,
 
   // Internal-only
   layoutClasses: ImageClasses.Right,
@@ -272,6 +279,10 @@ export default () => ({
     this.layoutClasses = this.getLayoutClasses();
 
     this.pageState = JSON.parse(this.$el.dataset.pageState);
+
+    if (this.pageState.suggestion) {
+      this.diffHtml = this.pageState.suggestion.diffHtml || '';
+    }
 
     // Browser back/forward support
     window.addEventListener('popstate', this.onPopState.bind(this));
@@ -833,12 +844,19 @@ export default () => ({
     const onChange = () => {
       this.hasUnsavedChanges = true;
       $('#content').value = Alpine.raw(this.editor).getText();
+      if (this.pageState.suggestion) {
+        this.scheduleDiffUpdate();
+      }
     };
     if (viewMode === ViewType.XML) {
       return new XMLView(element, content, onChange, this.textZoom);
     }
     return new ProofingEditor(
-      element, content, onChange, this.showAdvancedOptions, this.textZoom,
+      element,
+      content,
+      onChange,
+      this.showAdvancedOptions,
+      this.textZoom,
       (context) => this.onActiveWordChange(context),
       () => ({ enabled: this.imeEnabled, fromScript: this.fromScript, toScript: this.toScript }),
     );
@@ -1163,9 +1181,79 @@ export default () => ({
   async submitFormFromModal() {
     this.closeModal();
     const ok = await this.saveViaAPI();
-    if (ok && this.advanceAfterSubmit && this.pageState.nextSlug) {
+    if (!ok) return;
+    if (this.pageState.suggestion) {
+      // Suggestion review: hop to the next pending suggestion or back to the index.
+      const next = this.lastSaveResponse?.next_review_url
+        || this.pageState.suggestion.nextReviewUrl;
+      const fallback = this.lastSaveResponse?.index_url
+        || this.pageState.suggestion.indexUrl;
+      window.location.href = next || fallback;
+      return;
+    }
+    if (this.advanceAfterSubmit && this.pageState.nextSlug) {
       await this.loadPage(this.pageState.nextSlug, true);
       this.showAlert('success', 'Saved previous page.');
+    }
+  },
+
+  scheduleDiffUpdate() {
+    if (!this.pageState.suggestion) return;
+    if (this._diffTimer) clearTimeout(this._diffTimer);
+    this.diffUpdating = true;
+    this._diffTimer = setTimeout(() => this.refreshDiff(), 300);
+  },
+
+  async refreshDiff() {
+    if (!this.pageState.suggestion) return;
+    const seq = ++this._diffSeq;
+    try {
+      const csrfToken = $('input[name="csrf_token"]')?.value || '';
+      const response = await fetch(this.pageState.suggestion.diffUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+        body: JSON.stringify({ content: Alpine.raw(this.editor).getText() }),
+      });
+      const data = await response.json();
+      // Drop stale responses if a newer request fired in the meantime.
+      if (seq !== this._diffSeq) return;
+      if (data.ok) {
+        this.diffHtml = data.html || '';
+      }
+    } catch (e) {
+      // Silently swallow — the diff pane is a hint, not critical.
+      console.warn('Diff refresh failed:', e);
+    } finally {
+      if (seq === this._diffSeq) this.diffUpdating = false;
+    }
+  },
+
+  async rejectSuggestion() {
+    if (!this.pageState.suggestion || this.isSaving) return;
+    if (!confirm('Reject this suggestion?')) return;
+    this.isSaving = true;
+    try {
+      const csrfToken = $('input[name="csrf_token"]')?.value || '';
+      const formData = new FormData();
+      formData.append('csrf_token', csrfToken);
+      const response = await fetch(this.pageState.suggestion.rejectUrl, {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json();
+      if (data.ok) {
+        this.hasUnsavedChanges = false;
+        const next = data.next_review_url || this.pageState.suggestion.nextReviewUrl;
+        const fallback = data.index_url || this.pageState.suggestion.indexUrl;
+        window.location.href = next || fallback;
+      } else {
+        this.showAlert('error', data.message || 'Could not reject suggestion.');
+        this.isSaving = false;
+      }
+    } catch (error) {
+      console.error('Reject failed:', error);
+      this.showAlert('error', 'Reject failed. Please check your connection.');
+      this.isSaving = false;
     }
   },
 
@@ -1185,7 +1273,8 @@ export default () => ({
       formData.append('explanation', this.modalExplanation);
       formData.append('csrf_token', csrfToken);
 
-      const url = routes.proofingSave(this.pageState.projectSlug, this.pageState.pageSlug);
+      const url = this.pageState.saveUrl
+        || routes.proofingSave(this.pageState.projectSlug, this.pageState.pageSlug);
       const response = await fetch(url, {
         method: 'POST',
         body: formData,
@@ -1197,6 +1286,7 @@ export default () => ({
       }
 
       const data = await response.json();
+      this.lastSaveResponse = data;
 
       if (data.ok) {
         this.hasUnsavedChanges = false;
@@ -1214,7 +1304,7 @@ export default () => ({
         }
         this.showAlert('success', data.message);
         return true;
-      } else if (data.conflict_content) {
+      } if (data.conflict_content) {
         this.showAlert('error', `${data.message}\n\nConflict content is available in the console.`);
         console.warn('Edit conflict content:', data.conflict_content);
         if (data.new_version !== undefined) {

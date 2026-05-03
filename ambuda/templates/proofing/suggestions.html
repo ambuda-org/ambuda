@@ -8,80 +8,224 @@
 
 {% block content %}
 
-<div class="flex gap-2 mb-6">
-  <a href="{{ url_for('proofing.suggestions.index', status='pending') }}"
-     class="px-3 py-1 rounded text-sm {% if status_filter == 'pending' %}bg-sky-900 text-white{% else %}bg-slate-200 text-slate-700 hover:bg-slate-300{% endif %}">
-    {{ _('Pending') }}
-  </a>
-  <a href="{{ url_for('proofing.suggestions.index', status='complete') }}"
-     class="px-3 py-1 rounded text-sm {% if status_filter == 'complete' %}bg-sky-900 text-white{% else %}bg-slate-200 text-slate-700 hover:bg-slate-300{% endif %}">
-    {{ _('Complete') }}
-  </a>
-</div>
+<div x-data="suggestionList()" x-cloak
+     data-msg-confirm="{{ _('Reject the selected suggestions?') }}"
+     data-msg-error="{{ _('An error occurred.') }}"
+     data-msg-network="{{ _('Network error.') }}">
 
-{% if not suggestions %}
-<p class="text-slate-500">{{ _('No suggestions found.') }}</p>
-{% else %}
-<div class="space-y-4">
-  {% for s in suggestions %}
-  <div class="border rounded p-4 {% if s._is_stale and s.status == 'pending' %}border-yellow-400 bg-yellow-50{% else %}bg-white{% endif %}">
-    <div class="flex justify-between items-start mb-2">
-      <div>
-        <a class="font-semibold text-sky-900 hover:underline"
-           href="{{ url_for('proofing.project.summary', slug=s.project.slug) }}">{{ s.project.display_title }}</a>
-        /
-        <a class="text-sky-900 hover:underline"
-           href="{{ url_for('proofing.page.edit', project_slug=s.project.slug, page_slug=s.page.slug) }}">{{ s.page.slug }}</a>
-        {% if s._is_stale and s.status == 'pending' %}
-        <span class="ml-2 px-2 py-0.5 bg-yellow-200 text-yellow-800 text-xs rounded">{{ _('Stale') }}</span>
-        {% endif %}
-      </div>
-      <div class="text-sm text-slate-500">
-        {{ s.created_at.strftime("%Y-%m-%d %H:%M") }}
-      </div>
-    </div>
-
-    <div class="text-sm text-slate-600 mb-2">
-      {% if s.user %}
-      {{ _('By') }} <a class="hover:underline" href="{{ url_for('user.summary', username=s.user.username) }}">{{ s.user.username }}</a>
-      {% else %}
-      {{ _('By Anonymous') }}
-      {% endif %}
-      {% if s.explanation %}
-      &mdash; <i>{{ s.explanation }}</i>
-      {% endif %}
-    </div>
-
-    <details class="mb-3">
-      <summary class="text-sm text-slate-500 cursor-pointer hover:text-slate-700">{{ _('Show changes') }}</summary>
-      <pre class="mt-2 p-2 bg-slate-50 border rounded text-xs max-h-48 overflow-y-auto font-mono whitespace-pre-wrap">{{ s._diff|safe }}</pre>
-    </details>
-
-    {% if s.status == 'pending' %}
+  <div class="flex flex-wrap gap-3 items-center justify-between mb-4">
     <div class="flex gap-2">
-      <a href="{{ url_for('proofing.suggestions.review', id=s.id) }}"
-         class="px-3 py-1 bg-sky-900 text-white text-sm rounded hover:bg-sky-700">
-        {{ _('Review') }}
+      <a href="{{ url_for('proofing.suggestions.index', status='pending') }}"
+         class="px-3 py-1 rounded text-sm {% if status_filter == 'pending' %}bg-sky-900 text-white{% else %}bg-slate-200 text-slate-700 hover:bg-slate-300{% endif %}">
+        {{ _('Pending') }}
+      </a>
+      <a href="{{ url_for('proofing.suggestions.index', status='complete') }}"
+         class="px-3 py-1 rounded text-sm {% if status_filter == 'complete' %}bg-sky-900 text-white{% else %}bg-slate-200 text-slate-700 hover:bg-slate-300{% endif %}">
+        {{ _('Complete') }}
       </a>
     </div>
-    {% else %}
-    <a href="{{ url_for('proofing.suggestions.review', id=s.id) }}"
-       class="px-3 py-1 text-sm rounded bg-slate-600 text-white hover:bg-slate-700">
-      {{ _('View') }}
-    </a>
+    <div class="text-sm text-slate-500">
+      {{ ngettext('%(num)d suggestion', '%(num)d suggestions', total) }}
+    </div>
+  </div>
+
+  {% if not suggestions %}
+  <p class="text-slate-500">{{ _('No suggestions found.') }}</p>
+  {% else %}
+
+  {% if status_filter == 'pending' %}
+  <div x-show="hasSelection"
+       class="sticky top-0 z-10 bg-sky-50 border border-sky-200 rounded p-2 mb-2 flex items-center gap-3 text-sm">
+    <span class="text-sky-800">
+      <span x-text="selectedCount"></span>
+      {{ _('selected') }}
+    </span>
+    <button type="button"
+            @click="batchReject()"
+            :disabled="submitting"
+            class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50">
+      <span x-show="!submitting">{{ _('Reject selected') }}</span>
+      <span x-show="submitting">{{ _('Rejecting...') }}</span>
+    </button>
+    <button type="button"
+            @click="clearSelection()"
+            :disabled="submitting"
+            class="px-3 py-1 border border-slate-300 rounded hover:bg-slate-100">
+      {{ _('Clear') }}
+    </button>
+  </div>
+  {% endif %}
+
+  <div class="border rounded overflow-hidden bg-white">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-100 text-slate-600 text-xs uppercase">
+        <tr>
+          {% if status_filter == 'pending' %}
+          <th class="p-2 w-8 text-left">
+            <input type="checkbox"
+                   class="rounded border-slate-300 text-sky-600 focus:ring-sky-400"
+                   :checked="allSelected"
+                   :disabled="submitting"
+                   @change="toggleAll($event.target.checked)">
+          </th>
+          {% endif %}
+          <th class="text-left p-2">{{ _('Page') }}</th>
+          <th class="text-left p-2">{{ _('By') }}</th>
+          <th class="text-left p-2">{{ _('Note') }}</th>
+          <th class="text-left p-2 whitespace-nowrap">{{ _('Submitted') }}</th>
+          {% if status_filter == 'complete' %}
+          <th class="text-left p-2">{{ _('Status') }}</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in suggestions %}
+        <tr class="border-t hover:bg-slate-50 {% if s._is_stale and s.status == 'pending' %}bg-yellow-50{% endif %}">
+          {% if status_filter == 'pending' %}
+          <td class="p-2 align-top">
+            <input type="checkbox"
+                   class="rounded border-slate-300 text-sky-600 focus:ring-sky-400"
+                   value="{{ s.id }}"
+                   :checked="isSelected({{ s.id }})"
+                   :disabled="submitting"
+                   @change="toggleSelect({{ s.id }})">
+          </td>
+          {% endif %}
+          <td class="p-2 align-top">
+            <a class="hover:underline"
+               href="{{ url_for('proofing.suggestions.review', id=s.id) }}">
+              <span class="font-medium text-sky-900">{{ s.project.display_title }}</span>
+              <span class="text-slate-500"> / {{ s.page.slug }}</span>
+            </a>
+            {% if s._is_stale and s.status == 'pending' %}
+            <span class="ml-1 px-1.5 py-0.5 bg-yellow-200 text-yellow-800 text-xs rounded">{{ _('Stale') }}</span>
+            {% endif %}
+          </td>
+          <td class="p-2 align-top text-slate-600 whitespace-nowrap">
+            {% if s.user %}
+            <a class="hover:underline" href="{{ url_for('user.summary', username=s.user.username) }}">{{ s.user.username }}</a>
+            {% else %}
+            <i>{{ _('Anonymous') }}</i>
+            {% endif %}
+          </td>
+          <td class="p-2 align-top text-slate-600 max-w-md truncate"
+              title="{{ s.explanation or '' }}">
+            <div class="truncate">{{ s.explanation or '' }}</div>
+          </td>
+          <td class="p-2 align-top text-slate-500 whitespace-nowrap">
+            {{ s.created_at.strftime("%Y-%m-%d %H:%M") }}
+          </td>
+          {% if status_filter == 'complete' %}
+          <td class="p-2 align-top whitespace-nowrap">
+            <span class="text-xs {% if s.status == 'accepted' %}text-green-700{% else %}text-red-700{% endif %}">
+              {{ s.status|capitalize }}
+            </span>
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flex justify-between items-center mt-4 text-sm">
+    <div class="text-slate-500">
+      {{ _('Page %(page)d of %(total_pages)d', page=page, total_pages=total_pages) }}
+    </div>
+    {% if total_pages > 1 %}
+    <div class="flex gap-2">
+      {% if page > 1 %}
+      <a href="{{ url_for('proofing.suggestions.index', status=status_filter, page=page-1) }}"
+         class="px-3 py-1 bg-slate-200 text-slate-700 rounded hover:bg-slate-300">
+        &larr; {{ _('Previous') }}
+      </a>
+      {% else %}
+      <span class="px-3 py-1 bg-slate-100 text-slate-400 rounded cursor-not-allowed">&larr; {{ _('Previous') }}</span>
+      {% endif %}
+      {% if page < total_pages %}
+      <a href="{{ url_for('proofing.suggestions.index', status=status_filter, page=page+1) }}"
+         class="px-3 py-1 bg-slate-200 text-slate-700 rounded hover:bg-slate-300">
+        {{ _('Next') }} &rarr;
+      </a>
+      {% else %}
+      <span class="px-3 py-1 bg-slate-100 text-slate-400 rounded cursor-not-allowed">{{ _('Next') }} &rarr;</span>
+      {% endif %}
+    </div>
     {% endif %}
   </div>
-  {% endfor %}
+  {% endif %}
+
 </div>
 
-{% if next_cursor %}
-<div class="mt-6">
-  <a href="{{ url_for('proofing.suggestions.index', status=status_filter, before=next_cursor) }}"
-     class="px-4 py-2 bg-slate-200 text-slate-700 rounded hover:bg-slate-300 text-sm">
-    {{ _('Older suggestions') }} &rarr;
-  </a>
-</div>
-{% endif %}
-{% endif %}
+<style>[x-cloak] { display: none !important; }</style>
+
+<script>
+function suggestionList() {
+  return {
+    selected: new Set(),
+    submitting: false,
+    pageIds: {{ suggestions | map(attribute='id') | list | tojson }},
+
+    get hasSelection() {
+      return this.selected.size > 0;
+    },
+    get selectedCount() {
+      return this.selected.size;
+    },
+    get allSelected() {
+      return this.pageIds.length > 0 && this.pageIds.every(id => this.selected.has(id));
+    },
+
+    isSelected(id) {
+      return this.selected.has(id);
+    },
+
+    toggleSelect(id) {
+      if (this.selected.has(id)) {
+        this.selected.delete(id);
+      } else {
+        this.selected.add(id);
+      }
+      this.selected = new Set(this.selected);
+    },
+
+    toggleAll(checked) {
+      if (checked) {
+        this.pageIds.forEach(id => this.selected.add(id));
+      } else {
+        this.pageIds.forEach(id => this.selected.delete(id));
+      }
+      this.selected = new Set(this.selected);
+    },
+
+    clearSelection() {
+      this.selected = new Set();
+    },
+
+    async batchReject() {
+      if (this.selected.size === 0 || this.submitting) return;
+      if (!confirm(this.$root.dataset.msgConfirm)) return;
+      this.submitting = true;
+      try {
+        const resp = await fetch("{{ url_for('proofing.suggestions.batch_reject') }}", {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ids: Array.from(this.selected)}),
+        });
+        const data = await resp.json();
+        if (data.ok) {
+          window.location.reload();
+        } else {
+          alert(data.error || this.$root.dataset.msgError);
+          this.submitting = false;
+        }
+      } catch (e) {
+        alert(this.$root.dataset.msgNetwork);
+        this.submitting = false;
+      }
+    },
+  };
+}
+</script>
 
 {% endblock %}

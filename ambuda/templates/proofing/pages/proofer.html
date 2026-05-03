@@ -403,6 +403,53 @@
   </div>
   {%- endif %}
 
+  {% if page_state.suggestion %}
+  {# Suggestion review banner. Sits above the editor; the Reject form is intentionally outside the main editor form. #}
+  <div class="border-b bg-sky-50 text-sm flex flex-wrap items-center gap-3 px-4 py-2"
+       :class="pageState.suggestion.isStale ? 'bg-yellow-50 border-yellow-200' : ''">
+    <a href="{{ page_state.suggestion.indexUrl }}"
+       class="px-2 py-1 rounded hover:bg-sky-100 text-sky-800">&larr; {{ _('Suggestions') }}</a>
+    <div class="flex gap-1">
+      {% if page_state.suggestion.prevReviewUrl %}
+      <a href="{{ page_state.suggestion.prevReviewUrl }}"
+         class="px-2 py-1 rounded hover:bg-sky-100 text-sky-800"
+         title="{{ _('Previous suggestion') }}">&larr; {{ _('Prev') }}</a>
+      {% else %}
+      <span class="px-2 py-1 text-slate-400">&larr; {{ _('Prev') }}</span>
+      {% endif %}
+      {% if page_state.suggestion.nextReviewUrl %}
+      <a href="{{ page_state.suggestion.nextReviewUrl }}"
+         class="px-2 py-1 rounded hover:bg-sky-100 text-sky-800"
+         title="{{ _('Next suggestion') }}">{{ _('Next') }} &rarr;</a>
+      {% else %}
+      <span class="px-2 py-1 text-slate-400">{{ _('Next') }} &rarr;</span>
+      {% endif %}
+    </div>
+    <div class="text-slate-700 flex-1 min-w-0">
+      {% if page_state.suggestion.submitter %}
+      {{ _('Reviewing suggestion by') }}
+      <strong>{{ page_state.suggestion.submitter }}</strong>
+      {% else %}
+      {{ _('Reviewing anonymous suggestion') }}
+      {% endif %}
+      {% if page_state.suggestion.explanation %}
+      &mdash; <i>{{ page_state.suggestion.explanation }}</i>
+      {% endif %}
+      {% if page_state.suggestion.isStale %}
+      <span class="ml-2 px-2 py-0.5 bg-yellow-200 text-yellow-800 text-xs rounded">
+        {{ _('Stale: page edited since') }}
+      </span>
+      {% endif %}
+    </div>
+    <button type="button"
+            class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+            :disabled="isSaving"
+            @click="rejectSuggestion()">
+      {{ _('Reject') }}
+    </button>
+  </div>
+  {% endif %}
+
   {{ mc.flash_messages() }}
 
   {# Inline alert for AJAX feedback #}
@@ -475,6 +522,16 @@
     <div :class="layoutClasses" class="flex-1 min-h-0" x-ref="splitContainer">
       <div :style="'flex: ' + splitPercent + ' 1 0%'" class="flex flex-col min-h-0 overflow-hidden">
         <div class="border border-r-slate-400 flex flex-col min-h-0 h-full">
+          {% if page_state.suggestion %}
+          <div class="flex-shrink-0 max-h-[40%] flex flex-col min-h-0 border-b border-slate-300 bg-slate-50">
+            <div class="px-3 py-1 bg-slate-200 text-xs font-semibold text-slate-600 flex justify-between items-center">
+              <span>{{ _('Changes (vs. current page)') }}</span>
+              <span x-show="diffUpdating" class="text-slate-500 italic font-normal">{{ _('updating…') }}</span>
+            </div>
+            <pre x-html="diffHtml"
+                 class="m-0 p-3 text-sm font-mono whitespace-pre-wrap leading-relaxed flex-1 overflow-y-auto"></pre>
+          </div>
+          {% endif %}
           <div class="p-2 md:p-4 flex-1 min-h-0 overflow-y-scroll">
             <div id="prosemirror-editor" class="prosemirror-editor"></div>
             <textarea id="content" name="content" required="" style="display: none;">{{ form.content.data }}</textarea>

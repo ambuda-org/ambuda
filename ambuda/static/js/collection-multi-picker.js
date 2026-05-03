@@ -37,10 +37,10 @@ export default (items, initialIds = []) => {
         if (this.selectedIds.includes(c.id)) return false;
         if (!this.query) return true;
         return (
-          c._searchTitle.includes(q) ||
-          c._searchTitleNorm.includes(qNorm) ||
-          c._searchParent.includes(q) ||
-          c._searchParentNorm.includes(qNorm)
+          c._searchTitle.includes(q)
+          || c._searchTitleNorm.includes(qNorm)
+          || c._searchParent.includes(q)
+          || c._searchParentNorm.includes(qNorm)
         );
       });
     },

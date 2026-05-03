@@ -478,7 +478,7 @@ def page_save_api(project_slug, page_slug):
                     new_version=cur.version,
                 )
             )
-    elif current_user.is_authenticated:
+    else:
         latest_revision = cur.revisions[-1] if cur.revisions else None
         if latest_revision is None:
             return _jsonify_response(
@@ -493,7 +493,7 @@ def page_save_api(project_slug, page_slug):
             project_id=ctx.project.id,
             page_id=cur.id,
             revision_id=latest_revision.id,
-            user_id=current_user.id,
+            user_id=current_user.id if current_user.is_authenticated else None,
             batch_id=str(uuid.uuid4()),
             content=content,
             explanation=explanation,
@@ -507,13 +507,6 @@ def page_save_api(project_slug, page_slug):
                 new_version=int(version),
                 new_status=cur.status.name,
             )
-        )
-    else:
-        return _jsonify_response(
-            PageSaveResponse(
-                ok=False, message="You must be logged in to save changes."
-            ),
-            401,
         )
 
 

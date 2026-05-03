@@ -14,14 +14,29 @@ export function toHK(str) {
  * Single-pass replacement using a combined regex and lookup table.
  */
 const _NORM_MAP = {
-  'ee': 'i', 'oo': 'u', 'ou': 'au', 'x': 'ks',
+  ee: 'i',
+  oo: 'u',
+  ou: 'au',
+  x: 'ks',
   ' ': '',
-  'sh': 's', 'z': 's',
-  'kh': 'k', 'gh': 'g', 'ch': 'c', 'jh': 'j',
-  'Th': 'T', 'Dh': 'D', 'th': 't', 'dh': 'd',
-  'ph': 'p', 'bh': 'b',
-  'RR': 'R', 'lR': 'l',
-  'G': 'n', 'J': 'n', 'M': 'n', 'm': 'n',
+  sh: 's',
+  z: 's',
+  kh: 'k',
+  gh: 'g',
+  ch: 'c',
+  jh: 'j',
+  Th: 'T',
+  Dh: 'D',
+  th: 't',
+  dh: 'd',
+  ph: 'p',
+  bh: 'b',
+  RR: 'R',
+  lR: 'l',
+  G: 'n',
+  J: 'n',
+  M: 'n',
+  m: 'n',
 };
 const _NORM_RE = new RegExp(
   Object.keys(_NORM_MAP)

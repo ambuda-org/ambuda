@@ -16,8 +16,8 @@ const norm = (s) => normalizeHK(toHK(s || '')).toLowerCase();
 export default (items, options = {}) => {
   const labelKey = options.labelKey || 'label';
   const valueKey = options.valueKey || 'value';
-  const extraKey = options.extraKey;
-  const initialValue = options.initialValue;
+  const { extraKey } = options;
+  const { initialValue } = options;
   const placeholder = options.placeholder || '';
 
   return {
