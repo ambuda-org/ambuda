@@ -49,6 +49,7 @@ from ambuda.tasks import llm_structuring as llm_structuring_tasks
 from ambuda.tasks import ocr as ocr_tasks
 from ambuda.tasks import projects as project_tasks
 from ambuda.utils import project_structuring, project_utils
+from ambuda.utils import prompt_template as prompt_template_utils
 from ambuda.utils.llm_prompts import PRESET_PROMPTS
 from ambuda.utils.project_structuring import ProofBlock, ProofPage, ProofProject
 from ambuda.utils.revisions import add_revision
@@ -1022,66 +1023,52 @@ def batch_llm(slug):
     if not data:
         return jsonify({"error": "No JSON data provided"}), 400
 
-    prompt_key = data.get("prompt")
-    custom_prompt = data.get("custom_prompt")
+    prompt_template = data.get("custom_prompt") or ""
+    gold_standard = (data.get("gold_standard") or "").strip()
     page_start = data.get("page_start")
     page_end = data.get("page_end")
 
+    if not prompt_template:
+        return jsonify({"error": "Prompt is required"}), 400
+    if "{content}" not in prompt_template:
+        return jsonify({"error": "Prompt must contain {content} placeholder"}), 400
     if not page_start or not page_end:
         return jsonify({"error": "page_start and page_end are required"}), 400
 
-    # Resolve prompt template
-    if prompt_key and prompt_key in PRESET_PROMPTS:
-        prompt_template = PRESET_PROMPTS[prompt_key]["template"]
-    elif custom_prompt:
-        if "{content}" not in custom_prompt:
-            return jsonify(
-                {"error": "Custom prompt must contain {content} placeholder"}
-            ), 400
-        prompt_template = custom_prompt
-    else:
-        return jsonify({"error": "A valid preset or custom prompt is required"}), 400
+    if "{gold_standard}" in prompt_template:
+        if not gold_standard:
+            return jsonify({"error": "This prompt requires a gold standard text."}), 400
+        prompt_template = prompt_template_utils.expand(
+            prompt_template, gold_standard=gold_standard
+        )
 
-    # Find the order range from start/end page slugs
-    start_slug = str(page_start)
-    end_slug = str(page_end)
-    start_order = None
-    end_order = None
-    for p in project_.pages:
-        if p.slug == start_slug:
-            start_order = p.order
-        if p.slug == end_slug:
-            end_order = p.order
-
+    slug_to_order = {p.slug: p.order for p in project_.pages}
+    start_order = slug_to_order.get(str(page_start))
+    end_order = slug_to_order.get(str(page_end))
     if start_order is None or end_order is None:
         return jsonify({"error": "Invalid page range"}), 400
 
-    # Filter pages within the order range that have content
     page_slugs = [
         p.slug
         for p in project_.pages
         if start_order <= p.order <= end_order and p.version > 0
     ]
-
     if not page_slugs:
         return jsonify({"error": "No edited pages found in the given range"}), 400
 
     batch_id = str(uuid.uuid4())
-    task = batch_llm_tasks.run_batch_llm_for_project(
+    task = batch_llm_tasks.run_batch_llm.delay(
         app_env=current_app.config["AMBUDA_ENVIRONMENT"],
-        project=project_,
-        prompt_template=prompt_template,
+        project_slug=project_.slug,
         page_slugs=page_slugs,
+        prompt_template=prompt_template,
         batch_id=batch_id,
     )
 
-    if task:
-        redirect_url = url_for(
-            "proofing.project.batch_llm_progress", slug=slug, task_id=task.id
-        )
-        return jsonify({"redirect": redirect_url})
-    else:
-        return jsonify({"error": "Failed to start batch LLM task"}), 500
+    redirect_url = url_for(
+        "proofing.project.batch_llm_progress", slug=slug, task_id=task.id
+    )
+    return jsonify({"redirect": redirect_url})
 
 
 @bp.route("/<slug>/batch-llm-progress/<task_id>")
@@ -1115,6 +1102,7 @@ def batch_llm_status(task_id):
             "created": result.get("created", 0),
             "skipped": result.get("skipped", 0),
             "total": result.get("total", 0),
+            "failures": result.get("failures", []),
         }
     elif state == "FAILURE":
         data = {"status": "FAILURE", "error": str(r.result)}

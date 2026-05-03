@@ -76,25 +76,44 @@ def run(
     return response.text
 
 
-BATCH_DELIMITER_START = "===PAGE_START {slug}==="
-BATCH_DELIMITER_END = "===PAGE_END {slug}==="
+PAGE_DELIMITER_START = "===PAGE_START {slug}==="
+PAGE_DELIMITER_END = "===PAGE_END {slug}==="
 
-BATCH_WRAPPER = """You will process multiple pages. Each page is delimited below.
-Apply the instructions to EACH page independently and return the results using the
-EXACT same delimiters.
+BATCH_WRAPPER = """You will process multiple pages. Each page is delimited below
+between ===PAGE_START <slug>=== and ===PAGE_END <slug>=== markers.
 
-For each page, return:
-===PAGE_START <slug>===
-<your structured output for that page>
-===PAGE_END <slug>===
+Apply the instructions to EACH page independently. Return a JSON object with a
+single "pages" array. Each entry must have:
+  - "slug": the page slug exactly as given in the delimiter
+  - "content": the LLM output for that page
 
-Do NOT include any text outside of these delimiters.
+Return one entry per input page. Do NOT skip pages. Do NOT include any
+explanation outside the JSON object.
 
 INSTRUCTIONS:
 {instructions}
 
 PAGES TO PROCESS:
 {pages}"""
+
+
+_BATCH_RESPONSE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "pages": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "slug": {"type": "string"},
+                    "content": {"type": "string"},
+                },
+                "required": ["slug", "content"],
+            },
+        }
+    },
+    "required": ["pages"],
+}
 
 
 def run_batch(
@@ -110,23 +129,24 @@ def run_batch(
         prompt_template: the per-page prompt template (must contain {content}).
 
     Returns:
-        mapping of page slug to LLM output.
+        mapping of page slug to LLM output. Pages the model omits are absent
+        from the result.
     """
     if not pages:
         raise ValueError("No pages provided")
     if not api_key:
         raise ValueError("GEMINI_API_KEY not configured")
 
-    # Build the combined input: instructions + all pages with delimiters.
-    # Strip the {content} placeholder from the template to get just the instructions.
+    # The template is written for a single page. Strip {content} for the
+    # instructions block; the actual contents go into the delimited section.
     instructions = prompt_template.replace("{content}", "<page content appears here>")
 
     page_sections = []
     for slug, content in pages.items():
         page_sections.append(
-            f"{BATCH_DELIMITER_START.format(slug=slug)}\n"
+            f"{PAGE_DELIMITER_START.format(slug=slug)}\n"
             f"{content}\n"
-            f"{BATCH_DELIMITER_END.format(slug=slug)}"
+            f"{PAGE_DELIMITER_END.format(slug=slug)}"
         )
 
     prompt = BATCH_WRAPPER.format(
@@ -135,27 +155,34 @@ def run_batch(
     )
 
     from google import genai
+    from google.genai import types
 
     client = genai.Client(api_key=api_key)
-    response = client.models.generate_content(model=GEMINI_MODEL, contents=prompt)
+    response = client.models.generate_content(
+        model=GEMINI_MODEL,
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+            response_schema=_BATCH_RESPONSE_SCHEMA,
+        ),
+    )
 
-    return _parse_batch_response(response.text, set(pages.keys()))
+    return _parse_batch_response(response.text)
 
 
-def _parse_batch_response(
-    response_text: str, expected_slugs: set[str]
-) -> dict[str, str]:
-    """Parse delimited multi-page LLM output back into per-page results."""
-    import re
+def _parse_batch_response(response_text: str) -> dict[str, str]:
+    """Parse Gemini's JSON output back into per-page results."""
+    import json
+
+    try:
+        data = json.loads(response_text)
+    except json.JSONDecodeError:
+        return {}
 
     results = {}
-    pattern = re.compile(
-        r"===PAGE_START\s+(\S+?)===\s*\n(.*?)\n\s*===PAGE_END\s+\1===",
-        re.DOTALL,
-    )
-    for match in pattern.finditer(response_text):
-        slug = match.group(1)
-        content = match.group(2).strip()
-        results[slug] = content
-
+    for entry in data.get("pages", []):
+        slug = entry.get("slug")
+        content = entry.get("content")
+        if isinstance(slug, str) and isinstance(content, str):
+            results[slug] = content
     return results

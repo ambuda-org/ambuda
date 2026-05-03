@@ -8,8 +8,27 @@
   {% endcall %}
 
 {% elif status == 'SUCCESS' %}
-  <p>Done. Created {{ created }} suggestion{{ 's' if created != 1 else '' }}{% if skipped %}, skipped {{ skipped }} page{{ 's' if skipped != 1 else '' }} (validation errors or missing output){% endif %}.</p>
+  <p>Done. Created {{ created }} suggestion{{ 's' if created != 1 else '' }}{% if skipped %}, skipped {{ skipped }} page{{ 's' if skipped != 1 else '' }}{% endif %}.</p>
   <p><a class="underline" href="{{ url_for('proofing.suggestions.index') }}">View pending suggestions</a></p>
+
+  {% if failures %}
+  <details class="mt-4 border border-slate-300 rounded">
+    <summary class="cursor-pointer px-3 py-2 bg-slate-50 text-sm font-medium">
+      Skipped pages ({{ failures|length }})
+    </summary>
+    <ul class="divide-y divide-slate-200">
+      {% for f in failures %}
+      <li class="px-3 py-2 text-sm">
+        <span class="font-mono font-semibold">{{ f.slug }}</span>
+        <span class="text-slate-700">— {{ f.reason }}</span>
+        {% if f.snippet %}
+        <pre class="mt-1 p-2 bg-slate-50 text-xs font-mono whitespace-pre-wrap overflow-x-auto">{{ f.snippet }}</pre>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </details>
+  {% endif %}
 
 {% elif status == 'PROGRESS' %}
   <p>Processing pages &hellip;</p>

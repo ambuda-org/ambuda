@@ -19,15 +19,27 @@ const BATCH_LLM_URL = '{{ url_for('proofing.project.batch_llm', slug=project.slu
 
 <div class="mt-4" x-data="{
   preset: 'structuring',
-  customPrompt: '',
+  prompt: PRESET_PROMPTS['structuring'] ? PRESET_PROMPTS['structuring'].template : '',
+  goldStandard: '',
   pageStart: 1,
   pageEnd: {{ total_pages }},
   submitting: false,
   errorMsg: '',
-  get activePrompt() {
-    if (this.preset === 'custom') return this.customPrompt;
-    const p = PRESET_PROMPTS[this.preset];
-    return p ? p.template : '';
+  get needsGoldStandard() {
+    return this.prompt.includes('{gold_standard}');
+  },
+  get resolvedPrompt() {
+    let p = this.prompt;
+    if (this.needsGoldStandard) {
+      const gs = this.goldStandard.trim() || '<paste gold standard text here>';
+      p = p.split('{gold_standard}').join(gs);
+    }
+    return p.split('{content}').join('<page content appears here>');
+  },
+  loadPreset(key) {
+    this.preset = key;
+    const p = PRESET_PROMPTS[key];
+    this.prompt = p ? p.template : '';
   },
   async submit() {
     this.submitting = true;
@@ -35,11 +47,10 @@ const BATCH_LLM_URL = '{{ url_for('proofing.project.batch_llm', slug=project.slu
     const payload = {
       page_start: this.pageStart,
       page_end: this.pageEnd,
+      custom_prompt: this.prompt,
     };
-    if (this.preset === 'custom') {
-      payload.custom_prompt = this.customPrompt;
-    } else {
-      payload.prompt = this.preset;
+    if (this.needsGoldStandard) {
+      payload.gold_standard = this.goldStandard;
     }
     try {
       const response = await fetch(BATCH_LLM_URL, {
@@ -62,8 +73,10 @@ const BATCH_LLM_URL = '{{ url_for('proofing.project.batch_llm', slug=project.slu
 }">
   <div class="space-y-4 max-w-lg">
     <div>
-      <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Prompt') }}</label>
-      <select class="w-full p-2 border border-slate-300 rounded bg-white" x-model="preset">
+      <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Preset') }}</label>
+      <select class="w-full p-2 border border-slate-300 rounded bg-white"
+              :value="preset"
+              @change="loadPreset($event.target.value)">
         {% for key, prompt in preset_prompts.items() %}
         <option value="{{ key }}">{{ prompt.label }}</option>
         {% endfor %}
@@ -71,17 +84,20 @@ const BATCH_LLM_URL = '{{ url_for('proofing.project.batch_llm', slug=project.slu
       </select>
     </div>
 
-    <div x-show="preset === 'custom'" x-cloak>
-      <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Custom prompt') }}</label>
-      <textarea class="w-full p-2 border border-slate-300 rounded h-48 text-sm font-mono"
-                x-model="customPrompt"
+    <div>
+      <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Prompt') }}</label>
+      <textarea class="w-full p-2 border border-slate-300 rounded h-64 text-xs font-mono"
+                x-model="prompt"
                 placeholder="Use {content} where page text should be inserted."></textarea>
-      <p class="text-xs text-slate-500 mt-1">{{ _('Must contain {content} placeholder.') }}</p>
+      <p class="text-xs text-slate-500 mt-1">{{ _('Must contain {content}. May also use {gold_standard} for a reference text.') }}</p>
     </div>
 
-    <div>
-      <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Prompt preview') }}</label>
-      <pre class="w-full p-3 border border-slate-300 rounded bg-slate-50 text-xs font-mono whitespace-pre-wrap max-h-64 overflow-y-auto" x-text="activePrompt"></pre>
+    <div x-show="needsGoldStandard" x-cloak>
+      <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Gold standard text') }}</label>
+      <textarea class="w-full p-2 border border-slate-300 rounded h-48 text-xs font-mono"
+                x-model="goldStandard"
+                placeholder="Paste the trusted reference text here. The LLM will use it to correct OCR errors."></textarea>
+      <p class="text-xs text-slate-500 mt-1">{{ _('Substituted into the prompt at {gold_standard}. Sent once for the entire batch.') }}</p>
     </div>
 
     <div class="flex gap-4">
@@ -96,6 +112,11 @@ const BATCH_LLM_URL = '{{ url_for('proofing.project.batch_llm', slug=project.slu
                class="w-full p-2 border border-slate-300 rounded" x-model.number="pageEnd">
       </div>
     </div>
+
+    <details class="border border-slate-300 rounded">
+      <summary class="cursor-pointer px-3 py-2 bg-slate-50 text-sm font-medium">{{ _('Show resolved prompt') }}</summary>
+      <pre class="p-3 text-xs font-mono whitespace-pre-wrap max-h-96 overflow-y-auto" x-text="resolvedPrompt"></pre>
+    </details>
 
     <div x-show="errorMsg" class="text-red-600 text-sm" x-text="errorMsg"></div>
 
