@@ -116,6 +116,38 @@ _BATCH_RESPONSE_SCHEMA = {
 }
 
 
+_RESPONSE_SNIPPET_CHARS = 500
+
+# Push to the model's documented ceiling. Gemini Flash-class models cap output
+# at roughly 65k tokens regardless of the 1M input window, so the batched call
+# has a real per-batch page limit driven by this number.
+_MAX_OUTPUT_TOKENS = 65536
+
+
+class BatchParseError(Exception):
+    """Raised when Gemini's batch response is missing or unparseable.
+
+    Carries a `snippet` and `finish_reason` so the failure surfaces enough
+    diagnostic information to debug the underlying cause (truncation, safety
+    filtering, schema violation, etc.).
+    """
+
+    def __init__(self, message: str, snippet: str = "", finish_reason: str = ""):
+        super().__init__(message)
+        self.snippet = snippet
+        self.finish_reason = finish_reason
+
+
+def _finish_reason(response) -> str:
+    """Extract the finish_reason from a Gemini response, defensively."""
+    try:
+        candidate = response.candidates[0]
+        reason = getattr(candidate, "finish_reason", None)
+        return str(reason) if reason is not None else ""
+    except (AttributeError, IndexError, TypeError):
+        return ""
+
+
 def run_batch(
     pages: dict[str, str],
     api_key: str,
@@ -131,6 +163,9 @@ def run_batch(
     Returns:
         mapping of page slug to LLM output. Pages the model omits are absent
         from the result.
+
+    Raises:
+        BatchParseError: when Gemini returns no text or unparseable JSON.
     """
     if not pages:
         raise ValueError("No pages provided")
@@ -164,23 +199,67 @@ def run_batch(
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
             response_schema=_BATCH_RESPONSE_SCHEMA,
+            # Push to the model's ceiling so we don't silently truncate large
+            # batches. If the model still hits this cap, finish_reason will be
+            # MAX_TOKENS and the user should run a smaller page range.
+            max_output_tokens=_MAX_OUTPUT_TOKENS,
         ),
     )
 
-    return _parse_batch_response(response.text)
+    response_text = response.text or ""
+    finish_reason = _finish_reason(response)
+
+    if "MAX_TOKENS" in finish_reason:
+        raise BatchParseError(
+            "Gemini hit the output-token ceiling — the batch is too large. "
+            "Try a smaller page range.",
+            snippet=response_text[:_RESPONSE_SNIPPET_CHARS],
+            finish_reason=finish_reason,
+        )
+
+    if not response_text:
+        raise BatchParseError(
+            f"Gemini returned an empty response (finish_reason={finish_reason or 'unknown'}). "
+            "This is often caused by safety filtering or an empty candidate.",
+            snippet="",
+            finish_reason=finish_reason,
+        )
+
+    return _parse_batch_response(response_text, finish_reason)
 
 
-def _parse_batch_response(response_text: str) -> dict[str, str]:
-    """Parse Gemini's JSON output back into per-page results."""
+def _parse_batch_response(
+    response_text: str, finish_reason: str = ""
+) -> dict[str, str]:
+    """Parse Gemini's JSON output back into per-page results.
+
+    Raises BatchParseError on unparseable JSON, including a snippet of the
+    response so the caller can surface what actually came back.
+    """
     import json
+
+    snippet = response_text[:_RESPONSE_SNIPPET_CHARS]
 
     try:
         data = json.loads(response_text)
-    except json.JSONDecodeError:
-        return {}
+    except json.JSONDecodeError as e:
+        raise BatchParseError(
+            f"Gemini returned non-JSON output (finish_reason={finish_reason or 'unknown'}): {e}",
+            snippet=snippet,
+            finish_reason=finish_reason,
+        ) from e
+
+    if not isinstance(data, dict) or "pages" not in data:
+        raise BatchParseError(
+            f"Gemini response missing 'pages' key (finish_reason={finish_reason or 'unknown'}).",
+            snippet=snippet,
+            finish_reason=finish_reason,
+        )
 
     results = {}
     for entry in data.get("pages", []):
+        if not isinstance(entry, dict):
+            continue
         slug = entry.get("slug")
         content = entry.get("content")
         if isinstance(slug, str) and isinstance(content, str):

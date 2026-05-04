@@ -87,8 +87,26 @@ def run_batch_llm(
         if not page_contents:
             raise ValueError(f"No pages with content found for {project_slug}")
 
-        # Single LLM call for all pages.
-        results = llm_structuring.run_batch(page_contents, api_key, prompt_template)
+        # Single LLM call for all pages. Parse errors don't trigger retry —
+        # re-running won't fix bad model output. Surface the diagnostic to the
+        # user instead of silently marking every page as "no output".
+        try:
+            results = llm_structuring.run_batch(page_contents, api_key, prompt_template)
+        except llm_structuring.BatchParseError as e:
+            LOG.warning("Batch LLM parse error: %s", e)
+            session.commit()
+            return {
+                "created": 0,
+                "skipped": len(page_slugs),
+                "total": len(page_slugs),
+                "failures": [
+                    {
+                        "slug": "(batch)",
+                        "reason": str(e),
+                        "snippet": e.snippet,
+                    }
+                ],
+            }
 
         explanation = prompt_template[:100].strip()
         if len(prompt_template) > 100:

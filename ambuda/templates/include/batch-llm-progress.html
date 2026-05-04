@@ -1,13 +1,16 @@
 {% import 'macros/components.html' as components %}
 
 {% if status == 'FAILURE' %}
+  <div data-poll-final>
   {% call components.div_warning() %}
   <p class="!mb-0">The batch LLM run failed.
   {% if error %}<br>Error: {{ error }}{% endif %}
   </p>
   {% endcall %}
+  </div>
 
 {% elif status == 'SUCCESS' %}
+  <div data-poll-final>
   <p>Done. Created {{ created }} suggestion{{ 's' if created != 1 else '' }}{% if skipped %}, skipped {{ skipped }} page{{ 's' if skipped != 1 else '' }}{% endif %}.</p>
   <p><a class="underline" href="{{ url_for('proofing.suggestions.index') }}">View pending suggestions</a></p>
 
@@ -29,6 +32,7 @@
     </ul>
   </details>
   {% endif %}
+  </div>
 
 {% elif status == 'PROGRESS' %}
   <p>Processing pages &hellip;</p>
