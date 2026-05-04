@@ -1027,6 +1027,7 @@ def batch_llm(slug):
     gold_standard = (data.get("gold_standard") or "").strip()
     page_start = data.get("page_start")
     page_end = data.get("page_end")
+    skip_irrelevant = bool(data.get("skip_irrelevant"))
 
     if not prompt_template:
         return jsonify({"error": "Prompt is required"}), 400
@@ -1048,11 +1049,14 @@ def batch_llm(slug):
     if start_order is None or end_order is None:
         return jsonify({"error": "Invalid page range"}), 400
 
-    page_slugs = [
-        p.slug
-        for p in project_.pages
-        if start_order <= p.order <= end_order and p.version > 0
-    ]
+    def _included(p):
+        if not (start_order <= p.order <= end_order and p.version > 0):
+            return False
+        if skip_irrelevant and p.status and p.status.name == SitePageStatus.SKIP.value:
+            return False
+        return True
+
+    page_slugs = [p.slug for p in project_.pages if _included(p)]
     if not page_slugs:
         return jsonify({"error": "No edited pages found in the given range"}), 400
 

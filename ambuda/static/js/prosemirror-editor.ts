@@ -1094,13 +1094,17 @@ function parseXMLToDoc(xmlString: string, schema: Schema): PMNode {
   return schema.node('doc', null, blocks);
 }
 
-function escapeXML(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+// Escape characters that would break XML *text content*. Quotes are only
+// special inside attribute values (escapeXMLAttr below); escaping them in
+// text content produces noise like &apos; / &quot; that survives round-trips
+// through diffs and confuses reviewers.
+function escapeXMLText(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Escape for use inside double-quoted attribute values.
+function escapeXMLAttr(str: string): string {
+  return escapeXMLText(str).replace(/"/g, '&quot;');
 }
 
 function serializeInlineContent(node: PMNode): string {
@@ -1110,7 +1114,7 @@ function serializeInlineContent(node: PMNode): string {
     if (child.type.name === 'break_separator') {
       result += '<break/>';
     } else if (child.isText) {
-      let text = escapeXML(child.text || '');
+      let text = escapeXMLText(child.text || '');
       child.marks.forEach((mark) => {
         text = `<${mark.type.name}>${text}</${mark.type.name}>`;
       });
@@ -1129,10 +1133,10 @@ function serializeDocToXML(doc: PMNode): string {
     const type = block.attrs.type || 'p';
     const attrs: string[] = [];
 
-    if (block.attrs.text) attrs.push(`text="${escapeXML(block.attrs.text)}"`);
-    if (block.attrs.n) attrs.push(`n="${escapeXML(block.attrs.n)}"`);
-    if (block.attrs.mark) attrs.push(`mark="${escapeXML(block.attrs.mark)}"`);
-    if (block.attrs.lang) attrs.push(`lang="${escapeXML(block.attrs.lang)}"`);
+    if (block.attrs.text) attrs.push(`text="${escapeXMLAttr(block.attrs.text)}"`);
+    if (block.attrs.n) attrs.push(`n="${escapeXMLAttr(block.attrs.n)}"`);
+    if (block.attrs.mark) attrs.push(`mark="${escapeXMLAttr(block.attrs.mark)}"`);
+    if (block.attrs.lang) attrs.push(`lang="${escapeXMLAttr(block.attrs.lang)}"`);
     if (block.attrs.merge_next) attrs.push('merge-next="true"');
 
     const attrsStr = attrs.length > 0 ? ` ${attrs.join(' ')}` : '';

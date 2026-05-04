@@ -252,9 +252,10 @@ def save_review(id):
         return jsonify({"ok": False, "message": "Invalid status."})
 
     if not summary:
+        submitter = suggestion.user.username if suggestion.user else None
         summary = (
-            f"Accepted suggestion: {suggestion.explanation}"
-            if suggestion.explanation
+            f"Accepted suggestion from {submitter}"
+            if submitter
             else "Accepted suggestion"
         )
 

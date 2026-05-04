@@ -26,11 +26,25 @@ in the provided page text using a trusted gold-standard edition as a reference.
   in the same position. Do NOT join lines, do NOT reflow paragraphs, and do NOT
   insert new line breaks even if the gold standard wraps differently. The OCR
   line layout reflects the physical page and must be retained.
-- **CRITICAL — preserve line-ending hyphens.** When a word is broken across two
-  lines with a trailing hyphen (e.g. `सर्व-\nधर्म` or `inte-\nresting`), KEEP the
-  hyphen and KEEP the line break. Do NOT join the word back together, even if
-  the gold standard shows it as one unbroken word. The hyphen is part of the
-  printed page and must survive.
+- **CRITICAL — preserve EVERY line-ending dash, hyphen, or en-dash.**
+  If an OCR line ends with `-`, `–`, `—`, `‐`, `‑`, `‒`, you MUST keep that
+  character at the end of the line in your output. This rule is absolute and
+  applies regardless of what the dash represents:
+    - Word-break hyphens that split a word across two lines.
+      Example: OCR `प्रवर्तमा–\nनानां` → output `प्रवर्तमा–\nनानां`. Do NOT join
+      the word back together, even if the gold standard shows it as one
+      unbroken word.
+    - Speaker introducers and dialogue markers.
+      Example: OCR `श्रीभगवानुवाच–` → output `श्रीभगवानुवाच–`. Do NOT replace the
+      dash with `:`, `।`, or whitespace, even if you think it is stylistically
+      "wrong" or non-standard.
+    - Section, paragraph, or sentence-end markers.
+      Example: OCR `इत्युच्यते–` → output `इत्युच्यते–`. Do NOT normalize the
+      dash to other punctuation.
+    - Western-style dashes embedded in Sanskrit/Hindi text. They may look
+      foreign to you, but they are part of the printed page. Preserve them.
+  When in doubt about a trailing dash, KEEP IT. Removing a trailing dash is
+  always wrong; keeping a "wrong" dash is always safe.
 - The gold standard covers the entire work; the OCR page is one portion of it.
   Find the matching section before correcting. The gold standard is for spelling
   reference only — never use it to change layout, wrapping, or hyphenation.

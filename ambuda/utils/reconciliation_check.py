@@ -37,12 +37,24 @@ def _line_count(text: str) -> int:
     return len(text.splitlines())
 
 
-def _hyphenated_line_indices(text: str) -> set[int]:
+def _hyphenated_lines(text: str) -> dict[int, str]:
+    """Return {line_index: line_text} for every line ending with a dash."""
     return {
-        i
+        i: line
         for i, line in enumerate(text.splitlines())
         if _TRAILING_HYPHEN_RE.search(line)
     }
+
+
+_LINE_TAIL_CHARS = 30
+
+
+def _tail(line: str) -> str:
+    """Last few characters of a line, for diagnostic display."""
+    line = line.rstrip()
+    if len(line) <= _LINE_TAIL_CHARS:
+        return line
+    return "…" + line[-_LINE_TAIL_CHARS:]
 
 
 def check_layout_preserved(ocr: str, output: str) -> list[str]:
@@ -68,17 +80,23 @@ def check_layout_preserved(ocr: str, output: str) -> list[str]:
             f"({line_fraction:.0%} delta)."
         )
 
-    ocr_hyphens = _hyphenated_line_indices(ocr_body)
-    out_hyphens = _hyphenated_line_indices(out_body)
-    missing = ocr_hyphens - out_hyphens
+    ocr_hyphens = _hyphenated_lines(ocr_body)
+    out_hyphens = _hyphenated_lines(out_body)
+    missing = {i: ocr_hyphens[i] for i in ocr_hyphens.keys() - out_hyphens.keys()}
     missing_fraction = len(missing) / len(ocr_hyphens) if ocr_hyphens else 0
     if (
         len(missing) >= _HYPHEN_REMOVED_ABS_THRESHOLD
         and missing_fraction >= _HYPHEN_REMOVED_FRACTION_THRESHOLD
     ):
+        # Show up to 5 affected lines so the user can see what kind of dashes
+        # the model is dropping (word-break, dialogue, section markers, etc.).
+        sample = sorted(missing.items())[:5]
+        examples = "; ".join(f"L{i + 1}: {_tail(line)!r}" for i, line in sample)
+        more = "" if len(missing) <= 5 else f" (+{len(missing) - 5} more)"
         problems.append(
             f"Trailing hyphens removed in bulk: "
-            f"{len(missing)} of {len(ocr_hyphens)} ({missing_fraction:.0%}) gone."
+            f"{len(missing)} of {len(ocr_hyphens)} ({missing_fraction:.0%}) gone. "
+            f"Examples — {examples}{more}"
         )
 
     return problems

@@ -37,6 +37,76 @@ describe('ProseMirrorEditor', () => {
     editor.destroy();
   });
 
+  // Regression tests for the escapeXMLText / escapeXMLAttr split.
+  // Apostrophes and double quotes are valid as literal characters inside
+  // element text and only need escaping inside attribute values. Previously
+  // both were escaped everywhere, causing &apos; / &quot; to leak into stored
+  // revisions and show up as literal text in diffs.
+  describe('XML escaping in serialization', () => {
+    test('apostrophes in element text are NOT escaped to &apos;', () => {
+      const xml = "<page><p>foo'bar</p></page>";
+      const editor = new ProseMirrorEditor(container, xml);
+
+      const output = editor.getText();
+      expect(output).toContain("foo'bar");
+      expect(output).not.toContain('&apos;');
+
+      editor.destroy();
+    });
+
+    test('double quotes in element text are NOT escaped to &quot;', () => {
+      const xml = '<page><p>she said "hi"</p></page>';
+      const editor = new ProseMirrorEditor(container, xml);
+
+      const output = editor.getText();
+      expect(output).toContain('she said "hi"');
+      expect(output).not.toContain('&quot;');
+
+      editor.destroy();
+    });
+
+    test('& < > in element text ARE escaped (required for valid XML)', () => {
+      const xml = '<page><p>a &amp; b &lt; c &gt; d</p></page>';
+      const editor = new ProseMirrorEditor(container, xml);
+
+      const output = editor.getText();
+      expect(output).toContain('&amp;');
+      expect(output).toContain('&lt;');
+      expect(output).toContain('&gt;');
+
+      editor.destroy();
+    });
+
+    test('double quotes in attribute values ARE escaped (would break the attribute)', () => {
+      // Use an attribute the editor recognizes (text="...") with a quote inside.
+      // Input must escape the quote so the input itself parses; the assertion
+      // confirms the editor preserves that escaping on output.
+      const xml = '<page><p text="quoted &quot;value&quot;">body</p></page>';
+      const editor = new ProseMirrorEditor(container, xml);
+
+      const output = editor.getText();
+      expect(output).toContain('text="quoted &quot;value&quot;"');
+
+      editor.destroy();
+    });
+
+    test('round-trip preserves apostrophes through parse + serialize', () => {
+      // The actual bug: editor parsed clean ' from input but emitted &apos;
+      // on save, so the next round-trip showed up as literal entity in diffs.
+      const xml = "<page><p>round'trip</p></page>";
+      const editor1 = new ProseMirrorEditor(container, xml);
+      const intermediate = editor1.getText();
+      editor1.destroy();
+
+      const editor2 = new ProseMirrorEditor(container, intermediate);
+      const final = editor2.getText();
+      editor2.destroy();
+
+      expect(final).toContain("round'trip");
+      expect(final).not.toContain('&apos;');
+    });
+  });
+
   test('toggleMark adds error mark to selection', () => {
     const xml = '<page><p>Hello world</p></page>';
     const editor = new ProseMirrorEditor(container, xml);

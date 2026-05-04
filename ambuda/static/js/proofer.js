@@ -1109,7 +1109,8 @@ export default () => ({
 
     this.changesPreview = this.generateChangesPreview();
 
-    this.modalSummary = '';
+    const submitter = this.pageState.suggestion?.submitter;
+    this.modalSummary = submitter ? `Accepted suggestion from ${submitter}` : '';
     this.modalStatus = this.pageState.status;
     this.modalExplanation = '';
     this.activeModal = ModalType.Submit;

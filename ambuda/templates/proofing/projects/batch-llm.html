@@ -23,6 +23,7 @@ const BATCH_LLM_URL = '{{ url_for('proofing.project.batch_llm', slug=project.slu
   goldStandard: '',
   pageStart: 1,
   pageEnd: {{ total_pages }},
+  skipIrrelevant: true,
   submitting: false,
   errorMsg: '',
   get needsGoldStandard() {
@@ -48,6 +49,7 @@ const BATCH_LLM_URL = '{{ url_for('proofing.project.batch_llm', slug=project.slu
       page_start: this.pageStart,
       page_end: this.pageEnd,
       custom_prompt: this.prompt,
+      skip_irrelevant: this.skipIrrelevant,
     };
     if (this.needsGoldStandard) {
       payload.gold_standard = this.goldStandard;
@@ -112,6 +114,11 @@ const BATCH_LLM_URL = '{{ url_for('proofing.project.batch_llm', slug=project.slu
                class="w-full p-2 border border-slate-300 rounded" x-model.number="pageEnd">
       </div>
     </div>
+
+    <label class="flex items-center gap-2 text-sm text-slate-700">
+      <input type="checkbox" x-model="skipIrrelevant" class="rounded border-slate-300">
+      <span>{{ _('Ignore irrelevant pages (status: skip)') }}</span>
+    </label>
 
     <details class="border border-slate-300 rounded">
       <summary class="cursor-pointer px-3 py-2 bg-slate-50 text-sm font-medium">{{ _('Show resolved prompt') }}</summary>
