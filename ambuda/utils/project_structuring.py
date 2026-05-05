@@ -316,6 +316,10 @@ class ProofProject:
         return ProofProject(pages=pages)
 
 
+_INLINE_UNWRAP_RE = re.compile(r"</?(?:fix|quote)>")
+_ERROR_TAG_RE = re.compile(r"<error>.*?</error>", re.DOTALL)
+
+
 def to_plain_text(pages: list[ProofPage]) -> str:
     """Export pages as plain text."""
     parts = []
@@ -323,14 +327,16 @@ def to_plain_text(pages: list[ProofPage]) -> str:
         for block in page.blocks:
             if block.type == "ignore":
                 continue
+            content = _ERROR_TAG_RE.sub("", block.content)
+            content = _INLINE_UNWRAP_RE.sub("", content)
             if block.type == "verse":
-                parts.append(block.content)
+                parts.append(content)
             elif block.type == "footnote":
                 prefix = f"[^{block.mark}] " if block.mark else ""
-                parts.append(prefix + block.content)
+                parts.append(prefix + content)
             else:
                 # Join paragraph lines into flowing text
-                parts.append(" ".join(block.content.split()))
+                parts.append(" ".join(content.split()))
     return "\n\n".join(parts)
 
 

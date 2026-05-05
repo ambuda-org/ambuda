@@ -540,6 +540,7 @@ def download_as_text(slug):
             p.revisions[-1].content if p.revisions else "", p.id
         )
         for p in project_.pages
+        if not (p.status and p.status.name == SitePageStatus.SKIP.value)
     ]
     raw_text = project_structuring.to_plain_text(pages)
 
@@ -1028,6 +1029,7 @@ def batch_llm(slug):
     page_start = data.get("page_start")
     page_end = data.get("page_end")
     skip_irrelevant = bool(data.get("skip_irrelevant"))
+    skip_proofed = bool(data.get("skip_proofed"))
 
     if not prompt_template:
         return jsonify({"error": "Prompt is required"}), 400
@@ -1053,6 +1055,16 @@ def batch_llm(slug):
         if not (start_order <= p.order <= end_order and p.version > 0):
             return False
         if skip_irrelevant and p.status and p.status.name == SitePageStatus.SKIP.value:
+            return False
+        if (
+            skip_proofed
+            and p.status
+            and p.status.name
+            in (
+                SitePageStatus.R1.value,
+                SitePageStatus.R2.value,
+            )
+        ):
             return False
         return True
 

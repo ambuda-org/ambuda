@@ -200,3 +200,36 @@ def test_split_plain_text_to_blocks(input, expected):
         match_speaker=True,
     )
     assert P(id=0, blocks=blocks).to_xml_string() == expected
+
+
+def test_to_plain_text_inlines_fix():
+    page = P(
+        id=0,
+        blocks=[
+            B(type="p", content="foo<fix>bar</fix>baz"),
+            B(type="verse", content="क<fix>ख</fix>ग"),
+        ],
+    )
+    assert s.to_plain_text([page]) == "foobarbaz\n\nकखग"
+
+
+def test_to_plain_text_inlines_quote():
+    page = P(
+        id=0,
+        blocks=[
+            B(type="p", content="foo<quote>bar</quote>baz"),
+            B(type="verse", content="क<quote>ख</quote>ग"),
+        ],
+    )
+    assert s.to_plain_text([page]) == "foobarbaz\n\nकखग"
+
+
+def test_to_plain_text_removes_error():
+    page = P(
+        id=0,
+        blocks=[
+            B(type="p", content="foo<error>bad</error>baz"),
+            B(type="verse", content="क<error></error><fix>ख</fix>ग"),
+        ],
+    )
+    assert s.to_plain_text([page]) == "foobaz\n\nकखग"
