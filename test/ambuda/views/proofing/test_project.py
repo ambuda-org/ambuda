@@ -98,14 +98,78 @@ def test_download_as_text__bad_project(client):
     assert resp.status_code == 404
 
 
-def test_download_as_xml(client):
-    resp = client.get("/proofing/test-project/download/xml")
+def test_download_as_xml(rama_client):
+    resp = rama_client.get("/proofing/test-project/download/xml")
     assert resp.status_code == 200
 
 
-def test_download_as_xml__bad_project(client):
-    resp = client.get("/proofing/unknown/download/xml")
+def test_download_as_xml__bad_project(rama_client):
+    resp = rama_client.get("/proofing/unknown/download/xml")
     assert resp.status_code == 404
+
+
+def _import_round_trip(slug, revision_id, db_content):
+    """Build the export wrapper for ``db_content`` and run it through the
+    import classifier. Returns ``(item, page_xml)``."""
+    from types import SimpleNamespace
+
+    from ambuda.views.proofing.project import (
+        _build_export_page_xml,
+        _classify_import_pages,
+    )
+
+    page_xml = _build_export_page_xml(slug, revision_id, db_content)
+    project_xml = f"<project>{page_xml}</project>"
+    project = SimpleNamespace(
+        pages=[
+            SimpleNamespace(
+                slug=slug,
+                version=1,
+                revisions=[SimpleNamespace(id=revision_id, content=db_content)],
+            )
+        ]
+    )
+    items, err = _classify_import_pages(project_xml, project)
+    assert err is None
+    assert len(items) == 1
+    return items[0], page_xml
+
+
+def test_export_import_round_trip_preserves_whitespace():
+    """Canonical content with newlines between blocks and whitespace inside
+    text nodes round-trips download → import as ``unchanged``.
+
+    Regression: pretty-printing the project XML (e.g. via ``ET.indent`` on
+    the whole tree) would propagate into each page's inner subtree,
+    drifting from the canonical stored form and producing noisy
+    whitespace diffs on re-import.
+    """
+    canonical = "<page>\n<verse>क  ख</verse>\n<p>line one\nline two</p>\n</page>"
+    item, _ = _import_round_trip("001", 11, canonical)
+    assert item["category"] == "unchanged", f"round-trip introduced a diff: {item}"
+
+
+def test_export_inserts_line_breaks_for_readability():
+    """Non-canonical stored content (no whitespace between blocks) is
+    pretty-printed in the export so readers see the structure on
+    separate lines, but the round-trip still classifies as ``unchanged``
+    because the comparison normalizes formatting whitespace.
+    """
+    no_whitespace = "<page><verse>x</verse></page>"
+    item, page_xml = _import_round_trip("001", 11, no_whitespace)
+
+    # Pretty-print: block elements separated by newlines.
+    assert "\n<verse>x</verse>\n" in page_xml, (
+        f"expected line breaks around inner block elements; got:\n{page_xml}"
+    )
+    # No double-page wrapper: slug/revision attrs land on the existing
+    # <page> root rather than nesting another <page> inside.
+    assert "<page><page" not in page_xml.replace("\n", "")
+    assert page_xml.strip().startswith('<page slug="001"')
+    # Round-trip is whitespace-insensitive: no diff despite added formatting.
+    assert item["category"] == "unchanged", (
+        f"non-canonical round-trip should normalize cleanly: {item}"
+    )
 
 
 def test_stats(moderator_client, rama_client):

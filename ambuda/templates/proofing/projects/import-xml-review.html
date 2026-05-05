@@ -1,0 +1,134 @@
+{% extends 'proofing/base-project.html' %}
+
+{% block title %}Import XML – Review: {{ project.display_title }} | Ambuda{% endblock %}
+
+{% block active_tab %}tools{% endblock %}
+
+{% macro page_list(items) %}
+<ul class="list-disc list-inside text-sm text-slate-700">
+  {% for item in items %}
+    <li>
+      <code class="font-mono">{{ item.slug }}</code>{% if item.reason %} — {{ item.reason }}{% endif %}
+    </li>
+  {% endfor %}
+</ul>
+{% endmacro %}
+
+{% block content %}
+
+{% set eligible = grouped['eligible'] %}
+{% set conflict = grouped['conflict'] %}
+{% set invalid = grouped['invalid'] %}
+{% set unknown = grouped['unknown'] %}
+{% set unchanged = grouped['unchanged'] %}
+{% set no_revisions = grouped['no_revisions'] %}
+
+<form method="POST" action="{{ url_for('proofing.project.import_xml_apply', slug=project.slug) }}"
+      x-data="{
+        all: true,
+        toggleAll() {
+          this.all = !this.all;
+          document.querySelectorAll('input[name=apply]').forEach(el => el.checked = this.all);
+        }
+      }">
+  {{ form.csrf_token }}
+  <input type="hidden" name="content" value="{{ xml_blob }}">
+
+  <div class="prose">
+    <h2>{{ _('Review import') }}</h2>
+    <p>
+      {{ _('%(n)d page(s) are ready to apply.', n=eligible|length) }}
+      {% if conflict or invalid or unknown or no_revisions %}
+        {{ _('%(n)d will be skipped.', n=(conflict|length + invalid|length + unknown|length + no_revisions|length)) }}
+      {% endif %}
+    </p>
+  </div>
+
+  {% if conflict %}
+  <details class="mt-4 border border-amber-300 rounded bg-amber-50" open>
+    <summary class="cursor-pointer px-3 py-2 font-medium text-amber-900">
+      {{ _('Conflicts (skipped):') }} {{ conflict|length }}
+    </summary>
+    <div class="p-3">
+      <p class="text-sm text-amber-900 mb-2">{{ _('These pages have a newer revision than the one you edited against. They will not be imported.') }}</p>
+      {{ page_list(conflict) }}
+    </div>
+  </details>
+  {% endif %}
+
+  {% if invalid %}
+  <details class="mt-4 border border-red-300 rounded bg-red-50">
+    <summary class="cursor-pointer px-3 py-2 font-medium text-red-900">
+      {{ _('Invalid XML (skipped):') }} {{ invalid|length }}
+    </summary>
+    <div class="p-3">
+      {{ page_list(invalid) }}
+    </div>
+  </details>
+  {% endif %}
+
+  {% if unknown %}
+  <details class="mt-4 border border-slate-300 rounded bg-slate-50">
+    <summary class="cursor-pointer px-3 py-2 font-medium text-slate-700">
+      {{ _('Unknown slugs (skipped):') }} {{ unknown|length }}
+    </summary>
+    <div class="p-3">
+      {{ page_list(unknown) }}
+    </div>
+  </details>
+  {% endif %}
+
+  {% if no_revisions %}
+  <details class="mt-4 border border-slate-300 rounded bg-slate-50">
+    <summary class="cursor-pointer px-3 py-2 font-medium text-slate-700">
+      {{ _('Pages without an existing revision (skipped):') }} {{ no_revisions|length }}
+    </summary>
+    <div class="p-3">
+      {{ page_list(no_revisions) }}
+    </div>
+  </details>
+  {% endif %}
+
+  {% if unchanged %}
+  <details class="mt-4 border border-slate-300 rounded bg-slate-50">
+    <summary class="cursor-pointer px-3 py-2 font-medium text-slate-700">
+      {{ _('Unchanged (skipped):') }} {{ unchanged|length }}
+    </summary>
+    <div class="p-3">
+      {{ page_list(unchanged) }}
+    </div>
+  </details>
+  {% endif %}
+
+  {% if eligible %}
+  <div class="mt-6">
+    <div class="flex items-center justify-between mb-2">
+      <h3 class="font-bold">{{ _('Changes (%(n)d)', n=eligible|length) }}</h3>
+      <button type="button" class="text-sm text-blue-700 hover:underline" @click="toggleAll()"
+              x-text="all ? '{{ _('Uncheck all') }}' : '{{ _('Check all') }}'"></button>
+    </div>
+    <ul class="space-y-4">
+      {% for item in eligible %}
+      <li class="border border-slate-300 rounded">
+        <label class="flex items-center gap-2 px-3 py-2 bg-slate-50 border-b border-slate-300 cursor-pointer">
+          <input type="checkbox" name="apply" value="{{ item.slug }}" checked
+                 class="rounded border-slate-300">
+          <code class="font-mono text-sm">{{ item.slug }}</code>
+        </label>
+        <pre class="p-3 text-xs whitespace-pre-wrap break-words font-mono">{{ item.diff_html|safe }}</pre>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div class="mt-6 flex gap-3">
+    {% if eligible %}
+    <button type="submit" class="btn btn-submit">{{ _('Apply selected changes') }}</button>
+    {% endif %}
+    <a href="{{ url_for('proofing.project.import_xml', slug=project.slug) }}"
+       class="btn">{{ _('Cancel') }}</a>
+  </div>
+</form>
+
+{% endblock %}

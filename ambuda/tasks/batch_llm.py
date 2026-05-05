@@ -2,6 +2,8 @@
 
 import logging
 
+from sqlalchemy import select
+
 from ambuda import consts
 from ambuda import database as db
 from ambuda.models.proofing import SuggestionStatus
@@ -87,6 +89,45 @@ def run_batch_llm(
         if not page_contents:
             raise ValueError(f"No pages with content found for {project_slug}")
 
+        # Skip pages that already have a pending suggestion against the same
+        # revision. Re-running the same batch (e.g. after the user wasn't sure
+        # whether the previous run completed) shouldn't pile up duplicate
+        # suggestions on the review queue.
+        revision_ids = [rev.id for _, rev in page_meta.values()]
+        already_pending_revision_ids = set(
+            session.scalars(
+                select(db.Suggestion.revision_id).where(
+                    db.Suggestion.status == SuggestionStatus.PENDING,
+                    db.Suggestion.revision_id.in_(revision_ids),
+                )
+            ).all()
+        )
+        if already_pending_revision_ids:
+            kept_contents: dict[str, str] = {}
+            kept_meta: dict[str, tuple[db.Page, db.Revision]] = {}
+            for slug, (page, rev) in page_meta.items():
+                if rev.id in already_pending_revision_ids:
+                    failures.append(
+                        {
+                            "slug": slug,
+                            "reason": "Already has a pending suggestion for this revision.",
+                        }
+                    )
+                else:
+                    kept_contents[slug] = page_contents[slug]
+                    kept_meta[slug] = (page, rev)
+            page_contents = kept_contents
+            page_meta = kept_meta
+
+        if not page_contents:
+            session.commit()
+            return {
+                "created": 0,
+                "skipped": len(failures),
+                "total": len(page_slugs),
+                "failures": failures,
+            }
+
         # Single LLM call for all pages. Parse errors don't trigger retry —
         # re-running won't fix bad model output. Surface the diagnostic to the
         # user instead of silently marking every page as "no output".
@@ -95,17 +136,18 @@ def run_batch_llm(
         except llm_structuring.BatchParseError as e:
             LOG.warning("Batch LLM parse error: %s", e)
             session.commit()
+            failures.append(
+                {
+                    "slug": "(batch)",
+                    "reason": str(e),
+                    "snippet": e.snippet,
+                }
+            )
             return {
                 "created": 0,
                 "skipped": len(page_slugs),
                 "total": len(page_slugs),
-                "failures": [
-                    {
-                        "slug": "(batch)",
-                        "reason": str(e),
-                        "snippet": e.snippet,
-                    }
-                ],
+                "failures": failures,
             }
 
         explanation = prompt_template[:100].strip()

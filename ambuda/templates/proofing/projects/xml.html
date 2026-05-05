@@ -1,0 +1,26 @@
+{% extends 'proofing/base-project.html' %}
+
+{% block title %}XML: {{ project.display_title }} | Ambuda{% endblock %}
+
+{% block active_tab %}download{% endblock %}
+
+{% block content %}
+<div x-data="{
+  copied: false,
+  async copy() {
+    await navigator.clipboard.writeText(this.$refs.xml.textContent);
+    this.copied = true;
+    setTimeout(() => { this.copied = false; }, 1500);
+  }
+}">
+  <div class="prose flex items-baseline gap-3">
+    <p class="flex-1">{{ _('To re-import, paste into the Import XML form.') }}</p>
+    <button type="button" class="btn"
+            @click="copy()"
+            x-text="copied ? '{{ _('Copied!') }}' : '{{ _('Copy') }}'"></button>
+  </div>
+
+  <pre x-ref="xml"
+       class="mt-4 p-3 border border-slate-300 rounded bg-slate-50 text-xs overflow-auto whitespace-pre-wrap break-words">{{ xml_blob }}</pre>
+</div>
+{% endblock %}

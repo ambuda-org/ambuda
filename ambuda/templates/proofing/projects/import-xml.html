@@ -1,0 +1,19 @@
+{% extends 'proofing/base-project.html' %}
+
+{% block title %}Import XML: {{ project.display_title }} | Ambuda{% endblock %}
+
+{% block active_tab %}tools{% endblock %}
+
+{% block content %}
+<div class="prose">
+  <p>{{ _('Paste a project XML document (from "Download project XML") to review and bulk-create revisions. Pages whose latest revision changed since you downloaded will be flagged as conflicts and skipped.') }}</p>
+</div>
+
+<form method="POST" class="mt-4 space-y-4 max-w-4xl">
+  {{ form.csrf_token }}
+  <textarea name="content" required
+            class="w-full p-2 border border-slate-300 rounded h-96 text-xs font-mono"
+            placeholder="<?xml version=&quot;1.0&quot; ...?>&#10;<project>&#10;  ...&#10;</project>"></textarea>
+  <button class="btn btn-submit" type="submit">{{ _('Review changes') }}</button>
+</form>
+{% endblock %}

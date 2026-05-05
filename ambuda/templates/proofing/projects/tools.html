@@ -14,6 +14,7 @@
   <li><a href="{{ url_for('proofing.project.batch_status', slug=project.slug) }}">{{ _('Set status for image range') }}</a></li>
   {% if current_user.is_p2 %}
   <li><a href="{{ url_for('proofing.project.batch_llm', slug=project.slug) }}">{{ _('Run batch LLM') }}</a></li>
+  <li><a href="{{ url_for('proofing.project.import_xml', slug=project.slug) }}">{{ _('Import XML') }}</a></li>
   <li><a href="{{ url_for('proofing.project.reorder_pages', slug=project.slug) }}">{{ _('Reorder pages') }}</a></li>
   <li><a href="{{ url_for('proofing.project.replace_pdf', slug=project.slug) }}">{{ _('Replace PDF') }}</a></li>
   <li><a href="{{ url_for('proofing.project.replace_ocr_bounding_boxes', slug=project.slug) }}">{{ _('Replace OCR bounding boxes') }}</a></li>

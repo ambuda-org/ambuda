@@ -50,9 +50,11 @@ from ambuda.tasks import ocr as ocr_tasks
 from ambuda.tasks import projects as project_tasks
 from ambuda.utils import project_structuring, project_utils
 from ambuda.utils import prompt_template as prompt_template_utils
+from ambuda.utils.diff import revision_diff
 from ambuda.utils.llm_prompts import PRESET_PROMPTS
 from ambuda.utils.project_structuring import ProofBlock, ProofPage, ProofProject
 from ambuda.utils.revisions import add_revision
+from ambuda.utils.xml_validation import validate_proofing_xml, ValidationType
 from ambuda.views.proofing.decorators import moderator_required, p2_required
 from ambuda.views.proofing.page import _get_image_url
 from ambuda.views.proofing.main import (
@@ -549,100 +551,344 @@ def download_as_text(slug):
     return response
 
 
-@bp.route("/<slug>/download/epub")
-def download_as_epub(slug):
-    """Download the project as EPUB."""
-    import io
-    import tempfile
-    from pathlib import Path
-
-    from ambuda.utils.text_exports import create_epub
-
-    project_ = q.project(slug)
-    if project_ is None:
-        abort(404)
-
-    assert project_
-
-    # If the project has a published text, use the standard export path.
-    text = next(iter(project_.texts), None) if project_.texts else None
-    if text is None:
-        abort(404)
-
-    with tempfile.NamedTemporaryFile(suffix=".epub", delete=False) as tmp:
-        tmp_path = Path(tmp.name)
+def _normalize_proofing_whitespace(content: str) -> str:
+    """Strip whitespace-only ``text`` and ``tail`` nodes from a proofing
+    page XML. Used to compare for round-trip equality while ignoring
+    formatting whitespace between block elements.
+    """
+    from defusedxml import ElementTree as DET
 
     try:
-        create_epub(text, tmp_path)
-        epub_bytes = tmp_path.read_bytes()
-    finally:
-        tmp_path.unlink(missing_ok=True)
+        root = DET.fromstring(content)
+    except ET.ParseError:
+        return content
 
-    response = make_response(epub_bytes, 200)
-    response.headers["Content-Type"] = "application/epub+zip"
-    response.headers["Content-Disposition"] = (
-        f'attachment; filename="{project_.slug}.epub"'
-    )
-    return response
+    def _walk(elem):
+        if elem.text is not None and not elem.text.strip():
+            elem.text = None
+        for child in elem:
+            if child.tail is not None and not child.tail.strip():
+                child.tail = None
+            _walk(child)
+
+    _walk(root)
+    return ET.tostring(root, encoding="unicode")
+
+
+def _build_export_page_xml(
+    slug: str, revision_id: int | None, content: str | None
+) -> str:
+    """Serialize a single ``<page>`` for the project XML export.
+
+    The export merges ``slug`` and ``revision`` attributes directly onto
+    the page's root ``<page>`` element rather than wrapping it in a
+    second ``<page>``. Newlines are inserted between block elements for
+    readability; ``_normalize_proofing_whitespace`` strips that formatting
+    on import comparison so the round-trip stays diff-free.
+    """
+    from defusedxml import ElementTree as DET
+
+    if not content:
+        page_el = ET.Element("page")
+        page_el.set("slug", slug)
+        if revision_id is not None:
+            page_el.set("revision", str(revision_id))
+        return ET.tostring(page_el, encoding="unicode")
+
+    try:
+        page_el = DET.fromstring(content)
+    except ET.ParseError:
+        # Defensive fallback: if the stored content somehow isn't
+        # parseable, embed it as escaped text on a fresh wrapper so the
+        # export still succeeds rather than 500ing on a bad page.
+        page_el = ET.Element("page")
+        page_el.set("slug", slug)
+        if revision_id is not None:
+            page_el.set("revision", str(revision_id))
+        page_el.text = content
+        return ET.tostring(page_el, encoding="unicode")
+
+    page_el.set("slug", slug)
+    if revision_id is not None:
+        page_el.set("revision", str(revision_id))
+
+    # Pretty-print whitespace between block elements. Only fill in
+    # whitespace-only or missing nodes — never overwrite real text.
+    if not page_el.text or not page_el.text.strip():
+        page_el.text = "\n"
+    for child in page_el:
+        if not child.tail or not child.tail.strip():
+            child.tail = "\n"
+    return ET.tostring(page_el, encoding="unicode")
 
 
 @bp.route("/<slug>/download/xml")
+@login_required
 def download_as_xml(slug):
-    """Download the project as TEI XML.
+    """Show the project as a round-trippable XML document on an HTML page.
 
-    This XML will likely have various errors, but it is correct enough that it
-    still saves a lot of manual work.
+    Each page's content is embedded as a nested element subtree (not
+    entity-escaped text), so the inner ``<page><verse>...</verse></page>``
+    tags appear as legitimate XML in the output.
+
+    The outer project structure is indented manually (no ``ET.indent`` on
+    the whole tree) so that each page's inner content keeps its exact
+    canonical whitespace.
     """
     project_ = q.project(slug)
     if project_ is None:
         abort(404)
 
     assert project_
-    pages = [
-        ProofPage.from_content_and_page_id(
-            p.revisions[-1].content if p.revisions else "", p.id
+
+    metadata = ET.Element("metadata")
+    ET.SubElement(metadata, "name").text = project_.display_title or project_.slug
+    ET.SubElement(metadata, "pages").text = str(len(project_.pages))
+    ET.SubElement(metadata, "downloaded").text = datetime.now(UTC).isoformat()
+    ET.SubElement(metadata, "user").text = current_user.username
+    ET.indent(metadata, space="  ", level=1)
+    metadata_xml = ET.tostring(metadata, encoding="unicode")
+
+    page_xmls: list[str] = []
+    for p in project_.pages:
+        latest = p.revisions[-1] if p.revisions else None
+        page_xmls.append(
+            _build_export_page_xml(
+                p.slug,
+                latest.id if latest else None,
+                latest.content if latest else None,
+            )
         )
-        for p in project_.pages
+
+    parts = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        "<project>",
+        "  " + metadata_xml,
     ]
-    xml_blob = project_structuring.to_tei_xml(pages)
+    parts.extend("  " + p for p in page_xmls)
+    parts.append("</project>")
+    xml_blob = "\n".join(parts)
 
-    response = make_response(xml_blob, 200)
-    response.mimetype = "text/xml"
-    return response
+    return render_template(
+        "proofing/projects/xml.html",
+        project=project_,
+        xml_blob=xml_blob,
+    )
 
 
-@bp.route("/<slug>/download/project-xml")
-@login_required
-def download_as_project_xml(slug):
-    """Download the project as XML with per-page content and metadata."""
+# Categories for an uploaded page on the import review screen.
+_IMPORT_ELIGIBLE = "eligible"
+_IMPORT_CONFLICT = "conflict"
+_IMPORT_INVALID = "invalid"
+_IMPORT_UNKNOWN = "unknown"
+_IMPORT_UNCHANGED = "unchanged"
+_IMPORT_NO_REVISIONS = "no_revisions"
+
+
+def _classify_import_pages(xml_blob: str, project_):
+    """Parse a project import XML and classify each page.
+
+    Returns ``(items, parse_error)``. ``items`` is a list of dicts, one per
+    ``<page>`` in the upload, with keys: ``slug``, ``category``, plus
+    category-specific keys (``diff_html``, ``new_content``, ``reason``,
+    ``version``).
+    """
+    from defusedxml import ElementTree as DET
+
+    try:
+        root = DET.fromstring(xml_blob)
+    except ET.ParseError as e:
+        return [], f"XML parse error: {e}"
+
+    if root.tag != "project":
+        return [], f"Root tag must be 'project', got '{root.tag}'."
+
+    import copy
+
+    page_by_slug = {p.slug: p for p in project_.pages}
+    items: list[dict] = []
+    for page_el in root.findall("page"):
+        slug = page_el.get("slug") or ""
+        if not slug:
+            continue
+        # The page content is the <page> element itself, with the
+        # export-only ``slug`` and ``revision`` attributes stripped.
+        content_el = copy.deepcopy(page_el)
+        content_el.attrib.pop("slug", None)
+        content_el.attrib.pop("revision", None)
+        new_content = ET.tostring(content_el, encoding="unicode").strip()
+        item = {"slug": slug, "new_content": new_content}
+
+        page = page_by_slug.get(slug)
+        if page is None:
+            item["category"] = _IMPORT_UNKNOWN
+            items.append(item)
+            continue
+
+        if not page.revisions:
+            item["category"] = _IMPORT_NO_REVISIONS
+            items.append(item)
+            continue
+
+        latest = page.revisions[-1]
+        item["version"] = page.version
+
+        revision_attr = page_el.get("revision")
+        if revision_attr and revision_attr.isdigit():
+            if int(revision_attr) != latest.id:
+                item["category"] = _IMPORT_CONFLICT
+                item["reason"] = (
+                    f"Page has a newer revision (was {revision_attr}, now {latest.id})."
+                )
+                items.append(item)
+                continue
+
+        validation_errors = [
+            r
+            for r in validate_proofing_xml(new_content)
+            if r.type == ValidationType.ERROR
+        ]
+        if validation_errors:
+            item["category"] = _IMPORT_INVALID
+            item["reason"] = "; ".join(r.message for r in validation_errors[:3])
+            items.append(item)
+            continue
+
+        # Compare on whitespace-normalized content so the formatting
+        # whitespace the export adds for readability doesn't show up as a
+        # diff. The diff display uses the same normalized forms so the
+        # user sees only meaningful changes.
+        normalized_new = _normalize_proofing_whitespace(new_content)
+        normalized_latest = _normalize_proofing_whitespace(latest.content)
+        if normalized_new == normalized_latest:
+            item["category"] = _IMPORT_UNCHANGED
+            items.append(item)
+            continue
+
+        item["category"] = _IMPORT_ELIGIBLE
+        item["new_content"] = normalized_new
+        item["diff_html"] = revision_diff(normalized_latest, normalized_new)
+        items.append(item)
+
+    return items, None
+
+
+@bp.route("/<slug>/import-xml", methods=["GET", "POST"])
+@p2_required
+def import_xml(slug):
+    """Paste a project XML to review and bulk-create revisions."""
     project_ = q.project(slug)
     if project_ is None:
         abort(404)
 
     assert project_
-    root = ET.Element("project")
+    form = FlaskForm()
+    if request.method == "GET":
+        return render_template(
+            "proofing/projects/import-xml.html",
+            project=project_,
+            form=form,
+        )
 
-    metadata = ET.SubElement(root, "metadata")
-    ET.SubElement(metadata, "name").text = project_.display_title or project_.slug
-    ET.SubElement(metadata, "pages").text = str(len(project_.pages))
-    ET.SubElement(metadata, "downloaded").text = datetime.now(UTC).isoformat()
-    ET.SubElement(metadata, "user").text = current_user.username
+    xml_blob = (request.form.get("content") or "").strip()
+    if not xml_blob:
+        flash("Paste a project XML document to import.", "error")
+        return redirect(url_for("proofing.project.import_xml", slug=slug))
 
-    for p in project_.pages:
-        content = p.revisions[-1].content if p.revisions else ""
-        page_el = ET.SubElement(root, "page")
-        page_el.set("slug", p.slug)
-        page_el.text = content
+    items, parse_error = _classify_import_pages(xml_blob, project_)
+    if parse_error:
+        flash(parse_error, "error")
+        return redirect(url_for("proofing.project.import_xml", slug=slug))
 
-    xml_bytes = ET.tostring(root, encoding="unicode", xml_declaration=False)
-    xml_blob = '<?xml version="1.0" encoding="UTF-8"?>\n' + xml_bytes
+    grouped = {
+        _IMPORT_ELIGIBLE: [],
+        _IMPORT_CONFLICT: [],
+        _IMPORT_INVALID: [],
+        _IMPORT_UNKNOWN: [],
+        _IMPORT_UNCHANGED: [],
+        _IMPORT_NO_REVISIONS: [],
+    }
+    for item in items:
+        grouped[item["category"]].append(item)
 
-    response = make_response(xml_blob, 200)
-    response.mimetype = "text/xml"
-    response.headers["Content-Disposition"] = (
-        f'attachment; filename="{project_.slug}.xml"'
+    return render_template(
+        "proofing/projects/import-xml-review.html",
+        project=project_,
+        form=form,
+        xml_blob=xml_blob,
+        grouped=grouped,
     )
-    return response
+
+
+@bp.route("/<slug>/import-xml/apply", methods=["POST"])
+@p2_required
+def import_xml_apply(slug):
+    """Apply selected pages from a reviewed import as new revisions."""
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    assert project_
+    xml_blob = (request.form.get("content") or "").strip()
+    selected = set(request.form.getlist("apply"))
+
+    if not xml_blob:
+        flash("Missing XML payload.", "error")
+        return redirect(url_for("proofing.project.import_xml", slug=slug))
+
+    items, parse_error = _classify_import_pages(xml_blob, project_)
+    if parse_error:
+        flash(parse_error, "error")
+        return redirect(url_for("proofing.project.import_xml", slug=slug))
+
+    eligible_by_slug = {
+        i["slug"]: i for i in items if i["category"] == _IMPORT_ELIGIBLE
+    }
+
+    page_by_slug = {p.slug: p for p in project_.pages}
+    session = q.get_session()
+    revision_batch = db.RevisionBatch(user_id=current_user.id)
+    session.add(revision_batch)
+    session.flush()
+
+    updated = 0
+    skipped = 0
+    errors = 0
+    for slug_ in selected:
+        item = eligible_by_slug.get(slug_)
+        if item is None:
+            skipped += 1
+            continue
+        page = page_by_slug.get(slug_)
+        if page is None:
+            skipped += 1
+            continue
+        try:
+            add_revision(
+                page=page,
+                summary="Imported from XML",
+                content=item["new_content"],
+                version=item["version"],
+                author_id=current_user.id,
+                status_id=page.status_id,
+                batch_id=revision_batch.id,
+            )
+            updated += 1
+        except Exception as e:
+            LOG.error("Failed to import %s/%s: %s", project_.slug, slug_, e)
+            errors += 1
+
+    if updated:
+        msg = f"Updated {updated} page{'s' if updated != 1 else ''}."
+        if skipped:
+            msg += f" Skipped {skipped} (no longer eligible)."
+        if errors:
+            msg += f" {errors} error{'s' if errors != 1 else ''}."
+        flash(msg, "warning" if errors else "success")
+    else:
+        flash("No pages were updated.", "info")
+
+    return redirect(url_for("proofing.project.summary", slug=slug))
 
 
 @bp.route("/<slug>/stats")
