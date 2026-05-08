@@ -1,6 +1,18 @@
 """Utilities for LLM-based text structuring."""
 
+import json
+
+import requests
+
 GEMINI_MODEL = "gemini-3-flash-preview"
+
+_GEMINI_ENDPOINT = (
+    "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+)
+
+# Per-call HTTP timeout. Gemini Flash routinely takes 30-60s for large prompts;
+# the batch path can run longer. Keep generous to avoid spurious failures.
+_HTTP_TIMEOUT_SECONDS = 300
 
 
 DEFAULT_STRUCTURING_PROMPT = """You are a highly specialized text structuring assistant. Your task
@@ -58,6 +70,44 @@ TEXT TO STRUCTURE FOLLOWS:
 """
 
 
+def _generate_content(
+    api_key: str,
+    prompt: str,
+    generation_config: dict | None = None,
+) -> dict:
+    """Call Gemini's generateContent REST endpoint and return the parsed JSON."""
+    body: dict = {"contents": [{"parts": [{"text": prompt}]}]}
+    if generation_config:
+        body["generationConfig"] = generation_config
+
+    url = _GEMINI_ENDPOINT.format(model=GEMINI_MODEL)
+    resp = requests.post(
+        url,
+        params={"key": api_key},
+        json=body,
+        timeout=_HTTP_TIMEOUT_SECONDS,
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def _response_text(payload: dict) -> str:
+    """Concatenate all text parts of the first candidate, mirroring the SDK's `response.text`."""
+    try:
+        parts = payload["candidates"][0]["content"]["parts"]
+    except (KeyError, IndexError, TypeError):
+        return ""
+    return "".join(p.get("text", "") for p in parts if isinstance(p, dict))
+
+
+def _finish_reason(payload: dict) -> str:
+    """Extract finishReason from the first candidate, defensively."""
+    try:
+        return str(payload["candidates"][0].get("finishReason", "") or "")
+    except (KeyError, IndexError, TypeError):
+        return ""
+
+
 def run(
     content: str, api_key: str, prompt_template: str = DEFAULT_STRUCTURING_PROMPT
 ) -> str:
@@ -67,13 +117,9 @@ def run(
     if not api_key:
         raise ValueError("GEMINI_API_KEY not configured")
 
-    from google import genai
-
-    client = genai.Client(api_key=api_key)
     prompt = prompt_template.format(content=content)
-    response = client.models.generate_content(model=GEMINI_MODEL, contents=prompt)
-
-    return response.text
+    payload = _generate_content(api_key, prompt)
+    return _response_text(payload)
 
 
 PAGE_DELIMITER_START = "===PAGE_START {slug}==="
@@ -138,16 +184,6 @@ class BatchParseError(Exception):
         self.finish_reason = finish_reason
 
 
-def _finish_reason(response) -> str:
-    """Extract the finish_reason from a Gemini response, defensively."""
-    try:
-        candidate = response.candidates[0]
-        reason = getattr(candidate, "finish_reason", None)
-        return str(reason) if reason is not None else ""
-    except (AttributeError, IndexError, TypeError):
-        return ""
-
-
 def run_batch(
     pages: dict[str, str],
     api_key: str,
@@ -189,25 +225,21 @@ def run_batch(
         pages="\n\n".join(page_sections),
     )
 
-    from google import genai
-    from google.genai import types
-
-    client = genai.Client(api_key=api_key)
-    response = client.models.generate_content(
-        model=GEMINI_MODEL,
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            response_mime_type="application/json",
-            response_schema=_BATCH_RESPONSE_SCHEMA,
+    payload = _generate_content(
+        api_key,
+        prompt,
+        generation_config={
+            "responseMimeType": "application/json",
+            "responseSchema": _BATCH_RESPONSE_SCHEMA,
             # Push to the model's ceiling so we don't silently truncate large
-            # batches. If the model still hits this cap, finish_reason will be
+            # batches. If the model still hits this cap, finishReason will be
             # MAX_TOKENS and the user should run a smaller page range.
-            max_output_tokens=_MAX_OUTPUT_TOKENS,
-        ),
+            "maxOutputTokens": _MAX_OUTPUT_TOKENS,
+        },
     )
 
-    response_text = response.text or ""
-    finish_reason = _finish_reason(response)
+    response_text = _response_text(payload)
+    finish_reason = _finish_reason(payload)
 
     if "MAX_TOKENS" in finish_reason:
         raise BatchParseError(
@@ -236,8 +268,6 @@ def _parse_batch_response(
     Raises BatchParseError on unparseable JSON, including a snippet of the
     response so the caller can surface what actually came back.
     """
-    import json
-
     snippet = response_text[:_RESPONSE_SNIPPET_CHARS]
 
     try:

@@ -14,7 +14,6 @@ from functools import cached_property
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-from ebooklib import epub
 from lxml import etree
 from pydantic import BaseModel
 from sqlalchemy import func as sqla_func
@@ -699,6 +698,7 @@ def maybe_create_tokens(text: db.Text, out_path: Path) -> None:
 
 def create_epub(text: db.Text, out_path: Path) -> None:
     """Create an EPUB file from the given text."""
+    from ebooklib import epub
 
     book = epub.EpubBook()
     book.set_identifier(f"ambuda-{text.slug}")

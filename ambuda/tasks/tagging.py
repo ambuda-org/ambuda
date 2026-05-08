@@ -5,13 +5,11 @@ import logging
 import re
 import time
 from collections import deque
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from xml.etree import ElementTree as ET
 
 import defusedxml.ElementTree as DET
-from dharmamitra_sanskrit_grammar import DharmamitraSanskritProcessor as DSP
 from sqlalchemy import select
-from vidyut.kosha import Kosha
 from ambuda.utils.vidyut_shim import transliterate, Scheme
 
 from ambuda import consts
@@ -21,6 +19,9 @@ from ambuda.tasks.utils import get_db_session
 from ambuda.utils import revisions
 from ambuda.utils import dharmamitra as dm_utils
 from ambuda.utils.vidyut_loaders import get_kosha
+
+if TYPE_CHECKING:
+    from vidyut.kosha import Kosha
 
 
 # Dharmamitra rate limit is 10 sentences per minute
@@ -86,8 +87,10 @@ def _tag_block_inner(
     app_env: str,
     text_slug: str,
     block_id: int,
-    kosha: Kosha,
+    kosha: "Kosha",
 ) -> dict:
+    from dharmamitra_sanskrit_grammar import DharmamitraSanskritProcessor as DSP
+
     def _block_error(reason):
         return {"status": "error", "reason": reason, "block_id": block_id}
 

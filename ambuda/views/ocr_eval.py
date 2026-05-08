@@ -47,22 +47,9 @@ def _get_db() -> sqlite3.Connection:
 
 def _run_google_ocr(image_bytes: bytes) -> tuple[str, str | None]:
     """Run Google Cloud Vision OCR on raw image bytes."""
-    import time
+    from ambuda.utils import google_ocr
 
-    from google.cloud import vision
-
-    start = time.monotonic()
-    client = vision.ImageAnnotatorClient()
-    image = vision.Image(content=image_bytes)
-    response = client.document_text_detection(image=image)
-
-    elapsed_ms = int((time.monotonic() - start) * 1000)
-
-    if response.error.message:
-        return "", response.error.message
-
-    text = response.full_text_annotation.text if response.full_text_annotation else ""
-    return text, None
+    return google_ocr.run_on_bytes(image_bytes)
 
 
 def _run_sarvam_ocr(image_bytes: bytes) -> tuple[str, str | None]:
