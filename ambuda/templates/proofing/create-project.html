@@ -119,6 +119,18 @@
   </fieldset>
 </div>
 
+<fieldset class="p-4 my-8 bg-slate-100 rounded">
+  <legend class="font-semibold mb-2">Step 3: Options</legend>
+  <div class="flex items-center">
+    {{ form.run_ocr(class_="w-4 mr-2") }}
+    {{ form.run_ocr.label(class_="cursor-pointer") }}
+  </div>
+  <p class="text-sm text-slate-600 mt-2 ml-6">
+    If checked, OCR will run automatically on all uploaded PDFs. For multiple
+    PDFs, OCR starts as soon as each project finishes uploading.
+  </p>
+</fieldset>
+
 <input class="block btn btn-submit" type="submit" value="{{ _('Create project') }}">
 </form>
 {% endblock %}

@@ -114,6 +114,8 @@ class TEITag(StrEnum):
 
     # Editor annotations
     ADD = "add"
+    DEL = "del"
+    SUBST = "subst"
     ELLIPSIS = "ellipsis"
 
     # References
@@ -216,6 +218,8 @@ INLINE_TEXT = {
     TEITag.NOTE,
     TEITag.PB,
     TEITag.ADD,
+    TEITag.DEL,
+    TEITag.SUBST,
     TEITag.ELLIPSIS,
     TEITag.UNCLEAR,
 }
@@ -327,7 +331,9 @@ TEI_XML_VALIDATION_SPEC = {
     TEITag.CORR: ValidationSpec(),
     TEITag.PB: ValidationSpec(attrib={"n"}),
     TEITag.SUPPLIED: ValidationSpec(),
-    TEITag.ADD: ValidationSpec(),
+    TEITag.ADD: ValidationSpec(attrib={"rend"}),
+    TEITag.DEL: ValidationSpec(),
+    TEITag.SUBST: ValidationSpec(children={TEITag.DEL, TEITag.ADD}),
     TEITag.ELLIPSIS: ValidationSpec(),
     TEITag.UNCLEAR: ValidationSpec(),
     TEITag.QUOTE: ValidationSpec(),

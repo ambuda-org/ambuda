@@ -349,6 +349,20 @@ def config(slug):
             flash("Expected a list of publish configurations.", "error")
             return default()
 
+        seen_ids: set = set()
+        for pc in new_configs:
+            pc_id = pc.get("id")
+            if pc_id is None:
+                continue
+            if pc_id in seen_ids:
+                flash(
+                    f"Duplicate publish config id '{pc_id}' submitted. "
+                    "Reload the page and try again.",
+                    "error",
+                )
+                return redirect(url_for("proofing.publish.config", slug=slug))
+            seen_ids.add(pc_id)
+
         for pc in new_configs:
             slug_error = _validate_slug(pc.get("slug", ""))
             if slug_error:

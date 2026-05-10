@@ -175,6 +175,7 @@ def create_project_from_local_pdf_inner(
     creator_id: int,
     task_status: TaskStatus,
     source_url: str | None = None,
+    run_ocr: bool = False,
     engine=None,
 ):
     """Split a local PDF into pages and register the project on the database.
@@ -268,6 +269,17 @@ def create_project_from_local_pdf_inner(
         else:
             logging.info(f"No s3 bucket found")
 
+    if run_ocr:
+        from ambuda.tasks.ocr import run_ocr_for_project
+
+        run_ocr_for_project.apply_async(
+            kwargs=dict(
+                app_env=app_environment,
+                project_slug=slug,
+            ),
+        )
+        logging.info(f"Dispatched OCR task for project {slug}.")
+
     return task_status.success(len(page_uuids), slug)
 
 
@@ -280,6 +292,7 @@ def create_project_from_local_pdf(
     creator_id: int,
     app_environment: str,
     source_url: str | None = None,
+    run_ocr: bool = False,
 ):
     """Split a local PDF into pages and register the project on the database.
 
@@ -293,6 +306,7 @@ def create_project_from_local_pdf(
         task_status=task_status,
         app_environment=app_environment,
         source_url=source_url,
+        run_ocr=run_ocr,
     )
 
 
@@ -303,6 +317,7 @@ def create_project_from_url_inner(
     app_environment: str,
     creator_id: int,
     task_status: TaskStatus,
+    run_ocr: bool = False,
     engine=None,
 ):
     """Download a PDF from URL and create a project.
@@ -338,6 +353,7 @@ def create_project_from_url_inner(
             creator_id=creator_id,
             task_status=task_status,
             source_url=pdf_url,
+            run_ocr=run_ocr,
             engine=engine,
         )
     except Exception:
@@ -354,6 +370,7 @@ def create_project_from_url(
     display_title: str | None = None,
     creator_id: int,
     app_environment: str,
+    run_ocr: bool = False,
 ):
     """Download a PDF from URL and create a project.
 
@@ -366,6 +383,7 @@ def create_project_from_url(
         creator_id=creator_id,
         task_status=task_status,
         app_environment=app_environment,
+        run_ocr=run_ocr,
     )
 
 
@@ -376,6 +394,7 @@ def create_projects_from_urls_inner(
     app_environment: str,
     creator_id: int,
     task_status: TaskStatus,
+    run_ocr: bool = False,
     engine=None,
 ):
     """Create multiple projects from a list of PDF URLs.
@@ -418,6 +437,7 @@ def create_projects_from_urls_inner(
                 app_environment=app_environment,
                 creator_id=creator_id,
                 task_status=LocalTaskStatus(),
+                run_ocr=run_ocr,
                 engine=engine,
             )
             slug = slugify(display_title)
@@ -471,6 +491,7 @@ def create_projects_from_urls(
     display_titles: list[str] | None = None,
     creator_id: int,
     app_environment: str,
+    run_ocr: bool = False,
 ):
     """Create multiple projects from a list of PDF URLs.
 
@@ -483,6 +504,7 @@ def create_projects_from_urls(
         app_environment=app_environment,
         creator_id=creator_id,
         task_status=task_status,
+        run_ocr=run_ocr,
     )
 
 

@@ -332,22 +332,44 @@ class HeadTrailerSlugs(XMLValidationRule):
     group = ValidationGroupName.XML
     description = "Singleton <head> and <trailer> slugs end with .head / .trailer"
 
+    def __init__(self):
+        super().__init__()
+        # Per-parent captures: id(parent) -> {tag -> [(n, xml_str), ...]}
+        # We accumulate per block and apply the singleton check in result(),
+        # because iterparse clears each block before its parent's end event fires.
+        self._captures: dict[int, dict[str, list[tuple[str, str]]]] = {}
+
     def process(self, xml: etree._Element) -> None:
-        for child_tag, suffix in (("head", ".head"), ("trailer", ".trailer")):
-            children = [c for c in xml if c.tag == child_tag]
-            if len(children) != 1:
-                continue
-            n = children[0].get("n", "")
-            self.ret.incr_total()
-            if n.endswith(suffix):
-                self.ret.incr_ok()
-            else:
-                self.ret.add_structured_error(
-                    XMLError(
-                        messages=[f"<{child_tag}> slug '{n}' must end with '{suffix}'"],
-                        xml=_to_string(children[0])[:1000],
-                    ).model_dump()
-                )
+        if xml.tag not in ("head", "trailer"):
+            return
+        parent = xml.getparent()
+        if parent is None:
+            return
+        n = xml.get("n", "")
+        xml_str = _to_string(xml)[:1000]
+        by_tag = self._captures.setdefault(id(parent), {})
+        by_tag.setdefault(xml.tag, []).append((n, xml_str))
+
+    def result(self) -> ValidationResult:
+        for by_tag in self._captures.values():
+            for child_tag, suffix in (("head", ".head"), ("trailer", ".trailer")):
+                entries = by_tag.get(child_tag, [])
+                if len(entries) != 1:
+                    continue
+                n, xml_str = entries[0]
+                self.ret.incr_total()
+                if n.endswith(suffix):
+                    self.ret.incr_ok()
+                else:
+                    self.ret.add_structured_error(
+                        XMLError(
+                            messages=[
+                                f"<{child_tag}> slug '{n}' must end with '{suffix}'"
+                            ],
+                            xml=xml_str,
+                        ).model_dump()
+                    )
+        return super().result()
 
 
 class VerseSlugsOmitLg(XMLValidationRule):
@@ -390,7 +412,7 @@ class WellFormedText(XMLValidationRule):
     # Unicode tables:
     # - https://www.unicode.org/charts/PDF/U0900.pdf
     # - https://www.unicode.org/charts/PDF/UA8E0.pdf
-    RE_ILLEGAL = r"([^\u0900-\u097F\ua8e0-\ua8ff\s!,\-\.])"
+    RE_ILLEGAL = r"([^\u0900-\u097F\ua8e0-\ua8ff\s!,\-\.\(\)\?])"
 
     # Sequences that are valid Unicode but impossible in Sanskrit (common OCR artifacts).
     FORBIDDEN_SEQUENCES = ["क्लृ"]
@@ -504,7 +526,8 @@ class MeterCheck(XMLValidationRule):
     def _extract_element_text(elem: etree._Element) -> str:
         """Extract text from an element, skipping <ref> and <sic> content.
 
-        For <choice> elements, only the <corr> child's text is used."""
+        For <choice> elements, only the <corr> child's text is used.
+        For <subst> elements, only the <add> child's text is used."""
         parts = [elem.text or ""]
         for child in elem:
             if child.tag == "ref" or child.tag == "sic":
@@ -513,6 +536,10 @@ class MeterCheck(XMLValidationRule):
                 corr = child.find("corr")
                 if corr is not None:
                     parts.append(corr.text or "")
+            elif child.tag == "subst":
+                add = child.find("add")
+                if add is not None:
+                    parts.append(add.text or "")
             else:
                 parts.append(MeterCheck._extract_element_text(child))
             parts.append(child.tail or "")
@@ -788,10 +815,10 @@ def _validate_xml_bytes(source: Union[str, BinaryIO], slug: str) -> ValidationRe
     """Run all rules over a TEI XML source (file path or file-like object)."""
     text_id_validator = ValidTextId(slug)
     div_n_validator = UniqueDivIds()
-    head_trailer_n_validator = HeadTrailerSlugs()
     xml_schema_validator = WellFormedXml()
     block_validator_classes = (
         UniqueBlockIds,
+        HeadTrailerSlugs,
         VerseSlugsOmitLg,
         WellFormedText,
         NoLeadingTrailingSpaces,
@@ -813,7 +840,6 @@ def _validate_xml_bytes(source: Union[str, BinaryIO], slug: str) -> ValidationRe
 
         elif el.tag == TEI_DIV:
             div_n_validator.process(el)
-            head_trailer_n_validator.process(el)
             # Don't clear -- block children still need to be processed.
 
         elif el.tag in BLOCK_TAGS:
@@ -844,7 +870,6 @@ def _validate_xml_bytes(source: Union[str, BinaryIO], slug: str) -> ValidationRe
         xml_schema_validator.result(),
         text_id_validator.result(),
         div_n_validator.result(),
-        head_trailer_n_validator.result(),
     ] + [p.result() for p in block_validators]
     return _group_results(all_results)
 

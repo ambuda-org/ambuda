@@ -25,7 +25,7 @@ from flask_login import current_user
 from flask_wtf import FlaskForm
 from slugify import slugify
 from sqlalchemy import asc, desc, func, orm, select
-from wtforms import FileField, RadioField, SelectField, StringField
+from wtforms import BooleanField, FileField, RadioField, SelectField, StringField
 from wtforms.validators import DataRequired, Optional, ValidationError
 from wtforms.widgets import TextArea
 
@@ -131,6 +131,7 @@ class CreateProjectForm(FlaskForm):
             _required_if_local("Please provide a title for the project."),
         ],
     )
+    run_ocr = BooleanField("Run OCR", default=False)
 
 
 @bp.route("/dashboard")
@@ -352,6 +353,7 @@ def create_project():
         return render_template("proofing/create-project.html", form=form)
 
     pdf_source = form.pdf_source.data
+    run_ocr = bool(form.run_ocr.data)
 
     # if pdf_source == "gdrive":
     #     gdrive_folder_url = form.gdrive_folder_url.data
@@ -403,6 +405,7 @@ def create_project():
                 display_titles=titles,
                 creator_id=current_user.id,
                 app_environment=current_app.config["AMBUDA_ENVIRONMENT"],
+                run_ocr=run_ocr,
             ),
             headers={"initiated_by": current_user.username},
         )
@@ -416,6 +419,7 @@ def create_project():
                 display_title=display_title,
                 creator_id=current_user.id,
                 app_environment=current_app.config["AMBUDA_ENVIRONMENT"],
+                run_ocr=run_ocr,
             ),
             headers={"initiated_by": current_user.username},
         )
@@ -450,6 +454,7 @@ def create_project():
                 display_title=display_title,
                 creator_id=current_user.id,
                 app_environment=current_app.config["AMBUDA_ENVIRONMENT"],
+                run_ocr=run_ocr,
             ),
             headers={"initiated_by": current_user.username},
         )

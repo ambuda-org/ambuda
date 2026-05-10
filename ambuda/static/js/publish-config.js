@@ -308,6 +308,7 @@ export default () => ({
   clonePublishEntry(index) {
     const source = this.config.publish[index];
     const clone = { ...JSON.parse(JSON.stringify(source)), _expanded: true };
+    delete clone.id;
     clone.title = '';
     clone.slug = '';
     clone.target = '';

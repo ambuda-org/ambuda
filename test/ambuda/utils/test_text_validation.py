@@ -1,3 +1,4 @@
+from io import BytesIO
 from unittest.mock import MagicMock, patch
 
 from lxml import etree
@@ -5,6 +6,14 @@ from lxml import etree
 import ambuda.database as db
 import ambuda.utils.text_validation as text_validation
 from ambuda.utils.text_validation import Token
+
+
+def _find_result(report, description):
+    for group in report.groups:
+        for r in group.results:
+            if r.description == description:
+                return r
+    raise AssertionError(f"Result not found: {description!r}")
 
 
 def _get_xml_from_string(blob):
@@ -74,6 +83,49 @@ def test_xml_is_well_formed():
     assert "<lg> must not be empty" in validation_result.errors[0]["messages"]
 
 
+def test_xml_well_formed_allows_add_with_rend_attribute():
+    # <add rend="..."> is allowed inside <l>.
+    xml = _get_xml_from_string(
+        '<doc><div><lg n="17">'
+        "<l>साम्बप्रमोदको वज्री मानसो मोदकप्रियः ।</l>"
+        "<l>एकदन्तो बृहत्कुक्षिः"
+        '<add rend="brackets">दीर्घतुण्डो</add>'
+        "विकर्णकः ॥ १७ ॥</l>"
+        "</lg></div></doc>"
+    )
+    validation_result = text_validation.WellFormedXml.validate_doc(xml)
+    assert validation_result.num_ok == 1
+    assert validation_result.num_total == 1
+    assert len(validation_result.errors) == 0
+
+
+def test_xml_well_formed_allows_lone_del_and_add_inside_l():
+    # <del> alone (without <subst>) is allowed inside <l>.
+    xml = _get_xml_from_string(
+        '<doc><div><lg n="1"><l>एकदन्तो<del>बृहत्</del>कुक्षिः ॥ १ ॥</l></lg></div></doc>'
+    )
+    validation_result = text_validation.WellFormedXml.validate_doc(xml)
+    assert validation_result.num_ok == 1
+    assert validation_result.num_total == 1
+    assert len(validation_result.errors) == 0
+
+
+def test_xml_well_formed_allows_subst_with_del_and_add():
+    # <subst> wrapping <del> and <add> is allowed inside <l>.
+    xml = _get_xml_from_string(
+        '<doc><div><lg n="5">'
+        "<l>तादृशं परमं दिव्यं प्रत्यक्षफलदायकम् ।</l>"
+        "<l>यः पठेत् प्रातरुत्थाय चिन्तयेन्मूर्ध्नि"
+        "<subst><del>वे</del><add>बा</add></subst>"
+        "लकम्<add>?</add>॥ ५ ॥</l>"
+        "</lg></div></doc>"
+    )
+    validation_result = text_validation.WellFormedXml.validate_doc(xml)
+    assert validation_result.num_ok == 1
+    assert validation_result.num_total == 1
+    assert len(validation_result.errors) == 0
+
+
 def test_validate_all_sanskrit_text_is_well_formed():
     # Happy path
     xml = _get_xml_from_string(
@@ -99,6 +151,15 @@ def test_validate_all_sanskrit_text_is_well_formed():
     assert validation_result.num_ok == 3  # lg + 2 clean l elements
     assert validation_result.num_total == 4
     assert len(validation_result.errors) == 1
+
+
+def test_well_formed_text_allows_parentheses_and_question_mark():
+    # ( ) ? are allowed in Devanagari text content.
+    xml = _get_xml_from_string(
+        '<doc><div><lg n="lg1"><l>धर्मक्षेत्रे (कुरुक्षेत्रे) ?</l></lg></div></doc>'
+    )
+    validation_result = text_validation.WellFormedText.validate_doc(xml)
+    assert len(validation_result.errors) == 0
 
 
 def test_well_formed_text_rejects_forbidden_sequences():
@@ -161,6 +222,28 @@ def test_extract_verse_text_skips_ref():
     # but the surrounding text should be joined
     assert "नरदनुजसु" in lines[1]
     assert "पर्वत्रातपातालोकः" in lines[1]
+
+
+def test_extract_verse_text_subst_uses_add_no_line_break():
+    # <subst><del>...</del><add>...</add></subst> should resolve to <add>'s text,
+    # without leaking the whitespace/newlines between subst's children as extra lines.
+    xml = _get_xml_from_string(
+        '<doc><div><lg n="5">'
+        "<l>तादृशं परमं दिव्यं प्रत्यक्षफलदायकम् ।</l>"
+        "<l>यः पठेत् प्रातरुत्थाय चिन्तयेन्मूर्ध्नि<subst>\n"
+        "      <del>वे</del>\n"
+        "      <add>बा</add>\n"
+        "    </subst>लकम्<add>?</add>॥ ५ ॥</l>"
+        "</lg></div></doc>"
+    )
+    block = xml.find(".//lg")
+    text = text_validation.MeterCheck._extract_verse_text(block)
+    lines = text.splitlines()
+    # One line per <l> — no extra breaks introduced by <subst>.
+    assert len(lines) == 2
+    # <add>'s text "बा" wins over <del>'s "वे", and is joined to surrounding text.
+    assert "वे" not in lines[1]
+    assert "बालकम्" in lines[1]
 
 
 def test_extract_verse_text_uses_corr_not_sic():
@@ -340,6 +423,37 @@ def test_valid_text_id():
     result = v.result()
     assert result.num_ok == 0
     assert len(result.errors) == 1
+
+
+def test_head_trailer_slugs_via_streaming_pipeline():
+    """Singleton head/trailer slugs are validated via the streaming pipeline.
+
+    Regression: iterparse clears head/trailer before the parent <div> end fires,
+    so checking n at div-time used to see an empty attribute.
+    """
+    xml = """<?xml version="1.0"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader/>
+  <text xml:id="my-slug">
+    <body>
+      <div n="ch1">
+        <head n="ch1.head">Heading</head>
+        <lg n="ch1.1"><l>नमः</l></lg>
+        <trailer n="ch1.trailer">End</trailer>
+      </div>
+    </body>
+  </text>
+</TEI>
+""".encode()
+    report = text_validation._validate_xml_bytes(BytesIO(xml), "my-slug")
+    result = _find_result(
+        report,
+        "Singleton <head> and <trailer> slugs end with .head / .trailer",
+    )
+    # Both the head and trailer should be checked and pass.
+    assert result.num_total == 2
+    assert result.num_ok == 2
+    assert result.errors == []
 
 
 def test_unique_div_ids():

@@ -361,6 +361,70 @@ def test_publish_config_save__preserves_pc_id_on_update(rama_client):
         _cleanup_config_and_text("stable-id-text")
 
 
+def test_publish_config_save__rejects_duplicate_ids(rama_client):
+    """Submitting two entries with the same PublishConfig id (clone bug) is rejected
+    cleanly without 500-ing or corrupting the existing row."""
+    session = get_session()
+    project_id = session.execute(
+        select(db.Project.id).filter_by(slug="test-project")
+    ).scalar_one()
+
+    text = db.Text(
+        slug="dup-id-source", title="Source", language="sa", stage=TextStage.STUB
+    )
+    session.add(text)
+    session.flush()
+    pc = PublishConfig(project_id=project_id, text_id=text.id, target="(page 1 1)")
+    session.add(pc)
+    session.commit()
+    pc_id = pc.id
+
+    # Clone scenario: two entries with the SAME id, the original and a "new" one.
+    config_list = [
+        {
+            "id": pc_id,
+            "slug": "dup-id-source",
+            "title": "Source",
+            "target": "(page 1 1)",
+            "language": "sa",
+        },
+        {
+            "id": pc_id,
+            "slug": "dup-id-clone",
+            "title": "Clone",
+            "target": "(page 2 2)",
+            "language": "sa",
+        },
+    ]
+
+    try:
+        resp = rama_client.post(
+            "/proofing/test-project/publish",
+            data={"config": json.dumps(config_list)},
+        )
+        # Should not 500. Either 200 (re-render with flash) or 302 (redirect).
+        assert resp.status_code in (200, 302)
+
+        # Source config + text should remain intact (no overwrite).
+        session = get_session()
+        same_pc = session.get(PublishConfig, pc_id)
+        assert same_pc is not None
+        same_text = session.execute(
+            select(db.Text).filter_by(slug="dup-id-source")
+        ).scalar_one_or_none()
+        assert same_text is not None
+        assert same_text.title == "Source"
+
+        # The clone slug should NOT have been silently created as an overwrite.
+        clone_text = session.execute(
+            select(db.Text).filter_by(slug="dup-id-clone")
+        ).scalar_one_or_none()
+        assert clone_text is None
+    finally:
+        _cleanup_config_and_text("dup-id-source")
+        _cleanup_config_and_text("dup-id-clone")
+
+
 def test_publish_config_save__remove_entry_deletes_stub_and_config(rama_client):
     """Dropping an entry removes its PublishConfig and its stub text."""
     session = get_session()
