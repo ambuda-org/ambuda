@@ -1085,9 +1085,14 @@ def _rewrite_project_to_tei_xml(
                     yield div
 
                     div_n = data["div.n"]
-                    ns.set_prefix(div_n)
                     div = etree.Element("div")
-                    div.attrib["n"] = div_n
+                    if div_n:
+                        ns.set_prefix(div_n)
+                        div.attrib["n"] = div_n
+                    else:
+                        # Empty `div.n=` exits back to the top level.
+                        ns.set_prefix(None)
+                        div.attrib[TOPLEVEL] = "_"
                 elif "speaker" in data:
                     if not data["speaker"]:
                         sp = None
