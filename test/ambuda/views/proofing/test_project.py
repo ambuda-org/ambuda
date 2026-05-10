@@ -101,10 +101,37 @@ def test_download_as_text__bad_project(client):
 def test_download_as_xml(rama_client):
     resp = rama_client.get("/proofing/test-project/download/xml")
     assert resp.status_code == 200
+    assert resp.mimetype == "application/xml"
+    assert "attachment" in resp.headers["Content-Disposition"]
+    assert "test-project.xml" in resp.headers["Content-Disposition"]
+    assert resp.text.startswith('<?xml version="1.0"')
+    assert "<project>" in resp.text
 
 
 def test_download_as_xml__bad_project(rama_client):
     resp = rama_client.get("/proofing/unknown/download/xml")
+    assert resp.status_code == 404
+
+
+def test_download_snapshot(rama_client):
+    resp = rama_client.get("/proofing/test-project/download/snapshot")
+    assert resp.status_code == 200
+    assert resp.mimetype == "application/json"
+    assert "attachment" in resp.headers["Content-Disposition"]
+    assert "test-project-snapshot.json" in resp.headers["Content-Disposition"]
+
+    payload = resp.get_json()
+    assert payload["slug"] == "test-project"
+    assert "title" in payload
+    assert "exported_at" in payload
+    assert isinstance(payload["pages"], list)
+    assert payload["pages"], "expected at least one page in fixture project"
+    page = payload["pages"][0]
+    assert set(page.keys()) == {"image_url", "content", "status", "updated_at"}
+
+
+def test_download_snapshot__bad_project(rama_client):
+    resp = rama_client.get("/proofing/unknown/download/snapshot")
     assert resp.status_code == 404
 
 

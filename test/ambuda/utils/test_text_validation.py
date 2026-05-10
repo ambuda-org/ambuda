@@ -456,6 +456,36 @@ def test_head_trailer_slugs_via_streaming_pipeline():
     assert result.errors == []
 
 
+def test_head_trailer_slugs_allow_bare_names():
+    """Plain 'head' and 'trailer' are accepted as singleton slugs.
+
+    Texts with a single top-level head/trailer (e.g. directly under <body>)
+    sometimes use just 'head' / 'trailer' as the @n value, which should pass.
+    """
+    xml = """<?xml version="1.0"?>
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader/>
+  <text xml:id="my-slug">
+    <body>
+      <div n="ch1">
+        <head n="head">Heading</head>
+        <lg n="ch1.1"><l>नमः</l></lg>
+        <trailer n="trailer">End</trailer>
+      </div>
+    </body>
+  </text>
+</TEI>
+""".encode()
+    report = text_validation._validate_xml_bytes(BytesIO(xml), "my-slug")
+    result = _find_result(
+        report,
+        "Singleton <head> and <trailer> slugs end with .head / .trailer",
+    )
+    assert result.num_total == 2
+    assert result.num_ok == 2
+    assert result.errors == []
+
+
 def test_unique_div_ids():
     # Happy path: two divs with unique n values
     v = text_validation.UniqueDivIds()

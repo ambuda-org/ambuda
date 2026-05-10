@@ -5,22 +5,94 @@
 
 {% block active_tab %}tools{% endblock %}
 
+
+{# ---- Local helpers ----------------------------------------------------- #}
+
+{% set EYE  = "text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3" %}
+{% set CARD = "block border border-slate-200 rounded bg-white p-4 hover:border-slate-400 hover:bg-slate-50 transition no-underline" %}
+
+{% macro tool(route, title, description) %}
+<a href="{{ url_for(route, slug=project.slug) }}" class="{{ CARD }}">
+  <div class="font-medium text-slate-900 text-sm">{{ title }}</div>
+  <div class="text-xs text-slate-500 mt-1">{{ description }}</div>
+</a>
+{% endmacro %}
+
+
 {% block content %}
 
-<div class="prose">
-<ul>
-  <li><a href="{{ url_for('proofing.project.batch_ocr', slug=project.slug) }}">{{ _('Run batch OCR') }}</a></li>
-  <li><a href="{{ url_for('proofing.project.batch_editing', slug=project.slug) }}">{{ _('Run batch editing') }}</a></li>
-  <li><a href="{{ url_for('proofing.project.batch_status', slug=project.slug) }}">{{ _('Set status for image range') }}</a></li>
+<div class="max-w-5xl space-y-8">
+
+  {# ---- OCR ------------------------------------------------------------- #}
+  <section>
+    <h2 class="{{ EYE }}">{{ _('OCR') }}</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {{ tool('proofing.project.batch_ocr',
+              _('Run batch OCR'),
+              _('Generate OCR for every page that is still untouched.')) }}
+      {% if current_user.is_p2 %}
+      {{ tool('proofing.project.replace_ocr_bounding_boxes',
+              _('Replace OCR bounding boxes'),
+              _('Upload new word-level bounding boxes from an external OCR run.')) }}
+      {% endif %}
+    </div>
+  </section>
+
+  {# ---- AI editing ------------------------------------------------------ #}
   {% if current_user.is_p2 %}
-  <li><a href="{{ url_for('proofing.project.batch_llm', slug=project.slug) }}">{{ _('Run batch LLM') }}</a></li>
-  <li><a href="{{ url_for('proofing.project.import_xml', slug=project.slug) }}">{{ _('Import XML') }}</a></li>
-  <li><a href="{{ url_for('proofing.project.reorder_pages', slug=project.slug) }}">{{ _('Reorder pages') }}</a></li>
-  <li><a href="{{ url_for('proofing.project.replace_pdf', slug=project.slug) }}">{{ _('Replace PDF') }}</a></li>
-  <li><a href="{{ url_for('proofing.project.replace_ocr_bounding_boxes', slug=project.slug) }}">{{ _('Replace OCR bounding boxes') }}</a></li>
-  <li><a href="{{ url_for('proofing.project.uncovered_blocks', slug=project.slug) }}">{{ _('See uncovered blocks') }}</a></li>
+  <section>
+    <h2 class="{{ EYE }}">{{ _('AI editing') }}</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {{ tool('proofing.project.batch_llm',
+              _('Run batch LLM'),
+              _('Apply an LLM prompt across many pages at once.')) }}
+      {{ tool('proofing.project.batch_editing',
+              _('Run batch editing'),
+              _('Review and apply structural edits in bulk.')) }}
+    </div>
+  </section>
   {% endif %}
-</ul>
+
+  {# ---- Images & PDF ---------------------------------------------------- #}
+  {% if current_user.is_p2 %}
+  <section>
+    <h2 class="{{ EYE }}">{{ _('Images & PDF') }}</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {{ tool('proofing.project.reorder_pages',
+              _('Reorder pages'),
+              _('Drag images to change the page order in this project.')) }}
+      {{ tool('proofing.project.replace_pdf',
+              _('Replace PDF'),
+              _('Swap the source PDF; existing page images get overwritten.')) }}
+    </div>
+  </section>
+  {% endif %}
+
+  {# ---- Pages ----------------------------------------------------------- #}
+  <section>
+    <h2 class="{{ EYE }}">{{ _('Pages') }}</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {{ tool('proofing.project.batch_status',
+              _('Set status for image range'),
+              _('Mark a contiguous range of pages with a new proofing status.')) }}
+    </div>
+  </section>
+
+  {# ---- Publishing ------------------------------------------------------ #}
+  {% if current_user.is_p2 %}
+  <section>
+    <h2 class="{{ EYE }}">{{ _('Publishing') }}</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {{ tool('proofing.project.uncovered_blocks',
+              _('See uncovered blocks'),
+              _('Find blocks that no publish-config filter currently matches.')) }}
+      {{ tool('proofing.project.import_xml',
+              _('Import XML'),
+              _('Bulk-create revisions from a downloaded project XML.')) }}
+    </div>
+  </section>
+  {% endif %}
+
 </div>
 
 {% endblock %}

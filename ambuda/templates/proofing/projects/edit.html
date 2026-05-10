@@ -8,149 +8,196 @@
 {% block active_tab %}edit{% endblock %}
 
 
+{# ---- Local helpers ------------------------------------------------------ #}
+
+{% set INPUT = "w-full border border-slate-300 rounded px-3 py-2 text-sm" %}
+{% set LABEL = "block text-sm font-medium text-slate-700 mb-1" %}
+{% set HELP  = "text-xs text-slate-500 mt-1" %}
+{% set CARD  = "border border-slate-200 rounded bg-white p-5" %}
+{% set EYE   = "text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3" %}
+
+{% macro field(f, help=None) %}
+<div>
+  {{ f.label(class_=LABEL) }}
+  {{ f(class_=INPUT) }}
+  {% if help %}<p class="{{ HELP }}">{{ help }}</p>{% endif %}
+</div>
+{% endmacro %}
+
+
 {% block content %}
 
-<div class="prose">
+<div class="max-w-4xl"
+     x-data='editForm({
+       sources: [
+         {% for s in project.sources -%}
+         { id: {{ s.id }}, description: {{ s.description|tojson }}, url: {{ (s.url or "")|tojson }} }{{ "," if not loop.last }}
+         {%- endfor %}
+       ]
+     })'>
 
-{{ mf.show_errors_if_any(form.errors) }}
+  {{ mf.show_errors_if_any(form.errors) }}
 
-<form method="POST">
-  {{ form.csrf_token }}
+  <form method="POST" class="space-y-8">
+    {{ form.csrf_token }}
 
-  <fieldset>
-    <legend class="text-lg font-bold mt-8 mb-4">Basic information</legend>
-    <div class="bg-slate-100 rounded p-4">
-      <div class="grid grid-cols-[8rem_1fr] gap-x-4 gap-y-3 text-sm items-center">
-        {{ form.display_title.label(class_="text-slate-500") }}
-        {{ form.display_title(class_="p-2 w-full rounded border border-slate-300") }}
+    {# ---- Basic information --------------------------------------------- #}
+    <section>
+      <h2 class="{{ EYE }}">{{ _('Basic information') }}</h2>
+      <div class="{{ CARD }} space-y-4">
+        {{ field(form.display_title, _('Shown to readers and used in titles across the site.')) }}
 
-        {{ form.slug.label(class_="text-slate-500") }}
-        <div class="flex gap-2">
-          {{ form.slug(class_="p-2 w-full rounded border border-slate-300 flex-1", id="slug-field") }}
-          <button type="button" class="btn btn-secondary whitespace-nowrap" onclick="regenerateSlug()">{{ _('Regenerate') }}</button>
+        <div>
+          {{ form.slug.label(class_=LABEL) }}
+          <div class="flex gap-2">
+            {{ form.slug(class_=INPUT + " flex-1", **{"x-ref": "slug"}) }}
+            <button type="button" class="btn btn-basic text-sm whitespace-nowrap"
+                    @click="regenerateSlug()">
+              {{ _('Regenerate from title') }}
+            </button>
+          </div>
+          <p class="{{ HELP }}">
+            {{ _('Used in URLs. Lowercase letters, numbers, and hyphens only.') }}
+          </p>
         </div>
 
-        {% if current_user.is_p2 %}
-        {{ form.status.label(class_="text-slate-500") }}
-        {{ form.status(class_="p-2 w-full rounded border border-slate-300") }}
-        {% endif %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {% if current_user.is_p2 %}
+          {{ field(form.status) }}
+          {% endif %}
+          {{ field(form.genre) }}
+        </div>
 
-        {{ form.genre.label(class_="text-slate-500") }}
-        {{ form.genre(class_="p-2 w-full rounded border border-slate-300") }}
-
-        <div class="col-span-2 mt-2">
-          {{ form.description.label(class_="text-slate-500 mb-1 block") }}
-          {{ form.description(class_="border border-slate-300 p-2 w-full min-h-[200px] rounded") }}
+        <div>
+          {{ form.description.label(class_=LABEL) }}
+          {{ form.description(class_=INPUT + " min-h-[180px]") }}
           {% set help_url = "https://commonmark.org/help/" %}
-          <p class="text-slate-500 mt-1 a-underline">{% trans %}
-            You can format this text with Markdown.
-            <a href="{{ help_url }}">Click here to learn more.</a>
+          <p class="{{ HELP }} a-underline">{% trans %}
+            What is this book about? Why is this project interesting?
+            Markdown is supported &mdash;
+            <a href="{{ help_url }}">learn more</a>.
           {% endtrans %}</p>
         </div>
 
-        <div class="col-span-2">
-          {{ form.page_numbers.label(class_="text-slate-500 mb-1 block") }}
-          {{ form.page_numbers(class_="border border-slate-300 p-2 w-full rounded") }}
+        <div>
+          {{ form.page_numbers.label(class_=LABEL) }}
+          {{ form.page_numbers(class_=INPUT + " font-mono text-xs min-h-[80px]") }}
+          <p class="{{ HELP }}">
+            {{ _('Optional page-numbering rules. Leave blank if unsure.') }}
+          </p>
         </div>
       </div>
-    </div>
-  </fieldset>
+    </section>
 
-  <fieldset>
-    <legend class="text-lg font-bold mt-8 mb-4">Book metadata</legend>
-    <div class="bg-slate-100 rounded p-4">
-      <div class="grid grid-cols-[8rem_1fr] gap-x-4 gap-y-3 text-sm items-center">
-        {{ form.print_title.label(class_="text-slate-500") }}
-        {{ form.print_title(class_="p-2 w-full rounded border border-slate-300") }}
+    {# ---- Bibliographic metadata ---------------------------------------- #}
+    <section>
+      <h2 class="{{ EYE }}">{{ _('Bibliographic metadata') }}</h2>
+      <p class="text-sm text-slate-500 mb-3 -mt-1">
+        {{ _('Details about the printed edition this project is based on.') }}
+      </p>
+      <div class="{{ CARD }} space-y-4">
+        {{ field(form.print_title, _('Title as printed on the book, including any honorifics.')) }}
 
-        {{ form.author.label(class_="text-slate-500") }}
-        {{ form.author(class_="p-2 w-full rounded border border-slate-300") }}
-
-        {{ form.editor.label(class_="text-slate-500") }}
-        {{ form.editor(class_="p-2 w-full rounded border border-slate-300") }}
-
-        {{ form.publisher.label(class_="text-slate-500") }}
-        {{ form.publisher(class_="p-2 w-full rounded border border-slate-300") }}
-
-        {{ form.publication_year.label(class_="text-slate-500") }}
-        {{ form.publication_year(class_="p-2 w-full rounded border border-slate-300") }}
-
-        {{ form.publication_location.label(class_="text-slate-500") }}
-        {{ form.publication_location(class_="p-2 w-full rounded border border-slate-300") }}
-
-        {{ form.worldcat_link.label(class_="text-slate-500") }}
-        {{ form.worldcat_link(class_="p-2 w-full rounded border border-slate-300") }}
-      </div>
-    </div>
-  </fieldset>
-
-  <fieldset>
-    <legend class="text-lg font-bold mt-8 mb-4">Internal notes</legend>
-    <div class="bg-slate-100 rounded p-4 text-sm">
-      {{ form.notes.label(class_="text-slate-500 mb-1 block") }}
-      {{ form.notes(class_="border border-slate-300 p-2 w-full rounded") }}
-    </div>
-  </fieldset>
-
-  <fieldset>
-    <legend class="text-lg font-bold mt-8 mb-4">Sources</legend>
-    <div class="bg-slate-100 rounded p-4 text-sm" id="sources-section">
-      <div id="sources-list">
-        {% for source in project.sources %}
-        <div class="source-row flex gap-2 mb-2 items-center">
-          <input type="text" name="source_description[]" value="{{ source.description }}" placeholder="Description" class="p-2 rounded border border-slate-300 flex-1" required>
-          <input type="text" name="source_url[]" value="{{ source.url or '' }}" placeholder="URL (optional)" class="p-2 rounded border border-slate-300 flex-1">
-          <input type="hidden" name="source_id[]" value="{{ source.id }}">
-          <button type="button" class="btn btn-secondary text-red-600" onclick="this.parentElement.remove()">✕</button>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {{ field(form.author, _('Author of the original work.')) }}
+          {{ field(form.editor, _('Person or organization who prepared this edition.')) }}
         </div>
-        {% endfor %}
-      </div>
-      <button type="button" class="btn btn-secondary mt-2" onclick="addSource()">{{ _('Add source') }}</button>
-    </div>
-  </fieldset>
 
-  <input class="btn btn-submit mt-4" type="submit" value="{{ _('Save changes') }}">
-</form>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {{ field(form.publisher) }}
+          {{ field(form.publication_location, _('City of publication.')) }}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {{ field(form.publication_year) }}
+          {{ field(form.worldcat_link, _('Optional. Helps readers find the original.')) }}
+        </div>
+      </div>
+    </section>
+
+    {# ---- Sources -------------------------------------------------------- #}
+    <section>
+      <h2 class="{{ EYE }}">{{ _('Sources') }}</h2>
+      <p class="text-sm text-slate-500 mb-3 -mt-1">
+        {{ _('Where this scan came from. Each entry credits one repository or contributor.') }}
+      </p>
+      <div class="{{ CARD }}">
+        <template x-if="sources.length === 0">
+          <p class="text-sm text-slate-400 italic mb-3">
+            {{ _('No sources added yet.') }}
+          </p>
+        </template>
+
+        <div class="space-y-2">
+          <template x-for="(source, idx) in sources" :key="idx">
+            <div class="flex gap-2 items-start">
+              <input type="text" name="source_description[]" required
+                     placeholder="{{ _('Description (e.g. Internet Archive)') }}"
+                     x-model="source.description"
+                     class="{{ INPUT }} flex-1">
+              <input type="text" name="source_url[]"
+                     placeholder="{{ _('URL (optional)') }}"
+                     x-model="source.url"
+                     class="{{ INPUT }} flex-1">
+              <input type="hidden" name="source_id[]" :value="source.id || ''">
+              <button type="button"
+                      class="text-slate-400 hover:text-red-600 px-2 py-2 text-sm"
+                      @click="sources.splice(idx, 1)"
+                      :title="'{{ _('Remove') }}'">
+                &times;
+              </button>
+            </div>
+          </template>
+        </div>
+
+        <button type="button" class="btn btn-basic text-sm mt-3"
+                @click="sources.push({ id: '', description: '', url: '' })">
+          + {{ _('Add source') }}
+        </button>
+      </div>
+    </section>
+
+    {# ---- Internal notes ------------------------------------------------- #}
+    <section>
+      <h2 class="{{ EYE }}">{{ _('Internal notes') }}</h2>
+      <p class="text-sm text-slate-500 mb-3 -mt-1">
+        {{ _('Visible to proofreaders and moderators. Not shown to readers.') }}
+      </p>
+      <div class="{{ CARD }}">
+        {{ form.notes(class_=INPUT + " min-h-[120px]") }}
+      </div>
+    </section>
+
+    {# ---- Save bar ------------------------------------------------------- #}
+    <div class="flex items-center gap-3 pt-4 border-t border-slate-200">
+      <button type="submit" class="btn btn-submit">{{ _('Save changes') }}</button>
+      <a href="{{ url_for('proofing.project.summary', slug=project.slug) }}"
+         class="text-sm text-slate-500 hover:text-slate-800">
+        {{ _('Cancel') }}
+      </a>
+    </div>
+  </form>
+</div>
 
 <script>
-function addSource() {
-  const list = document.getElementById('sources-list');
-  const row = document.createElement('div');
-  row.className = 'source-row flex gap-2 mb-2 items-center';
-  row.innerHTML = `
-    <input type="text" name="source_description[]" placeholder="Description" class="p-2 rounded border border-slate-300 flex-1" required>
-    <input type="text" name="source_url[]" placeholder="URL (optional)" class="p-2 rounded border border-slate-300 flex-1">
-    <input type="hidden" name="source_id[]" value="">
-    <button type="button" class="btn btn-secondary text-red-600" onclick="this.parentElement.remove()">✕</button>
-  `;
-  list.appendChild(row);
-}
+function editForm(initial) {
+  return {
+    sources: initial.sources,
 
-function regenerateSlug() {
-  const titleField = document.getElementById('display_title');
-  const slugField = document.getElementById('slug-field');
-
-  if (!titleField || !slugField) return;
-
-  const title = titleField.value;
-
-  // Generate slug: strip, lowercase, replace whitespace/special chars with hyphens
-  let slug = title
-    .trim()
-    .toLowerCase()
-    // Replace any sequence of whitespace with a single hyphen
-    .replace(/\s+/g, '-')
-    // Remove diacritics and special characters (keep only alphanumeric and hyphens)
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    // Replace any non-alphanumeric characters (except hyphens) with hyphens
-    .replace(/[^a-z0-9-]/g, '-')
-    // Replace multiple consecutive hyphens with a single hyphen
-    .replace(/-+/g, '-')
-    // Remove leading/trailing hyphens
-    .replace(/^-+|-+$/g, '');
-
-  slugField.value = slug;
+    regenerateSlug() {
+      const titleEl = document.getElementById('display_title');
+      if (!titleEl) return;
+      const slug = titleEl.value
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9-]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      this.$refs.slug.value = slug;
+    },
+  };
 }
 </script>
 

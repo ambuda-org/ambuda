@@ -358,13 +358,13 @@ class HeadTrailerSlugs(XMLValidationRule):
                     continue
                 n, xml_str = entries[0]
                 self.ret.incr_total()
-                if n.endswith(suffix):
+                if n == child_tag or n.endswith(suffix):
                     self.ret.incr_ok()
                 else:
                     self.ret.add_structured_error(
                         XMLError(
                             messages=[
-                                f"<{child_tag}> slug '{n}' must end with '{suffix}'"
+                                f"<{child_tag}> slug '{n}' must be '{child_tag}' or end with '{suffix}'"
                             ],
                             xml=xml_str,
                         ).model_dump()

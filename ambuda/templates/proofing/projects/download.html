@@ -21,7 +21,10 @@
     {{ _('Download as plain text') }}
   </a></li>
   <li><a href="{{ url_for("proofing.project.download_as_xml", slug=project.slug) }}">
-    {{ _('View as XML') }}
+    {{ _('Download as XML') }}
+  </a></li>
+  <li><a href="{{ url_for("proofing.project.download_snapshot", slug=project.slug) }}">
+    {{ _('Download JSON snapshot (includes status & image URLs)') }}
   </a></li>
 </ul>
 

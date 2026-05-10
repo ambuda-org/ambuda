@@ -625,7 +625,7 @@ def _build_export_page_xml(
 @bp.route("/<slug>/download/xml")
 @login_required
 def download_as_xml(slug):
-    """Show the project as a round-trippable XML document on an HTML page.
+    """Download the project as a round-trippable XML document.
 
     Each page's content is embedded as a nested element subtree (not
     entity-escaped text), so the inner ``<page><verse>...</verse></page>``
@@ -633,7 +633,7 @@ def download_as_xml(slug):
 
     The outer project structure is indented manually (no ``ET.indent`` on
     the whole tree) so that each page's inner content keeps its exact
-    canonical whitespace.
+    canonical whitespace. This is the format consumed by ``import_xml``.
     """
     project_ = q.project(slug)
     if project_ is None:
@@ -669,11 +669,52 @@ def download_as_xml(slug):
     parts.append("</project>")
     xml_blob = "\n".join(parts)
 
-    return render_template(
-        "proofing/projects/xml.html",
-        project=project_,
-        xml_blob=xml_blob,
+    response = make_response(xml_blob)
+    response.mimetype = "application/xml"
+    response.headers["Content-Disposition"] = (
+        f'attachment; filename="{project_.slug}.xml"'
     )
+    return response
+
+
+@bp.route("/<slug>/download/snapshot")
+@login_required
+def download_snapshot(slug):
+    """Download the project as a JSON snapshot.
+
+    Includes per-page metadata (status, image URL, last-updated timestamp)
+    alongside content. Intended for archival/inspection — not consumed by
+    the XML import flow.
+    """
+    project_ = q.project(slug)
+    if project_ is None:
+        abort(404)
+
+    pages = []
+    for p in project_.pages:
+        latest = p.revisions[-1] if p.revisions else None
+        pages.append(
+            {
+                "image_url": _get_image_url(project_, p),
+                "content": latest.content if latest else "",
+                "status": p.status.name if p.status else None,
+                "updated_at": latest.created_at.isoformat() if latest else None,
+            }
+        )
+
+    payload = {
+        "title": project_.display_title or project_.slug,
+        "slug": project_.slug,
+        "exported_at": datetime.now(UTC).isoformat(),
+        "pages": pages,
+    }
+
+    response = make_response(json.dumps(payload, ensure_ascii=False, indent=2))
+    response.mimetype = "application/json"
+    response.headers["Content-Disposition"] = (
+        f'attachment; filename="{project_.slug}-snapshot.json"'
+    )
+    return response
 
 
 # Categories for an uploaded page on the import review screen.
