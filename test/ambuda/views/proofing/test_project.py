@@ -127,7 +127,13 @@ def test_download_snapshot(rama_client):
     assert isinstance(payload["pages"], list)
     assert payload["pages"], "expected at least one page in fixture project"
     page = payload["pages"][0]
-    assert set(page.keys()) == {"image_url", "content", "status", "updated_at"}
+    assert set(page.keys()) == {
+        "image_url",
+        "content",
+        "revision_id",
+        "status",
+        "updated_at",
+    }
 
 
 def test_download_snapshot__bad_project(rama_client):

@@ -697,6 +697,7 @@ def download_snapshot(slug):
             {
                 "image_url": _get_image_url(project_, p),
                 "content": latest.content if latest else "",
+                "revision_id": latest.id if latest else None,
                 "status": p.status.name if p.status else None,
                 "updated_at": latest.created_at.isoformat() if latest else None,
             }
