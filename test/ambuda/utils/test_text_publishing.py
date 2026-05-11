@@ -792,6 +792,26 @@ def test_concatenate_tei_xml_blocks_across_page_boundary(first, second, expected
             '<p n="1" lang="sa">foo<break/>bar</p>',
             ['<p n="1" lang="sa">foo</p>', '<p lang="sa">bar</p>'],
         ),
+        # Break with type -> sub-block after break uses that tag
+        (
+            '<p>foo<break type="trailer"/>bar</p>',
+            ["<p>foo</p>", "<trailer>bar</trailer>"],
+        ),
+        # Break type overrides parent type; non-type attrs still copied
+        (
+            '<p lang="sa">foo<break type="trailer"/>bar</p>',
+            ['<p lang="sa">foo</p>', '<trailer lang="sa">bar</trailer>'],
+        ),
+        # Multiple breaks with different types
+        (
+            '<p>a<break type="verse"/>b<break type="trailer"/>c</p>',
+            ["<p>a</p>", "<verse>b</verse>", "<trailer>c</trailer>"],
+        ),
+        # Break type=None (no attribute) inherits parent type as before
+        (
+            "<p>foo<break/>bar</p>",
+            ["<p>foo</p>", "<p>bar</p>"],
+        ),
     ],
 )
 def test_split_block_at_breaks(input, expected):

@@ -86,9 +86,21 @@ const nodes: Record<string, NodeSpec> = {
     inline: true,
     group: 'inline',
     atom: true,
-    parseDOM: [{ tag: 'break' }, { tag: 'span.pm-break-marker' }],
-    toDOM() {
-      return ['span', { class: 'pm-break-marker', contenteditable: 'false' }, '¶'];
+    attrs: {
+      type: { default: null },
+    },
+    parseDOM: [
+      {
+        tag: 'break',
+        getAttrs(dom: HTMLElement) {
+          return { type: dom.getAttribute('type') || null };
+        },
+      },
+      { tag: 'span.pm-break-marker' },
+    ],
+    toDOM(node: PMNode) {
+      const label = node.attrs.type ? `¶ ${node.attrs.type}` : '¶';
+      return ['span', { class: 'pm-break-marker', contenteditable: 'false' }, label];
     },
   },
   text: {
@@ -985,6 +997,143 @@ class BlockView {
   }
 }
 
+// Maps each BreakView's DOM element to its BreakView so handleDOMEvents can find it.
+const breakViewsByDom = new WeakMap<HTMLElement, BreakView>();
+
+class BreakView {
+  dom: HTMLElement;
+
+  node: PMNode;
+
+  view: EditorView;
+
+  getPos: () => number | undefined;
+
+  private menu: HTMLElement | null = null;
+
+  private removeMenu: (() => void) | null = null;
+
+  constructor(node: PMNode, view: EditorView, getPos: () => number | undefined) {
+    this.node = node;
+    this.view = view;
+    this.getPos = getPos;
+
+    this.dom = document.createElement('span');
+    this.dom.setAttribute('contenteditable', 'false');
+    this.render();
+
+    console.log('[break] BreakView created, dom:', this.dom);
+    breakViewsByDom.set(this.dom, this);
+  }
+
+  private render() {
+    const type = this.node.attrs.type;
+    this.dom.className = `pm-break-marker${type ? ' pm-break-marker--typed' : ''}`;
+    this.dom.textContent = type ? `¶ ${type}` : '¶';
+  }
+
+  openMenu(e: MouseEvent) {
+    this.closeMenu();
+
+    const menu = document.createElement('div');
+    menu.className = 'pm-break-context-menu';
+    menu.style.cssText = 'position:fixed;z-index:9999;background:#fff;border:1px solid #cbd5e1;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,0.15);padding:4px 0;min-width:130px;font-size:13px;';
+
+    const currentType = this.node.attrs.type;
+
+    const makeItem = (label: string, value: string | null) => {
+      const item = document.createElement('div');
+      item.style.cssText = 'padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:6px;';
+      if (value === currentType) {
+        item.style.fontWeight = '600';
+        item.style.background = '#f1f5f9';
+      }
+      const check = document.createElement('span');
+      check.style.cssText = 'width:12px;font-size:11px;color:#64748b;';
+      check.textContent = value === currentType ? '✓' : '';
+      item.appendChild(check);
+      const text = document.createElement('span');
+      text.textContent = label;
+      item.appendChild(text);
+      item.addEventListener('mouseenter', () => { item.style.background = '#f8fafc'; });
+      item.addEventListener('mouseleave', () => { item.style.background = value === currentType ? '#f1f5f9' : ''; });
+      item.addEventListener('mousedown', (ev) => {
+        ev.preventDefault();
+        this.setType(value);
+        this.closeMenu();
+      });
+      return item;
+    };
+
+    // Header
+    const header = document.createElement('div');
+    header.style.cssText = 'padding:4px 12px 4px;font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;border-bottom:1px solid #e2e8f0;margin-bottom:2px;';
+    header.textContent = 'Break type';
+    menu.appendChild(header);
+
+    menu.appendChild(makeItem('(none)', null));
+    BLOCK_TYPES.forEach((bt) => {
+      menu.appendChild(makeItem(bt.label, bt.tag));
+    });
+
+    // Position near cursor
+    menu.style.left = `${e.clientX}px`;
+    menu.style.top = `${e.clientY}px`;
+    document.body.appendChild(menu);
+    this.menu = menu;
+
+    // Adjust if off-screen
+    requestAnimationFrame(() => {
+      const rect = menu.getBoundingClientRect();
+      if (rect.right > window.innerWidth) {
+        menu.style.left = `${e.clientX - rect.width}px`;
+      }
+      if (rect.bottom > window.innerHeight) {
+        menu.style.top = `${e.clientY - rect.height}px`;
+      }
+    });
+
+    const close = (ev: MouseEvent) => {
+      if (!menu.contains(ev.target as Node)) {
+        this.closeMenu();
+      }
+    };
+    setTimeout(() => document.addEventListener('mousedown', close), 0);
+    this.removeMenu = () => document.removeEventListener('mousedown', close);
+  }
+
+  private closeMenu() {
+    if (this.menu) {
+      this.menu.remove();
+      this.menu = null;
+    }
+    if (this.removeMenu) {
+      this.removeMenu();
+      this.removeMenu = null;
+    }
+  }
+
+  private setType(value: string | null) {
+    const pos = this.getPos();
+    if (pos === undefined) return;
+    const { tr } = this.view.state;
+    tr.setNodeMarkup(pos, undefined, { type: value });
+    this.view.dispatch(tr);
+  }
+
+  update(node: PMNode): boolean {
+    if (node.type.name !== 'break_separator') return false;
+    this.node = node;
+    this.render();
+    return true;
+  }
+
+  destroy() {
+    this.closeMenu();
+    breakViewsByDom.delete(this.dom);
+  }
+}
+
 function parseInlineContent(elem: Element, schema: Schema): PMNode[] {
   const result: PMNode[] = [];
 
@@ -1012,7 +1161,8 @@ function parseInlineContent(elem: Element, schema: Schema): PMNode[] {
 
       // <break> is a void inline node, not a mark
       if (tagName === 'break') {
-        result.push(schema.nodes.break_separator.create());
+        const breakType = el.getAttribute('type') || null;
+        result.push(schema.nodes.break_separator.create({ type: breakType }));
         return;
       }
 
@@ -1112,7 +1262,8 @@ function serializeInlineContent(node: PMNode): string {
 
   node.forEach((child) => {
     if (child.type.name === 'break_separator') {
-      result += '<break/>';
+      const breakType = child.attrs.type;
+      result += breakType ? `<break type="${breakType}"/>` : '<break/>';
     } else if (child.isText) {
       let text = escapeXMLText(child.text || '');
       child.marks.forEach((mark) => {
@@ -1399,6 +1550,7 @@ export default class {
       state,
       nodeViews: {
         block: (node, view, getPos) => new BlockView(node, view, getPos as () => number, this),
+        break_separator: (node, view, getPos) => new BreakView(node, view, getPos as () => number),
       },
       dispatchTransaction: (transaction) => {
         const newState = this.view.state.apply(transaction);
@@ -1408,6 +1560,18 @@ export default class {
           this.onChange();
         }
       },
+    });
+
+    this.view.dom.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      console.log('[break] click target:', target, target.className);
+      const breakEl = target.closest('.pm-break-marker') as HTMLElement | null;
+      console.log('[break] breakEl:', breakEl);
+      if (!breakEl) return;
+      event.preventDefault();
+      const bv = breakViewsByDom.get(breakEl);
+      console.log('[break] breakView:', bv);
+      if (bv) bv.openMenu(event as MouseEvent);
     });
 
     // Batch block check for all non-empty, non-ignore/metadata blocks on initial load

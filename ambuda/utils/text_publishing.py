@@ -605,7 +605,8 @@ def _split_block_at_breaks(xml: etree._Element) -> list[etree._Element]:
     for child in list(xml):
         if child.tag == InlineType.BREAK:
             sub_blocks.append(current)
-            current = etree.Element(xml.tag, dict(xml.attrib))
+            next_tag = child.get("type") or xml.tag
+            current = etree.Element(next_tag, dict(xml.attrib))
             current.attrib.pop("n", None)
             current.text = child.tail or ""
         else:
