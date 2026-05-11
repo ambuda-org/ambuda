@@ -82,6 +82,16 @@ const nodes: Record<string, NodeSpec> = {
       return [node.attrs.type || 'p', attrs, 0];
     },
   },
+  hyphen_literal: {
+    inline: true,
+    group: 'inline',
+    atom: true,
+    attrs: {},
+    parseDOM: [{ tag: 'hyphen' }, { tag: 'span.pm-hyphen-marker' }],
+    toDOM() {
+      return ['span', { class: 'pm-hyphen-marker', contenteditable: 'false' }, '‑'];
+    },
+  },
   break_separator: {
     inline: true,
     group: 'inline',
@@ -1000,6 +1010,22 @@ class BlockView {
 // Maps each BreakView's DOM element to its BreakView so handleDOMEvents can find it.
 const breakViewsByDom = new WeakMap<HTMLElement, BreakView>();
 
+const BREAK_TYPE_COLORS: Record<string, { bg: string; text: string }> = Object.fromEntries(
+  BLOCK_TYPES.map((bt) => {
+    const palette: Record<string, { bg: string; text: string }> = {
+      blue:   { bg: '#dbeafe', text: '#1d4ed8' },
+      purple: { bg: '#f3e8ff', text: '#7e22ce' },
+      orange: { bg: '#ffedd5', text: '#c2410c' },
+      indigo: { bg: '#e0e7ff', text: '#4338ca' },
+      pink:   { bg: '#fce7f3', text: '#be185d' },
+      green:  { bg: '#dcfce7', text: '#15803d' },
+      teal:   { bg: '#ccfbf1', text: '#0f766e' },
+      gray:   { bg: '#f1f5f9', text: '#475569' },
+    };
+    return [bt.tag, palette[bt.color] ?? palette.gray];
+  })
+);
+
 class BreakView {
   dom: HTMLElement;
 
@@ -1028,8 +1054,29 @@ class BreakView {
 
   private render() {
     const type = this.node.attrs.type;
-    this.dom.className = `pm-break-marker${type ? ' pm-break-marker--typed' : ''}`;
-    this.dom.textContent = type ? `¶ ${type}` : '¶';
+    this.dom.className = 'pm-break-marker';
+    this.dom.textContent = '';
+
+    if (type) {
+      const colors = BREAK_TYPE_COLORS[type] ?? { bg: '#f1f5f9', text: '#475569' };
+      this.dom.style.background = colors.bg;
+      this.dom.style.color = colors.text;
+    } else {
+      this.dom.style.background = '';
+      this.dom.style.color = '';
+    }
+
+    const pilcrow = document.createElement('span');
+    pilcrow.style.cssText = 'font-size:0.7em;font-weight:600;';
+    pilcrow.textContent = '¶';
+    this.dom.appendChild(pilcrow);
+
+    if (type) {
+      const label = document.createElement('span');
+      label.style.cssText = 'font-size:0.6em;font-weight:400;font-family:sans-serif;margin-left:2px;vertical-align:middle;';
+      label.textContent = type;
+      this.dom.appendChild(label);
+    }
   }
 
   openMenu(e: MouseEvent) {
@@ -1159,7 +1206,12 @@ function parseInlineContent(elem: Element, schema: Schema): PMNode[] {
       const el = node as Element;
       const tagName = el.tagName.toLowerCase();
 
-      // <break> is a void inline node, not a mark
+      // <hyphen> and <break> are void inline nodes, not marks
+      if (tagName === 'hyphen') {
+        result.push(schema.nodes.hyphen_literal.create());
+        return;
+      }
+
       if (tagName === 'break') {
         const breakType = el.getAttribute('type') || null;
         result.push(schema.nodes.break_separator.create({ type: breakType }));
@@ -1261,7 +1313,9 @@ function serializeInlineContent(node: PMNode): string {
   let result = '';
 
   node.forEach((child) => {
-    if (child.type.name === 'break_separator') {
+    if (child.type.name === 'hyphen_literal') {
+      result += '<hyphen/>';
+    } else if (child.type.name === 'break_separator') {
       const breakType = child.attrs.type;
       result += breakType ? `<break type="${breakType}"/>` : '<break/>';
     } else if (child.isText) {

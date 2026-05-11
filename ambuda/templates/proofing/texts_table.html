@@ -39,7 +39,7 @@
       <div class="min-w-0 flex-1">
         {# Row 1: title | badges + report #}
         <div class="flex items-center justify-between gap-3">
-          <a href="{{ url_for('texts.text', slug=text.slug) }}"
+          <a href="{{ url_for('proofing.text_detail', slug=text.slug) }}"
              class="font-medium text-slate-900 hover:text-sky-700 truncate">{{ text.title }}</a>
           <div class="flex items-center gap-2 shrink-0">
             {% if text.is_p0 %}{{ i.unproofed_text_icon() }}{% endif %}

@@ -40,6 +40,7 @@ class InlineType(StrEnum):
     QUOTE = "quote"
     SYNC = "sync"
     BREAK = "break"
+    HYPHEN = "hyphen"
 
 
 class TEITag(StrEnum):
@@ -194,13 +195,14 @@ PROOFING_XML_VALIDATION_SPEC = {
     **{
         tag: ValidationSpec(children=set(InlineType), attrib=set())
         for tag in InlineType
-        if tag not in (InlineType.SYNC, InlineType.BREAK)
+        if tag not in (InlineType.SYNC, InlineType.BREAK, InlineType.HYPHEN)
     },
     InlineType.SYNC: ValidationSpec(
         children=set(InlineType),
         attrib={"code"},
     ),
-    InlineType.BREAK: ValidationSpec(children=set(), attrib=set()),
+    InlineType.BREAK: ValidationSpec(children=set(), attrib={"type"}),
+    InlineType.HYPHEN: ValidationSpec(children=set(), attrib=set()),
 }
 
 # TODO:
@@ -483,6 +485,19 @@ def _assert_break_empty(
     return []
 
 
+def _assert_hyphen_empty(
+    el: ET.Element, ancestors: tuple[ET.Element, ...]
+) -> list[ValidationResult]:
+    """Check that <hyphen> has no text content or children."""
+    if len(el) > 0 or (el.text and el.text.strip()):
+        return [
+            ValidationResult.error(
+                "<hyphen> must be a void element (no text or children)"
+            )
+        ]
+    return []
+
+
 def _assert_seg_rend(
     el: ET.Element, ancestors: tuple[ET.Element, ...]
 ) -> list[ValidationResult]:
@@ -506,6 +521,7 @@ PROOFING_XML_SCHEMA = Schema(
     assertions={
         BlockType.METADATA: [_assert_metadata_block],
         InlineType.BREAK: [_assert_break_empty],
+        InlineType.HYPHEN: [_assert_hyphen_empty],
     },
 )
 

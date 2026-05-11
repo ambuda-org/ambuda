@@ -38,6 +38,44 @@ def test_filter_parse__rejects_missing_close_paren():
         s.Filter("(image 1")
 
 
+def test_filter_parse__rejects_trailing_content():
+    with pytest.raises(
+        ValueError, match="Unexpected content after closing parenthesis"
+    ):
+        s.Filter("(image 1 4)o")
+
+
+def test_filter_parse__rejects_bare_word():
+    # Legacy bare-word shorthands may exist in the DB but are rejected on save.
+    with pytest.raises(ValueError, match="must start with"):
+        s.Filter("foo")
+
+
+def test_filter_parse__rejects_bare_word_with_spaces():
+    with pytest.raises(ValueError, match="must start with"):
+        s.Filter("image 1 10")
+
+
+def test_filter_parse__rejects_unknown_selector():
+    with pytest.raises(ValueError, match="Unknown selector 'imag'"):
+        s.Filter("(imag 1 10)")
+
+
+def test_filter_parse__rejects_unknown_selector_nested():
+    with pytest.raises(ValueError, match="Unknown selector 'tg'"):
+        s.Filter("(and (image 1 5) (tg verse))")
+
+
+def test_filter_parse__accepts_all_valid_selectors():
+    s.Filter("(image 1 10)")
+    s.Filter("(page 1 5)")
+    s.Filter("(label foo)")
+    s.Filter("(tag verse)")
+    s.Filter("(and (image 1 5) (tag verse))")
+    s.Filter("(or (tag p) (tag verse))")
+    s.Filter("(not (tag ignore))")
+
+
 def test_filter_matches__image_single():
     f = s.Filter("(image 3)")
     block2 = _make_block(2, 0, "<page><p>a</p></page>")
@@ -370,9 +408,12 @@ def test_rewrite_block_to_tei_xml__n_is_preserved(input, expected):
         ("<p>foo \nbar</p>", "<p>foo bar</p>"),
         ("<p>foo\nbar</p>", "<p>foo bar</p>"),
         ("<p>foo \n bar</p>", "<p>foo bar</p>"),
-        # `-` at the end of a line joins words together across lines.
+        # `-` at the end of a line joins words together across lines (line-break artifact).
         ("<p>foo-\nbar</p>", "<p>foobar</p>"),
         ("<p>foo-bar\nbiz</p>", "<p>foo-bar biz</p>"),
+        # <hyphen/> is a literal hyphen: preserved as `-` even at a line boundary.
+        ("<p>foo<hyphen/>\nbar</p>", "<p>foo-bar</p>"),
+        ("<p>foo<hyphen/>bar</p>", "<p>foo-bar</p>"),
         # <p> should respect and retain inline marks when joining text.
         ("<p><fix>foo</fix> \n bar</p>", "<p><supplied>foo</supplied> bar</p>"),
     ],
@@ -869,6 +910,74 @@ def test_create_tei_document__no_break_backward_compatible():
     _test_create_tei_document(
         ["<page><p>foo</p></page>"],
         [s.TEIBlock(xml='<p n="p1">foo</p>', slug="p1", page_id=0)],
+    )
+
+
+# Inline verse reshaping (single-line verses with dandas)
+# -------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "input,expected",
+    [
+        # Single danda: two padas on one line -> two <l> elements.
+        # Double dandas are normalized to " ॥ N ॥" before splitting.
+        (
+            "<verse>abc def।ghi jkl॥1॥</verse>",
+            "<lg><l>abc def।</l><l>ghi jkl ॥ 1 ॥</l></lg>",
+        ),
+        # Three dandas: three lines.
+        ("<verse>p1।p2।p3॥1॥</verse>", "<lg><l>p1।</l><l>p2।</l><l>p3 ॥ 1 ॥</l></lg>"),
+        # No danda: one line (no reshaping).
+        ("<verse>foo bar</verse>", "<lg><l>foo bar</l></lg>"),
+        # Newlines present: split by newline as before (same result for this input).
+        (
+            "<verse>abc def।\nghi jkl॥1॥</verse>",
+            "<lg><l>abc def।</l><l>ghi jkl ॥ 1 ॥</l></lg>",
+        ),
+        # Inline element (<fix> -> <supplied>): danda in the tail splits correctly.
+        (
+            "<verse>abc<fix>def</fix>।ghi॥1॥</verse>",
+            "<lg><l>abc<supplied>def</supplied>।</l><l>ghi ॥ 1 ॥</l></lg>",
+        ),
+    ],
+)
+def test_rewrite_block_to_tei_xml__inline_verse(input, expected):
+    _assert_rewrite_block(input, expected)
+
+
+def test_create_tei_document__inline_verse_danda_split():
+    """A single-line verse with a danda produces a two-line <lg>."""
+    _test_create_tei_document(
+        ["<page><verse>abc def।ghi jkl ॥ 1 ॥</verse></page>"],
+        [
+            s.TEIBlock(
+                xml='<lg n="1"><l>abc def।</l><l>ghi jkl ॥ 1 ॥</l></lg>',
+                slug="1",
+                page_id=0,
+            ),
+        ],
+    )
+
+
+def test_create_tei_document__inline_verse_after_break():
+    """A <verse> block produced by a <break/> split is also reshaped if inline."""
+    _test_create_tei_document(
+        [
+            "<page><verse>abc def।ghi jkl ॥ 1 ॥<break/>mno pqr।stu vwx ॥ 2 ॥</verse></page>"
+        ],
+        [
+            s.TEIBlock(
+                xml='<lg n="1"><l>abc def।</l><l>ghi jkl ॥ 1 ॥</l></lg>',
+                slug="1",
+                page_id=0,
+            ),
+            s.TEIBlock(
+                xml='<lg n="2"><l>mno pqr।</l><l>stu vwx ॥ 2 ॥</l></lg>',
+                slug="2",
+                page_id=0,
+            ),
+        ],
     )
 
 

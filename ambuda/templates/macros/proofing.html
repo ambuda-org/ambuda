@@ -125,7 +125,7 @@
 {% set ep = request.endpoint or '' %}
 {% set active_tab = 'dashboard' if ep == 'proofing.dashboard'
     else 'projects' if ep == 'proofing.index'
-    else 'texts' if ep in ('proofing.texts', 'proofing.text_report')
+    else 'texts' if ep in ('proofing.texts', 'proofing.text_report', 'proofing.text_detail')
     else 'recent-changes' if ep in ('proofing.recent_changes', 'proofing.batch_detail')
     else 'talk' if ep.startswith('proofing.talk')
     else 'suggestions' if ep.startswith('proofing.suggestions')

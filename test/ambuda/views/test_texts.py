@@ -1,6 +1,7 @@
 import pytest
 from vidyut.lipi import transliterate, Scheme
 
+from ambuda.models.texts import TextConfig
 from ambuda.utils.metadata_catalog import _strip_or_none, _parse_source
 
 
@@ -72,6 +73,25 @@ def test_block_htmx(client):
 def test_download_pdf__missing(client):
     resp = client.get("/texts/unknown-text/download-pdf")
     assert resp.status_code == 404
+
+
+def test_text_config__display_on_single_page_default():
+    config = TextConfig()
+    assert config.display_on_single_page is False
+
+
+def test_text__single_page_shows_all_blocks(client):
+    resp = client.get("/texts/single-page-text/")
+    assert resp.status_code == 200
+    assert "blockOne" in resp.text
+    assert "blockTwo" in resp.text
+
+
+def test_text__single_page_no_prev_next(client):
+    resp = client.get("/texts/single-page-text/")
+    assert resp.status_code == 200
+    # No section navigation (prev/next links should be absent or disabled)
+    assert "prev_url" not in resp.text or '"prev_url": null' in resp.text
 
 
 # -- _strip_or_none tests --

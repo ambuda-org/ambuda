@@ -997,6 +997,146 @@ def create_text():
     return _render()
 
 
+def _text_detail_template_vars(text, config, session):
+    from ambuda.models.proofing import LanguageCode
+    import sqlalchemy as sqla
+
+    authors = (
+        session.execute(sqla.select(db.Author).order_by(db.Author.name)).scalars().all()
+    )
+    language_labels = {code.value: code.label for code in LanguageCode}
+    all_collections = (
+        session.execute(
+            sqla.select(db.TextCollection).order_by(db.TextCollection.order)
+        )
+        .scalars()
+        .all()
+    )
+    return dict(
+        text=text,
+        config=config,
+        authors=authors,
+        language_labels=language_labels,
+        all_collections=all_collections,
+    )
+
+
+@bp.route("/texts/<slug>")
+def text_detail(slug):
+    """Show detail page for a published text."""
+    session = q.get_session()
+    text = q.text(slug)
+    if text is None:
+        abort(404)
+
+    config = (
+        session.query(db.PublishConfig)
+        .filter(db.PublishConfig.text_id == text.id)
+        .first()
+    )
+    return render_template(
+        "proofing/text-detail.html",
+        **_text_detail_template_vars(text, config, session),
+    )
+
+
+@bp.route("/texts/<slug>/config", methods=["POST"])
+@p2_required
+def text_config_edit(slug):
+    """Save publish config edits from the text detail page."""
+    from ambuda.models.proofing import LanguageCode, PublishConfig
+    from ambuda.utils.text_publishing import Filter
+    from ambuda.utils.slug import title_to_slug
+    import sqlalchemy as sqla
+
+    session = q.get_session()
+    text = q.text(slug)
+    if text is None:
+        abort(404)
+
+    config = (
+        session.query(PublishConfig).filter(PublishConfig.text_id == text.id).first()
+    )
+    new_slug = request.form.get("slug", "").strip()
+    new_title = request.form.get("title", "").strip()
+    new_author_name = request.form.get("author", "").strip() or None
+    new_language = request.form.get("language", "sa").strip() or "sa"
+    new_parent_slug = request.form.get("parent_slug", "").strip() or None
+    new_target = request.form.get("target", "").strip() or None
+    new_collection_ids = request.form.getlist("collection_ids", type=int)
+
+    from ambuda.views.proofing.publish import _validate_slug
+
+    slug_error = _validate_slug(new_slug)
+    if slug_error:
+        flash(slug_error, "error")
+        return redirect(url_for("proofing.text_detail", slug=slug))
+
+    if new_slug != text.slug:
+        existing = session.execute(
+            sqla.select(db.Text).where(db.Text.slug == new_slug)
+        ).scalar_one_or_none()
+        if existing:
+            flash(f"A text with slug '{new_slug}' already exists.", "error")
+            return redirect(url_for("proofing.text_detail", slug=slug))
+
+    if new_target:
+        try:
+            Filter(new_target)
+        except ValueError as e:
+            flash(f"Invalid filter: {e}", "error")
+            return redirect(url_for("proofing.text_detail", slug=slug))
+
+    if new_parent_slug:
+        parent_text = session.execute(
+            sqla.select(db.Text).where(db.Text.slug == new_parent_slug)
+        ).scalar_one_or_none()
+        if not parent_text:
+            flash(f"Parent slug '{new_parent_slug}' does not exist.", "error")
+            return redirect(url_for("proofing.text_detail", slug=slug))
+        text.parent_id = parent_text.id
+    else:
+        text.parent_id = None
+
+    text.slug = new_slug
+    text.title = new_title
+    text.language = new_language
+    if config:
+        config.target = new_target
+
+    if new_author_name:
+        author = session.execute(
+            sqla.select(db.Author).where(db.Author.name == new_author_name)
+        ).scalar_one_or_none()
+        if not author:
+            author = db.Author(
+                name=new_author_name, slug=title_to_slug(new_author_name)
+            )
+            session.add(author)
+            session.flush()
+        text.author_id = author.id
+    else:
+        text.author_id = None
+
+    if new_collection_ids:
+        colls = (
+            session.execute(
+                sqla.select(db.TextCollection).where(
+                    db.TextCollection.id.in_(new_collection_ids)
+                )
+            )
+            .scalars()
+            .all()
+        )
+        text.collections = list(colls)
+    else:
+        text.collections = []
+
+    session.commit()
+    flash("Config saved.", "success")
+    return redirect(url_for("proofing.text_detail", slug=new_slug))
+
+
 @bp.route("/texts/<slug>/report")
 def text_report(slug):
     """Show validation report for a text."""

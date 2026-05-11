@@ -207,7 +207,12 @@
   }
 
   .pm-break-marker {
-    @apply text-black bg-gray-200 font-bold px-0.5 rounded;
+    @apply text-black bg-gray-200 px-0.5 rounded;
+  }
+
+  .pm-hyphen-marker {
+    @apply text-orange-700 bg-orange-100 px-0.5 rounded text-xs font-mono;
+    cursor: default;
   }
 
   /* Prosemirror mark CSS */

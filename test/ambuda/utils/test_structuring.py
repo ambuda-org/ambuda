@@ -49,6 +49,13 @@ B = s.ProofBlock
         # OK: <break/> in p and verse
         ("<page><p>text<break/>more</p></page>", []),
         ("<page><verse>text<break/>more</verse></page>", []),
+        # OK: <break type="..."/> with a block-type attribute
+        ("<page><p>text<break type='trailer'/>more</p></page>", []),
+        # OK: <hyphen/> in p and verse
+        ("<page><p>text<hyphen/>more</p></page>", []),
+        ("<page><verse>text<hyphen/>more</verse></page>", []),
+        # ERR: <hyphen> with content (must be empty)
+        ("<page><p><hyphen>content</hyphen></p></page>", ["void element"]),
         # ERR: <break> in heading (not allowed)
         ("<page><heading>text<break/>more</heading></page>", ["Unexpected.*break"]),
         # ERR: <break> with content (must be empty)

@@ -44,6 +44,7 @@ class TitleConfig(BaseModel):
 
 class TextConfig(BaseModel):
     titles: TitleConfig = Field(default_factory=TitleConfig)
+    display_on_single_page: bool = False
 
 
 class TextStatus(StrEnum):

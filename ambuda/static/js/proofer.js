@@ -344,6 +344,7 @@ export default () => ({
       { label: 'Edit > Redo', action: () => this.redo() },
       { label: 'Edit > Insert block', action: () => this.insertBlock() },
       { label: 'Edit > Insert break', code: 'ib', action: () => this.insertBreak() },
+      { label: 'Edit > Insert non-breaking hyphen', code: 'ih', action: () => this.insertNonBreakingHyphen() },
       { label: 'Edit > Delete active block', action: () => this.deleteBlock() },
       { label: 'Edit > Move block up', action: () => this.moveBlockUp() },
       { label: 'Edit > Move block down', action: () => this.moveBlockDown() },
@@ -939,6 +940,13 @@ export default () => ({
     const { state, dispatch } = editor.view;
     const breakNode = state.schema.nodes.break_separator.create();
     dispatch(state.tr.replaceSelectionWith(breakNode));
+  },
+
+  insertNonBreakingHyphen() {
+    const editor = Alpine.raw(this.editor);
+    const { state, dispatch } = editor.view;
+    const hyphenNode = state.schema.nodes.hyphen_literal.create();
+    dispatch(state.tr.replaceSelectionWith(hyphenNode));
   },
 
   deleteBlock() {

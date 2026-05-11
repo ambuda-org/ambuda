@@ -1,0 +1,196 @@
+{% extends 'header-main-footer.html' %}
+{% import "macros/components.html" as mc %}
+{% import "macros/proofing.html" as m %}
+
+
+{% block title %}{{ mc.title(text.title) }}{% endblock %}
+
+
+{% block header %}
+{{ m.proofing_header(current_user) }}
+{% endblock %}
+
+
+{% block main %}
+<div class="bg-slate-100">
+<article class="max-w-7xl mx-auto min-h-[60vh]">
+{{ mc.flash_messages() }}
+<div class="px-4 md:px-8 pt-14 pb-24">
+
+<div class="max-w-2xl mx-auto">
+
+  {# Page heading + meta #}
+  <div class="mb-6">
+    <p class="text-sm text-slate-500 mb-1">
+      <a href="{{ url_for('proofing.texts') }}" class="hover:underline">{{ _('Texts') }}</a>
+      &rsaquo; {{ text.title }}
+    </p>
+    <div class="flex items-baseline gap-3">
+      <h1 class="text-2xl font-bold text-slate-900">{{ text.title }}</h1>
+      <a href="{{ url_for('texts.text', slug=text.slug) }}" class="text-sm text-sky-700 hover:underline">{{ _('View in library') }} &rarr;</a>
+    </div>
+    <p class="text-sm text-slate-500 mt-1">
+      {{ text.stage }}
+      {% if text.published_at %}
+        &middot; {{ _('published') }} {{ text.published_at.strftime('%Y-%m-%d') }}
+      {% endif %}
+    </p>
+  </div>
+
+  <script>
+  window.ALL_COLLECTIONS = [
+    {% for coll in all_collections %}
+    { id: {{ coll.id }}, title: {{ coll.title|tojson }}, parent: {{ coll.parent.title|tojson if coll.parent else 'null' }} },
+    {% endfor %}
+  ];
+  </script>
+
+  {% set editable = current_user.is_authenticated and current_user.is_p2 %}
+  {% if editable %}
+  <form method="POST" action="{{ url_for('proofing.text_config_edit', slug=text.slug) }}"
+        class="space-y-5">
+  {% else %}
+  <div class="space-y-5">
+  {% endif %}
+
+    {# Text metadata group — always shown #}
+    <div>
+      <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">{{ _('Text metadata') }}</h2>
+      <div class="border border-slate-200 rounded bg-white p-4 space-y-4">
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Title') }} <span class="text-red-500">*</span></label>
+            <input type="text" name="title" value="{{ text.title }}" required
+                   {% if not editable %}readonly{% endif %}
+                   class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Slug') }} <span class="text-red-500">*</span></label>
+            <input type="text" name="slug" value="{{ text.slug }}" required
+                   {% if not editable %}readonly{% endif %}
+                   class="w-full border border-slate-300 rounded px-3 py-2 text-sm font-mono">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Author') }}</label>
+            <input type="text" name="author" value="{{ text.author.name if text.author else '' }}"
+                   list="author-list"
+                   {% if not editable %}readonly{% endif %}
+                   class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+            <datalist id="author-list">
+              {% for a in authors %}<option value="{{ a.name }}">{% endfor %}
+            </datalist>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Language') }}</label>
+            <select name="language" {% if not editable %}disabled{% endif %}
+                    class="w-full border border-slate-300 rounded px-3 py-2 text-sm bg-white">
+              {% for code, label in language_labels.items() %}
+              <option value="{{ code }}" {% if text.language == code %}selected{% endif %}>{{ label }} ({{ code }})</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Parent slug') }}</label>
+          <input type="text" name="parent_slug" value="{{ text.parent.slug if text.parent else '' }}"
+                 placeholder="{{ _('e.g. ramayana') }}"
+                 {% if not editable %}readonly{% endif %}
+                 class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+          <p class="text-xs text-slate-500 mt-1">{{ _('Slug of the parent text (for translations/commentaries)') }}</p>
+        </div>
+
+        <div x-data="collectionMultiPicker(window.ALL_COLLECTIONS, {{ text.collections | map(attribute='id') | list | tojson }})"
+             @click.away="onClickAway()">
+          <label class="block text-sm font-medium text-slate-700 mb-1">{{ _('Collections') }}</label>
+          <template x-for="cid in selectedIds" :key="cid">
+            <input type="hidden" name="collection_ids" :value="cid">
+          </template>
+          <div class="flex flex-wrap gap-1.5 mb-2" x-show="selectedIds.length > 0">
+            <template x-for="cid in selectedIds" :key="cid">
+              <span class="inline-flex items-center gap-1 bg-sky-100 text-sky-800 text-xs px-2 py-1 rounded">
+                <span x-text="label(cid)"></span>
+                {% if editable %}
+                <button type="button" @click="remove(cid)" class="text-sky-600 hover:text-sky-900">&times;</button>
+                {% endif %}
+              </span>
+            </template>
+          </div>
+          {% if editable %}
+          <div class="relative">
+            <input type="text" x-model="query" @focus="open = true"
+                   placeholder="{{ _('Search collections...') }}"
+                   class="w-full border border-slate-300 rounded px-3 py-2 text-sm">
+            <div x-show="open" x-cloak
+                 class="absolute z-20 mt-1 w-full bg-white border border-slate-300 rounded shadow-lg max-h-48 overflow-y-auto">
+              <template x-for="c in filtered()" :key="c.id">
+                <button type="button" @click="add(c.id)"
+                        class="block w-full text-left px-3 py-1.5 text-sm hover:bg-slate-50"
+                        x-text="c._label"></button>
+              </template>
+              <div x-show="filtered().length === 0" class="px-3 py-2 text-sm text-slate-400">{{ _('No matches') }}</div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+
+    {# Publish config group — only when a config exists #}
+    {% if config %}
+    <div>
+      <h2 class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">{{ _('Publish config') }}</h2>
+      <div class="border border-slate-200 rounded bg-white p-4">
+        <label class="block text-sm font-medium text-slate-700 mb-1">
+          {{ _('Target') }}
+          <span class="relative inline-block ml-1" x-data="{ open: false }" @click.stop>
+            <button type="button" @click="open = !open"
+                    class="inline-flex items-center justify-center w-4 h-4 text-[10px] font-bold border border-slate-400 rounded-full text-slate-500 hover:bg-slate-200">i</button>
+            <div x-show="open" @click.away="open = false"
+                 class="absolute left-0 mt-1 bg-white border border-slate-300 rounded shadow-lg z-20 w-80 p-3 text-xs">
+              <h4 class="font-semibold mb-2">{{ _('Filter syntax') }}</h4>
+              <div class="space-y-1 text-slate-700 mb-2">
+                <div><code class="bg-slate-100 px-1 rounded">(image 1 10)</code> — pages 1–10</div>
+                <div><code class="bg-slate-100 px-1 rounded">(image 5)</code> — page 5 only</div>
+                <div><code class="bg-slate-100 px-1 rounded">(label foo)</code> — blocks labelled "foo"</div>
+                <div><code class="bg-slate-100 px-1 rounded">(tag verse)</code> — verse blocks</div>
+                <div><code class="bg-slate-100 px-1 rounded">(and (page 5 10) (tag verse))</code> — AND</div>
+              </div>
+              <p class="text-slate-500">Leave empty to include all blocks.</p>
+            </div>
+          </span>
+        </label>
+        <input type="text" name="target" value="{{ config.target or '' }}"
+               placeholder="{{ _('(all pages)') }}"
+               {% if not editable %}readonly{% endif %}
+               class="w-full border border-slate-300 rounded px-3 py-2 text-sm font-mono">
+      </div>
+    </div>
+    {% endif %}
+
+    {% if editable %}
+    <div class="flex items-center gap-3 pt-1">
+      <button type="submit" class="btn btn-submit">{{ _('Save') }}</button>
+      {% if config %}
+      <a href="{{ url_for('proofing.publish.config', slug=config.project.slug) }}"
+         class="text-sm text-slate-500 hover:text-slate-700">{{ _('Open in project') }}</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  {% if editable %}
+  </form>
+  {% else %}
+  </div>
+  {% endif %}
+
+</div>
+</div>
+</article>
+</div>
+{% endblock %}

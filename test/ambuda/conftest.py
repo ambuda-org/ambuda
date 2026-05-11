@@ -1,3 +1,4 @@
+import json
 import os
 
 import boto3
@@ -58,6 +59,42 @@ def initialize_test_db():
         text_id=text.id, section_id=section.id, slug="1.1", xml="<div>agniH</div>", n=1
     )
     session.add(block)
+    session.flush()
+
+    # Text with display_on_single_page enabled
+    single_page_text = db.Text(
+        slug="single-page-text",
+        title="singlePageText",
+        stage=TextStage.PUBLIC,
+        config=json.dumps({"display_on_single_page": True}),
+    )
+    session.add(single_page_text)
+    session.flush()
+
+    sp_section1 = db.TextSection(
+        text_id=single_page_text.id, slug="1", title="section 1", order=1
+    )
+    sp_section2 = db.TextSection(
+        text_id=single_page_text.id, slug="2", title="section 2", order=2
+    )
+    session.add_all([sp_section1, sp_section2])
+    session.flush()
+
+    sp_block1 = db.TextBlock(
+        text_id=single_page_text.id,
+        section_id=sp_section1.id,
+        slug="1.1",
+        xml='<p n="p1">blockOne</p>',
+        n=1,
+    )
+    sp_block2 = db.TextBlock(
+        text_id=single_page_text.id,
+        section_id=sp_section2.id,
+        slug="2.1",
+        xml='<p n="p1">blockTwo</p>',
+        n=2,
+    )
+    session.add_all([sp_block1, sp_block2])
     session.flush()
 
     parse = db.BlockParse(

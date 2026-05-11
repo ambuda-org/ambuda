@@ -371,17 +371,15 @@ def config(slug):
 
         for pc in new_configs:
             target = pc.get("target") or ""
-            try:
-                if target.startswith("("):
+            if target:
+                try:
                     Filter(target)
-                else:
-                    Filter(f"(label {target})")
-            except ValueError as e:
-                flash(
-                    f"Invalid filter for '{pc.get('slug', '')}': {e}",
-                    "error",
-                )
-                return redirect(url_for("proofing.publish.config", slug=slug))
+                except ValueError as e:
+                    flash(
+                        f"Invalid filter for '{pc.get('slug', '')}': {e}",
+                        "error",
+                    )
+                    return redirect(url_for("proofing.publish.config", slug=slug))
 
         # Load this project's existing configs once. We match new entries to
         # old ones by PublishConfig.id and update them in place; entries with

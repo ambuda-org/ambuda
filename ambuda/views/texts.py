@@ -161,6 +161,17 @@ def _export_key(x: db.TextExport) -> tuple:
     return (4, x.slug)
 
 
+def _parse_text_config(text_: db.Text) -> TextConfig:
+    try:
+        if isinstance(text_.config, str):
+            return TextConfig.model_validate_json(text_.config)
+        elif isinstance(text_.config, dict):
+            return TextConfig.model_validate(text_.config)
+    except Exception:
+        pass
+    return TextConfig()
+
+
 @bp.route("/")
 def index():
     """Show all texts."""
@@ -186,6 +197,85 @@ def index():
     )
 
 
+def _render_single_page(text_: db.Text, config: TextConfig):
+    """Render all sections of a text on a single page."""
+    all_blocks = []
+    for sec in text_.sections:
+        sec_data = _build_section_data(text_, sec.slug)
+        all_blocks.extend(sec_data.blocks)
+
+    scheme = _get_user_scheme()
+    data = Section(
+        text_title=transliterate(text_.title, Scheme.HarvardKyoto, scheme),
+        section_title=transliterate(text_.title, Scheme.HarvardKyoto, scheme),
+        section_slug=text_.sections[0].slug,
+        blocks=all_blocks,
+        prev_url=None,
+        next_url=None,
+    )
+    json_payload = json.dumps(data, cls=AmbudaJSONEncoder)
+
+    prefix_titles = config.titles.fixed
+    section_groups = {}
+    for s in text_.sections:
+        key, _, _ = s.slug.rpartition(".")
+        if key not in section_groups:
+            section_groups[key] = []
+        name = s.slug
+        if s.slug.count(".") == 1:
+            x, y = s.slug.split(".")
+            pattern = config.titles.patterns.get("x.y")
+            if pattern:
+                name = pattern.format(x=x, y=y)
+        section_groups[key].append((s.slug, name))
+
+    header_data = xml.parse_tei_header(text_.header)
+    exports = sorted(text_.exports, key=_export_key)
+
+    if text_.parent_id:
+        siblings = [c for c in text_.parent.children if c.id != text_.id]
+        source_lang = text_.parent.language
+    else:
+        siblings = list(text_.children)
+        source_lang = text_.language
+
+    translations = [c for c in siblings if c.language != source_lang]
+    commentaries = [c for c in siblings if c.language == source_lang]
+
+    db_session = q.get_session()
+    has_no_parse = not db_session.scalar(
+        select(exists().where(db.BlockParse.text_id == text_.id))
+    )
+
+    report_summary = None
+    raw_summary = q.text_report_summary(text_.id)
+    if raw_summary:
+        try:
+            report_summary = ReportSummary.model_validate(raw_summary)
+        except Exception:
+            report_summary = None
+
+    return render_template(
+        "texts/reader.html",
+        text=text_,
+        prev=None,
+        section=text_.sections[0],
+        next=None,
+        json_payload=json_payload,
+        html_blocks=data.blocks,
+        has_no_parse=has_no_parse,
+        is_single_section_text=True,
+        section_groups=section_groups,
+        prefix_titles=prefix_titles,
+        text_about=header_data,
+        raw_header=text_.header,
+        exports=exports,
+        translations=translations,
+        commentaries=commentaries,
+        report_summary=report_summary,
+    )
+
+
 @bp.route("/<slug>/")
 def text(slug):
     """Show a text's title page and contents."""
@@ -196,6 +286,10 @@ def text(slug):
 
     if not text_.sections:
         abort(404)
+
+    config = _parse_text_config(text_)
+    if config.display_on_single_page:
+        return _render_single_page(text_, config)
 
     first_section_slug = text_.sections[0].slug
     return section(slug, first_section_slug)
@@ -320,16 +414,7 @@ def section(text_slug, section_slug):
     data = _build_section_data(text_, section_slug)
     json_payload = json.dumps(data, cls=AmbudaJSONEncoder)
 
-    try:
-        if isinstance(text_.config, str):
-            config = TextConfig.model_validate_json(text_.config)
-        elif isinstance(text_.config, dict):
-            config = TextConfig.model_validate(text_.config)
-        else:
-            config = TextConfig()
-    except Exception:
-        config = TextConfig()
-
+    config = _parse_text_config(text_)
     prefix_titles = config.titles.fixed
     section_groups = {}
     for s in text_.sections:

@@ -159,6 +159,30 @@ class Filter:
             raise ValueError("Missing closing parenthesis")
 
         self.predicate = parse_list()
+        # Reject trailing garbage after the closing parenthesis.
+        j = i
+        while j < len(sexp) and sexp[j].isspace():
+            j += 1
+        if j < len(sexp):
+            raise ValueError(
+                f"Unexpected content after closing parenthesis: '{sexp[j:]}'"
+            )
+        self._check_ops(self.predicate)
+
+    _KNOWN_OPS = frozenset({"image", "page", "label", "tag", "and", "or", "not"})
+
+    @staticmethod
+    def _check_ops(sexp) -> None:
+        """Raise ValueError if any operator in *sexp* is not a known selector."""
+        if not isinstance(sexp, list) or not sexp:
+            return
+        op = sexp[0]
+        if op not in Filter._KNOWN_OPS:
+            valid = ", ".join(sorted(Filter._KNOWN_OPS))
+            raise ValueError(f"Unknown selector '{op}'. Valid selectors: {valid}")
+        for child in sexp[1:]:
+            if isinstance(child, list):
+                Filter._check_ops(child)
 
     @staticmethod
     def _parse_image_spec(spec: str) -> tuple[int, str | None]:
@@ -588,6 +612,95 @@ def find_uncovered_blocks(project: db.Project) -> list[UncoveredBlock]:
 # - build footnote refs and check them with warnings
 #   - <ref target="#X"> type="noteAnchor">
 #   - <note xml:id="X" type="footnote">...</note>
+
+
+def _inline_hyphen_elements(xml: etree._Element):
+    """Replace <hyphen/> void elements with a literal '-' in the surrounding text.
+
+    Strips leading whitespace from the tail so that a <hyphen/> at the end of a
+    source line (followed by a newline) joins cleanly with the next word.
+    Called before line-break normalization so the '-' is not subject to the
+    artifact-hyphen stripping that removes ASCII '-\\n' sequences.
+    """
+    for child in xml:
+        _inline_hyphen_elements(child)
+
+    to_remove = []
+    for i, child in enumerate(xml):
+        if child.tag != InlineType.HYPHEN:
+            continue
+        hyphen_text = "-" + (child.tail or "").lstrip()
+        if i == 0:
+            xml.text = (xml.text or "") + hyphen_text
+        else:
+            prev = xml[i - 1]
+            prev.tail = (prev.tail or "") + hyphen_text
+        to_remove.append(child)
+
+    for child in to_remove:
+        xml.remove(child)
+
+
+def _split_by_dandas(text: str) -> list[str]:
+    """Split verse text into lines at single danda (।) boundaries.
+
+    Each line ends at a single danda (U+0964). Any remaining text after the
+    last danda (e.g. containing double dandas) becomes the final line.
+    """
+    lines = re.findall(r"[^।]*।|[^।]+", text.strip())
+    return [line.strip() for line in lines if line.strip()]
+
+
+def _split_inline_verse_to_lines(xml: etree._Element) -> list[etree._Element]:
+    """Split an inline verse into <l> elements at single danda (।) boundaries.
+
+    Handles verses with inline child elements (e.g. <supplied>, <unclear>).
+    Child elements are treated as atomic units; splits only happen in xml.text
+    and in each child's tail. Double dandas (॥) are normalized before splitting.
+    """
+
+    def _normalize_dandas(text: str) -> str:
+        text = re.sub(r"\s*॥\s*", " ॥ ", text)
+        return re.sub(r"॥ $", "॥", text)
+
+    def new_line() -> etree._Element:
+        el = etree.Element("l")
+        el.text = ""
+        return el
+
+    lines = []
+    current = new_line()
+
+    text = _normalize_dandas(xml.text or "")
+    if "।" in text:
+        parts = _split_by_dandas(text)
+        current.text = parts[0]
+        for part in parts[1:]:
+            lines.append(current)
+            current = new_line()
+            current.text = part
+    else:
+        current.text = text
+
+    for el in xml:
+        tail = _normalize_dandas(el.tail or "")
+        el.tail = None
+        current.append(el)
+
+        if "।" in tail:
+            parts = _split_by_dandas(tail)
+            el.tail = parts[0]
+            for part in parts[1:]:
+                lines.append(current)
+                current = new_line()
+                current.text = part
+        else:
+            el.tail = tail
+
+    lines.append(current)
+    return lines
+
+
 def _split_block_at_breaks(xml: etree._Element) -> list[etree._Element]:
     """Split a block element at <break/> markers, returning sub-blocks.
 
@@ -810,6 +923,11 @@ def _rewrite_block_to_tei_xml(xml: etree._Element, image_number: int):
         xml.tag = TEITag.NOTE
         xml.attrib["type"] = "footnote"
 
+    # <hyphen/> inlining: must run before -\n stripping so the resulting '-'
+    # is not treated as a line-break artifact.
+    if xml.tag in ("p", "lg"):
+        _inline_hyphen_elements(xml)
+
     # <p> text normalization
     if xml.tag == "p":
 
@@ -853,22 +971,29 @@ def _rewrite_block_to_tei_xml(xml: etree._Element, image_number: int):
 
     # <verse> line splitting
     if xml.tag == "lg":
-        lines = []
-        for fragment in (xml.text or "").strip().splitlines():
-            line = etree.Element("l")
-            line.text = fragment
-            lines.append(line)
+        full_text = "".join(xml.itertext())
+        is_inline = "\n" not in full_text and "।" in full_text
 
-        for el in xml:
-            if not lines:
-                lines.append(etree.Element("l"))
-            lines[-1].append(el)
-            for i, fragment in enumerate((el.tail or "").splitlines()):
-                if i == 0:
-                    el.tail = fragment.strip()
-                else:
+        if is_inline:
+            lines = _split_inline_verse_to_lines(xml)
+        else:
+            lines = []
+            text = (xml.text or "").strip()
+            for fragment in text.splitlines():
+                line = etree.Element("l")
+                line.text = fragment
+                lines.append(line)
+
+            for el in xml:
+                if not lines:
                     lines.append(etree.Element("l"))
-                    lines[-1].text = fragment.strip()
+                lines[-1].append(el)
+                for i, fragment in enumerate((el.tail or "").splitlines()):
+                    if i == 0:
+                        el.tail = fragment.strip()
+                    else:
+                        lines.append(etree.Element("l"))
+                        lines[-1].text = fragment.strip()
 
         xml.text = ""
         xml.clear()
@@ -1255,7 +1380,10 @@ def _write_tei_header(xf, project: db.Project, config: db.PublishConfig):
                             "Distributed by Ambuda under a Creative Commons CC0 1.0 Universal Licence (public domain)"
                         )
                 with xf.element("date"):
-                    xf.write(date.today().isoformat())
+                    pub_date = (
+                        text.published_at.date() if text.published_at else date.today()
+                    )
+                    xf.write(pub_date.isoformat())
 
             with xf.element("notesStmt"):
                 with xf.element("note"):
