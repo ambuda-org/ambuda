@@ -43,7 +43,7 @@ jobs:
         env:
           AMBUDA_IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v6
         with:
           name: image-name
           path: image-name
